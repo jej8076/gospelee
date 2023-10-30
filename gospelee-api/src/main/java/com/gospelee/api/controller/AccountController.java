@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import util.FieldUtil;
 
@@ -17,8 +16,6 @@ import java.util.NoSuchElementException;
 
 @Slf4j
 @RestController
-@RequestMapping("/test")
-@Validated
 @RequiredArgsConstructor
 public class AccountController {
 
@@ -31,8 +28,8 @@ public class AccountController {
     }
 
     @PostMapping("/account")
-    public ResponseEntity<Object> saveAccount(@RequestBody @Valid AccountDto accountDto) throws IllegalAccessException, ClassNotFoundException, InstantiationException, NoSuchMethodException, InvocationTargetException {
-        Account account = (Account) FieldUtil.copyFields(accountDto);
+    public ResponseEntity<Object> saveAccount(final @RequestBody @Valid AccountDto accountDto) throws IllegalAccessException, ClassNotFoundException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+        Account account = (Account) FieldUtil.toEntity(accountDto);
         accountService.createAccount(account);
         return new ResponseEntity<>(HttpStatus.OK);
     }
