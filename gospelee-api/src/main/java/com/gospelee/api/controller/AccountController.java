@@ -1,6 +1,6 @@
 package com.gospelee.api.controller;
 
-import com.gospelee.api.dto.AccountDto;
+import com.gospelee.api.dto.AccountVo;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.service.AccountService;
 import jakarta.validation.Valid;
@@ -17,19 +17,20 @@ import java.util.NoSuchElementException;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@RequestMapping(value = "/account")
 public class AccountController {
 
     private final AccountService accountService;
 
-    @GetMapping("/account/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Object> getAccountById(@PathVariable(name = "id") String id) {
-        return new ResponseEntity<>(accountService.getAccount(id)
-                .orElseThrow(() -> new NoSuchElementException("unknown loginid")), HttpStatus.OK);
+        return new ResponseEntity<>(accountService.getAccountByPhone(id)
+                .orElseThrow(() -> new NoSuchElementException("존재하는 핸드폰 번호가 없습니다 : [" + "phone : " + id + "]")), HttpStatus.OK);
     }
 
-    @PostMapping("/account")
-    public ResponseEntity<Object> saveAccount(final @RequestBody @Valid AccountDto accountDto) throws IllegalAccessException, ClassNotFoundException, InstantiationException, NoSuchMethodException, InvocationTargetException {
-        Account account = (Account) FieldUtil.toEntity(accountDto);
+    @PostMapping("/")
+    public ResponseEntity<Object> saveAccount(final @RequestBody @Valid AccountVo accountVo) throws IllegalAccessException, ClassNotFoundException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+        Account account = (Account) FieldUtil.toEntity(accountVo);
         accountService.createAccount(account);
         return new ResponseEntity<>(HttpStatus.OK);
     }

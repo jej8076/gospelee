@@ -5,7 +5,7 @@ import com.gospelee.api.entity.Account;
 import java.util.Optional;
 
 public interface AccountService {
-    Optional<Account> getAccount(final String id);
+    Optional<Account> getAccountByPhone(final String Phone);
 
     void createAccount(Account account);
 }

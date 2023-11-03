@@ -14,8 +14,8 @@ public class FieldUtil {
     public static<T> Object toEntity(T source) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Class<?> sourceClass = source.getClass();
 
-        String className = ENTITY_PACKAGE_PATH + "." + sourceClass.getSimpleName().replace("Dto", "Factory");
-        String entityName = ENTITY_PACKAGE_PATH + "." + sourceClass.getSimpleName().replace("Dto", "");
+        String className = ENTITY_PACKAGE_PATH + "." + sourceClass.getSimpleName().replace("Vo", "Factory");
+        String entityName = ENTITY_PACKAGE_PATH + "." + sourceClass.getSimpleName().replace("Vo", "");
 
         /* PROTECTED 된 entity에 대해 factoryClass를 사용하여 우회하여 entity를 가져온다 */
         Class<?> factoryClass = Class.forName(className);

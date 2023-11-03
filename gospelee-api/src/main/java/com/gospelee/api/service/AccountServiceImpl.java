@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class AccountServiceImpl implements AccountService{
+public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
 
@@ -16,13 +16,14 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
-    public Optional<Account> getAccount(String slaveId) {
-        return accountRepository.findById(slaveId);
+    public Optional<Account> getAccountByPhone(String phone) {
+        return accountRepository.findByPhone(phone);
     }
 
     public void createAccount(Account account) {
-        // TODO phone 컬럼에 대한 중복체크를 하던지 아니면 primary key 로 만든다
-        accountRepository.save(account);
+        accountRepository.findByPhone(account.getPhone()).ifPresentOrElse(acc -> {
+            throw new RuntimeException("중복됨ㅋ");
+        }, () -> accountRepository.save(account));
     }
 
 }

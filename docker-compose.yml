@@ -1,0 +1,23 @@
+version: '3.8'
+volumes:
+    gospelee:
+        external: true
+        name: gospelee
+services:
+    mysql-service:
+        container_name: mysql_8.0.34
+        image: mysql
+        ports:
+          - "3306:3306"
+        volumes:
+          # - gospelee:/var/lib/mysql
+          # - ./data/mysql:/var/lib/mysql:rw
+          - ./data:/var/lib/mysql:rw
+        env_file: .env
+        environment:
+          - TZ=Asia/Seoul
+        restart: always
+        command:
+          - --character-set-server=utf8mb4
+          - --collation-server=utf8mb4_unicode_ci
+          - --character-set-client-handshake=FALSE
