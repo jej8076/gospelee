@@ -28,7 +28,7 @@ public class AccountController {
                 .orElseThrow(() -> new NoSuchElementException("존재하는 핸드폰 번호가 없습니다 : [" + "phone : " + id + "]")), HttpStatus.OK);
     }
 
-    @PostMapping("/")
+    @PostMapping("")
     public ResponseEntity<Object> saveAccount(final @RequestBody @Valid AccountVo accountVo) throws IllegalAccessException, ClassNotFoundException, InstantiationException, NoSuchMethodException, InvocationTargetException {
         Account account = (Account) FieldUtil.toEntity(accountVo);
         accountService.createAccount(account);
