@@ -35,10 +35,10 @@ public class Bible extends EditInfomation {
     @Column
     private String testament;
 
-    @Column
-    private String long_label;
+    @Column(name = "long_label")
+    private String longLabel;
 
-    @Column
-    private String short_label;
+    @Column(name = "short_label")
+    private String shortLabel;
 
 }

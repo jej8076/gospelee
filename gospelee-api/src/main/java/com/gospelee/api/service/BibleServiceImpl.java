@@ -20,4 +20,9 @@ public class BibleServiceImpl implements BibleService {
     public Optional<List<Bible>> findByBookAndChapter(Integer book, Integer chapter) {
         return bibleRepository.findByBookAndChapter(book, chapter);
     }
+
+    @Override
+    public Optional<List<Bible>> findKorByShortLabelAndChapter(String short_label, Integer chapter) {
+        return bibleRepository.findByShortLabelAndChapter(short_label, chapter);
+    }
 }

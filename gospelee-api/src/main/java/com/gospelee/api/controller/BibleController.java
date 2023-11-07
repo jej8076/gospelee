@@ -1,7 +1,6 @@
 package com.gospelee.api.controller;
 
 import com.gospelee.api.service.BibleService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,6 +21,12 @@ public class BibleController {
     public ResponseEntity<Object> getBibleBy(@PathVariable(name = "book") Integer book, @PathVariable(name = "chapter") Integer chapter) {
         return new ResponseEntity<>(bibleService.findByBookAndChapter(book, chapter)
                 .orElseThrow(() -> new NoSuchElementException("존재하는 성경이 없습니다 : [" + "book : " + book + "]")), HttpStatus.OK);
+    }
+
+    @GetMapping("/kor/{book}/{chapter}")
+    public ResponseEntity<Object> getBibleBy(@PathVariable(name = "book") String short_label, @PathVariable(name = "chapter") Integer chapter) {
+        return new ResponseEntity<>(bibleService.findKorByShortLabelAndChapter(short_label, chapter)
+                .orElseThrow(() -> new NoSuchElementException("존재하는 성경이 없습니다 : [" + "short_label : " + short_label + "]")), HttpStatus.OK);
     }
 
 //    @PostMapping("")

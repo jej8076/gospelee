@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface BibleService {
     Optional<List<Bible>> findByBookAndChapter(Integer book, Integer chapter);
+
+    Optional<List<Bible>> findKorByShortLabelAndChapter(String short_label, Integer chapter);
 }

@@ -9,4 +9,6 @@ import java.util.Optional;
 
 public interface BibleRepository extends JpaRepository<Bible, String> {
     Optional<List<Bible>> findByBookAndChapter(Integer book, Integer chapter);
+
+    Optional<List<Bible>> findByShortLabelAndChapter(String short_label, Integer chapter);
 }
