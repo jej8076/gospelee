@@ -41,4 +41,10 @@ public class Bible extends EditInfomation {
     @Column(name = "short_label")
     private String shortLabel;
 
+    @Column(name = "long_label_eng")
+    private String longLabelEng;
+
+    @Column(name = "short_label_eng")
+    private String shortLabelEng;
+
 }
