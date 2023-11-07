@@ -31,16 +31,10 @@ public class BibleController {
             return new ResponseEntity<>(bibleService.findKorByShortLabelAndChapter(short_label, chapter)
                     .orElseThrow(() -> new NoSuchElementException("존재하는 성경이 없습니다 : [" + "short_label : " + short_label + "]")), HttpStatus.OK);
         } else {
-
+            // _eng 라벨을 where조건으로 데이터 호출
+            return new ResponseEntity<>(HttpStatus.OK);
         }
 
     }
-
-//    @PostMapping("")
-//    public ResponseEntity<Object> saveAccount(final @RequestBody @Valid AccountVo accountVo) throws IllegalAccessException, ClassNotFoundException, InstantiationException, NoSuchMethodException, InvocationTargetException {
-//        Account account = (Account) FieldUtil.toEntity(accountVo);
-//        accountService.createAccount(account);
-//        return new ResponseEntity<>(HttpStatus.OK);
-//    }
 
 }
