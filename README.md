@@ -8,4 +8,7 @@
 ### ENTITY
 
 1. 컬럼명에 _(언더바)가 있을 경우 entity field는 camel case로 작성한다.
-2. 
+
+## 참고
+
+> - 성경약어표 : https://www.bskorea.or.kr/bible/korbib_shortword02.php
