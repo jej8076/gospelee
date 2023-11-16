@@ -27,7 +27,7 @@ public class Bible extends EditInfomation {
     private int chapter;
 
     @Column
-    private int paragraph;
+    private int verse;
 
     @Column
     private String sentence;

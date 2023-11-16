@@ -17,7 +17,7 @@ public class BibleVo {
 
     private int chapter;
 
-    private int paragraph;
+    private int verse;
 
     private String sentence;
 
