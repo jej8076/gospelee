@@ -8,4 +8,6 @@ public interface AccountService {
     Optional<Account> getAccountByPhone(final String Phone);
 
     void createAccount(Account account);
+
+    Optional<String> getKakaoAuthorize(String code);
 }

@@ -4,6 +4,8 @@ import com.gospelee.api.entity.common.EditInfomation;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @ToString
 @Getter

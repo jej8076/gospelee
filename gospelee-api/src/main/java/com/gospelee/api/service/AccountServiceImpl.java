@@ -4,6 +4,7 @@ import com.gospelee.api.entity.Account;
 import com.gospelee.api.repository.AccountRepository;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
 
 @Service
@@ -24,6 +25,11 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.findByPhone(account.getPhone()).ifPresentOrElse(acc -> {
             throw new RuntimeException("중복됨ㅋ");
         }, () -> accountRepository.save(account));
+    }
+
+    public Optional<String> getKakaoAuthorize(String code) {
+        Optional<String> result = Optional.empty();
+        return result;
     }
 
 }
