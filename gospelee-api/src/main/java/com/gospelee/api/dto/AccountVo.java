@@ -12,14 +12,17 @@ public class AccountVo {
     private String name;
 
     @RRN
-    @NotEmpty(message = "주민번호도 필수임 ㅋ")
+//    @NotEmpty(message = "주민번호도 필수임 ㅋ")
     private String rrn;
 
     @PhoneNumber
     @NotEmpty(message = "핸드폰 번호는 필수 값입니다.. (엄 근 진)")
     private String phone;
 
+    private AccountKakaoTokenVo accountKakaoTokenVo;
+
     private void setRrn(String rrn) {
         this.rrn = rrn.replace("-", "");
     }
+
 }

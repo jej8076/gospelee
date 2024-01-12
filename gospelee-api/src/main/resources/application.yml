@@ -7,7 +7,7 @@ spring:
   application:
     name: api
   datasource:
-    url: jdbc:mysql://localhost:3306/gospelee?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://ec2-43-201-34-63.ap-northeast-2.compute.amazonaws.com:3306/gospelee?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
     username: gospelee
     password: 1234qwer
   jpa:

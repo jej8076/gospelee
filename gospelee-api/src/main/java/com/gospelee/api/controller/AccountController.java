@@ -35,8 +35,8 @@ public class AccountController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/kakao/authorize")
-    public ResponseEntity<Object> kakaoAuthorize(@RequestParam String code) {
+    @PutMapping("/kakao/login")
+    public ResponseEntity<Object> kakaoAuthorize(@RequestBody String code) {
         return new ResponseEntity<>(accountService.getKakaoAuthorize(code)
                 .orElseThrow(() -> new NoSuchElementException("fail" + "code : " + code + "]")), HttpStatus.OK);
     }

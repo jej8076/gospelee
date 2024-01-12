@@ -1,5 +1,6 @@
 package com.gospelee.api.entity;
 
+import com.gospelee.api.dto.AccountKakaoTokenVo;
 import com.gospelee.api.entity.common.EditInfomation;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,5 +26,15 @@ public class Account extends EditInfomation {
 
     @Column
     private String phone;
+
+    @Column
+    private String token;
+
+    @OneToOne
+    @JoinColumn(name = "")
+    private AccountKakaoToken accountKakaoToken;
+
+    @OneToMany(mappedBy = "parentAccount")
+    private List<AccountKakaoToken> accountKakaoTokenList;
 
 }
