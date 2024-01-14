@@ -28,7 +28,18 @@ public class AccountController {
                 .orElseThrow(() -> new NoSuchElementException("존재하는 핸드폰 번호가 없습니다 : [" + "phone : " + id + "]")), HttpStatus.OK);
     }
 
-    @PostMapping("")
+    /**
+     * 카카오 API를 사용해 클라이언트 자체 로그인 성공 후 return된 결과로 이 API를 호출하여
+     * 계정정보와 토큰을 저장하며 최종 로그인 성공시키는 API
+     * @param accountVo
+     * @return
+     * @throws IllegalAccessException
+     * @throws ClassNotFoundException
+     * @throws InstantiationException
+     * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     */
+    @PostMapping("/kakao/login")
     public ResponseEntity<Object> saveAccount(final @RequestBody @Valid AccountVo accountVo) throws IllegalAccessException, ClassNotFoundException, InstantiationException, NoSuchMethodException, InvocationTargetException {
         Account account = (Account) FieldUtil.toEntity(accountVo);
         accountService.createAccount(account);

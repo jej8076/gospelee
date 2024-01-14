@@ -30,11 +30,10 @@ public class AccountServiceImpl implements AccountService {
     public void createAccount(Account account) {
         int result = 0;
         accountRepository.findByPhone(account.getPhone()).ifPresentOrElse(acc -> {
-//            throw new RuntimeException("중복됨ㅋ");
-
+            // 이미 계정이 존재하는 경우(핸드폰번호가 존재함)
             List<AccountKakaoToken> tokenList = acc.getAccountKakaoTokenList();
             if (tokenList.size() < 1) {
-
+                // 존재하는 토근이 아닌 경우 토큰 정보 저장
                 AccountKakaoToken accountKakaoToken = AccountKakaoToken.builder()
                         .parentUid(acc.getUid())
                         .accessToken(account.getAccountKakaoToken().getAccessToken())
@@ -45,15 +44,15 @@ public class AccountServiceImpl implements AccountService {
                         .deviceInfo(account.getAccountKakaoToken().getDeviceInfo())
                         .build();
                 accountKakaoTokenRepository.save(accountKakaoToken);
+            } else {
+                // 토큰이 존재하는 경우 바로 로그인 성공처리
             }
-
 
         }, () -> {
 
             Account savedAccount = accountRepository.save(account);
             if (savedAccount != null && savedAccount.getPhone() != null) {
-                // 계정 최초 등록 성공 로직
-
+                // 계정 최초 등록 성공 후 토큰 정보 저장
                 AccountKakaoToken accountKakaoToken = AccountKakaoToken.builder()
                         .parentUid(savedAccount.getUid())
                         .accessToken(account.getAccountKakaoToken().getAccessToken())
@@ -63,7 +62,6 @@ public class AccountServiceImpl implements AccountService {
                         .idToken(account.getAccountKakaoToken().getIdToken())
                         .deviceInfo(account.getAccountKakaoToken().getDeviceInfo())
                         .build();
-
                 accountKakaoTokenRepository.save(accountKakaoToken);
             } else {
                 throw new RuntimeException("Account 저장 실패");

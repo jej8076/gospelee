@@ -24,12 +24,12 @@ public class AccountKakaoToken extends EditInfomation {
     @Column
     private long uid;
 
-//    @Column
-//    private long parentUid;
+    @Column
+    private long parentUid;
 
-    @ManyToOne
-    @JoinColumn(name = "parentUid", nullable = false)
-    private Account parentAccount;
+//    @ManyToOne
+//    @JoinColumn(name = "parentUid", nullable = false)
+//    private long parentAccount;
 
     @Column
     private String accessToken;
@@ -51,8 +51,8 @@ public class AccountKakaoToken extends EditInfomation {
 
 
     @Builder
-    public AccountKakaoToken(Account parentAccount, String accessToken, LocalDateTime accessExpiresAt, String refreshToken, LocalDateTime refreshTokenExpiresAt, String idToken, String deviceInfo) {
-        this.parentAccount = parentAccount;
+    public AccountKakaoToken(long parentUid, String accessToken, LocalDateTime accessExpiresAt, String refreshToken, LocalDateTime refreshTokenExpiresAt, String idToken, String deviceInfo) {
+        this.parentUid = parentUid;
         this.accessToken = accessToken;
         this.accessExpiresAt = accessExpiresAt;
         this.refreshToken = refreshToken;

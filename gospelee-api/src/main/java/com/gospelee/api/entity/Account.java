@@ -31,10 +31,11 @@ public class Account extends EditInfomation {
     private String token;
 
     @OneToOne
-    @JoinColumn(name = "")
+    @JoinColumn(name = "accessToken")
     private AccountKakaoToken accountKakaoToken;
 
-    @OneToMany(mappedBy = "parentAccount")
+    @OneToMany
+    @JoinColumn(name = "parentUid")
     private List<AccountKakaoToken> accountKakaoTokenList;
 
 }
