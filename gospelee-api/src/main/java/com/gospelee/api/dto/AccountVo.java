@@ -11,7 +11,7 @@ public class AccountVo {
     @NotEmpty(message = "이름 정도는 알려줄 수 있잖아?")
     private String name;
 
-    @RRN
+//    @RRN
 //    @NotEmpty(message = "주민번호도 필수임 ㅋ")
     private String rrn;
 

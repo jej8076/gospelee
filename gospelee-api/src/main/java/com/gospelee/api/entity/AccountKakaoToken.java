@@ -35,7 +35,7 @@ public class AccountKakaoToken extends EditInfomation {
     private String accessToken;
 
     @Column
-    private LocalDateTime accessExpiresAt;
+    private LocalDateTime accessTokenExpiresAt;
 
     @Column
     private String refreshToken;
@@ -51,10 +51,10 @@ public class AccountKakaoToken extends EditInfomation {
 
 
     @Builder
-    public AccountKakaoToken(long parentUid, String accessToken, LocalDateTime accessExpiresAt, String refreshToken, LocalDateTime refreshTokenExpiresAt, String idToken, String deviceInfo) {
+    public AccountKakaoToken(long parentUid, String accessToken, LocalDateTime accessTokenExpiresAt, String refreshToken, LocalDateTime refreshTokenExpiresAt, String idToken, String deviceInfo) {
         this.parentUid = parentUid;
         this.accessToken = accessToken;
-        this.accessExpiresAt = accessExpiresAt;
+        this.accessTokenExpiresAt = accessTokenExpiresAt;
         this.refreshToken = refreshToken;
         this.refreshTokenExpiresAt = refreshTokenExpiresAt;
         this.idToken = idToken;

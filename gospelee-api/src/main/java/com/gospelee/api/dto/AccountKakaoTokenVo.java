@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 public class AccountKakaoTokenVo {
 	private String accessToken;
 
-	private LocalDateTime accessExpiresAt;
+	private LocalDateTime accessTokenExpiresAt;
 
 	private String refreshToken;
 
