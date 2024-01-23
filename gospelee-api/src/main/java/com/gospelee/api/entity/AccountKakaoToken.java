@@ -43,7 +43,7 @@ public class AccountKakaoToken extends EditInfomation {
     @Column
     private LocalDateTime refreshTokenExpiresAt;
 
-    @Column
+    @Column(length = 2000)
     private String idToken;
 
     @Column
