@@ -42,8 +42,8 @@ public class AccountController {
     @PostMapping("/kakao/login")
     public ResponseEntity<Object> saveAccount(final @RequestBody @Valid AccountVo accountVo) throws IllegalAccessException, ClassNotFoundException, InstantiationException, NoSuchMethodException, InvocationTargetException {
         Account account = (Account) FieldUtil.toEntity(accountVo);
-        accountService.createAccount(account);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(accountService.createAccount(account)
+                .orElseThrow(() -> new RuntimeException("계정 조회 혹은 등록 실패 : [" + "accountVo : " + accountVo.getPhone() + "]")), HttpStatus.OK);
     }
 
     @PutMapping("/kakao/login")
