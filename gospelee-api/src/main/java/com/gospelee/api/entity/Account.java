@@ -38,4 +38,16 @@ public class Account extends EditInfomation {
     @JoinColumn(name = "parentUid")
     private List<AccountKakaoToken> accountKakaoTokenList;
 
+    public AccountKakaoToken toAccountKakaoToken(long parentUid){
+        return AccountKakaoToken.builder()
+                .parentUid(parentUid)
+                .accessToken(this.getAccountKakaoToken().getAccessToken())
+                .accessTokenExpiresAt(this.getAccountKakaoToken().getAccessTokenExpiresAt())
+                .refreshToken(this.getAccountKakaoToken().getRefreshToken())
+                .refreshTokenExpiresAt(this.getAccountKakaoToken().getRefreshTokenExpiresAt())
+                .idToken(this.getAccountKakaoToken().getIdToken())
+                .deviceInfo(this.getAccountKakaoToken().getDeviceInfo())
+                .build();
+    }
+
 }

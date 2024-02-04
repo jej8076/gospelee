@@ -7,6 +7,7 @@ import com.gospelee.api.repository.AccountRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -33,15 +34,14 @@ public class AccountServiceImpl implements AccountService {
             List<AccountKakaoToken> tokenList = acc.getAccountKakaoTokenList();
             if (tokenList.isEmpty()) {
                 // 토큰이 존재하지 않으면 새로운 토큰을 저장함
-                AccountKakaoToken accountKakaoToken = AccountKakaoToken.builder()
-                        .parentUid(acc.getUid())
-                        .accessToken(account.getAccountKakaoToken().getAccessToken())
-                        .accessTokenExpiresAt(account.getAccountKakaoToken().getAccessTokenExpiresAt())
-                        .refreshToken(account.getAccountKakaoToken().getRefreshToken())
-                        .refreshTokenExpiresAt(account.getAccountKakaoToken().getRefreshTokenExpiresAt())
-                        .idToken(account.getAccountKakaoToken().getIdToken())
-                        .deviceInfo(account.getAccountKakaoToken().getDeviceInfo())
-                        .build();
+                AccountKakaoToken accountKakaoToken = account.toAccountKakaoToken(acc.getUid());
+                accountKakaoTokenRepository.save(accountKakaoToken);
+            }else{
+                // 토큰이 존재하면 모두 지우고 새로 저장함
+                for(AccountKakaoToken token : tokenList){
+                    accountKakaoTokenRepository.deleteById(String.valueOf(token.getUid()));
+                }
+                AccountKakaoToken accountKakaoToken = account.toAccountKakaoToken(acc.getUid());
                 accountKakaoTokenRepository.save(accountKakaoToken);
             }
 
@@ -52,15 +52,7 @@ public class AccountServiceImpl implements AccountService {
             Account savedAccount = accountRepository.save(account);
             if (savedAccount.getPhone() != null) {
                 // 계정 최초 등록 성공 후 토큰 정보 저장
-                AccountKakaoToken accountKakaoToken = AccountKakaoToken.builder()
-                        .parentUid(savedAccount.getUid())
-                        .accessToken(account.getAccountKakaoToken().getAccessToken())
-                        .accessTokenExpiresAt(account.getAccountKakaoToken().getAccessTokenExpiresAt())
-                        .refreshToken(account.getAccountKakaoToken().getRefreshToken())
-                        .refreshTokenExpiresAt(account.getAccountKakaoToken().getRefreshTokenExpiresAt())
-                        .idToken(account.getAccountKakaoToken().getIdToken())
-                        .deviceInfo(account.getAccountKakaoToken().getDeviceInfo())
-                        .build();
+                AccountKakaoToken accountKakaoToken = account.toAccountKakaoToken(savedAccount.getUid());
                 accountKakaoTokenRepository.save(accountKakaoToken);
             } else {
                 throw new RuntimeException("Account 저장 실패");
@@ -72,9 +64,15 @@ public class AccountServiceImpl implements AccountService {
 
     }
 
-    public Optional<String> getKakaoAuthorize(String code) {
-        Optional<String> result = Optional.empty();
-        return result;
+    /**
+     *
+     * @param token
+     * @return
+     */
+    public Optional<Account> getAccountByToken(String token) {
+        return accountKakaoTokenRepository.findByAccessToken(token)
+                .map(result -> accountRepository.findById(String.valueOf(result.getParentUid())))
+                .orElseThrow(() -> new NoSuchElementException("No account found with the given token: " + token));
     }
 
 }

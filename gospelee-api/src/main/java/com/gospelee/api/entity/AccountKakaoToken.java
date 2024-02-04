@@ -11,14 +11,6 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AccountKakaoToken extends EditInfomation {
-    /*
-    accessToken = "_OsMmILbWx-QoyAksKKWDyW4HT-7M2iYgcUKPXTbAAABjOxgGyOSBpCp5rpDbg"
-    expiresAt = {DateTime} 2024-01-10 00:59:26.881
-    refreshToken = "9rs4OXuYWRyBT4FnGSteBz4QIxggayxkSN0KPXTbAAABjOxgGx-SBpCp5rpDbg"
-    refreshTokenExpiresAt = {DateTime} 2024-03-09 12:59:26.881
-    scopes = {_GrowableList} size = 2
-    idToken = "eyJraWQiOiI5ZjI1MmRhZGQ1ZjIzM2Y5M2QyZmE1MjhkMTJmZWEiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJiYzlhYzBmZDRjZDE3YTg1OGM5NzF"
-     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
@@ -60,4 +52,5 @@ public class AccountKakaoToken extends EditInfomation {
         this.idToken = idToken;
         this.deviceInfo = deviceInfo;
     }
+
 }

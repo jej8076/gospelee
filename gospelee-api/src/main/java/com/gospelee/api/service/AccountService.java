@@ -10,5 +10,5 @@ public interface AccountService {
 
     Optional<Account> createAccount(Account account);
 
-    Optional<String> getKakaoAuthorize(String code);
+    Optional<Account> getAccountByToken(String token);
 }

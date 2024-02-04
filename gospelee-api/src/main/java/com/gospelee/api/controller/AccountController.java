@@ -46,10 +46,10 @@ public class AccountController {
                 .orElseThrow(() -> new RuntimeException("계정 조회 혹은 등록 실패 : [" + "accountVo : " + accountVo.getPhone() + "]")), HttpStatus.OK);
     }
 
-    @PutMapping("/kakao/login")
-    public ResponseEntity<Object> kakaoAuthorize(@RequestBody String code) {
-        return new ResponseEntity<>(accountService.getKakaoAuthorize(code)
-                .orElseThrow(() -> new NoSuchElementException("fail" + "code : " + code + "]")), HttpStatus.OK);
+    @GetMapping("/get/{token}")
+    public ResponseEntity<Object> kakaoAuthorize(@PathVariable("token") String token) {
+        return new ResponseEntity<>(accountService.getAccountByToken(token)
+                .orElseThrow(() -> new NoSuchElementException("fail" + "code : " + token + "]")), HttpStatus.OK);
     }
 
 }
