@@ -1,14 +1,12 @@
 package com.gospelee.api.entity;
 
 import com.gospelee.api.entity.common.EditInfomation;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @ToString
@@ -21,34 +19,22 @@ public class AccountBibleWrite extends EditInfomation {
     private int idx;
 
     @Column
-    @ManyToOne()
     private long accountUid;
+
+    // 구약 = 1, 신약 = 2
+    @Column
+    private int cate;
 
     @Column
     private int book;
 
+    // N장
     @Column
     private int chapter;
 
+    // 읽은 횟수
     @Column
-    private int verse;
-
-    @Column
-    private String sentence;
-
-    @Column
-    private String testament;
-
-    @Column(name = "long_label")
-    private String longLabel;
-
-    @Column(name = "short_label")
-    private String shortLabel;
-
-    @Column(name = "long_label_eng")
-    private String longLabelEng;
-
-    @Column(name = "short_label_eng")
-    private String shortLabelEng;
+    @ColumnDefault("1")
+    private int count;
 
 }
