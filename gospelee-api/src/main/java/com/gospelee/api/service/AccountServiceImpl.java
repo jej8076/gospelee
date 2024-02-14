@@ -65,7 +65,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     /**
-     *
+     * token값으로 account 정보를 가져온다
      * @param token
      * @return
      */

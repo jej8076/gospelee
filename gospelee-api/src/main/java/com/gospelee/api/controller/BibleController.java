@@ -1,11 +1,14 @@
 package com.gospelee.api.controller;
 
+import com.gospelee.api.entity.Account;
+import com.gospelee.api.entity.AccountBibleWrite;
 import com.gospelee.api.service.BibleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import util.FieldUtil;
 
 import java.util.NoSuchElementException;
 
@@ -34,7 +37,12 @@ public class BibleController {
             // _eng 라벨을 where조건으로 데이터 호출
             return new ResponseEntity<>(HttpStatus.OK);
         }
+    }
 
+    @PostMapping("/write/{phone}")
+    public ResponseEntity<Object> postBibleWriteByPhone(@PathVariable("phone") String phone) {
+        return new ResponseEntity<>(bibleService.findBibleWriteByPhone(phone)
+                .orElseThrow(() -> new NoSuchElementException("fail " + "phone : " + phone + "]")), HttpStatus.OK);
     }
 
 }
