@@ -1,5 +1,6 @@
 package com.gospelee.api.controller;
 
+import com.gospelee.api.dto.Bible.AccountBibleWriteDTO;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.AccountBibleWrite;
 import com.gospelee.api.service.BibleService;
@@ -46,9 +47,9 @@ public class BibleController {
     }
 
     @PostMapping("/write/{phone}")
-    public ResponseEntity<Object> postBibleWriteByPhone(@PathVariable("phone") String phone) {
-        return new ResponseEntity<>(bibleService.findBibleWriteByPhone(phone)
-                .orElseThrow(() -> new NoSuchElementException("fail " + "phone : " + phone + "]")), HttpStatus.OK);
+    public ResponseEntity<Object> postBibleWriteByPhone(@RequestBody AccountBibleWriteDTO dto) {
+        return new ResponseEntity<>(bibleService.saveBibleWrite(dto)
+                .orElseThrow(() -> new NoSuchElementException("save fail reason by [" + dto.toString() + "]")), HttpStatus.OK);
     }
 
 

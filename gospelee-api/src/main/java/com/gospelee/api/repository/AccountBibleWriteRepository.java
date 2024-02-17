@@ -1,7 +1,6 @@
 package com.gospelee.api.repository;
 
 import com.gospelee.api.entity.AccountBibleWrite;
-import com.gospelee.api.entity.Bible;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
