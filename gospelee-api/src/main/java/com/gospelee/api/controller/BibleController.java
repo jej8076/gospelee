@@ -39,10 +39,17 @@ public class BibleController {
         }
     }
 
+    @GetMapping("/write/{phone}")
+    public ResponseEntity<Object> getBibleWriteByPhone(@PathVariable("phone") String phone) {
+        return new ResponseEntity<>(bibleService.findBibleWriteByPhone(phone)
+                .orElseThrow(() -> new NoSuchElementException("fail " + "phone : " + phone + "]")), HttpStatus.OK);
+    }
+
     @PostMapping("/write/{phone}")
     public ResponseEntity<Object> postBibleWriteByPhone(@PathVariable("phone") String phone) {
         return new ResponseEntity<>(bibleService.findBibleWriteByPhone(phone)
                 .orElseThrow(() -> new NoSuchElementException("fail " + "phone : " + phone + "]")), HttpStatus.OK);
     }
+
 
 }

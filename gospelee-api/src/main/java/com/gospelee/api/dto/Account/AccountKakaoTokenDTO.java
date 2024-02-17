@@ -1,10 +1,10 @@
-package com.gospelee.api.dto;
+package com.gospelee.api.dto.Account;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Getter
-public class AccountKakaoTokenVo {
+public class AccountKakaoTokenDTO {
 	private String accessToken;
 
 	private LocalDateTime accessTokenExpiresAt;

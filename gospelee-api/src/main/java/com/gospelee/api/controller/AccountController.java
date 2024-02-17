@@ -1,6 +1,6 @@
 package com.gospelee.api.controller;
 
-import com.gospelee.api.dto.AccountVo;
+import com.gospelee.api.dto.Account.AccountDTO;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.service.AccountService;
 import jakarta.validation.Valid;
@@ -31,7 +31,7 @@ public class AccountController {
     /**
      * 카카오 API를 사용해 클라이언트 자체 로그인 성공 후 return된 결과로 이 API를 호출하여
      * 계정정보와 토큰을 저장하며 최종 로그인 성공시키는 API
-     * @param accountVo
+     * @param accountDTO
      * @return
      * @throws IllegalAccessException
      * @throws ClassNotFoundException
@@ -40,10 +40,10 @@ public class AccountController {
      * @throws InvocationTargetException
      */
     @PostMapping("/kakao/login")
-    public ResponseEntity<Object> saveAccount(final @RequestBody @Valid AccountVo accountVo) throws IllegalAccessException, ClassNotFoundException, InstantiationException, NoSuchMethodException, InvocationTargetException {
-        Account account = (Account) FieldUtil.toEntity(accountVo);
+    public ResponseEntity<Object> saveAccount(final @RequestBody @Valid AccountDTO accountDTO) throws IllegalAccessException, ClassNotFoundException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+        Account account = (Account) FieldUtil.toEntity(accountDTO);
         return new ResponseEntity<>(accountService.createAccount(account)
-                .orElseThrow(() -> new RuntimeException("계정 조회 혹은 등록 실패 : [" + "accountVo : " + accountVo.getPhone() + "]")), HttpStatus.OK);
+                .orElseThrow(() -> new RuntimeException("계정 조회 혹은 등록 실패 : [" + "accountVo : " + accountDTO.getPhone() + "]")), HttpStatus.OK);
     }
 
     @GetMapping("/get/{token}")

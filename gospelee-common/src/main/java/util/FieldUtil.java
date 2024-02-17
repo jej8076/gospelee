@@ -15,8 +15,8 @@ public class FieldUtil {
     public static<T> Object toEntity(T source) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Class<?> sourceClass = source.getClass();
 
-        String className = ENTITY_PACKAGE_PATH + "." + sourceClass.getSimpleName().replace("Vo", "Factory");
-        String entityName = ENTITY_PACKAGE_PATH + "." + sourceClass.getSimpleName().replace("Vo", "");
+        String className = ENTITY_PACKAGE_PATH + "." + sourceClass.getSimpleName().replace("DTO", "Factory");
+        String entityName = ENTITY_PACKAGE_PATH + "." + sourceClass.getSimpleName().replace("DTO", "");
 
         /* PROTECTED 된 entity에 대해 factoryClass를 사용하여 우회하여 entity를 가져온다 */
         Class<?> factoryClass = Class.forName(className);
@@ -33,9 +33,9 @@ public class FieldUtil {
             try {
 
                 String sourceFieldName = sourceField.getName();
-                if(sourceField.getType().getName().endsWith("Vo")){
-                    // field가 Vo로 끝나는 경우
-                    sourceFieldName = sourceFieldName.replace("Vo", "");
+                if(sourceField.getType().getName().endsWith("DTO")){
+                    // field가 DTO로 끝나는 경우
+                    sourceFieldName = sourceFieldName.replace("DTO", "");
                 }
 
                 Field destinationField = destinationClass.getDeclaredField(sourceFieldName);
@@ -72,8 +72,8 @@ public class FieldUtil {
     private static Object convertValue(Object source, Class<?> targetType) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Class<?> sourceClass = source.getClass();
 
-        String className = ENTITY_PACKAGE_PATH + "." + sourceClass.getSimpleName().replace("Vo", "Factory");
-        String entityName = ENTITY_PACKAGE_PATH + "." + sourceClass.getSimpleName().replace("Vo", "");
+        String className = ENTITY_PACKAGE_PATH + "." + sourceClass.getSimpleName().replace("DTO", "Factory");
+        String entityName = ENTITY_PACKAGE_PATH + "." + sourceClass.getSimpleName().replace("DTO", "");
 
         /* PROTECTED 된 entity에 대해 factoryClass를 사용하여 우회하여 entity를 가져온다 */
         Class<?> factoryClass = Class.forName(className);
@@ -90,9 +90,9 @@ public class FieldUtil {
             try {
 
                 String sourceFieldName = sourceField.getName();
-                if(sourceField.getType().getName().endsWith("Vo")){
-                    // field가 Vo로 끝나는 경우
-                    sourceFieldName = sourceFieldName.replace("Vo", "");
+                if(sourceField.getType().getName().endsWith("DTO")){
+                    // field가 DTO로 끝나는 경우
+                    sourceFieldName = sourceFieldName.replace("DTO", "");
                 }
 
                 Field destinationField = destinationClass.getDeclaredField(sourceFieldName);

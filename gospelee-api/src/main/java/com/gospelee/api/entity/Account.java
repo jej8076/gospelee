@@ -1,6 +1,5 @@
 package com.gospelee.api.entity;
 
-import com.gospelee.api.dto.AccountKakaoTokenVo;
 import com.gospelee.api.entity.common.EditInfomation;
 import jakarta.persistence.*;
 import lombok.*;
