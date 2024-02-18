@@ -30,7 +30,7 @@ public class AccountBibleWrite extends EditInfomation implements Serializable {
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account_bible_write_seq")
   @SequenceGenerator(name = "account_bible_write_seq", sequenceName = "account_bible_write_seq", allocationSize = 1)
   @Column
-  private int idx;
+  private long idx;
 
   @Column(name = "account_id")
   private long accountUid;

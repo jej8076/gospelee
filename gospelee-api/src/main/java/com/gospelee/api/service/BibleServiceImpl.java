@@ -49,6 +49,16 @@ public class BibleServiceImpl implements BibleService {
   @Override
   public Optional<AccountBibleWrite> saveBibleWrite(AccountBibleWriteDTO dto) {
     AccountBibleWrite bibleWrite = (AccountBibleWrite) FieldUtil.toEntity(dto);
-    return Optional.of(accountBibleWriteRepository.save(bibleWrite));
+
+    return Optional.of(
+        accountBibleWriteRepository.findByUniqueConstraint(bibleWrite.getAccountUid(),
+            bibleWrite.getCate(), bibleWrite.getBook(), bibleWrite.getChapter()).map(write -> {
+
+          // 값이 있을 경우 count를 1올린다
+          accountBibleWriteRepository.increaseCountByIdx(write.getIdx());
+          return write;
+
+        }).orElseGet(() -> accountBibleWriteRepository.save(bibleWrite)));
+    
   }
 }
