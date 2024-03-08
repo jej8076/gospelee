@@ -58,7 +58,8 @@ public class BibleServiceImpl implements BibleService {
           accountBibleWriteRepository.increaseCountByIdx(write.getIdx());
           return write;
 
+          // 값이 없으면 데이터를 저장한다
         }).orElseGet(() -> accountBibleWriteRepository.save(bibleWrite)));
-    
+
   }
 }

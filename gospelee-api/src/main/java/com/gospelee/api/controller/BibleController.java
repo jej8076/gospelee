@@ -19,38 +19,47 @@ import java.util.NoSuchElementException;
 @RequestMapping(value = "/bible")
 public class BibleController {
 
-    private final BibleService bibleService;
+  private final BibleService bibleService;
 
-    private final String REGEX_KOR = ".*[ㄱ-ㅎㅏ-ㅣ가-힣]+.*";
+  private final String REGEX_KOR = ".*[ㄱ-ㅎㅏ-ㅣ가-힣]+.*";
 
-    @GetMapping("/{book}/{chapter}")
-    public ResponseEntity<Object> getBibleByBookAndChapter(@PathVariable(name = "book") Integer book, @PathVariable(name = "chapter") Integer chapter) {
-        return new ResponseEntity<>(bibleService.findByBookAndChapter(book, chapter)
-                .orElseThrow(() -> new NoSuchElementException("존재하는 성경이 없습니다 : [" + "book : " + book + "]")), HttpStatus.OK);
+  @GetMapping("/{book}/{chapter}")
+  public ResponseEntity<Object> getBibleByBookAndChapter(@PathVariable(name = "book") Integer book,
+      @PathVariable(name = "chapter") Integer chapter) {
+    return new ResponseEntity<>(bibleService.findByBookAndChapter(book, chapter)
+        .orElseThrow(
+            () -> new NoSuchElementException("존재하는 성경이 없습니다 : [" + "book : " + book + "]")),
+        HttpStatus.OK);
+  }
+
+  @GetMapping("/kor/{short_label}/{chapter}")
+  public ResponseEntity<Object> getKorBibleByShortLabelAndChapter(
+      @PathVariable(name = "short_label") String short_label,
+      @PathVariable(name = "chapter") Integer chapter) {
+    if (short_label.matches(REGEX_KOR)) {
+      return new ResponseEntity<>(bibleService.findKorByShortLabelAndChapter(short_label, chapter)
+          .orElseThrow(() -> new NoSuchElementException(
+              "존재하는 성경이 없습니다 : [" + "short_label : " + short_label + "]")), HttpStatus.OK);
+    } else {
+      // _eng 라벨을 where조건으로 데이터 호출
+      return new ResponseEntity<>(HttpStatus.OK);
     }
+  }
 
-    @GetMapping("/kor/{short_label}/{chapter}")
-    public ResponseEntity<Object> getKorBibleByShortLabelAndChapter(@PathVariable(name = "short_label") String short_label, @PathVariable(name = "chapter") Integer chapter) {
-        if (short_label.matches(REGEX_KOR)) {
-            return new ResponseEntity<>(bibleService.findKorByShortLabelAndChapter(short_label, chapter)
-                    .orElseThrow(() -> new NoSuchElementException("존재하는 성경이 없습니다 : [" + "short_label : " + short_label + "]")), HttpStatus.OK);
-        } else {
-            // _eng 라벨을 where조건으로 데이터 호출
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-    }
+  @GetMapping("/write/{phone}")
+  public ResponseEntity<Object> getBibleWriteByPhone(@PathVariable("phone") String phone) {
+    return new ResponseEntity<>(bibleService.findBibleWriteByPhone(phone)
+        .orElseThrow(() -> new NoSuchElementException("fail " + "phone : " + phone + "]")),
+        HttpStatus.OK);
+  }
 
-    @GetMapping("/write/{phone}")
-    public ResponseEntity<Object> getBibleWriteByPhone(@PathVariable("phone") String phone) {
-        return new ResponseEntity<>(bibleService.findBibleWriteByPhone(phone)
-                .orElseThrow(() -> new NoSuchElementException("fail " + "phone : " + phone + "]")), HttpStatus.OK);
-    }
-
-    @PostMapping("/write/{phone}")
-    public ResponseEntity<Object> postBibleWriteByPhone(@RequestBody AccountBibleWriteDTO dto) {
-        return new ResponseEntity<>(bibleService.saveBibleWrite(dto)
-                .orElseThrow(() -> new NoSuchElementException("save fail reason by [" + dto.toString() + "]")), HttpStatus.OK);
-    }
+  @PostMapping("/write/save")
+  public ResponseEntity<Object> postBibleWriteByPhone(@RequestBody AccountBibleWriteDTO dto) {
+    return new ResponseEntity<>(bibleService.saveBibleWrite(dto)
+        .orElseThrow(
+            () -> new NoSuchElementException("save fail reason by [" + dto.toString() + "]")),
+        HttpStatus.OK);
+  }
 
 
 }
