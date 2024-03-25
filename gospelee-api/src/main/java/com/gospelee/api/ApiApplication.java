@@ -3,7 +3,6 @@ package com.gospelee.api;
 import com.gospelee.api.dto.Account.AccountDTO;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.repository.AccountRepository;
-import com.gospelee.api.repository.BibleRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

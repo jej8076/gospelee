@@ -22,6 +22,15 @@ dependencies {
     // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-ui
     implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
 
+    // https://mvnrepository.com/artifact/org.springframework.data/spring-data-redis
+    implementation 'org.springframework.data:spring-data-redis:3.2.4'
+
+    // https://mvnrepository.com/artifact/it.ozimov/embedded-redis
+    implementation('it.ozimov:embedded-redis:0.7.3') { exclude group: "org.slf4j", module: "slf4j-simple" }
+
+    // https://mvnrepository.com/artifact/io.lettuce/lettuce-core
+    implementation 'io.lettuce:lettuce-core:6.3.2.RELEASE'
+
 }
 
 test {
