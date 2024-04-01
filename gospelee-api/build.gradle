@@ -31,6 +31,10 @@ dependencies {
     // https://mvnrepository.com/artifact/io.lettuce/lettuce-core
     implementation 'io.lettuce:lettuce-core:6.3.2.RELEASE'
 
+    // https://mvnrepository.com/artifact/org.springframework/spring-webflux
+    implementation 'org.springframework:spring-webflux:6.1.5'
+
+
 }
 
 test {
