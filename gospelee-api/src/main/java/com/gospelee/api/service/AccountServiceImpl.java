@@ -1,6 +1,7 @@
 package com.gospelee.api.service;
 
-import com.gospelee.api.dto.jwk.JwkSet;
+import static util.Base64Util.decodeBase64;
+
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.AccountKakaoToken;
 import com.gospelee.api.repository.AccountKakaoTokenRepository;
@@ -30,18 +31,18 @@ public class AccountServiceImpl implements AccountService {
     return accountRepository.findByPhone(phone);
   }
 
-  public Optional<Account> createAccount(Account account) {
+  public Optional<Account> saveAccount(Account account) {
 
-    RestClient restClient = RestClient.builder()
-        .baseUrl("https://kauth.kakao.com")
-        .build();
-
-    JwkSet jwkSet = restClient.get()
-        .uri("/.well-known/jwks.json")
-        .retrieve()
-        .body(JwkSet.class);
-
-    System.out.println("jwkSet = " + jwkSet.toString());
+//    RestClient restClient = RestClient.builder()
+//        .baseUrl("https://kauth.kakao.com")
+//        .build();
+//
+//    JwkSet jwkSet = restClient.get()
+//        .uri("/.well-known/jwks.json")
+//        .retrieve()
+//        .body(JwkSet.class);
+//
+//    System.out.println("jwkSet = " + jwkSet.toString());
 
     return accountRepository.findByPhone(account.getPhone()).map(acc -> {
       // 이미 계정이 존재하는 경우(핸드폰 번호가 존재함)
@@ -89,6 +90,11 @@ public class AccountServiceImpl implements AccountService {
         .map(result -> accountRepository.findById(String.valueOf(result.getParentUid())))
         .orElseThrow(
             () -> new NoSuchElementException("No account found with the given token: " + token));
+  }
+
+  public String validationIdToken(String idToken) {
+    idToken = decodeBase64(idToken);
+    return idToken;
   }
 
 }

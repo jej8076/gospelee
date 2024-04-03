@@ -42,7 +42,7 @@ public class AccountController {
   @PostMapping("/kakao/login")
   public ResponseEntity<Object> saveAccount(final @RequestBody @Valid AccountDTO accountDTO) {
     Account account = (Account) FieldUtil.toEntity(accountDTO);
-    return new ResponseEntity<>(accountService.createAccount(account)
+    return new ResponseEntity<>(accountService.saveAccount(account)
         .orElseThrow(() -> new RuntimeException(
             "계정 조회 혹은 등록 실패 : [" + "accountVo : " + accountDTO.getPhone() + "]")), HttpStatus.OK);
   }

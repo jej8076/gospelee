@@ -5,9 +5,12 @@ import com.gospelee.api.entity.Account;
 import java.util.Optional;
 
 public interface AccountService {
-    Optional<Account> getAccountByPhone(final String Phone);
 
-    Optional<Account> createAccount(Account account);
+  Optional<Account> getAccountByPhone(final String Phone);
 
-    Optional<Account> getAccountByToken(String token);
+  Optional<Account> saveAccount(Account account);
+
+  Optional<Account> getAccountByToken(String token);
+
+  String validationIdToken(String idToken);
 }
