@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 
 @Component
 public class JwtOIDCProvider {
@@ -43,29 +44,26 @@ public class JwtOIDCProvider {
       throw new RuntimeException("token 유효성 검증 실패 [" + token + "]");
     }
 
+    JwkSet jwkSet = getPublicKey();
+
     // key 찾기
-//    JwkSet oidcPublicKeysResponse = googleOAuthClient.getGoogleOIDCOpenKeys();
-    getOpenId();
-    
     return getPayloadFromIdToken(
         token,
         KAKAO_ISS,
         KAKAO_SERVICE_APP_KEY,
-        oidcPublicKeysResponse
+        jwkSet
     );
   }
 
-  private void getOpenId() {
+  private JwkSet getPublicKey() {
     RestClient restClient = RestClient.builder()
         .baseUrl("https://kauth.kakao.com")
         .build();
 
-    JwkSet jwkSet = restClient.get()
+    return restClient.get()
         .uri("/.well-known/jwks.json")
         .retrieve()
         .body(JwkSet.class);
-
-    System.out.println("jwkSet = " + jwkSet.toString());
   }
 
   public String getKidFromUnsignedIdToken(String token, String iss, String aud) {
