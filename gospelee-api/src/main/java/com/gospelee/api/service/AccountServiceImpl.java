@@ -4,6 +4,7 @@ import static util.Base64Util.decodeBase64;
 
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.AccountKakaoToken;
+import com.gospelee.api.auth.jwt.JwtOIDCProvider;
 import com.gospelee.api.repository.AccountKakaoTokenRepository;
 import com.gospelee.api.repository.AccountRepository;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import org.springframework.web.client.RestClient;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -20,10 +20,13 @@ public class AccountServiceImpl implements AccountService {
 
   private final AccountKakaoTokenRepository accountKakaoTokenRepository;
 
+  private final JwtOIDCProvider jwtOIDCProvider;
+
   public AccountServiceImpl(AccountRepository accountRepository,
-      AccountKakaoTokenRepository accountKakaoTokenRepository) {
+      AccountKakaoTokenRepository accountKakaoTokenRepository, JwtOIDCProvider jwtOIDCProvider) {
     this.accountRepository = accountRepository;
     this.accountKakaoTokenRepository = accountKakaoTokenRepository;
+    this.jwtOIDCProvider = jwtOIDCProvider;
   }
 
   @Override
@@ -32,17 +35,6 @@ public class AccountServiceImpl implements AccountService {
   }
 
   public Optional<Account> saveAccount(Account account) {
-
-//    RestClient restClient = RestClient.builder()
-//        .baseUrl("https://kauth.kakao.com")
-//        .build();
-//
-//    JwkSet jwkSet = restClient.get()
-//        .uri("/.well-known/jwks.json")
-//        .retrieve()
-//        .body(JwkSet.class);
-//
-//    System.out.println("jwkSet = " + jwkSet.toString());
 
     return accountRepository.findByPhone(account.getPhone()).map(acc -> {
       // 이미 계정이 존재하는 경우(핸드폰 번호가 존재함)

@@ -1,0 +1,192 @@
+package com.gospelee.api.auth.jwt;
+
+import static util.Base64Util.decodeBase64;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gospelee.api.dto.jwt.Jwk;
+import com.gospelee.api.dto.jwt.JwkSet;
+import com.gospelee.api.dto.jwt.JwtPayload;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Header;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwt;
+import io.jsonwebtoken.Jwts;
+import java.math.BigInteger;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.RSAPublicKeySpec;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+@Component
+public class JwtOIDCProvider {
+
+  @Value("${kakao.issuer}")
+  private String KAKAO_ISS;
+
+  @Value("${kakao.app-key}")
+  private String KAKAO_SERVICE_APP_KEY;
+
+  private static final String KID = "kid";
+
+  public JwtPayload getOIDCDecodedPayload(String token) throws JsonProcessingException {
+
+    if (!validationIdToken(token)) {
+      throw new RuntimeException("token 유효성 검증 실패 [" + token + "]");
+    }
+
+    // key 찾기
+//    JwkSet oidcPublicKeysResponse = googleOAuthClient.getGoogleOIDCOpenKeys();
+    getOpenId();
+    
+    return getPayloadFromIdToken(
+        token,
+        KAKAO_ISS,
+        KAKAO_SERVICE_APP_KEY,
+        oidcPublicKeysResponse
+    );
+  }
+
+  private void getOpenId() {
+    RestClient restClient = RestClient.builder()
+        .baseUrl("https://kauth.kakao.com")
+        .build();
+
+    JwkSet jwkSet = restClient.get()
+        .uri("/.well-known/jwks.json")
+        .retrieve()
+        .body(JwkSet.class);
+
+    System.out.println("jwkSet = " + jwkSet.toString());
+  }
+
+  public String getKidFromUnsignedIdToken(String token, String iss, String aud) {
+    return (String) getUnsignedClaims(token, iss, aud).getHeader().get(KID);
+  }
+
+  private Jwt<Header, Claims> getUnsignedClaims(String token, String iss, String aud) {
+    try {
+      return Jwts.parser()
+          .requireIssuer(iss)
+          .requireAudience(aud)
+          .build()
+          .parseUnsecuredClaims(getUnsignedToken(token));
+    } catch (ExpiredJwtException e) {
+      throw new IllegalArgumentException("만료된 Id Token 입니다.");
+    } catch (Exception e) {
+      throw new IllegalArgumentException("잘못된 Id Token 입니다.");
+    }
+  }
+
+  private CharSequence getUnsignedToken(String token) {
+    String[] splitToken = token.split("\\\\.");
+    if (splitToken.length != 3) {
+      throw new IllegalArgumentException("잘못된 Id Token 입니다.");
+    }
+    return splitToken[0] + "." + splitToken[1] + ".";
+  }
+
+  private Jws<Claims> getPayloadClaims(String token, String modulus, String exponent) {
+    try {
+      token = token.replace("—", "--");
+      return Jwts.parser()
+          .verifyWith(getRSAPublicKey(modulus, exponent))
+          .build()
+          .parseSignedClaims(token);
+    } catch (ExpiredJwtException e) {
+      throw new IllegalArgumentException("만료된 Id Token 입니다.");
+    } catch (Exception e) {
+      throw new IllegalArgumentException("잘못된 Id Token 입니다.");
+    }
+  }
+
+  public JwtPayload getOIDCTokenBody(String token, String modulus, String exponent) {
+    Claims body = getPayloadClaims(token, modulus, exponent).getBody();
+    return JwtPayload.builder()
+        .issuer(body.getIssuer())
+        .audience(body.getAudience())
+        .subject(body.getSubject())
+        .email(body.get("email", String.class))
+        .name(body.get("name", String.class))
+        .nickname(body.get("nickname", String.class))
+        .pickture(body.get("pickture", String.class))
+        .build();
+  }
+
+  public JwtPayload getPayloadFromIdToken(
+      String token,
+      String iss,
+      String aud,
+      JwkSet jwkSet
+  ) {
+    String kid = getKidFromUnsignedIdToken(token, iss, aud);
+    Jwk jwk =
+        jwkSet.getKeys().stream()
+            .filter(o -> o.getKid().equals(kid))
+            .findFirst()
+            .orElseThrow();
+    return getOIDCTokenBody(
+        token, jwk.getN(), jwk.getE());
+  }
+
+  private boolean validationIdToken(String idToken) throws JsonProcessingException {
+
+    String[] idTokenArr = idToken.split("\\.");
+
+    String header = idTokenArr[0];
+    System.out.println("header = " + header);
+
+    String payload = decodeBase64(idTokenArr[1]);
+    System.out.println("payload = " + payload);
+
+    ObjectMapper mapper = new ObjectMapper();
+    Map<String, Object> map;
+
+    map = mapper.readValue(payload, new TypeReference<HashMap<String, Object>>() {
+    });
+
+    String iss = String.valueOf(map.get("iss"));
+
+    if (!KAKAO_ISS.equals(iss)) {
+      return false;
+    }
+
+    String aud = String.valueOf(map.get("aud"));
+    if (!KAKAO_SERVICE_APP_KEY.equals(aud)) {
+      return false;
+    }
+    long currentUnixTime = System.currentTimeMillis();
+    long exp = Long.valueOf((Integer) map.get("exp")) * 1000;
+
+    if (currentUnixTime > exp) {
+      return false;
+    }
+
+    String signature = idTokenArr[2];
+    System.out.println("signature = " + signature);
+
+    return true;
+  }
+
+  private PublicKey getRSAPublicKey(String modulus, String exponent)
+      throws NoSuchAlgorithmException, InvalidKeySpecException {
+    KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+
+    byte[] decodeN = Base64.getUrlDecoder().decode(modulus);
+    byte[] decodeE = Base64.getUrlDecoder().decode(exponent);
+    BigInteger n = new BigInteger(1, decodeN);
+    BigInteger e = new BigInteger(1, decodeE);
+
+    RSAPublicKeySpec keySpec = new RSAPublicKeySpec(n, e);
+    return keyFactory.generatePublic(keySpec);
+  }
+
+}

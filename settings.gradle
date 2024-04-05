@@ -1,5 +1,3 @@
 rootProject.name = 'gospelee'
 include 'gospelee-common'
 include 'gospelee-api'
-include 'gospelee-auth'
-

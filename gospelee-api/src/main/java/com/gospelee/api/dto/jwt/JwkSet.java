@@ -1,4 +1,4 @@
-package com.gospelee.api.dto.jwk;
+package com.gospelee.api.dto.jwt;
 
 import java.util.List;
 import lombok.Getter;
