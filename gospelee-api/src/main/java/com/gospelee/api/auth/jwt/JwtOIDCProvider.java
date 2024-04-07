@@ -24,35 +24,61 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 @Component
 public class JwtOIDCProvider {
 
+  private static final String KID = "kid";
   @Value("${kakao.issuer}")
   private String KAKAO_ISS;
-
   @Value("${kakao.app-key}")
   private String KAKAO_SERVICE_APP_KEY;
 
-  private static final String KID = "kid";
-
-  public JwtPayload getOIDCDecodedPayload(String token) throws JsonProcessingException {
+  public JwtPayload getOIDCPayload(String token) throws JsonProcessingException {
 
     if (!validationIdToken(token)) {
       throw new RuntimeException("token 유효성 검증 실패 [" + token + "]");
     }
 
-    JwkSet jwkSet = getPublicKey();
+    // 공개키
+    JwkSet cachedJwkSet = getPublicKeySet();
 
-    // key 찾기
-    return getPayloadFromIdToken(
-        token,
-        KAKAO_ISS,
-        KAKAO_SERVICE_APP_KEY,
-        jwkSet
-    );
+    // 임시코드
+    String[] idTokenArr = token.split("\\.");
+    String header = decodeBase64(idTokenArr[0]);
+    JwkSet jwkSet = new JwkSet();
+    ObjectMapper mapper = new ObjectMapper();
+    Map<String, Object> map;
+
+    map = mapper.readValue(header, new TypeReference<HashMap<String, Object>>() {
+    });
+
+    String kid = String.valueOf(map.get("kid"));
+
+    // 비교
+    Jwk jwk =
+        cachedJwkSet.getKeys().stream()
+            .filter(o -> o.getKid().equals(kid))
+            .findFirst()
+            .orElseThrow();
+
+    Jwt<Header, Claims> jwtHeaderClames = Jwts.parser()
+        .requireIssuer(KAKAO_ISS)
+        .requireAudience(KAKAO_SERVICE_APP_KEY)
+        .verifyWith((PublicKey) jwk)
+        .build()
+        .parseUnsecuredClaims(getUnsignedToken(token));
+
+//    Jwt<Header, Claims> unSignedClaim = getUnsignedClaims(token, KAKAO_ISS, KAKAO_SERVICE_APP_KEY,
+//        publicJwkSet);
+
+//    String kid = getKidFromUnsignedIdToken(token, KAKAO_ISS, KAKAO_SERVICE_APP_KEY, jwkSet);
+    JwtPayload jwtPayload = getPayloadFromIdToken(token, kid, jwk);
+
+    return jwtPayload;
   }
 
   private JwkSet getPublicKey() {
@@ -66,11 +92,13 @@ public class JwtOIDCProvider {
         .body(JwkSet.class);
   }
 
-  public String getKidFromUnsignedIdToken(String token, String iss, String aud) {
-    return (String) getUnsignedClaims(token, iss, aud).getHeader().get(KID);
+  public String getKidFromUnsignedIdToken(String token, String iss, String aud,
+      JwkSet publicJwkSet) {
+    return (String) getUnsignedClaims(token, iss, aud, publicJwkSet).getHeader().get(KID);
   }
 
-  private Jwt<Header, Claims> getUnsignedClaims(String token, String iss, String aud) {
+  private Jwt<Header, Claims> getUnsignedClaims(String token, String iss, String aud,
+      JwkSet publicJwkSet) {
     try {
       return Jwts.parser()
           .requireIssuer(iss)
@@ -85,7 +113,7 @@ public class JwtOIDCProvider {
   }
 
   private CharSequence getUnsignedToken(String token) {
-    String[] splitToken = token.split("\\\\.");
+    String[] splitToken = token.split("\\.");
     if (splitToken.length != 3) {
       throw new IllegalArgumentException("잘못된 Id Token 입니다.");
     }
@@ -119,18 +147,14 @@ public class JwtOIDCProvider {
         .build();
   }
 
-  public JwtPayload getPayloadFromIdToken(
-      String token,
-      String iss,
-      String aud,
-      JwkSet jwkSet
-  ) {
-    String kid = getKidFromUnsignedIdToken(token, iss, aud);
-    Jwk jwk =
-        jwkSet.getKeys().stream()
-            .filter(o -> o.getKid().equals(kid))
-            .findFirst()
-            .orElseThrow();
+  public JwtPayload getPayloadFromIdToken(String token, String kid, Jwk jwk) {
+    // kid 가져오기
+//    String kid = getKidFromUnsignedIdToken(token, iss, aud);
+//    Jwk jwk =
+//        jwkSet.getKeys().stream()
+//            .filter(o -> o.getKid().equals(kid))
+//            .findFirst()
+//            .orElseThrow();
     return getOIDCTokenBody(
         token, jwk.getN(), jwk.getE());
   }
@@ -161,6 +185,7 @@ public class JwtOIDCProvider {
     if (!KAKAO_SERVICE_APP_KEY.equals(aud)) {
       return false;
     }
+
     long currentUnixTime = System.currentTimeMillis();
     long exp = Long.valueOf((Integer) map.get("exp")) * 1000;
 
@@ -185,6 +210,21 @@ public class JwtOIDCProvider {
 
     RSAPublicKeySpec keySpec = new RSAPublicKeySpec(n, e);
     return keyFactory.generatePublic(keySpec);
+  }
+
+  @Cacheable(cacheManager = "oidcCacheManager"
+//      , cacheNames = "KakaoOICD"
+      , key = "hello"
+  )
+  public JwkSet getPublicKeySet() {
+    RestClient restClient = RestClient.builder()
+        .baseUrl("https://kauth.kakao.com")
+        .build();
+
+    return restClient.get()
+        .uri("/.well-known/jwks.json")
+        .retrieve()
+        .body(JwkSet.class);
   }
 
 }

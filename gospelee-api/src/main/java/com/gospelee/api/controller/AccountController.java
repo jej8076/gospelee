@@ -1,5 +1,6 @@
 package com.gospelee.api.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gospelee.api.dto.Account.AccountDTO;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.service.AccountService;
@@ -40,8 +41,11 @@ public class AccountController {
    * @return
    */
   @PostMapping("/kakao/login")
-  public ResponseEntity<Object> saveAccount(final @RequestBody @Valid AccountDTO accountDTO) {
+  public ResponseEntity<Object> saveAccount(final @RequestBody @Valid AccountDTO accountDTO)
+      throws JsonProcessingException {
+    System.out.println("test1");
     Account account = (Account) FieldUtil.toEntity(accountDTO);
+    System.out.println("test2");
     return new ResponseEntity<>(accountService.saveAccount(account)
         .orElseThrow(() -> new RuntimeException(
             "계정 조회 혹은 등록 실패 : [" + "accountVo : " + accountDTO.getPhone() + "]")), HttpStatus.OK);
