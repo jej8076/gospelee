@@ -6,7 +6,7 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public class JwkSet {
+public class JwkSetDTO {
 
-  private List<Jwk> keys;
+  private List<JwkDTO> keys;
 }

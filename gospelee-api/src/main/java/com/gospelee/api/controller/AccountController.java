@@ -5,6 +5,8 @@ import com.gospelee.api.dto.Account.AccountDTO;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.service.AccountService;
 import jakarta.validation.Valid;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,10 +44,8 @@ public class AccountController {
    */
   @PostMapping("/kakao/login")
   public ResponseEntity<Object> saveAccount(final @RequestBody @Valid AccountDTO accountDTO)
-      throws JsonProcessingException {
-    System.out.println("test1");
+      throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeySpecException {
     Account account = (Account) FieldUtil.toEntity(accountDTO);
-    System.out.println("test2");
     return new ResponseEntity<>(accountService.saveAccount(account)
         .orElseThrow(() -> new RuntimeException(
             "계정 조회 혹은 등록 실패 : [" + "accountVo : " + accountDTO.getPhone() + "]")), HttpStatus.OK);

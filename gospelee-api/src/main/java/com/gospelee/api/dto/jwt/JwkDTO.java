@@ -3,7 +3,7 @@ package com.gospelee.api.dto.jwt;
 import lombok.Getter;
 
 @Getter
-public class Jwk {
+public class JwkDTO {
 
   private String kid;
   private String kty;

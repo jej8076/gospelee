@@ -8,22 +8,21 @@ import lombok.Getter;
 public class JwtPayload {
 
   private final String issuer;
-  private final String subject;
-  private final String email;
-  private final String name;
-  private final String nickname;
-  private final String pickture;
   private final Set<String> audience;
+  private final String sub;
+  private final String email;
+  private final String nickname;
+  private final String picture;
+
 
   @Builder
-  public JwtPayload(String issuer, String subject, Set<String> audience, String email, String name,
-      String nickname, String pickture) {
+  public JwtPayload(String issuer, String sub, Set<String> audience, String email,
+      String nickname, String picture) {
     this.issuer = issuer;
-    this.subject = subject;
     this.audience = audience;
+    this.sub = sub;
     this.email = email;
-    this.name = name;
     this.nickname = nickname;
-    this.pickture = pickture;
+    this.picture = picture;
   }
 }

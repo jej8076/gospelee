@@ -4,7 +4,7 @@ public class AuthServiceImpl implements AuthService {
 
 //  @Override
 //  @Cacheable(cacheNames = "KakaoOICD", cacheManager = "oidcCacheManager")
-//  public JwkSet getPublicKeySet() {
+//  public JwkSetDTO getPublicKeySet() {
 //    RestClient restClient = RestClient.builder()
 //        .baseUrl("https://kauth.kakao.com")
 //        .build();
@@ -12,6 +12,6 @@ public class AuthServiceImpl implements AuthService {
 //    return restClient.get()
 //        .uri("/.well-known/jwks.json")
 //        .retrieve()
-//        .body(JwkSet.class);
+//        .body(JwkSetDTO.class);
 //  }
 }
