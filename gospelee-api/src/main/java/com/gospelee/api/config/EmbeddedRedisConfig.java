@@ -6,13 +6,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.util.StringUtils;
 import redis.embedded.RedisServer;
 
@@ -20,7 +18,8 @@ import redis.embedded.RedisServer;
 @Configuration
 public class EmbeddedRedisConfig {
 
-  private final int redisPort = 6377;
+  @Value("${redis.port}")
+  private int redisPort;
 
   // 500MB 안됨
   private final int redisMaxMemory = 500000000;
