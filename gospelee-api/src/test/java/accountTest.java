@@ -4,16 +4,22 @@ import static util.Base64Util.decodeBase64;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 
 public class accountTest {
 
   private String KAKAO_ISS = "https://kauth.kakao.com";
 
   private String KAKAO_SERVICE_APP_KEY = "bc9ac0fd4cd17a858c971f6d4aede305";
+
+  RedisTemplate<String, String> redisTemplate = new RedisTemplate();
 
   private boolean validationIdToken(String idToken) throws JsonProcessingException {
 
@@ -24,6 +30,10 @@ public class accountTest {
 
     String payload = decodeBase64(idTokenArr[1]);
     System.out.println("payload = " + payload);
+    
+    List<String> testList = new ArrayList<>();
+    testList.add("1번입니다");
+    redisTemplate.opsForList().set("key11", 0, testList.get(0));
 
     ObjectMapper mapper = new ObjectMapper();
     Map<String, Object> map;

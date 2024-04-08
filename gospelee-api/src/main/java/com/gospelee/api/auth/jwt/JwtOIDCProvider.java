@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gospelee.api.dto.jwt.JwkDTO;
 import com.gospelee.api.dto.jwt.JwkSetDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
+import com.gospelee.api.service.RedisCacheService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Header;
@@ -25,9 +26,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
 
 @Component
 public class JwtOIDCProvider {
@@ -38,6 +37,12 @@ public class JwtOIDCProvider {
   @Value("${kakao.app-key}")
   private String KAKAO_SERVICE_APP_KEY;
 
+  private RedisCacheService redisCacheService;
+
+  public JwtOIDCProvider(RedisCacheService redisCacheService) {
+    this.redisCacheService = redisCacheService;
+  }
+
   public JwtPayload getOIDCPayload(String token)
       throws JsonProcessingException {
 
@@ -45,21 +50,12 @@ public class JwtOIDCProvider {
       throw new RuntimeException("token 유효성 검증 실패 [" + token + "]");
     }
 
-    // 공개키
-    JwkSetDTO cachedJwkSet = getPublicKeySet();
+    // 카카오 제공 공개키(캐싱)
+    JwkSetDTO cachedJwkSet = redisCacheService.getPublicKeySet();
 
-    // 임시코드
-    String[] idTokenArr = token.split("\\.");
-    String header = decodeBase64(idTokenArr[0]);
-    ObjectMapper mapper = new ObjectMapper();
-    Map<String, Object> map;
+    String kid = getKid(token);
 
-    map = mapper.readValue(header, new TypeReference<HashMap<String, Object>>() {
-    });
-
-    String kid = String.valueOf(map.get("kid"));
-
-    // kid가 일치하는 데이터 가져옴
+    // kid가 서로 일치하는 데이터 가져옴
     JwkDTO jwkDTO = cachedJwkSet.getKeys().stream()
         .filter(o -> o.getKid().equals(kid))
         .findFirst()
@@ -115,45 +111,6 @@ public class JwtOIDCProvider {
     return splitToken[0] + "." + splitToken[1] + "." + splitToken[2];
   }
 
-//  private Jws<Claims> getPayloadClaims(String token, String modulus, String exponent) {
-//    try {
-//      token = token.replace("—", "--");
-//      return Jwts.parser()
-//          .verifyWith(getRSAPublicKey(modulus, exponent))
-//          .build()
-//          .parseSignedClaims(token);
-//    } catch (ExpiredJwtException e) {
-//      throw new IllegalArgumentException("만료된 Id Token 입니다.");
-//    } catch (Exception e) {
-//      throw new IllegalArgumentException("잘못된 Id Token 입니다.");
-//    }
-//  }
-
-//  public JwtPayload getOIDCTokenBody(String token, String modulus, String exponent) {
-//    Claims body = getPayloadClaims(token, modulus, exponent).getBody();
-//    return JwtPayload.builder()
-//        .issuer(body.getIssuer())
-//        .audience(body.getAudience())
-//        .subject(body.getSubject())
-//        .email(body.get("email", String.class))
-//        .name(body.get("name", String.class))
-//        .nickname(body.get("nickname", String.class))
-//        .pickture(body.get("pickture", String.class))
-//        .build();
-//  }
-
-//  public JwtPayload getPayloadFromIdToken(String token, String kid, JwkDTO jwkDTO) {
-//    // kid 가져오기
-//    String kid = getKidFromUnsignedIdToken(token, iss, aud);
-//    JwkDTO jwkDTO =
-//        jwkSet.getKeys().stream()
-//            .filter(o -> o.getKid().equals(kid))
-//            .findFirst()
-//            .orElseThrow();
-//    return getOIDCTokenBody(
-//        token, jwkDTO.getN(), jwkDTO.getE());
-//  }
-
   private boolean validationIdToken(String idToken) throws JsonProcessingException {
 
     String[] idTokenArr = idToken.split("\\.");
@@ -184,6 +141,8 @@ public class JwtOIDCProvider {
       return false;
     }
 
+    // TODO jej8076 nonce 값(카카오 로그인 요청 시 전달한 값과 일치하는지) 확인 필요
+
     return true;
   }
 
@@ -200,19 +159,16 @@ public class JwtOIDCProvider {
     return keyFactory.generatePublic(keySpec);
   }
 
-  @Cacheable(
-      cacheManager = "oidcCacheManager"
-      , cacheNames = "KakaoOICD"
-  )
-  public JwkSetDTO getPublicKeySet() {
-    RestClient restClient = RestClient.builder()
-        .baseUrl("https://kauth.kakao.com")
-        .build();
+  private String getKid(String token) throws JsonProcessingException {
+    String[] idTokenArr = token.split("\\.");
+    String header = decodeBase64(idTokenArr[0]);
+    ObjectMapper mapper = new ObjectMapper();
+    Map<String, Object> map;
 
-    return restClient.get()
-        .uri("/.well-known/jwks.json")
-        .retrieve()
-        .body(JwkSetDTO.class);
+    map = mapper.readValue(header, new TypeReference<HashMap<String, Object>>() {
+    });
+
+    return String.valueOf(map.get("kid"));
   }
 
 }
