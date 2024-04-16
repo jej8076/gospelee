@@ -9,15 +9,24 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @ToString
 @Getter
-//@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Account extends EditInfomation {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Account extends EditInfomation implements UserDetails {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,24 +42,59 @@ public class Account extends EditInfomation {
   @Column
   private String phone;
 
-  @OneToOne
-  @JoinColumn(name = "accessToken")
-  private AccountKakaoToken accountKakaoToken;
+  @Column
+  private String email;
 
-  @OneToMany
-  @JoinColumn(name = "parentUid")
-  private List<AccountKakaoToken> accountKakaoTokenList;
+  @Column
+  private RoleType role;
 
-  public AccountKakaoToken toAccountKakaoToken(long parentUid) {
-    return AccountKakaoToken.builder()
-        .parentUid(parentUid)
-        .accessToken(this.getAccountKakaoToken().getAccessToken())
-        .accessTokenExpiresAt(this.getAccountKakaoToken().getAccessTokenExpiresAt())
-        .refreshToken(this.getAccountKakaoToken().getRefreshToken())
-        .refreshTokenExpiresAt(this.getAccountKakaoToken().getRefreshTokenExpiresAt())
-        .idToken(this.getAccountKakaoToken().getIdToken())
-        .deviceInfo(this.getAccountKakaoToken().getDeviceInfo())
-        .build();
+  @Column
+  private String id_token;
+
+  @Builder
+  public Account(long uid, String name, String rrn, String phone, String email, RoleType role) {
+    this.uid = uid;
+    this.name = name;
+    this.rrn = rrn;
+    this.phone = phone;
+    this.email = email;
+    this.role = role;
   }
 
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
+    grantedAuthorities.add(new SimpleGrantedAuthority(role.name()));
+    return grantedAuthorities;
+  }
+
+  @Override
+  public String getPassword() {
+    return id_token;
+  }
+
+  @Override
+  public String getUsername() {
+    return email;
+  }
+
+  @Override
+  public boolean isAccountNonExpired() {
+    return false;
+  }
+
+  @Override
+  public boolean isAccountNonLocked() {
+    return false;
+  }
+
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return false;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return true;
+  }
 }

@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,16 +40,12 @@ public class AccountController {
   /**
    * 카카오 API를 사용해 클라이언트 자체 로그인 성공 후 return된 결과로 이 API를 호출하여 계정정보와 토큰을 저장하며 최종 로그인 성공시키는 API
    *
-   * @param accountDTO
+   * @param account(security에서 id_token에 대해 인증 완료한 후 데이터 조회한 결과)
    * @return
    */
-  @PostMapping("/kakao/login")
-  public ResponseEntity<Object> saveAccount(final @RequestBody @Valid AccountDTO accountDTO)
-      throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeySpecException {
-    Account account = (Account) FieldUtil.toEntity(accountDTO);
-    return new ResponseEntity<>(accountService.saveAccount(account)
-        .orElseThrow(() -> new RuntimeException(
-            "계정 조회 혹은 등록 실패 : [" + "accountVo : " + accountDTO.getPhone() + "]")), HttpStatus.OK);
+  @PostMapping("/kakao/getAccount")
+  public ResponseEntity<Object> saveAccount(@AuthenticationPrincipal Account account) {
+    return new ResponseEntity<>(account, HttpStatus.OK);
   }
 
   @GetMapping("/get/{token}")

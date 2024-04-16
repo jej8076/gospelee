@@ -8,14 +8,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gospelee.api.dto.jwt.JwkDTO;
 import com.gospelee.api.dto.jwt.JwkSetDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
+import com.gospelee.api.entity.Account;
+import com.gospelee.api.entity.RoleType;
+import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.RedisCacheService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.JwkSet;
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -25,7 +25,11 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -37,10 +41,13 @@ public class JwtOIDCProvider {
   @Value("${kakao.app-key}")
   private String KAKAO_SERVICE_APP_KEY;
 
-  private RedisCacheService redisCacheService;
+  private final RedisCacheService redisCacheService;
 
-  public JwtOIDCProvider(RedisCacheService redisCacheService) {
+  private final AccountService accountService;
+
+  public JwtOIDCProvider(RedisCacheService redisCacheService, AccountService accountService) {
     this.redisCacheService = redisCacheService;
+    this.accountService = accountService;
   }
 
   public JwtPayload getOIDCPayload(String token)
@@ -75,32 +82,13 @@ public class JwtOIDCProvider {
           .nickname(claimsJws.getPayload().get("nickname", String.class))
           .email(claimsJws.getPayload().get("email", String.class))
           .build();
+
     } catch (ExpiredJwtException e) {
       throw new IllegalArgumentException("만료된 Id Token 입니다.");
     } catch (Exception e) {
       throw new IllegalArgumentException("잘못된 Id Token 입니다.");
     }
 
-  }
-
-  public String getKidFromUnsignedIdToken(String token, String iss, String aud,
-      JwkSet publicJwkSet) {
-    return (String) getUnsignedClaims(token, iss, aud, publicJwkSet).getHeader().get(KID);
-  }
-
-  private Jwt<Header, Claims> getUnsignedClaims(String token, String iss, String aud,
-      JwkSet publicJwkSet) {
-    try {
-      return Jwts.parser()
-          .requireIssuer(iss)
-          .requireAudience(aud)
-          .build()
-          .parseUnsecuredClaims(getUnsignedToken(token));
-    } catch (ExpiredJwtException e) {
-      throw new IllegalArgumentException("만료된 Id Token 입니다.");
-    } catch (Exception e) {
-      throw new IllegalArgumentException("잘못된 Id Token 입니다.");
-    }
   }
 
   private CharSequence getUnsignedToken(String token) {
@@ -169,6 +157,20 @@ public class JwtOIDCProvider {
     });
 
     return String.valueOf(map.get("kid"));
+  }
+
+  public Authentication getAuthentication(JwtPayload jwtPayload, String idToken) {
+    Optional<Account> accountOptional = accountService.saveAndGetAccount(jwtPayload);
+    
+    return accountOptional.map(account -> {
+      UserDetails userDetails = Account.builder()
+          .email(account.getEmail())
+          .name(account.getName())
+          .role(RoleType.LAYMAN)
+          .build();
+      return new UsernamePasswordAuthenticationToken(userDetails, idToken,
+          userDetails.getAuthorities());
+    }).orElseThrow(() -> new RuntimeException("account 불러오기 혹은 저장 실패"));
   }
 
 }
