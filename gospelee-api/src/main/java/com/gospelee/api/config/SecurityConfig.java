@@ -22,8 +22,8 @@ public class SecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     return http
         .csrf(csrfConfigurer -> csrfConfigurer.disable())
-        .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configure(http))
         .formLogin(formLoginConfigurer -> formLoginConfigurer.disable())
+        .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configure(http))
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .build();
   }

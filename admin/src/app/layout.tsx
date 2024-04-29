@@ -3,6 +3,7 @@ import "./globals.css";
 import {Fragment, useState} from 'react'
 import {usePathname} from 'next/navigation'
 import {Dialog, Menu, Transition} from '@headlessui/react'
+import Link from "next/link";
 import {
   Bars3Icon,
   BellIcon,
@@ -16,7 +17,6 @@ import {
   FolderIcon,
 } from '@heroicons/react/24/outline'
 import {ChevronDownIcon, MagnifyingGlassIcon} from '@heroicons/react/20/solid'
-import Link from "next/link";
 
 const navigation = [
   {name: '대시보드', id: 'main', href: '/main', icon: HomeIcon},
@@ -40,10 +40,11 @@ export default function MainLayout({children}: Readonly<{
   children: React.ReactNode;
 }>) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [nav, setNav] = useState('main');
-  const currentPath = usePathname();
 
-  // 현재 경로
+  const currentPath = usePathname();
+  const depth1 = currentPath.split('/')[1];
+  const [nav, setNav] = useState(depth1);
+
   return (
       <html>
       <body>

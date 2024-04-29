@@ -5,6 +5,7 @@ import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.RoleType;
 import com.gospelee.api.repository.AccountKakaoTokenRepository;
 import com.gospelee.api.repository.AccountRepository;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,10 @@ public class AccountServiceImpl implements AccountService {
       AccountKakaoTokenRepository accountKakaoTokenRepository) {
     this.accountRepository = accountRepository;
     this.accountKakaoTokenRepository = accountKakaoTokenRepository;
+  }
+
+  public List<Account> getAccountAll() {
+    return accountRepository.findAll();
   }
 
   @Override
