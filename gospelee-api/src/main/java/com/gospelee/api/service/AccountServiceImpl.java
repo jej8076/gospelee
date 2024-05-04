@@ -28,6 +28,10 @@ public class AccountServiceImpl implements AccountService {
     return accountRepository.findAll();
   }
 
+  public Optional<List<Account>> getAccountByEcclesiaUid(String ecclesiaUid) {
+    return accountRepository.findByEcclesiaUid(ecclesiaUid);
+  }
+
   @Override
   public Optional<Account> getAccountByPhone(String phone) {
     return accountRepository.findByPhone(phone);

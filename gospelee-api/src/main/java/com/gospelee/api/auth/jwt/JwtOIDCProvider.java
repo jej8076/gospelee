@@ -36,14 +36,12 @@ import org.springframework.stereotype.Component;
 public class JwtOIDCProvider {
 
   private static final String KID = "kid";
+  private final RedisCacheService redisCacheService;
+  private final AccountService accountService;
   @Value("${kakao.issuer}")
   private String KAKAO_ISS;
   @Value("${kakao.app-key}")
   private String KAKAO_SERVICE_APP_KEY;
-
-  private final RedisCacheService redisCacheService;
-
-  private final AccountService accountService;
 
   public JwtOIDCProvider(RedisCacheService redisCacheService, AccountService accountService) {
     this.redisCacheService = redisCacheService;
@@ -161,7 +159,7 @@ public class JwtOIDCProvider {
 
   public Authentication getAuthentication(JwtPayload jwtPayload, String idToken) {
     Optional<Account> accountOptional = accountService.saveAndGetAccount(jwtPayload);
-    
+
     return accountOptional.map(account -> {
       UserDetails userDetails = Account.builder()
           .email(account.getEmail())

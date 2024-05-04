@@ -6,12 +6,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -37,6 +33,9 @@ public class Account extends EditInfomation implements UserDetails {
   private String name;
 
   @Column
+  private String ecclesiaUid;
+
+  @Column
   private String rrn;
 
   @Column
@@ -52,13 +51,16 @@ public class Account extends EditInfomation implements UserDetails {
   private String id_token;
 
   @Builder
-  public Account(long uid, String name, String rrn, String phone, String email, RoleType role) {
+  public Account(long uid, String name, String ecclesiaUid, String rrn, String phone, String email,
+      RoleType role, String id_token) {
     this.uid = uid;
     this.name = name;
+    this.ecclesiaUid = ecclesiaUid;
     this.rrn = rrn;
     this.phone = phone;
     this.email = email;
     this.role = role;
+    this.id_token = id_token;
   }
 
   @Override

@@ -24,8 +24,15 @@ public class AccountController {
   private final AccountService accountService;
 
   @PostMapping("/all")
-  public ResponseEntity<Object> getAccount() {
+  public ResponseEntity<Object> getAccountAll() {
     return new ResponseEntity<>(accountService.getAccountAll(), HttpStatus.OK);
+  }
+
+  @PostMapping("/getEcclesiaAccount/{ecclesiaUid}")
+  public ResponseEntity<Object> getAccountByEcclesiaUid(
+      @PathVariable(name = "ecclesiaUid") String ecclesiaUid) {
+    return CommonResponse.response(accountService.getAccountByEcclesiaUid(ecclesiaUid),
+        HttpStatus.OK);
   }
 
   @GetMapping("/{id}")
