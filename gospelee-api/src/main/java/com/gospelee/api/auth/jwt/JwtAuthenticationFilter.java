@@ -18,7 +18,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   // 인증에서 제외할 url
   private static final List<String> EXCLUDE_SERVLET_PATH_LIST =
-      List.of("");
+      List.of("/bible/*");
   private final JwtOIDCProvider jwtOIDCProvider;
 
   public JwtAuthenticationFilter(JwtOIDCProvider jwtOIDCProvider) {
@@ -39,11 +39,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     filterChain.doFilter(request, response);
   }
 
-  // EXCLUDE_URL과 동일한 요청이 들어왔을 경우, 현재 필터를 진행하지 않고 다음 필터 진행
   @Override
-  protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+  protected boolean shouldNotFilter(HttpServletRequest request) {
     return EXCLUDE_SERVLET_PATH_LIST.stream()
-        .anyMatch(exclude -> exclude.equalsIgnoreCase(request.getServletPath()));
+        .anyMatch(path -> path.contains("*") ? request.getServletPath()
+            .startsWith(path.split("\\/\\*")[0]) : path.equals(request.getServletPath()));
   }
 
   private void setAuthenticationToContext(JwtPayload jwtPayload, String idToken) {
