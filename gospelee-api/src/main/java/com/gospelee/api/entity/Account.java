@@ -3,6 +3,8 @@ package com.gospelee.api.entity;
 import com.gospelee.api.entity.common.EditInfomation;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -45,9 +47,10 @@ public class Account extends EditInfomation implements UserDetails {
   private String email;
 
   @Column
+  @Enumerated(EnumType.STRING)
   private RoleType role;
 
-  @Column
+  @Column(length = 1000)
   private String id_token;
 
   @Builder

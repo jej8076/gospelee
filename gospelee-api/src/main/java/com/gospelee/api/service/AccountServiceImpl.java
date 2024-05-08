@@ -50,13 +50,14 @@ public class AccountServiceImpl implements AccountService {
             () -> new NoSuchElementException("No account found with the given token: " + token));
   }
 
-  public Optional<Account> saveAndGetAccount(JwtPayload jwtPayload) {
+  public Optional<Account> saveAndGetAccount(JwtPayload jwtPayload, String idToken) {
     return accountRepository.findByEmail(jwtPayload.getEmail())
         .map(Optional::of).orElseGet(() -> {
           Account account = Account.builder()
               .name(jwtPayload.getNickname())
               .email(jwtPayload.getEmail())
               .role(RoleType.LAYMAN)
+              .id_token(idToken)
               .build();
           // 계정이 존재하지 않는 경우 새로운 계정을 저장함
           Account savedAccount = accountRepository.save(account);

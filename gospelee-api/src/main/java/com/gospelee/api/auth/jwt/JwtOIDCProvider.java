@@ -158,13 +158,14 @@ public class JwtOIDCProvider {
   }
 
   public Authentication getAuthentication(JwtPayload jwtPayload, String idToken) {
-    Optional<Account> accountOptional = accountService.saveAndGetAccount(jwtPayload);
+    Optional<Account> accountOptional = accountService.saveAndGetAccount(jwtPayload, idToken);
 
     return accountOptional.map(account -> {
       UserDetails userDetails = Account.builder()
           .email(account.getEmail())
           .name(account.getName())
           .role(RoleType.LAYMAN)
+          .id_token(account.getId_token())
           .build();
       return new UsernamePasswordAuthenticationToken(userDetails, idToken,
           userDetails.getAuthorities());

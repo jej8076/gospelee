@@ -15,5 +15,5 @@ public interface AccountService {
 
   Optional<Account> getAccountByToken(String token);
 
-  Optional<Account> saveAndGetAccount(JwtPayload jwtPayload);
+  Optional<Account> saveAndGetAccount(JwtPayload jwtPayload, String idToken);
 }
