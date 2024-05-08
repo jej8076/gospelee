@@ -3,6 +3,7 @@ package com.gospelee.api.controller;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.standard.CommonResponse;
+import java.util.List;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,8 @@ public class AccountController {
 
   @PostMapping("/all")
   public ResponseEntity<Object> getAccountAll() {
-    return new ResponseEntity<>(accountService.getAccountAll(), HttpStatus.OK);
+    List<Account> getAccountAll = accountService.getAccountAll();
+    return new ResponseEntity<>(getAccountAll, HttpStatus.OK);
   }
 
   @PostMapping("/getEcclesiaAccount/{ecclesiaUid}")

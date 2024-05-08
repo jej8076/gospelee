@@ -31,6 +31,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 @Component
 public class JwtOIDCProvider {
@@ -98,6 +99,10 @@ public class JwtOIDCProvider {
   }
 
   private boolean validationIdToken(String idToken) throws JsonProcessingException {
+
+    if (ObjectUtils.isEmpty(idToken)) {
+      return false;
+    }
 
     String[] idTokenArr = idToken.split("\\.");
 
