@@ -1,8 +1,9 @@
 package com.gospelee.api.controller;
 
+import com.gospelee.api.dto.Ecclesia.EcclesiaDTO;
 import com.gospelee.api.entity.Account;
+import com.gospelee.api.entity.RoleType;
 import com.gospelee.api.service.AccountService;
-import com.gospelee.api.standard.CommonResponse;
 import java.util.List;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,10 +32,18 @@ public class AccountController {
     return new ResponseEntity<>(getAccountAll, HttpStatus.OK);
   }
 
-  @PostMapping("/getEcclesiaAccount/{ecclesiaUid}")
-  public ResponseEntity<Object> getAccountByEcclesiaUid(
-      @PathVariable(name = "ecclesiaUid") String ecclesiaUid) {
-    return CommonResponse.response(accountService.getAccountByEcclesiaUid(ecclesiaUid),
+  @PostMapping("/getAccount")
+  public ResponseEntity<Object> getAccountByEcclesiaUid(@AuthenticationPrincipal Account account,
+      EcclesiaDTO ecclesiaDTO) {
+    if (RoleType.ADMIN.getName().equals(account.getRole().getName())) {
+      if (ObjectUtils.isEmpty(ecclesiaDTO.getEcclesiaUid())) {
+        List<Account> getAccountAll = accountService.getAccountAll();
+        return new ResponseEntity<>(getAccountAll, HttpStatus.OK);
+      }
+      return new ResponseEntity<>(
+          accountService.getAccountByEcclesiaUid(ecclesiaDTO.getEcclesiaUid()), HttpStatus.OK);
+    }
+    return new ResponseEntity<>(accountService.getAccountByEcclesiaUid(account.getEcclesiaUid()),
         HttpStatus.OK);
   }
 
@@ -53,7 +63,7 @@ public class AccountController {
    */
   @PostMapping("/kakao/getAccount")
   public ResponseEntity<Object> saveAccount(@AuthenticationPrincipal Account account) {
-    return CommonResponse.response(account, HttpStatus.OK);
+    return new ResponseEntity<>(account, HttpStatus.OK);
   }
 
   @GetMapping("/get/{token}")

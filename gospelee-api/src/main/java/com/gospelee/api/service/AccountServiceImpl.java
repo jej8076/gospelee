@@ -52,7 +52,9 @@ public class AccountServiceImpl implements AccountService {
 
   public Optional<Account> saveAndGetAccount(JwtPayload jwtPayload, String idToken) {
     return accountRepository.findByEmail(jwtPayload.getEmail())
-        .map(Optional::of).orElseGet(() -> {
+        .map(acc -> Optional.of(
+            accountRepository.updateAccountIdTokenAndFindById(acc.getUid(), idToken)))
+        .orElseGet(() -> {
           Account account = Account.builder()
               .name(jwtPayload.getNickname())
               .email(jwtPayload.getEmail())
@@ -62,7 +64,7 @@ public class AccountServiceImpl implements AccountService {
           // 계정이 존재하지 않는 경우 새로운 계정을 저장함
           Account savedAccount = accountRepository.save(account);
 
-          if (ObjectUtils.isEmpty(account)) {
+          if (ObjectUtils.isEmpty(savedAccount)) {
             throw new RuntimeException("Account 저장 실패");
           }
 

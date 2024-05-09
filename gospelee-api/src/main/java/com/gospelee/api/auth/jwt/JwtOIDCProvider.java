@@ -36,7 +36,6 @@ import org.springframework.util.ObjectUtils;
 @Component
 public class JwtOIDCProvider {
 
-  private static final String KID = "kid";
   private final RedisCacheService redisCacheService;
   private final AccountService accountService;
   @Value("${kakao.issuer}")

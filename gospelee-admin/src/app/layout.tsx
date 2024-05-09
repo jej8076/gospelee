@@ -20,6 +20,7 @@ import {ChevronDownIcon, MagnifyingGlassIcon} from '@heroicons/react/20/solid'
 
 const navigation = [
   {name: '대시보드', id: 'main', href: '/main', icon: HomeIcon},
+  {name: '에클레시아', id: 'ecclesia', href: '/user', icon: FolderIcon},
   {name: '성도님들', id: 'user', href: '/user', icon: UsersIcon},
 ]
 const teams = [

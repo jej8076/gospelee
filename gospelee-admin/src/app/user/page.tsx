@@ -28,11 +28,11 @@ export default function User() {
 
   const fetchUsers = async () => {
     try {
-      await fetch("http://localhost:8008/api/account/all", {
+      await fetch("http://localhost:8008/api/account/getAccount", {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
-          "id_token": "eyJraWQiOiI5ZjI1MmRhZGQ1ZjIzM2Y5M2QyZmE1MjhkMTJmZWEiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJiYzlhYzBmZDRjZDE3YTg1OGM5NzFmNmQ0YWVkZTMwNSIsInN1YiI6IjMyNTI5MjcyMTIiLCJhdXRoX3RpbWUiOjE3MTUxNDc5ODIsImlzcyI6Imh0dHBzOi8va2F1dGgua2FrYW8uY29tIiwibmlja25hbWUiOiLsoJXsnZjsp4QiLCJleHAiOjE3MTUxOTExODIsImlhdCI6MTcxNTE0Nzk4MiwiZW1haWwiOiJqZWpAa2FrYW8uY29tIn0.dqQPzXdHJqsucWaNy3BvqgHf8b8GprS3KM-z62y_HdEPtSseTJAN4_MveOQBhRpSw0tVBI6_jKNm9n9Ih8mcDqENjXAmdotGHahuYbXlFj5afMlUuuIALz5xq7O4F1lX2nKuCODixpzf_V2XOp4X1CayZAISQVXZOdFhwO4IILJTUm0FnM3QDhddTj4z4Z3g9yiQeu5B2gsYDECWlXJbhbbrBVO9PoeT1ojjkiR9wRYl3J9SSriOGQ9W8a4M4_0TSmGcGpBSqdxkpYVDL1de6V_lm3T1SrHLvU4qHbIYnZ2bvLP7aiw1bi2pH7Wuk2eat83WIszzH0kjK7QGDJmdFQ"
+          "id_token": "eyJraWQiOiI5ZjI1MmRhZGQ1ZjIzM2Y5M2QyZmE1MjhkMTJmZWEiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJiYzlhYzBmZDRjZDE3YTg1OGM5NzFmNmQ0YWVkZTMwNSIsInN1YiI6IjMyNTI5MjcyMTIiLCJhdXRoX3RpbWUiOjE3MTUyMzMzNTUsImlzcyI6Imh0dHBzOi8va2F1dGgua2FrYW8uY29tIiwibmlja25hbWUiOiLsoJXsnZjsp4QiLCJleHAiOjE3MTUyNzY1NTUsImlhdCI6MTcxNTIzMzM1NSwiZW1haWwiOiJqZWpAa2FrYW8uY29tIn0.Tc65eVnHwZdSKxWdtoRIKYOPkWjLUj88bNpBlBAjHWzq59xjM1ua7jX_5FFaOyFhGaQov1o5By9AZ2sLJtBqntWjNrg8SMlPBouSZO0vTo071_v6Ltsu4NMpA3UXP4ZvzqRjlpr1tC0frwBZCwICDtgMOb1JVmwYdrd_RN7ZXYHpusRB7qrWGBtdi_GejVOM8ffJWi6DF4rCIMSmbp9uS-QV6Gmvvp8iSrVTXK4woA9HITNl55rdfW5mhD8KTwF2YdK9G8MlIVgvhTmNZZaezh5vDAwhhuccP-qPwRukglUyf0LWUuNG-eeA9BAh8VK0snOeQKPo1xONYM5u991x9Q"
         },
       })
       .then((response) => {
@@ -96,7 +96,7 @@ export default function User() {
                 </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                {people.map((person) => (
+                {people.length <= 0 ? null : people.map((person) => (
                     <tr key={person.email}>
                       <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
                         <div className="flex items-center">
