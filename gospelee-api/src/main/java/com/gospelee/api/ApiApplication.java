@@ -2,6 +2,7 @@ package com.gospelee.api;
 
 import com.gospelee.api.dto.Account.AccountDTO;
 import com.gospelee.api.entity.Account;
+import com.gospelee.api.entity.RoleType;
 import com.gospelee.api.repository.AccountRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -26,9 +27,10 @@ public class ApiApplication {
     return (args) -> {
       if (accountRepository.count() == 0) {
         AccountDTO account = AccountDTO.builder()
-            .name("정의진")
+            .name("관리자")
             .phone("01024318076")
             .rrn("9108141155812")
+            .roleType(RoleType.ADMIN)
             .build();
         Account entity = (Account) FieldUtil.toEntity(account);
         accountRepository.save(entity);

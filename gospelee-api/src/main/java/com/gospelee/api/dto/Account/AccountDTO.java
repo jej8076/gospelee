@@ -1,6 +1,7 @@
 package com.gospelee.api.dto.Account;
 
 import com.gospelee.api.annotation.validation.PhoneNumber;
+import com.gospelee.api.entity.RoleType;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,6 +20,8 @@ public class AccountDTO {
   @PhoneNumber
   @NotEmpty(message = "핸드폰 번호는 필수 값입니다.. (엄 근 진)")
   private String phone;
+
+  private RoleType roleType;
 
   private AccountKakaoTokenDTO accountKakaoTokenDTO;
 

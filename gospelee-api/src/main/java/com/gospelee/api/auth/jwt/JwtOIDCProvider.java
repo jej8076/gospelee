@@ -168,7 +168,7 @@ public class JwtOIDCProvider {
       UserDetails userDetails = Account.builder()
           .email(account.getEmail())
           .name(account.getName())
-          .role(RoleType.LAYMAN)
+          .role(account.getRole())
           .id_token(account.getId_token())
           .build();
       return new UsernamePasswordAuthenticationToken(userDetails, idToken,

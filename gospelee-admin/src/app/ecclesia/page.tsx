@@ -10,29 +10,17 @@ type Users = {
   image: string
 };
 
-// const people = [
-//   {
-//     name: 'Lindsay Walton',
-//     title: 'Front-end Developer',
-//     department: 'Optimization',
-//     email: 'lindsay.walton@example.com',
-//     role: 'Member',
-//     image:
-//         'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-//   }
-// ]
-
-export default function User() {
+export default function Ecclesia() {
 
   const [people, setPeople] = useState<Users[]>([]);
 
   const fetchUsers = async () => {
     try {
-      await fetch("http://localhost:8008/api/account/getAccount", {
+      await fetch("http://localhost:8008/api/account/all", {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
-          "id_token": "eyJraWQiOiI5ZjI1MmRhZGQ1ZjIzM2Y5M2QyZmE1MjhkMTJmZWEiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJiYzlhYzBmZDRjZDE3YTg1OGM5NzFmNmQ0YWVkZTMwNSIsInN1YiI6IjMyNTI5MjcyMTIiLCJhdXRoX3RpbWUiOjE3MTUyOTgxOTQsImlzcyI6Imh0dHBzOi8va2F1dGgua2FrYW8uY29tIiwibmlja25hbWUiOiLsoJXsnZjsp4QiLCJleHAiOjE3MTUzNDEzOTQsImlhdCI6MTcxNTI5ODE5NCwiZW1haWwiOiJqZWpAa2FrYW8uY29tIn0.GtZAxOO-mSF9aJuSdiMpQH55J4KmBV_h4pWVpVB0PIHYvQRWVGLSOT1lTBPIiNxZI4OhWcXX8qLr5fEncM0HfsUvPuwcCAubAwqqDYw5gTnM3Be2_zCbhfLeK51_UPs2bsbOrEVV6wqEISjUJm0wPHMBuapButtHb62aI9W0-8se5TS9jqXT2SOT7ap_dfzbejbplu6MYLkf_g9E40PtdfRlQRSdd30BvntvEKgXUQ0YuBoYQYH3ZxkWhJyiinyokOx4tHwvY1G1KNN9lwEOnmkgN1o_TzMrVNnKQ68VF9INbJSPZDGDlepnV5tRJppbv5FQ1cRRC5MoJW5BegHZ-w"
+          "id_token": "eyJraWQiOiI5ZjI1MmRhZGQ1ZjIzM2Y5M2QyZmE1MjhkMTJmZWEiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJiYzlhYzBmZDRjZDE3YTg1OGM5NzFmNmQ0YWVkZTMwNSIsInN1YiI6IjMyNTI5MjcyMTIiLCJhdXRoX3RpbWUiOjE3MTUxNDc5ODIsImlzcyI6Imh0dHBzOi8va2F1dGgua2FrYW8uY29tIiwibmlja25hbWUiOiLsoJXsnZjsp4QiLCJleHAiOjE3MTUxOTExODIsImlhdCI6MTcxNTE0Nzk4MiwiZW1haWwiOiJqZWpAa2FrYW8uY29tIn0.dqQPzXdHJqsucWaNy3BvqgHf8b8GprS3KM-z62y_HdEPtSseTJAN4_MveOQBhRpSw0tVBI6_jKNm9n9Ih8mcDqENjXAmdotGHahuYbXlFj5afMlUuuIALz5xq7O4F1lX2nKuCODixpzf_V2XOp4X1CayZAISQVXZOdFhwO4IILJTUm0FnM3QDhddTj4z4Z3g9yiQeu5B2gsYDECWlXJbhbbrBVO9PoeT1ojjkiR9wRYl3J9SSriOGQ9W8a4M4_0TSmGcGpBSqdxkpYVDL1de6V_lm3T1SrHLvU4qHbIYnZ2bvLP7aiw1bi2pH7Wuk2eat83WIszzH0kjK7QGDJmdFQ"
         },
       })
       .then((response) => {
@@ -96,7 +84,7 @@ export default function User() {
                 </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                {!(people.length > 0) ? null : people.map((person) => (
+                {people.map((person) => (
                     <tr key={person.email}>
                       <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
                         <div className="flex items-center">
