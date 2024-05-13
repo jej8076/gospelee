@@ -170,6 +170,7 @@ public class JwtOIDCProvider {
           .name(account.getName())
           .role(account.getRole())
           .id_token(account.getId_token())
+          .ecclesiaUid(account.getEcclesiaUid())
           .build();
       return new UsernamePasswordAuthenticationToken(userDetails, idToken,
           userDetails.getAuthorities());

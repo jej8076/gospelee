@@ -1,6 +1,6 @@
 "use client"
 import "./globals.css";
-import {Fragment, useState} from 'react'
+import {Fragment, useEffect, useState} from 'react'
 import {usePathname} from 'next/navigation'
 import {Dialog, Menu, Transition} from '@headlessui/react'
 import Link from "next/link";
@@ -20,8 +20,9 @@ import {ChevronDownIcon, MagnifyingGlassIcon} from '@heroicons/react/20/solid'
 
 const navigation = [
   {name: '대시보드', id: 'main', href: '/main', icon: HomeIcon},
-  {name: '에클레시아', id: 'ecclesia', href: '/user', icon: FolderIcon},
+  {name: '에클레시아', id: 'ecclesia', href: '/ecclesia', icon: FolderIcon},
   {name: '성도님들', id: 'user', href: '/user', icon: UsersIcon},
+  {name: '공지관리', id: 'noti', href: '/noti', icon: UsersIcon},
 ]
 const teams = [
   {id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false},
@@ -34,7 +35,7 @@ const userNavigation = [
 ]
 
 function classNames(...classes: String[]) {
-  return classes.filter(Boolean).join(' ')
+  return classes.filter(Boolean).join('  ')
 }
 
 export default function MainLayout({children}: Readonly<{

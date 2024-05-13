@@ -18,7 +18,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   // 인증에서 제외할 url
   private static final List<String> EXCLUDE_SERVLET_PATH_LIST =
-      List.of("/bible/*");
+      List.of(
+          "/bible/*"
+      );
   private final JwtOIDCProvider jwtOIDCProvider;
 
   public JwtAuthenticationFilter(JwtOIDCProvider jwtOIDCProvider) {
