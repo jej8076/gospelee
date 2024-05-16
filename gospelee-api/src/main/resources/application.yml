@@ -42,7 +42,3 @@ redis:
 kakao:
   issuer: https://kauth.kakao.com
   app-key: bc9ac0fd4cd17a858c971f6d4aede305
-
-firebase:
-  admin-sdk:
-    path: firebase/oog-dev-firebase-adminsdk-9zrmg-6208291886.json
