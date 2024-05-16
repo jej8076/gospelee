@@ -32,7 +32,7 @@ export default function User() {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
-          "id_token": "eyJraWQiOiI5ZjI1MmRhZGQ1ZjIzM2Y5M2QyZmE1MjhkMTJmZWEiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJiYzlhYzBmZDRjZDE3YTg1OGM5NzFmNmQ0YWVkZTMwNSIsInN1YiI6IjMyNTI5MjcyMTIiLCJhdXRoX3RpbWUiOjE3MTU2NDIyNjAsImlzcyI6Imh0dHBzOi8va2F1dGgua2FrYW8uY29tIiwibmlja25hbWUiOiLsoJXsnZjsp4QiLCJleHAiOjE3MTU2ODU0NjAsImlhdCI6MTcxNTY0MjI2MCwiZW1haWwiOiJqZWpAa2FrYW8uY29tIn0.mt2DwJ55GZMiuv93jmmDaT7JpHzGWveCEB3FX5oKeUR8jT7UHtIzscVnz7NBO6evQud3BgifB_HF_xLWvFPPIcTGwjgK3ilWnb-lHASh7GT-ECjZvNEwLcbJBWbcuKTMdTkMS9mNwC99syW_hs5fX6LRyNcVHThYYH2oBVZMrK6OpfXsJVfrfvLjgVclpRVhsqb4IYlo1Kcr9RmI3PMs1HmNLOX-F6xhdGOEtXhOVCb2rRa9977w9205920pTip8ui4x6niKf160QuZ9X1YGsVvroliICx7JKRYptABFJl_kIubEtZpUdt9bhwEUJhypLVcCFyOuHyfyxnwWDoDWUA"
+          "id_token": "eyJraWQiOiI5ZjI1MmRhZGQ1ZjIzM2Y5M2QyZmE1MjhkMTJmZWEiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJiYzlhYzBmZDRjZDE3YTg1OGM5NzFmNmQ0YWVkZTMwNSIsInN1YiI6IjMyNTI5MjcyMTIiLCJhdXRoX3RpbWUiOjE3MTU1NjAxOTgsImlzcyI6Imh0dHBzOi8va2F1dGgua2FrYW8uY29tIiwibmlja25hbWUiOiLsoJXsnZjsp4QiLCJleHAiOjE3MTU2MDMzOTgsImlhdCI6MTcxNTU2MDE5OCwiZW1haWwiOiJqZWpAa2FrYW8uY29tIn0.gBSrVRFVvlkD-kfh2yYpvUXb7RMXFa2dvadTiChIPlfH0Iw953K43L3RFtDq3zrTsXoHk5gO6SLhc9jHlND8FkTWlV38rsvvLWntxCl_0c_7Zg3CA1S1-3DM9bI3nOE78DRE3VG1f6O1APlzrs_YuEuEXvyEBzGNHrQqgfl1JnXVMo2uq2DTo_Z01uYBTcMLMc7BuM0cc4rLDdlpH0DkenaIGBYBIJyMb9z22DP_9tkXYB_v7BzDYNrx1WD-iYtTNlbPaDpHgKuGcwsXVfo2SkAVGnQ8UdiP_zw-ofUSpVxOB8Rx74xnZxfRQ2FNlni2yU0mAQQG2bou1YMJaysRxw"
         },
       })
       .then((response) => {
@@ -50,7 +50,7 @@ export default function User() {
     fetchUsers();
   }, []);
 
-  return !(people.length > 0) ? null : (
+  return (
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="sm:flex sm:items-center">
           <div className="sm:flex-auto">
@@ -96,7 +96,7 @@ export default function User() {
                 </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                {people.map((person) => (
+                {!(people.length > 0) ? null : people.map((person) => (
                     <tr key={person.email}>
                       <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
                         <div className="flex items-center">

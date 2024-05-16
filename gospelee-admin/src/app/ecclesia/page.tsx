@@ -36,7 +36,7 @@ export default function Ecclesia() {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
-          "id_token": "eyJraWQiOiI5ZjI1MmRhZGQ1ZjIzM2Y5M2QyZmE1MjhkMTJmZWEiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJiYzlhYzBmZDRjZDE3YTg1OGM5NzFmNmQ0YWVkZTMwNSIsInN1YiI6IjMyNTI5MjcyMTIiLCJhdXRoX3RpbWUiOjE3MTU2NDIyNjAsImlzcyI6Imh0dHBzOi8va2F1dGgua2FrYW8uY29tIiwibmlja25hbWUiOiLsoJXsnZjsp4QiLCJleHAiOjE3MTU2ODU0NjAsImlhdCI6MTcxNTY0MjI2MCwiZW1haWwiOiJqZWpAa2FrYW8uY29tIn0.mt2DwJ55GZMiuv93jmmDaT7JpHzGWveCEB3FX5oKeUR8jT7UHtIzscVnz7NBO6evQud3BgifB_HF_xLWvFPPIcTGwjgK3ilWnb-lHASh7GT-ECjZvNEwLcbJBWbcuKTMdTkMS9mNwC99syW_hs5fX6LRyNcVHThYYH2oBVZMrK6OpfXsJVfrfvLjgVclpRVhsqb4IYlo1Kcr9RmI3PMs1HmNLOX-F6xhdGOEtXhOVCb2rRa9977w9205920pTip8ui4x6niKf160QuZ9X1YGsVvroliICx7JKRYptABFJl_kIubEtZpUdt9bhwEUJhypLVcCFyOuHyfyxnwWDoDWUA"
+          "id_token": "eyJraWQiOiI5ZjI1MmRhZGQ1ZjIzM2Y5M2QyZmE1MjhkMTJmZWEiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJiYzlhYzBmZDRjZDE3YTg1OGM5NzFmNmQ0YWVkZTMwNSIsInN1YiI6IjMyNTI5MjcyMTIiLCJhdXRoX3RpbWUiOjE3MTU1NjAxOTgsImlzcyI6Imh0dHBzOi8va2F1dGgua2FrYW8uY29tIiwibmlja25hbWUiOiLsoJXsnZjsp4QiLCJleHAiOjE3MTU2MDMzOTgsImlhdCI6MTcxNTU2MDE5OCwiZW1haWwiOiJqZWpAa2FrYW8uY29tIn0.gBSrVRFVvlkD-kfh2yYpvUXb7RMXFa2dvadTiChIPlfH0Iw953K43L3RFtDq3zrTsXoHk5gO6SLhc9jHlND8FkTWlV38rsvvLWntxCl_0c_7Zg3CA1S1-3DM9bI3nOE78DRE3VG1f6O1APlzrs_YuEuEXvyEBzGNHrQqgfl1JnXVMo2uq2DTo_Z01uYBTcMLMc7BuM0cc4rLDdlpH0DkenaIGBYBIJyMb9z22DP_9tkXYB_v7BzDYNrx1WD-iYtTNlbPaDpHgKuGcwsXVfo2SkAVGnQ8UdiP_zw-ofUSpVxOB8Rx74xnZxfRQ2FNlni2yU0mAQQG2bou1YMJaysRxw"
         },
       })
       .then((response) => {
@@ -56,7 +56,7 @@ export default function Ecclesia() {
 
   return (
       <ul role="list" className="divide-y divide-gray-100">
-        {!(ecc.length > 0) ? null : ecc.map((person) => (
+        {ecc.map((person) => (
             <li key={person.email} className="relative flex justify-between gap-x-6 py-5">
               <div className="flex min-w-0 gap-x-4">
                 <img className="h-12 w-12 flex-none rounded-full bg-gray-50" src={person.imageUrl}
