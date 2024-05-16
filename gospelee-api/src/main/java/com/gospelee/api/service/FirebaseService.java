@@ -8,9 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 public class FirebaseService {
@@ -39,14 +37,14 @@ public class FirebaseService {
 
     final HttpEntity<String> httpEntity = new HttpEntity<>(message, httpHeaders);
 
-    final String fcmRequestUrl = PREFIX_FCM_REQUEST_URL + projectId + POSTFIX_FCM_REQUEST_URL;
+//    final String fcmRequestUrl = PREFIX_FCM_REQUEST_URL + projectId + POSTFIX_FCM_REQUEST_URL;
 
-    final ResponseEntity<String> exchange = restTemplate.exchange(
-        fcmRequestUrl,
-        HttpMethod.POST,
-        httpEntity,
-        String.class
-    );
+//    final ResponseEntity<String> exchange = restTemplate.exchange(
+//        fcmRequestUrl,
+//        HttpMethod.POST,
+//        httpEntity,
+//        String.class
+//    );
 
   }
 
