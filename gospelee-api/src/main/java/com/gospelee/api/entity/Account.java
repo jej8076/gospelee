@@ -53,9 +53,12 @@ public class Account extends EditInfomation implements UserDetails {
   @Column(length = 1000)
   private String id_token;
 
+  @Column(length = 1000)
+  private String pushToken;
+
   @Builder
   public Account(long uid, String name, String ecclesiaUid, String rrn, String phone, String email,
-      RoleType role, String id_token) {
+      RoleType role, String id_token, String pushToken) {
     this.uid = uid;
     this.name = name;
     this.ecclesiaUid = ecclesiaUid;
@@ -64,6 +67,7 @@ public class Account extends EditInfomation implements UserDetails {
     this.email = email;
     this.role = role;
     this.id_token = id_token;
+    this.pushToken = pushToken;
   }
 
   @Override

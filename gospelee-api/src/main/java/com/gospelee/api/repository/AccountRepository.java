@@ -3,7 +3,6 @@ package com.gospelee.api.repository;
 import com.gospelee.api.entity.Account;
 import io.lettuce.core.dynamic.annotation.Param;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -29,4 +28,11 @@ public interface AccountRepository extends JpaRepository<Account, String> {
     updateAccountIdTokenByUid(uid, idToken, LocalDateTime.now());
     return findById(String.valueOf(uid)).orElse(null);
   }
+
+  @Modifying
+  @Transactional
+  @Query("UPDATE Account a SET a.pushToken = :pushToken, a.updateTime = :updateTime WHERE a.uid = :uid")
+  void savePushToken(@Param("uid") Long uid, @Param("pushToken") String pushToken,
+      @Param("updateTime") LocalDateTime updateTime);
+
 }

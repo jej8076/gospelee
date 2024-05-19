@@ -1,87 +1,34 @@
 package com.gospelee.api.service;
 
-import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
-import java.io.IOException;
-import java.util.List;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.stereotype.Service;
 
+@Service
 public class FirebaseService {
 
-  private final String PREFIX_ACCESS_TOKEN = "bearer ";
+  private final FirebaseMessaging firebaseMessaging;
 
-  @Value("${firebase.admin-sdk.path}")
-  private String firebaseSdkPath;
-
-  public void sendMessageTo(final Long receiverId, final Notification notification)
-      throws IOException {
-
-    RestTemplate restTemplate = new RestTemplate();
-    //알림 요청 받는 사람의 FCM Token이 존재하는지 확인
-//    final FcmToken fcmToken = fcmTokenRepository.findByMemberId(receiverId)
-//        .orElseThrow(() -> new NotificationException(NOT_FOUND_FCM_TOKEN));
-
-    //메시지 만들기
-//    final String message = makeMessage(fcmToken.getToken(), notification);
-    final String message = makeMessage("", notification);
-
-    final HttpHeaders httpHeaders = new HttpHeaders();
-    httpHeaders.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-    //OAuth 2.0 사용
-    httpHeaders.add(HttpHeaders.AUTHORIZATION, PREFIX_ACCESS_TOKEN + getAccessToken());
-
-    final HttpEntity<String> httpEntity = new HttpEntity<>(message, httpHeaders);
-
-    final String fcmRequestUrl = PREFIX_FCM_REQUEST_URL + projectId + POSTFIX_FCM_REQUEST_URL;
-
-    final ResponseEntity<String> exchange = restTemplate.exchange(
-        fcmRequestUrl,
-        HttpMethod.POST,
-        httpEntity,
-        String.class
-    );
-
+  public FirebaseService(FirebaseMessaging firebaseMessaging) {
+    this.firebaseMessaging = firebaseMessaging;
   }
 
-  private String makeMessage(final String targetToken, final Notification notification) {
+  public String sendNotification(String pushToken, String title, String content)
+      throws FirebaseMessagingException {
 
-//    final Long senderId = notification.getSenderId();
-//    final Member sender = memberRepository.findById(senderId)
-//        .orElseThrow(() -> new MemberException(MemberExceptionType.NOT_FOUND_MEMBER));
-//
-//    final Data messageData = new Data(
-//        sender.getName(), senderId.toString(),
-//        notification.getReceiverId().toString(), notification.getMessage(),
-//        sender.getOpenProfileUrl()
-//    );
-//
-//    final Message message = new Message(messageData, targetToken);
-//
-//    final FcmMessage fcmMessage = new FcmMessage(DEFAULT_VALIDATE_ONLY, message);
-//
-//    try {
-//      return objectMapper.writeValueAsString(fcmMessage);
-//    } catch (JsonProcessingException e) {
-//      log.error("메세지 보낼 때 JSON 변환 에러", e);
-//      throw new NotificationException(CONVERTING_JSON_ERROR);
-//    }
-    return "";
-  }
+    Notification notification = Notification.builder()
+        .setTitle(title)
+        .setBody(content)
+        .build();
 
-  private String getAccessToken() throws IOException {
-    GoogleCredentials googleCredentials = GoogleCredentials
-        .fromStream(new ClassPathResource(firebaseSdkPath).getInputStream())
-        .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
+    Message message = Message.builder()
+        .setNotification(notification)
+        .setToken(pushToken)
+        .build();
 
-    googleCredentials.refreshIfExpired();
-    return googleCredentials.getAccessToken().getTokenValue();
+    return firebaseMessaging.send(message);
   }
 
 }

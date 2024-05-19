@@ -1,22 +1,24 @@
 package com.gospelee.api.controller;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.gospelee.api.dto.Ecclesia.EcclesiaDTO;
+import com.gospelee.api.dto.firebase.PushTokenRequest;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.RoleType;
 import com.gospelee.api.service.AccountService;
+import com.gospelee.api.service.FirebaseService;
 import java.util.List;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,6 +29,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountController {
 
   private final AccountService accountService;
+
+  private final FirebaseService firebaseService;
 
   @PostMapping("/all")
   public ResponseEntity<Object> getAccountAll() {
@@ -64,7 +68,10 @@ public class AccountController {
    * @return
    */
   @PostMapping("/kakao/getAccount")
-  public ResponseEntity<Object> saveAccount(@AuthenticationPrincipal Account account) {
+  public ResponseEntity<Object> saveAccount(@AuthenticationPrincipal Account account,
+      @RequestBody PushTokenRequest pushTokenRequest) {
+    accountService.savePushToken(account.getUid(), pushTokenRequest.getPushToken());
+    // save 결과와 상관없이 principal 정보를 return 한다
     return new ResponseEntity<>(account, HttpStatus.OK);
   }
 
@@ -73,6 +80,15 @@ public class AccountController {
     return new ResponseEntity<>(accountService.getAccountByToken(token)
         .orElseThrow(() -> new NoSuchElementException("fail" + "code : " + token + "]")),
         HttpStatus.OK);
+  }
+
+  @GetMapping("/send/noti")
+  public String sendNotification() throws FirebaseMessagingException {
+    return firebaseService.sendNotification(
+        "et-zrxEMRzKaB9rtFaz2C9:APA91bEUurIAT2Mfm3YrsDtGUKztLiFeWKmipKetErvTfMpeqcXa3j3rku5tSxh1f11jYfO7ES_HPkulAIMvw4-1H0h1AlpxF3w6q5mmfBgsduFvk_t79tofG6g_v7FHvjQ1eUteSQCa",
+        "제목~~!",
+        "내용~!!!"
+    );
   }
 
 }

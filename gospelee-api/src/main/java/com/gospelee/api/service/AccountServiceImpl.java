@@ -5,6 +5,7 @@ import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.RoleType;
 import com.gospelee.api.repository.AccountKakaoTokenRepository;
 import com.gospelee.api.repository.AccountRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -70,6 +71,10 @@ public class AccountServiceImpl implements AccountService {
 
           return Optional.of(savedAccount);
         });
+  }
+
+  public void savePushToken(Long uid, String pushToken) {
+    accountRepository.savePushToken(uid, pushToken, LocalDateTime.now());
   }
 
 }

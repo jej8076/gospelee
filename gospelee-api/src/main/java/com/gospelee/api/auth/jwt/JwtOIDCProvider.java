@@ -9,7 +9,6 @@ import com.gospelee.api.dto.jwt.JwkDTO;
 import com.gospelee.api.dto.jwt.JwkSetDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
 import com.gospelee.api.entity.Account;
-import com.gospelee.api.entity.RoleType;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.RedisCacheService;
 import io.jsonwebtoken.Claims;
@@ -166,6 +165,7 @@ public class JwtOIDCProvider {
 
     return accountOptional.map(account -> {
       UserDetails userDetails = Account.builder()
+          .uid(account.getUid())
           .email(account.getEmail())
           .name(account.getName())
           .role(account.getRole())
