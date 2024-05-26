@@ -25,6 +25,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -33,6 +34,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
 @Component
+@Slf4j
 public class JwtOIDCProvider {
 
   private final RedisCacheService redisCacheService;
@@ -127,6 +129,7 @@ public class JwtOIDCProvider {
     long exp = Long.valueOf((Integer) map.get("exp")) * 1000;
 
     if (currentUnixTime > exp) {
+      log.error("토큰이 만료되었습니다. [token : " + idToken + "]");
       return false;
     }
 
