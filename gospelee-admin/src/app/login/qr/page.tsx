@@ -21,7 +21,7 @@ const QRCodePage = () => {
   return (
       <div>
         <h1>QR Code</h1>
-        <QRCode value={`https://your-nextjs-app.com/token?token=${token}`}/>
+        <QRCode value={`https://naver.com`}/>
         <form onSubmit={handleSubmit}>
           <input
               type="text"
