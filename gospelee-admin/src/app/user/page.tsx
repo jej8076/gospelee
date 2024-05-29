@@ -28,7 +28,7 @@ export default function User() {
 
   const fetchUsers = async () => {
     try {
-      await fetch("http://localhost:8008/api/account/getAccount", {
+      await fetch("http://13.124.200.73:8008/api/account/getAccount", {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
