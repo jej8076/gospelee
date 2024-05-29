@@ -4,7 +4,7 @@
 OOG_DEPLOY=/home/ubuntu/api
 
 # aws pem key 파일 절대 경로
-PEM_FILE=/Users/jej/dev/aws/oog.pem
+PEM_FILE=/Users/ej/dev/aws_oog/oog.pem
 
 # jar 파일 파일명
 JAR_FILE=gospelee-api-0.0.1-SNAPSHOT.jar

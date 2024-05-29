@@ -75,6 +75,12 @@ public class AccountController {
     return new ResponseEntity<>(account, HttpStatus.OK);
   }
 
+  @PostMapping("/qr/auth")
+  public ResponseEntity<Object> qrAuth(@AuthenticationPrincipal Account account) {
+    // save 결과와 상관없이 principal 정보를 return 한다
+    return new ResponseEntity<>(account, HttpStatus.OK);
+  }
+
   @GetMapping("/get/{token}")
   public ResponseEntity<Object> kakaoAuthorize(@PathVariable("token") String token) {
     return new ResponseEntity<>(accountService.getAccountByToken(token)
