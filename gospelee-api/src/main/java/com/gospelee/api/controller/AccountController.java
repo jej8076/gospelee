@@ -75,9 +75,13 @@ public class AccountController {
     return new ResponseEntity<>(account, HttpStatus.OK);
   }
 
+  // TODO 이쪽으로 호출이 들어오기 전에 토큰 검증을 거치고, 검증이 되면 이쪽에서 검증 완료를 업데이트 한다
+  // 검증 완료 됐다는 것은 admin front에 로그인 처리된 후의 화면을 보여주어도 된다는 뜻이다
+  // 추후 이 API를 사용하지 않고 앱에서 qr스캔하면 websocket을 호출하여 인증 후 바로 로그인 성공 페이지로 이동되도록 해야한다
   @PostMapping("/qr/auth")
   public ResponseEntity<Object> qrAuth(@AuthenticationPrincipal Account account) {
-    // save 결과와 상관없이 principal 정보를 return 한다
+    System.out.println("id token :: " + account.getId_token());
+    System.out.println("push token :: " + account.getPushToken());
     return new ResponseEntity<>(account, HttpStatus.OK);
   }
 
