@@ -7,11 +7,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class QrLoginDTO {
 
-  public class Request {
+  @Getter
+  @NoArgsConstructor(access = AccessLevel.PROTECTED)
+  public static class Request {
 
     private String email;
     private String code;

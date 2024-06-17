@@ -26,7 +26,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 @ToString
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SuperBuilder
 public class QrLogin extends EditInfomation {
 
   @Id
