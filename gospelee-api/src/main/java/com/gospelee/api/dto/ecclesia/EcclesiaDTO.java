@@ -1,4 +1,4 @@
-package com.gospelee.api.dto.Ecclesia;
+package com.gospelee.api.dto.ecclesia;
 
 import lombok.Builder;
 import lombok.Getter;

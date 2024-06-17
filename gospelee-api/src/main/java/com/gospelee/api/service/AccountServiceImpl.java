@@ -77,6 +77,10 @@ public class AccountServiceImpl implements AccountService {
     accountRepository.savePushToken(uid, pushToken, LocalDateTime.now());
   }
 
+  public void saveQrLoginEnter(Long uid, String pushToken) {
+    accountRepository.savePushToken(uid, pushToken, LocalDateTime.now());
+  }
+
 }
 
 

@@ -1,6 +1,6 @@
 package com.gospelee.api;
 
-import com.gospelee.api.dto.Account.AccountDTO;
+import com.gospelee.api.dto.account.AccountDTO;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.RoleType;
 import com.gospelee.api.repository.AccountRepository;

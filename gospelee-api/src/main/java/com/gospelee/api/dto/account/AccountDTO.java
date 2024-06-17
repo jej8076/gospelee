@@ -1,4 +1,4 @@
-package com.gospelee.api.dto.Account;
+package com.gospelee.api.dto.account;
 
 import com.gospelee.api.annotation.validation.PhoneNumber;
 import com.gospelee.api.entity.RoleType;

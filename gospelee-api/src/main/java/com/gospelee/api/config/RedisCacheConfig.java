@@ -45,7 +45,10 @@ public class RedisCacheConfig {
 
   @Bean
   public RedisConnectionFactory redisConnectionFactory() {
-    return new LettuceConnectionFactory(host, port);
+    LettuceConnectionFactory connectionFactory = new LettuceConnectionFactory(host, port);
+    // 옵션 추가: 외부 접속을 허용하도록 설정
+    connectionFactory.setValidateConnection(true);
+    return connectionFactory;
   }
 
   @Bean

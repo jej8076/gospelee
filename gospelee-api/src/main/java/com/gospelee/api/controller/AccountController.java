@@ -1,13 +1,21 @@
 package com.gospelee.api.controller;
 
+import static com.gospelee.api.utils.RandomStringGenerator.makeQrLoginRandomCode;
+
 import com.google.firebase.messaging.FirebaseMessagingException;
-import com.gospelee.api.dto.Ecclesia.EcclesiaDTO;
+import com.gospelee.api.dto.ecclesia.EcclesiaDTO;
 import com.gospelee.api.dto.firebase.PushTokenRequest;
+import com.gospelee.api.dto.qrlogin.QrLoginDTO;
 import com.gospelee.api.entity.Account;
+import com.gospelee.api.entity.QrLogin;
 import com.gospelee.api.entity.RoleType;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.FirebaseService;
+import com.gospelee.api.service.QrloginService;
+import com.gospelee.api.service.RedisCacheService;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +38,11 @@ public class AccountController {
 
   private final AccountService accountService;
 
+  private final QrloginService qrloginService;
+
   private final FirebaseService firebaseService;
+
+  private final RedisCacheService redisCacheService;
 
   @PostMapping("/all")
   public ResponseEntity<Object> getAccountAll() {
@@ -75,14 +87,27 @@ public class AccountController {
     return new ResponseEntity<>(account, HttpStatus.OK);
   }
 
+  @PostMapping("/qr/enter")
+  public ResponseEntity<Object> qrEnter(String email) throws FirebaseMessagingException {
+    QrLogin qrLogin = qrloginService.saveQrlogin(email);
+    Map<String, String> pushSendDataMap = new HashMap<>();
+    pushSendDataMap.put("code", qrLogin.getCode());
+    firebaseService.sendNotification(
+        "et-zrxEMRzKaB9rtFaz2C9:APA91bEUurIAT2Mfm3YrsDtGUKztLiFeWKmipKetErvTfMpeqcXa3j3rku5tSxh1f11jYfO7ES_HPkulAIMvw4-1H0h1AlpxF3w6q5mmfBgsduFvk_t79tofG6g_v7FHvjQ1eUteSQCa",
+        "로그인 정보를 ",
+        "내용~!!!",
+        pushSendDataMap
+    );
+    return new ResponseEntity<>(qrLogin, HttpStatus.OK);
+  }
+
   // TODO 이쪽으로 호출이 들어오기 전에 토큰 검증을 거치고, 검증이 되면 이쪽에서 검증 완료를 업데이트 한다
   // 검증 완료 됐다는 것은 admin front에 로그인 처리된 후의 화면을 보여주어도 된다는 뜻이다
   // 추후 이 API를 사용하지 않고 앱에서 qr스캔하면 websocket을 호출하여 인증 후 바로 로그인 성공 페이지로 이동되도록 해야한다
   @PostMapping("/qr/auth")
-  public ResponseEntity<Object> qrAuth(@AuthenticationPrincipal Account account) {
-    System.out.println("id token :: " + account.getId_token());
-    System.out.println("push token :: " + account.getPushToken());
-    return new ResponseEntity<>(account, HttpStatus.OK);
+  public ResponseEntity<Object> qrAuth(@AuthenticationPrincipal Account account, String code) {
+    QrLogin qrLogin = qrloginService.getQrLogin(account.getEmail(), code);
+    return new ResponseEntity<>(qrLogin, HttpStatus.OK);
   }
 
   @GetMapping("/get/{token}")

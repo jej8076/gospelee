@@ -1,6 +1,6 @@
 package com.gospelee.api.controller;
 
-import com.gospelee.api.dto.Bible.AccountBibleWriteDTO;
+import com.gospelee.api.dto.bible.AccountBibleWriteDTO;
 import com.gospelee.api.service.BibleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
