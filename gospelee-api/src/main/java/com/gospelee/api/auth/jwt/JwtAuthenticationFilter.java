@@ -20,7 +20,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private static final List<String> EXCLUDE_SERVLET_PATH_LIST =
       List.of(
           "/bible/*",
-          "/account/send/noti"
+          "/account/send/noti",
+          "/account/qr/enter"
       );
   private final JwtOIDCProvider jwtOIDCProvider;
 

@@ -1,11 +1,8 @@
 package com.gospelee.api.controller;
 
-import static com.gospelee.api.utils.RandomStringGenerator.makeQrLoginRandomCode;
-
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.gospelee.api.dto.ecclesia.EcclesiaDTO;
 import com.gospelee.api.dto.firebase.PushTokenRequest;
-import com.gospelee.api.dto.qrlogin.QrLoginDTO;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.QrLogin;
 import com.gospelee.api.entity.RoleType;
@@ -104,8 +101,11 @@ public class AccountController {
   // TODO 이쪽으로 호출이 들어오기 전에 토큰 검증을 거치고, 검증이 되면 이쪽에서 검증 완료를 업데이트 한다
   // 검증 완료 됐다는 것은 admin front에 로그인 처리된 후의 화면을 보여주어도 된다는 뜻이다
   // 추후 이 API를 사용하지 않고 앱에서 qr스캔하면 websocket을 호출하여 인증 후 바로 로그인 성공 페이지로 이동되도록 해야한다
-  @PostMapping("/qr/auth")
-  public ResponseEntity<Object> qrAuth(@AuthenticationPrincipal Account account, String code) {
+  @PostMapping("/qr/{code}")
+  public ResponseEntity<Object> qrAuth(
+      @AuthenticationPrincipal Account account,
+      @PathVariable(value = "code") String code
+  ) {
     QrLogin qrLogin = qrloginService.getQrLogin(account.getEmail(), code);
     return new ResponseEntity<>(qrLogin, HttpStatus.OK);
   }

@@ -1,6 +1,7 @@
 "use client"
 import {useEffect, useState} from "react";
 import {ChevronRightIcon} from '@heroicons/react/20/solid'
+import {ServerEnum} from "~/enums/ServerEnum";
 
 type Ecclesias = {
   name: string,
@@ -32,7 +33,7 @@ export default function Ecclesia() {
 
   const fetchEcclesias = async () => {
     try {
-      await fetch("http://localhost:8008/api/ecclesia/all", {
+      await fetch(`${ServerEnum.SERVER}/api/ecclesia/all`, {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
