@@ -9,11 +9,14 @@ const QRCodePage = () => {
   const searchParams = useSearchParams();
   const email = searchParams.get('email');
   const [code, setCode] = useState('');
+  let isReq = false;
 
   useEffect(() => {
-    if (!email) return;
+    if (!email || isReq) return;
 
     const callApi = async () => {
+      isReq = true;
+      console.log('API 호출 시작'); // API 호출 확인용 로그
       const response = await fetch(`${ServerEnum.SERVER}/api/account/qr/enter`, {
         method: 'POST',
         headers: {
