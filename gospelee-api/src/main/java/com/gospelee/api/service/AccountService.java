@@ -13,9 +13,10 @@ public interface AccountService {
 
   Optional<Account> getAccountByPhone(final String Phone);
 
-  Optional<Account> getAccountByToken(String token);
+  Optional<Account> getAccountByEmail(String email);
 
   Optional<Account> saveAndGetAccount(JwtPayload jwtPayload, String idToken);
 
   void savePushToken(Long uid, String pushToken);
+
 }

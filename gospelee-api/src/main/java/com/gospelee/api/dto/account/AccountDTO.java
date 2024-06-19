@@ -3,8 +3,10 @@ package com.gospelee.api.dto.account;
 import com.gospelee.api.annotation.validation.PhoneNumber;
 import com.gospelee.api.entity.RoleType;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
@@ -25,8 +27,11 @@ public class AccountDTO {
 
   private AccountKakaoTokenDTO accountKakaoTokenDTO;
 
-  private void setRrn(String rrn) {
-    this.rrn = rrn.replace("-", "");
+  @Getter
+  @NoArgsConstructor(access = AccessLevel.PRIVATE)
+  public static class QrRequest {
+
+    private String email;
   }
 
 }

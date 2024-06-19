@@ -1,6 +1,7 @@
 package com.gospelee.api.controller;
 
 import com.google.firebase.messaging.FirebaseMessagingException;
+import com.gospelee.api.dto.account.AccountDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaDTO;
 import com.gospelee.api.dto.firebase.PushTokenRequest;
 import com.gospelee.api.entity.Account;
@@ -85,14 +86,19 @@ public class AccountController {
   }
 
   @PostMapping("/qr/enter")
-  public ResponseEntity<Object> qrEnter(String email) throws FirebaseMessagingException {
-    QrLogin qrLogin = qrloginService.saveQrlogin(email);
+  public ResponseEntity<Object> qrEnter(@RequestBody AccountDTO.QrRequest qrRequest)
+      throws FirebaseMessagingException {
+    QrLogin qrLogin = qrloginService.saveQrlogin(qrRequest.getEmail());
     Map<String, String> pushSendDataMap = new HashMap<>();
     pushSendDataMap.put("code", qrLogin.getCode());
+    Account account = accountService.getAccountByEmail(qrRequest.getEmail()).orElseThrow(
+        () -> new NoSuchElementException(
+            "Not found Account By email : " + "[" + qrRequest.getEmail() + "]"));
+    System.out.println("account.getPushToken() = " + account.getPushToken());
     firebaseService.sendNotification(
-        "et-zrxEMRzKaB9rtFaz2C9:APA91bEUurIAT2Mfm3YrsDtGUKztLiFeWKmipKetErvTfMpeqcXa3j3rku5tSxh1f11jYfO7ES_HPkulAIMvw4-1H0h1AlpxF3w6q5mmfBgsduFvk_t79tofG6g_v7FHvjQ1eUteSQCa",
-        "로그인 정보를 ",
-        "내용~!!!",
+        account.getPushToken(),
+        "O O G",
+        "앱을 사용해 로그인 해주세요.",
         pushSendDataMap
     );
     return new ResponseEntity<>(qrLogin, HttpStatus.OK);
@@ -107,14 +113,9 @@ public class AccountController {
       @PathVariable(value = "code") String code
   ) {
     QrLogin qrLogin = qrloginService.getQrLogin(account.getEmail(), code);
-    return new ResponseEntity<>(qrLogin, HttpStatus.OK);
-  }
 
-  @GetMapping("/get/{token}")
-  public ResponseEntity<Object> kakaoAuthorize(@PathVariable("token") String token) {
-    return new ResponseEntity<>(accountService.getAccountByToken(token)
-        .orElseThrow(() -> new NoSuchElementException("fail" + "code : " + token + "]")),
-        HttpStatus.OK);
+    // qrLogin 데이터가 존재하면 로그인 성공한 것으로 생각하면 되며 websocket을 사용하던지 해서 로그인된 페이지로 이동시키면 된다
+    return new ResponseEntity<>(qrLogin, HttpStatus.OK);
   }
 
   @GetMapping("/send/noti")

@@ -3,23 +3,28 @@
 import QRCode from 'qrcode.react';
 import {useEffect, useState} from "react";
 import {ServerEnum} from "~/enums/ServerEnum";
+import {useSearchParams} from 'next/navigation';
 
 const QRCodePage = () => {
+  const searchParams = useSearchParams();
+  const email = searchParams.get('email');
   const [code, setCode] = useState('');
 
   useEffect(() => {
+    if (!email) return;
+
     const callApi = async () => {
       const response = await fetch(`${ServerEnum.SERVER}/api/account/qr/enter`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({message: 'QR code page entered'}),
+        body: JSON.stringify({email}),
       });
 
       if (response.ok) {
         const data = await response.json();
-        setCode(data.code); // Assuming the returned data has a 'code' field
+        setCode(data.code);
       } else {
         console.error('Failed to fetch code:', response.statusText);
       }

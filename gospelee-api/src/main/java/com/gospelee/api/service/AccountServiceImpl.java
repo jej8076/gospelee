@@ -3,7 +3,6 @@ package com.gospelee.api.service;
 import com.gospelee.api.dto.jwt.JwtPayload;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.RoleType;
-import com.gospelee.api.repository.AccountKakaoTokenRepository;
 import com.gospelee.api.repository.AccountRepository;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,12 +16,8 @@ public class AccountServiceImpl implements AccountService {
 
   private final AccountRepository accountRepository;
 
-  private final AccountKakaoTokenRepository accountKakaoTokenRepository;
-
-  public AccountServiceImpl(AccountRepository accountRepository,
-      AccountKakaoTokenRepository accountKakaoTokenRepository) {
+  public AccountServiceImpl(AccountRepository accountRepository) {
     this.accountRepository = accountRepository;
-    this.accountKakaoTokenRepository = accountKakaoTokenRepository;
   }
 
   public List<Account> getAccountAll() {
@@ -39,16 +34,13 @@ public class AccountServiceImpl implements AccountService {
   }
 
   /**
-   * token값으로 account 정보를 가져온다
+   * email로 account정보를 가져온다
    *
-   * @param token
+   * @param email
    * @return
    */
-  public Optional<Account> getAccountByToken(String token) {
-    return accountKakaoTokenRepository.findByAccessToken(token)
-        .map(result -> accountRepository.findById(String.valueOf(result.getParentUid())))
-        .orElseThrow(
-            () -> new NoSuchElementException("No account found with the given token: " + token));
+  public Optional<Account> getAccountByEmail(String email) {
+    return accountRepository.findByEmail(email);
   }
 
   public Optional<Account> saveAndGetAccount(JwtPayload jwtPayload, String idToken) {
@@ -74,10 +66,6 @@ public class AccountServiceImpl implements AccountService {
   }
 
   public void savePushToken(Long uid, String pushToken) {
-    accountRepository.savePushToken(uid, pushToken, LocalDateTime.now());
-  }
-
-  public void saveQrLoginEnter(Long uid, String pushToken) {
     accountRepository.savePushToken(uid, pushToken, LocalDateTime.now());
   }
 
