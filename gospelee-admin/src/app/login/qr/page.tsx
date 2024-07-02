@@ -28,6 +28,8 @@ const QRCodePage = () => {
       if (response.ok) {
         const data = await response.json();
         setCode(data.code);
+        // 상태 확인 함수 호출
+        startCheckingStatus(email, data.code);
       } else {
         console.error('Failed to fetch code:', response.statusText);
       }
@@ -35,6 +37,28 @@ const QRCodePage = () => {
 
     callApi();
   }, []);
+
+  const startCheckingStatus = (email: string, code: string) => {
+    const intervalId = setInterval(async () => {
+      const checkResponse = await fetch(`${ServerEnum.SERVER}/api/account/qr/check`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({email, code}),
+      });
+      if (checkResponse.ok) {
+        const checkData = await checkResponse.json();
+        // 상태 확인 로직 추가
+        console.log('Check API response:', checkData);
+      } else {
+        console.error('Failed to check code:', checkResponse.statusText);
+      }
+    }, 5000);
+
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalId);
+  };
 
   return (
       <div>

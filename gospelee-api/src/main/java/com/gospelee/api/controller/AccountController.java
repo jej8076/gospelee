@@ -112,7 +112,18 @@ public class AccountController {
       @AuthenticationPrincipal Account account,
       @PathVariable(value = "code") String code
   ) {
-    QrLogin qrLogin = qrloginService.getQrLogin(account.getEmail(), code);
+    QrLogin qrLogin = qrloginService.updateQrlogin(account, code);
+
+    // qrLogin 데이터가 존재하면 로그인 성공한 것으로 생각하면 되며 websocket을 사용하던지 해서 로그인된 페이지로 이동시키면 된다
+    return new ResponseEntity<>(qrLogin, HttpStatus.OK);
+  }
+
+  @PostMapping("/qr/check")
+  public ResponseEntity<Object> qrAuthCheck(
+      @RequestBody AccountDTO.QrCheckRequest qrCheckRequest
+  ) {
+    QrLogin qrLogin = qrloginService.getQrLogin(qrCheckRequest.getEmail(),
+        qrCheckRequest.getCode());
 
     // qrLogin 데이터가 존재하면 로그인 성공한 것으로 생각하면 되며 websocket을 사용하던지 해서 로그인된 페이지로 이동시키면 된다
     return new ResponseEntity<>(qrLogin, HttpStatus.OK);

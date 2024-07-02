@@ -21,7 +21,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       List.of(
           "/bible/*",
           "/account/send/noti",
-          "/account/qr/enter"
+          "/account/qr/enter",
+          "/account/qr/check"
       );
   private final JwtOIDCProvider jwtOIDCProvider;
 

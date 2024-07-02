@@ -3,8 +3,10 @@ package com.gospelee.api.service;
 import static com.gospelee.api.utils.RandomStringGenerator.makeQrLoginRandomCode;
 
 import com.gospelee.api.dto.qrlogin.QrLoginDTO;
+import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.QrLogin;
 import com.gospelee.api.repository.QrloginRepository;
+import com.gospelee.api.utils.TimeUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,9 +26,18 @@ public class QrloginServiceImpl implements QrloginService {
   }
 
   @Override
+  public QrLogin updateQrlogin(Account account, String code) {
+    QrLogin qrLogin = qrloginRepository.findByEmailAndCode(account.getEmail(), code);
+    return qrloginRepository.updateQrLoginSuccess(qrLogin.getUid(), account.getId_token(),
+        account.getEmail(),
+        TimeUtils.now());
+  }
+
+  @Override
   public QrLogin getQrLogin(String email, String code) {
     return qrloginRepository.findByEmailAndCode(email, code);
   }
+
 }
 
 

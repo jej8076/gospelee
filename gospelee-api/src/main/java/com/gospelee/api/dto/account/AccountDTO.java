@@ -34,4 +34,12 @@ public class AccountDTO {
     private String email;
   }
 
+  @Getter
+  @NoArgsConstructor(access = AccessLevel.PRIVATE)
+  public static class QrCheckRequest {
+
+    private String email;
+    private String code;
+  }
+
 }
