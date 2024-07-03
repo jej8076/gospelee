@@ -17,7 +17,7 @@ public interface QrloginRepository extends JpaRepository<QrLogin, Long> {
   @Modifying
   @Transactional
   @Query("UPDATE QrLogin l SET l.token = :token, l.updateUser = :updateUser, l.updateTime = :updateTime WHERE l.uid = :uid")
-  QrLogin updateQrLoginSuccess(
+  Integer updateQrLoginSuccess(
       @Param("uid") Long uid,
       @Param("token") String token,
       @Param("updateUser") String updateUser,

@@ -26,11 +26,11 @@ public class QrloginServiceImpl implements QrloginService {
   }
 
   @Override
-  public QrLogin updateQrlogin(Account account, String code) {
+  public boolean updateQrlogin(Account account, String code) {
     QrLogin qrLogin = qrloginRepository.findByEmailAndCode(account.getEmail(), code);
     return qrloginRepository.updateQrLoginSuccess(qrLogin.getUid(), account.getId_token(),
         account.getEmail(),
-        TimeUtils.now());
+        TimeUtils.now()) == 1;
   }
 
   @Override

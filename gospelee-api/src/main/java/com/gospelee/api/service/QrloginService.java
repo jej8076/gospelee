@@ -7,7 +7,7 @@ public interface QrloginService {
 
   QrLogin saveQrlogin(String email);
 
-  QrLogin updateQrlogin(Account account, String code);
+  boolean updateQrlogin(Account account, String code);
 
   QrLogin getQrLogin(String email, String code);
 }

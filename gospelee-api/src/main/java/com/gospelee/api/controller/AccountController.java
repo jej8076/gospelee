@@ -112,10 +112,13 @@ public class AccountController {
       @AuthenticationPrincipal Account account,
       @PathVariable(value = "code") String code
   ) {
-    QrLogin qrLogin = qrloginService.updateQrlogin(account, code);
+    HttpStatus status = HttpStatus.OK;
+    if (!qrloginService.updateQrlogin(account, code)) {
+      status = HttpStatus.INTERNAL_SERVER_ERROR;
+    }
 
     // qrLogin 데이터가 존재하면 로그인 성공한 것으로 생각하면 되며 websocket을 사용하던지 해서 로그인된 페이지로 이동시키면 된다
-    return new ResponseEntity<>(qrLogin, HttpStatus.OK);
+    return new ResponseEntity<>("", status);
   }
 
   @PostMapping("/qr/check")

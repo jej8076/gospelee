@@ -49,8 +49,16 @@ const QRCodePage = () => {
       });
       if (checkResponse.ok) {
         const checkData = await checkResponse.json();
-        // 상태 확인 로직 추가
-        console.log('Check API response:', checkData);
+        if (checkData.token != null) {
+          clearInterval(intervalId);
+          const response = await fetch('/api/setCookie', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({id_token: checkData.token}),
+          });
+        }
       } else {
         console.error('Failed to check code:', checkResponse.statusText);
       }
