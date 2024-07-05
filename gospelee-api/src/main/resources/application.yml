@@ -53,4 +53,5 @@ auth:
     path: /
     domains:
       localhost,
+      13.124.200.73,
       127.0.0.1

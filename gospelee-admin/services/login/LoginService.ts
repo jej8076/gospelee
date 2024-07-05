@@ -39,7 +39,7 @@ export const qrCheckAndGetToken = async (email: string, code: string) => {
 }
 
 export const setCookie = async (token: string) => {
-  const response = await fetch('/api/account/cookie', {
+  const response = await fetch(`${ServerEnum.SERVER}/api/account/cookie`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

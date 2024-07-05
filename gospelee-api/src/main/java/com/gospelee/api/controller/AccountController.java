@@ -144,6 +144,7 @@ public class AccountController {
   ) {
     Cookie cookie = CookieUtils.makeCookie(account.getId_token(), request.getServerName());
     if (cookie == null) {
+      log.error("허용되지 않은 도메인 입니다 : [" + request.getServerName() + "]");
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
     response.addCookie(cookie);
