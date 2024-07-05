@@ -11,6 +11,10 @@ import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.FirebaseService;
 import com.gospelee.api.service.QrloginService;
 import com.gospelee.api.service.RedisCacheService;
+import com.gospelee.api.utils.CookieUtils;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -130,6 +134,20 @@ public class AccountController {
 
     // qrLogin 데이터가 존재하면 로그인 성공한 것으로 생각하면 되며 websocket을 사용하던지 해서 로그인된 페이지로 이동시키면 된다
     return new ResponseEntity<>(qrLogin, HttpStatus.OK);
+  }
+
+  @PostMapping("/cookie")
+  public ResponseEntity<Object> setCookie(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @AuthenticationPrincipal Account account
+  ) {
+    Cookie cookie = CookieUtils.makeCookie(account.getId_token(), request.getServerName());
+    if (cookie == null) {
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    response.addCookie(cookie);
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @GetMapping("/send/noti")

@@ -46,3 +46,11 @@ kakao:
 firebase:
   admin-sdk:
     path: firebase/oog-dev-firebase-adminsdk-9zrmg-6208291886.json
+
+auth:
+  max-age: 60 * 60 * 24 # 1일
+  cookie:
+    path: /
+    domains:
+      localhost,
+      127.0.0.1
