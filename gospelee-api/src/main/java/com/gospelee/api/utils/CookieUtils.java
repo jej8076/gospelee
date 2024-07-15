@@ -26,28 +26,29 @@ public class CookieUtils {
   }
 
   public static Cookie makeCookie(String token, String reqDomain) {
-    Optional<String> domain = instance.cookieDomains.stream().filter(reqDomain::equals).findFirst();
-    String domainValue = domain.orElse(null);
-    if (domainValue == null) {
-      return null;
-    }
+//    Optional<String> domain = instance.cookieDomains.stream().filter(reqDomain::equals).findFirst();
+//    String domainValue = domain.orElse(null);
+//    if (domainValue == null) {
+//      return null;
+//    }
     Cookie cookie = new Cookie(AUTH_HEADER, token);
     cookie.setPath(instance.cookiePath);
     cookie.setMaxAge((int) instance.authMaxAge);
-    cookie.setDomain(domainValue);
+    cookie.setHttpOnly(true);
+    cookie.setAttribute("SameSite", "None"); // 크로스 사이트 요청을 허용
     return cookie;
   }
 
   public static Cookie expireCookie(String reqDomain) {
-    Optional<String> domain = instance.cookieDomains.stream().filter(reqDomain::equals).findFirst();
-    String domainValue = domain.orElse(null);
-    if (domainValue == null) {
-      return null;
-    }
+//    Optional<String> domain = instance.cookieDomains.stream().filter(reqDomain::equals).findFirst();
+//    String domainValue = domain.orElse(null);
+//    if (domainValue == null) {
+//      return null;
+//    }
     Cookie cookie = new Cookie(AUTH_HEADER, "");
     cookie.setPath(instance.cookiePath);
     cookie.setMaxAge(0);
-    cookie.setDomain(domainValue);
+//    cookie.setDomain(domainValue);
     return cookie;
   }
 

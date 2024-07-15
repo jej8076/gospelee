@@ -1,7 +1,9 @@
 "use client"
+
 import {useEffect, useState} from "react";
 import {ChevronRightIcon} from '@heroicons/react/20/solid'
 import {ServerEnum} from "~/enums/ServerEnum";
+import {getCookie} from "~/provider/CookieProvider";
 
 type Ecclesias = {
   name: string,
@@ -33,11 +35,11 @@ export default function Ecclesia() {
 
   const fetchEcclesias = async () => {
     try {
-      await fetch(`${ServerEnum.SERVER}/api/ecclesia/all`, {
+      await fetch(`/api/ecclesia/all`, {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
-          "id_token": "eyJraWQiOiI5ZjI1MmRhZGQ1ZjIzM2Y5M2QyZmE1MjhkMTJmZWEiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJiYzlhYzBmZDRjZDE3YTg1OGM5NzFmNmQ0YWVkZTMwNSIsInN1YiI6IjMyNTI5MjcyMTIiLCJhdXRoX3RpbWUiOjE3MTU1NjAxOTgsImlzcyI6Imh0dHBzOi8va2F1dGgua2FrYW8uY29tIiwibmlja25hbWUiOiLsoJXsnZjsp4QiLCJleHAiOjE3MTU2MDMzOTgsImlhdCI6MTcxNTU2MDE5OCwiZW1haWwiOiJqZWpAa2FrYW8uY29tIn0.gBSrVRFVvlkD-kfh2yYpvUXb7RMXFa2dvadTiChIPlfH0Iw953K43L3RFtDq3zrTsXoHk5gO6SLhc9jHlND8FkTWlV38rsvvLWntxCl_0c_7Zg3CA1S1-3DM9bI3nOE78DRE3VG1f6O1APlzrs_YuEuEXvyEBzGNHrQqgfl1JnXVMo2uq2DTo_Z01uYBTcMLMc7BuM0cc4rLDdlpH0DkenaIGBYBIJyMb9z22DP_9tkXYB_v7BzDYNrx1WD-iYtTNlbPaDpHgKuGcwsXVfo2SkAVGnQ8UdiP_zw-ofUSpVxOB8Rx74xnZxfRQ2FNlni2yU0mAQQG2bou1YMJaysRxw"
+          "id_token": getCookie("id_token")
         },
       })
       .then((response) => {

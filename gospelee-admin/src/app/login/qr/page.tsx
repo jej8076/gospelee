@@ -7,7 +7,7 @@ import {useSearchParams} from 'next/navigation';
 import {
   makeQrCodeAndGetCode,
   qrCheckAndGetToken,
-  setCookie
+  setBrowserCookie
 } from "~/services/login/LoginService";
 
 const QRCodePage = () => {
@@ -39,8 +39,9 @@ const QRCodePage = () => {
 
       if (token == null) return;
 
-      if (await setCookie(token)) {
+      if (await setBrowserCookie(token)) {
         clearInterval(intervalId);
+
       }
 
     }, 5000);

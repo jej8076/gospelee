@@ -1,6 +1,7 @@
 "use client"
 import {useEffect, useState} from "react";
 import {ServerEnum} from "~/enums/ServerEnum";
+import {getCookie} from "~/provider/CookieProvider";
 
 type Users = {
   name: string,
@@ -27,13 +28,16 @@ export default function User() {
 
   const [people, setPeople] = useState<Users[]>([]);
 
+  const token = getCookie("id_token");
+  debugger;
+
   const fetchUsers = async () => {
     try {
-      await fetch(`${ServerEnum.SERVER}/api/account/getAccount`, {
+      await fetch(`/api/account/getAccount`, {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
-          "id_token": "eyJraWQiOiI5ZjI1MmRhZGQ1ZjIzM2Y5M2QyZmE1MjhkMTJmZWEiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJiYzlhYzBmZDRjZDE3YTg1OGM5NzFmNmQ0YWVkZTMwNSIsInN1YiI6IjMyNTI5MjcyMTIiLCJhdXRoX3RpbWUiOjE3MTY3MDY3NDAsImlzcyI6Imh0dHBzOi8va2F1dGgua2FrYW8uY29tIiwibmlja25hbWUiOiLsoJXsnZjsp4QiLCJleHAiOjE3MTY3NDk5NDAsImlhdCI6MTcxNjcwNjc0MCwiZW1haWwiOiJqZWpAa2FrYW8uY29tIn0.X_MAY8wzG8Vmf4wpMYcfFuKhhSIq3DtjQHxWwEVcZjQ_TaUxRmgBjB9EWppouFFcxrc5ekxkUVEbIB9GdBCNRP0J57Alt1db19CUNKAm_XNnFpzqrSHDZi20mWmlHrKP7yTRD6_ajD1J_1hC5ZQu_UuDmg1yKAHum1f1RM-S9Y7-I3Oy4hJB3O-2unKAFbSQHI4pldPjAC1FhElaF6ZUirT4VFekBfPIfJecdTpCiJ1-To-67Xj1xy9RCAfU9hRoVm8lBoNIBbpySrfz-5ugLed6U6ZGa2RBAwi4UoEY2HmhAvIHanLmU27EUZRtCxH4KyiR8DjIxQLqIvxK0Idodg"
+          "id_token": getCookie("id_token")
         },
       })
       .then((response) => {
