@@ -1,19 +1,9 @@
 'use client'
 
-import {useEffect} from 'react';
-import {useRouter} from 'next/navigation';
-import {getCookie} from "~/provider/CookieProvider";
+import useAuth from "~/lib/auth/check-auth";
 
 export default function Main() {
-
-  const router = useRouter();
-
-  useEffect(() => {
-    const token = getCookie("id_token")
-    if (!token) {
-      router.push('/login');
-    }
-  }, []);
+  useAuth();
 
   return (
       <p>대시보드</p>

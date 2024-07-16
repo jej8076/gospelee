@@ -3,7 +3,7 @@
 import QRCode from 'qrcode.react';
 import {useEffect, useState} from "react";
 import {ServerEnum} from "~/enums/ServerEnum";
-import {useSearchParams} from 'next/navigation';
+import {useSearchParams, useRouter} from 'next/navigation';
 import {
   makeQrCodeAndGetCode,
   qrCheckAndGetToken,
@@ -12,6 +12,7 @@ import {
 
 const QRCodePage = () => {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const email = searchParams.get('email');
   const [code, setCode] = useState('');
   let isReq = false;
@@ -39,9 +40,9 @@ const QRCodePage = () => {
 
       if (token == null) return;
 
-      if (await setBrowserCookie(token)) {
+      if (await setBrowserCookie(token) == 200) {
         clearInterval(intervalId);
-
+        router.push('/main');
       }
 
     }, 5000);

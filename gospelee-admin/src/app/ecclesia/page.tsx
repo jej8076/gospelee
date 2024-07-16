@@ -2,8 +2,7 @@
 
 import {useEffect, useState} from "react";
 import {ChevronRightIcon} from '@heroicons/react/20/solid'
-import {ServerEnum} from "~/enums/ServerEnum";
-import {getCookie} from "~/provider/CookieProvider";
+import {getCookie} from "~/lib/cookie/cookie-utils";
 
 type Ecclesias = {
   name: string,
@@ -39,7 +38,7 @@ export default function Ecclesia() {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
-          "id_token": getCookie("id_token")
+          "id_token": await getCookie("id_token")
         },
       })
       .then((response) => {

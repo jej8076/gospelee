@@ -108,9 +108,17 @@ public class AccountController {
     return new ResponseEntity<>(qrLogin, HttpStatus.OK);
   }
 
-  // TODO 이쪽으로 호출이 들어오기 전에 토큰 검증을 거치고, 검증이 되면 이쪽에서 검증 완료를 업데이트 한다
-  // 검증 완료 됐다는 것은 admin front에 로그인 처리된 후의 화면을 보여주어도 된다는 뜻이다
-  // 추후 이 API를 사용하지 않고 앱에서 qr스캔하면 websocket을 호출하여 인증 후 바로 로그인 성공 페이지로 이동되도록 해야한다
+  /**
+   * <pre>
+   * 앱에서 관리자페이지의 qr코드를 스캔할 때 호출되는 부분 code는 랜덤 수이며
+   * 앱에서 qr코드를 스캔(http request) 할때 header에 token 값을 넣어주고 이쪽으로 오기 전에 인증을 거친다
+   * 인증에 성공하면 이쪽에서 code에 해당하는 데이터에 token을 넣어준다
+   * </pre>
+   *
+   * @param account
+   * @param code
+   * @return
+   */
   @PostMapping("/qr/{code}")
   public ResponseEntity<Object> qrAuth(
       @AuthenticationPrincipal Account account,
@@ -125,6 +133,15 @@ public class AccountController {
     return new ResponseEntity<>("", status);
   }
 
+  /**
+   * <pre>
+   * 프론트에서 주기적으로 이 api를 호출하여 QrLogin 테이블에 code를 확인하여 token이 있는 지 확인하는 것이 목적이다
+   * 나중에 이 부분을 웹소켓으로 대체하여야 한다
+   * </pre>
+   *
+   * @param qrCheckRequest
+   * @return
+   */
   @PostMapping("/qr/check")
   public ResponseEntity<Object> qrAuthCheck(
       @RequestBody AccountDTO.QrCheckRequest qrCheckRequest
@@ -132,23 +149,7 @@ public class AccountController {
     QrLogin qrLogin = qrloginService.getQrLogin(qrCheckRequest.getEmail(),
         qrCheckRequest.getCode());
 
-    // qrLogin 데이터가 존재하면 로그인 성공한 것으로 생각하면 되며 websocket을 사용하던지 해서 로그인된 페이지로 이동시키면 된다
     return new ResponseEntity<>(qrLogin, HttpStatus.OK);
-  }
-
-  @PostMapping("/cookie")
-  public ResponseEntity<Object> setCookie(
-      HttpServletRequest request,
-      HttpServletResponse response,
-      @AuthenticationPrincipal Account account
-  ) {
-    Cookie cookie = CookieUtils.makeCookie(account.getId_token(), request.getServerName());
-//    if (cookie == null) {
-//      log.error("허용되지 않은 도메인 입니다 : [" + request.getServerName() + "]");
-//      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//    }
-    response.addCookie(cookie);
-    return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @GetMapping("/send/noti")

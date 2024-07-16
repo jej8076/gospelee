@@ -1,5 +1,5 @@
-import {ServerEnum} from "~/enums/ServerEnum";
-import {setCookie} from "~/provider/CookieProvider";
+'use client'
+import {setCookie} from "~/lib/cookie/cookie-utils";
 
 export const makeQrCodeAndGetCode = async (email: string) => {
   console.log('API 호출 시작'); // API 호출 확인용 로그
@@ -40,25 +40,6 @@ export const qrCheckAndGetToken = async (email: string, code: string) => {
 }
 
 export const setBrowserCookie = async (token: string) => {
-  const response = await fetch(`/api/account/cookie`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'id_token': token
-    },
-    credentials: 'include',
-  });
+  return setCookie("id_token", token);
 
-  let cookie = response.headers.get('Set-Cookie');
-  debugger;
-  const defaultOptions = {
-    path: '/',
-    secure: false,
-    sameSite: 'None',
-    expires: new Date(Date.now() + 3600 * 60 * 60 * 1000),
-  };
-
-  let ss = setCookie("id_token", "sss", defaultOptions);
-
-  return response.ok;
 }
