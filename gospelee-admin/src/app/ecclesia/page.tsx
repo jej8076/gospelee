@@ -3,6 +3,7 @@
 import {useEffect, useState} from "react";
 import {ChevronRightIcon} from '@heroicons/react/20/solid'
 import {getCookie} from "~/lib/cookie/cookie-utils";
+import useAuth from "~/lib/auth/check-auth";
 
 type Ecclesias = {
   name: string,
@@ -29,6 +30,8 @@ type Ecclesias = {
 
 
 export default function Ecclesia() {
+
+  useAuth();
 
   const [ecc, setEcc] = useState<Ecclesias[]>([]);
 

@@ -1,7 +1,7 @@
 "use client"
 import {useEffect, useState} from "react";
-import {ServerEnum} from "~/enums/ServerEnum";
-import {getCookie} from "~/provider/CookieProvider";
+import useAuth from "~/lib/auth/check-auth";
+import {getCookie} from "~/lib/cookie/cookie-utils";
 
 type Users = {
   name: string,
@@ -25,11 +25,9 @@ type Users = {
 // ]
 
 export default function User() {
+  useAuth();
 
   const [people, setPeople] = useState<Users[]>([]);
-
-  const token = getCookie("id_token");
-  debugger;
 
   const fetchUsers = async () => {
     try {
@@ -37,7 +35,7 @@ export default function User() {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
-          "id_token": getCookie("id_token")
+          "id_token": await getCookie("id_token")
         },
       })
       .then((response) => {
