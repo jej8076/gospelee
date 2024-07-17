@@ -152,12 +152,14 @@ public class AccountController {
     return new ResponseEntity<>(qrLogin, HttpStatus.OK);
   }
 
-  @GetMapping("/send/noti")
-  public String sendNotification() throws FirebaseMessagingException {
+  @PostMapping("/send/noti")
+  public String sendNotification(
+      @AuthenticationPrincipal Account account
+  ) throws FirebaseMessagingException {
     return firebaseService.sendNotification(
-        "et-zrxEMRzKaB9rtFaz2C9:APA91bEUurIAT2Mfm3YrsDtGUKztLiFeWKmipKetErvTfMpeqcXa3j3rku5tSxh1f11jYfO7ES_HPkulAIMvw4-1H0h1AlpxF3w6q5mmfBgsduFvk_t79tofG6g_v7FHvjQ1eUteSQCa",
-        "제목~~!",
-        "내용~!!!"
+        account.getPushToken(),
+        "제목테스트!!!!!!!!!!!!!!!!!!",
+        "내용테스트!!!!!!!!!!!!!!"
     );
   }
 
