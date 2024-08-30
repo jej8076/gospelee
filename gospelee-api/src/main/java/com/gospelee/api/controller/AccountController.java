@@ -11,10 +11,6 @@ import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.FirebaseService;
 import com.gospelee.api.service.QrloginService;
 import com.gospelee.api.service.RedisCacheService;
-import com.gospelee.api.utils.CookieUtils;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,8 +39,6 @@ public class AccountController {
   private final QrloginService qrloginService;
 
   private final FirebaseService firebaseService;
-
-  private final RedisCacheService redisCacheService;
 
   @PostMapping("/all")
   public ResponseEntity<Object> getAccountAll() {

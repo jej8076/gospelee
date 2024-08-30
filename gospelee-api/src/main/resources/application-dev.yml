@@ -10,6 +10,14 @@ spring:
     url: jdbc:mysql://13.124.200.73:3306/gospelee?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
     username: gospelee
     password: 1234qwer
+    hikari:
+      pool-name: HikariCP
+      maximum-pool-size: 10
+      connection-timeout: 10000
+      validation-timeout: 10000
+      max-lifetime: 580000
+      # Session wait_timeout 수정
+      connection-init-sql: set wait_timeout = 600
   jpa:
     hibernate:
       ddl-auto: update
