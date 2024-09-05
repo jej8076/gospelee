@@ -12,11 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JournalBibleDTO {
 
-  private long uid;
+  private Long uid;
 
-  private long journalUid;
-
-  private int cate;
+  private Long journalUid;
 
   private int book;
 
@@ -25,10 +23,9 @@ public class JournalBibleDTO {
   private int verse;
 
   @Builder
-  public JournalBibleDTO(long uid, long journalUid, int cate, int book, int chapter, int verse) {
+  public JournalBibleDTO(Long uid, Long journalUid, int book, int chapter, int verse) {
     this.uid = uid;
     this.journalUid = journalUid;
-    this.cate = cate;
     this.book = book;
     this.chapter = chapter;
     this.verse = verse;
@@ -37,8 +34,6 @@ public class JournalBibleDTO {
   public static JournalBibleDTO toDto(JournalBible entity) {
     return JournalBibleDTO.builder()
         .uid(entity.getUid())
-        .journalUid(entity.getJournalUid())
-        .cate(entity.getCate())
         .book(entity.getBook())
         .chapter(entity.getChapter())
         .verse(entity.getVerse())

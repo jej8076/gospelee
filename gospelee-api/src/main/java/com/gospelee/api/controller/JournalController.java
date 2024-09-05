@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -43,7 +44,7 @@ public class JournalController {
   @PutMapping
   public ResponseEntity<Object> insertJournal(
       @AuthenticationPrincipal Account account,
-      JournalDTO journalDTO) {
+      @RequestBody JournalDTO journalDTO) {
     JournalDTO insertJournal = journalService.insertJournal(account, journalDTO);
     return new ResponseEntity<>(insertJournal, HttpStatus.OK);
   }

@@ -3,22 +3,25 @@ package com.gospelee.api.dto.journal;
 import com.gospelee.api.entity.Journal;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JournalDTO {
 
-  private long uid;
+  private Long uid;
 
-  private long accountUid;
+  private Long accountUid;
 
   private String content;
 
   private List<JournalBibleDTO> journalBibleList;
 
   @Builder
-  public JournalDTO(long uid, long accountUid, String content,
+  public JournalDTO(Long uid, Long accountUid, String content,
       List<JournalBibleDTO> journalBibleList) {
     this.uid = uid;
     this.accountUid = accountUid;
@@ -27,7 +30,6 @@ public class JournalDTO {
   }
 
   public static JournalDTO toDto(Journal entity) {
-    int[] ss = new int[3];
     return JournalDTO.builder()
         .uid(entity.getUid())
         .accountUid(entity.getAccountUid())

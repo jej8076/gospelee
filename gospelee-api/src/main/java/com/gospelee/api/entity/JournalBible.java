@@ -23,13 +23,7 @@ public class JournalBible {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column
-  private long uid;
-
-  @Column
-  private long journalUid;
-
-  @Column
-  private int cate;
+  private Long uid;
 
   @Column
   private int book;
@@ -41,15 +35,12 @@ public class JournalBible {
   private int verse;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "uid", insertable = false, updatable = false)
+  @JoinColumn(name = "journalUid")
   private Journal journal;
 
   @Builder
-  public JournalBible(long uid, long journalUid, int cate, int book, int chapter, int verse,
-      Journal journal) {
+  public JournalBible(long uid, int book, int chapter, int verse, Journal journal) {
     this.uid = uid;
-    this.journalUid = journalUid;
-    this.cate = cate;
     this.book = book;
     this.chapter = chapter;
     this.verse = verse;

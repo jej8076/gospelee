@@ -33,8 +33,6 @@ public class JournalServiceImpl implements JournalService {
     for (JournalBibleDTO journalBibleDTO : journalDTO.getJournalBibleList()) {
       JournalBible journalBible = JournalBible.builder()
           .journal(journal)
-          .journalUid(journal.getUid())
-          .cate(journalBibleDTO.getCate())
           .book(journalBibleDTO.getBook())
           .chapter(journalBibleDTO.getChapter())
           .verse(journalBibleDTO.getVerse())

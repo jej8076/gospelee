@@ -25,10 +25,10 @@ public class Journal extends EditInfomation {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column
-  private long uid;
+  private Long uid;
 
   @Column
-  private long accountUid;
+  private Long accountUid;
 
   @Column
   private String content;
@@ -41,7 +41,7 @@ public class Journal extends EditInfomation {
     this.uid = uid;
     this.accountUid = accountUid;
     this.content = content;
-    JournalBibleList = journalBibleList;
+    this.JournalBibleList = journalBibleList;
   }
 
   public void changeJournalBibleList(List<JournalBible> journalBibleList) {
