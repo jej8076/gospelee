@@ -9,6 +9,13 @@
 
 1. 컬럼명에 _(언더바)가 있을 경우 entity field는 camel case로 작성한다.
 
-## 참고
+### 참고
 
 > - 성경약어표 : https://www.bskorea.or.kr/bible/korbib_shortword02.php
+
+### BIBLE DATA
+
+> - cate = 1: 구약, 2: 신약
+> - book = 성경번호(예: 40 = 마태복음)
+> - chapter = 장
+> - verse = 절
