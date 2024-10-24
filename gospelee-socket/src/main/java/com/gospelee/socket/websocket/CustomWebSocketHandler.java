@@ -20,12 +20,6 @@ public class CustomWebSocketHandler implements WebSocketHandler {
   private final Map<String, Many<String>> channels = new ConcurrentHashMap<>();
   private final ConcurrentMap<WebSocketSession, Boolean> sessionSubscriptions = new ConcurrentHashMap<>();
 
-  private final Sinks.Many<String> sink;
-
-  public CustomWebSocketHandler(Sinks.Many<String> sink) {
-    this.sink = sink;
-  }
-
   @Override
   public Mono<Void> handle(WebSocketSession session) {
 
@@ -55,7 +49,12 @@ public class CustomWebSocketHandler implements WebSocketHandler {
               return "메시지 처리 중 오류 발생";
             }
           })
-          .doOnNext(s -> sink.emitNext(s, Sinks.EmitFailureHandler.FAIL_FAST))
+          .doOnNext(s -> {
+            if (s != null) {
+              sink.emitNext(s, Sinks.EmitFailureHandler.FAIL_FAST);
+            }
+          })
+          .doOnError(ex -> log.error("WebSocket receive error", ex))
           .subscribe();
     }
 
