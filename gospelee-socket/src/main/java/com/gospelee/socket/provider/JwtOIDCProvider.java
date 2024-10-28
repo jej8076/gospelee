@@ -38,12 +38,20 @@ public class JwtOIDCProvider {
   @Value("${kakao.app-key}")
   private String KAKAO_SERVICE_APP_KEY;
 
+  private final String BEARER = "Bearer ";
+
   public JwtOIDCProvider(RedisCacheService redisCacheService) {
     this.redisCacheService = redisCacheService;
   }
 
   public JwtPayload getOIDCPayload(String token)
       throws JsonProcessingException {
+
+    if (!token.startsWith(BEARER)) {
+      throw new RuntimeException("token 유효성 검증 실패 [" + token + "]");
+    }
+
+    token = token.replace(BEARER, "");
 
     if (!validationIdToken(token)) {
       throw new RuntimeException("token 유효성 검증 실패 [" + token + "]");
