@@ -17,13 +17,31 @@ repositories {
     mavenCentral()
 }
 
+def isAppleSilicon() {
+    return System.getProperty("os.name") == "Mac OS X" && System.getProperty("os.arch") == "aarch64"
+}
+
 dependencies {
     implementation project(':gospelee-common')
-    
+
     implementation 'org.springframework.boot:spring-boot-starter'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // webflux
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // redis
+    implementation 'org.springframework.data:spring-data-redis:3.3.5'
+    implementation 'io.lettuce:lettuce-core:6.4.0.RELEASE'
+
+    //jwt
+    implementation 'io.jsonwebtoken:jjwt:0.12.6'
+
+    if (isAppleSilicon()) {
+        runtimeOnly 'io.netty:netty-resolver-dns-native-macos:4.1.114.Final:osx-aarch_64'
+    }
+
 }
 
 tasks.named('test') {

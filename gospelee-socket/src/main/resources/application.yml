@@ -1,3 +1,14 @@
+server:
+  port: 8077
+
 spring:
   application:
     name: socket
+
+redis:
+  host: localhost
+  port: 6379
+
+kakao:
+  issuer: https://kauth.kakao.com
+  app-key: 9878afc0afde051ed656f416f67c4492
