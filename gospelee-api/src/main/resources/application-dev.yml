@@ -29,7 +29,7 @@ spring:
   cache:
     type: redis
     redis:
-      cache-null-values:true
+      cache-null-values: true
   data:
     redis:
       repositories:

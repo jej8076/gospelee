@@ -1,6 +1,7 @@
 package com.gospelee.socket.config;
 
 import com.gospelee.socket.provider.JwtOIDCProvider;
+import com.gospelee.socket.service.UserService;
 import com.gospelee.socket.websocket.CustomWebSocketHandler;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,15 +17,17 @@ import reactor.core.publisher.Sinks;
 public class WebsocketConfig {
 
   private final JwtOIDCProvider jwtOIDCProvider;
+  private final UserService userService;
 
-  public WebsocketConfig(JwtOIDCProvider jwtOIDCProvider) {
+  public WebsocketConfig(JwtOIDCProvider jwtOIDCProvider, UserService userService) {
     this.jwtOIDCProvider = jwtOIDCProvider;
+    this.userService = userService;
   }
 
   @Bean
   public HandlerMapping handlerMapping(WebSocketHandler handler) {
     Map<String, WebSocketHandler> map = new HashMap<>();
-    map.put("/socket/1", new CustomWebSocketHandler(jwtOIDCProvider));
+    map.put("/socket/1", new CustomWebSocketHandler(jwtOIDCProvider, userService));
     int order = -1; // before annotated controllers
 
     return new SimpleUrlHandlerMapping(map, order);
