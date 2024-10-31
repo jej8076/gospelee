@@ -77,8 +77,9 @@ public class CustomWebSocketHandler implements WebSocketHandler {
           .map(WebSocketMessage::getPayloadAsText)
           .mapNotNull(e -> {
             try {
-              PlayerAction action = JsonUtils.toObjectFromString(e, PlayerAction.class);
-              return JsonUtils.toStringFromObject(action);
+              return e;
+//              PlayerAction action = JsonUtils.toObjectFromString(e, PlayerAction.class);
+//              return JsonUtils.toStringFromObject(action);
             } catch (RuntimeException ex) {
               throw new RuntimeException(ex);
             }

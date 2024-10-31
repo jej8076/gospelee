@@ -38,7 +38,6 @@ public class JsonUtils {
       e.printStackTrace();
       return null;
     }
-
   }
 
   // 객체를 JSON 문자열로 변환하는 제네릭 메소드
