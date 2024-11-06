@@ -16,6 +16,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+  private final String AUTH_HEADER = "Authorization";
+  private final String BEARER = "Bearer ";
+
   // 인증에서 제외할 url
   private static final List<String> EXCLUDE_SERVLET_PATH_LIST =
       List.of(
@@ -33,7 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain filterChain) throws ServletException, IOException {
 
-    String idToken = request.getHeader("id_token");
+    String idToken = request.getHeader(AUTH_HEADER);
 
     JwtPayload jwtPayload = jwtOIDCProvider.getOIDCPayload(idToken);
 

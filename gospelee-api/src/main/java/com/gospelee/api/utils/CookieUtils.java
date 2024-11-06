@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CookieUtils {
 
-  public static final String AUTH_HEADER = "id_token";
+  public static final String AUTH_HEADER = "Authorization";
   private static CookieUtils instance;
 
   @Value("${auth.cookie.path}")
