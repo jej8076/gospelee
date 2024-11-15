@@ -75,6 +75,7 @@ public class JwtOIDCProvider {
           .build()
           .parseSignedClaims(getUnsignedToken(token));
 
+      // 핸드폰 데이터도 운영 시 가져와야 함
       return JwtPayload.builder()
           .issuer(claimsJws.getPayload().getIssuer())
           .audience(claimsJws.getPayload().getAudience())

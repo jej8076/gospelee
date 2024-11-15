@@ -28,14 +28,18 @@ public class UserCharacter {
 
   private String nickName;
 
+  private String race;
+
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "userSeq")
   @JsonBackReference
   private User user;
 
   @Builder
-  public UserCharacter(long seq, String nickName) {
+  public UserCharacter(long seq, String nickName, String race, User user) {
     this.seq = seq;
     this.nickName = nickName;
+    this.race = race;
+    this.user = user;
   }
 }
