@@ -35,7 +35,7 @@ export default function User() {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
-          "id_token": await getCookie("id_token")
+          "Authorization": "Bearer " + await getCookie("Authorization")
         },
       })
       .then((response) => {

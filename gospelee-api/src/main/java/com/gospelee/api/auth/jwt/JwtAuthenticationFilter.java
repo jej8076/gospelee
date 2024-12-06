@@ -38,9 +38,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     String idToken = request.getHeader(AUTH_HEADER);
 
+    if (!idToken.startsWith(BEARER)) {
+      throw new RuntimeException("token 유효성 검증 실패 [" + idToken + "]");
+    }
+
+    idToken = idToken.replace(BEARER, "");
     JwtPayload jwtPayload = jwtOIDCProvider.getOIDCPayload(idToken);
 
     if (!ObjectUtils.isEmpty(jwtPayload)) {
+
       setAuthenticationToContext(jwtPayload, idToken);
     }
 

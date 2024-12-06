@@ -45,7 +45,7 @@ const QRCodePage = () => {
         router.push('/main');
       }
 
-    }, 5000);
+    }, 3000);
 
     // Clean up interval on component unmount
     return () => clearInterval(intervalId);
@@ -55,7 +55,7 @@ const QRCodePage = () => {
       <div>
         <h1>QR Code</h1>
         {code ? (
-            <QRCode value={`${ServerEnum.SERVER}/api/account/qr/${code}`}/>
+            <QRCode value={`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/qr/${code}`}/>
         ) : (
             <p>Loading...</p>
         )}

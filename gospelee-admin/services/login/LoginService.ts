@@ -40,6 +40,6 @@ export const qrCheckAndGetToken = async (email: string, code: string) => {
 }
 
 export const setBrowserCookie = async (token: string) => {
-  return setCookie("id_token", token);
+  return setCookie("Authorization", token);
 
 }

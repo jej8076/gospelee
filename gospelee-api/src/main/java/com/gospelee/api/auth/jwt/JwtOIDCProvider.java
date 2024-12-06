@@ -53,12 +53,6 @@ public class JwtOIDCProvider {
   public JwtPayload getOIDCPayload(String token)
       throws JsonProcessingException {
 
-    if (!token.startsWith(BEARER)) {
-      throw new RuntimeException("token 유효성 검증 실패 [" + token + "]");
-    }
-
-    token = token.replace(BEARER, "");
-
     if (!validationIdToken(token)) {
       throw new RuntimeException("token 유효성 검증 실패 [" + token + "]");
     }
