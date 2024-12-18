@@ -1,7 +1,7 @@
 "use client"
 import {useEffect, useState} from "react";
 import useAuth from "~/lib/auth/check-auth";
-import {getCookie} from "~/lib/cookie/cookie-utils";
+import {fetchUsers} from "~/lib/api/fetch-users";
 
 type Users = {
   name: string,
@@ -27,30 +27,10 @@ type Users = {
 export default function User() {
   useAuth();
 
-  const [people, setPeople] = useState<Users[]>([]);
-
-  const fetchUsers = async () => {
-    try {
-      await fetch(`/api/account/getAccount`, {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + await getCookie("Authorization")
-        },
-      })
-      .then((response) => {
-        return response.json();
-      })
-      .then((res: Users[]) => {
-        setPeople(res);
-      });
-    } catch (e) {
-      console.error("Error fetching users:", e);
-    }
-  }
+  const [user, setUsers] = useState<Users[]>([]);
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsers(setUsers); // 상태 업데이트 함수를 인자로 전달
   }, []);
 
   return (
@@ -99,22 +79,22 @@ export default function User() {
                 </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                {!(people.length > 0) ? null : people.map((person) => (
-                    <tr key={person.email}>
+                {!(user.length > 0) ? null : user.map((u) => (
+                    <tr key={u.email}>
                       <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
                         <div className="flex items-center">
                           <div className="h-11 w-11 flex-shrink-0">
-                            <img className="h-11 w-11 rounded-full" src={person.image} alt=""/>
+                            <img className="h-11 w-11 rounded-full" src={u.image} alt=""/>
                           </div>
                           <div className="ml-4">
-                            <div className="font-medium text-gray-900">{person.name}</div>
-                            <div className="mt-1 text-gray-500">{person.email}</div>
+                            <div className="font-medium text-gray-900">{u.name}</div>
+                            <div className="mt-1 text-gray-500">{u.email}</div>
                           </div>
                         </div>
                       </td>
                       <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                        <div className="text-gray-900">{person.title}</div>
-                        <div className="mt-1 text-gray-500">{person.department}</div>
+                        <div className="text-gray-900">{u.title}</div>
+                        <div className="mt-1 text-gray-500">{u.department}</div>
                       </td>
                       <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
                       <span
@@ -122,10 +102,10 @@ export default function User() {
                         Active
                       </span>
                       </td>
-                      <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{person.role}</td>
+                      <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{u.role}</td>
                       <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                         <a href="#" className="text-indigo-600 hover:text-indigo-900">
-                          Edit<span className="sr-only">, {person.name}</span>
+                          Edit<span className="sr-only">, {u.name}</span>
                         </a>
                       </td>
                     </tr>

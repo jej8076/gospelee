@@ -27,3 +27,20 @@ export const setCookie = async (name: string, value: string) => {
   const data = await response.json();
   return data.code;
 };
+
+export const expireCookie = async (name: string) => {
+  const response = await fetch('/api-next/cookies', {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({name: name}),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to expire cookie');
+  }
+
+  const data = await response.json();
+  return data.code;
+};

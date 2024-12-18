@@ -21,3 +21,21 @@ export async function POST(request: NextRequest) {
   });
   return NextResponse.json({code: 200, message: 'Cookie set success'});
 }
+
+export async function DELETE(request: NextRequest) {
+  const {name} = await request.json();
+
+  if (!name) {
+    return NextResponse.json({code: 400, message: 'Cookie name is required'}, {status: 400});
+  }
+
+  cookies().set({
+    name,
+    value: '',
+    httpOnly: true,
+    path: '/',
+    maxAge: 0,
+  });
+
+  return NextResponse.json({code: 200, message: 'Cookie expired successfully'});
+}
