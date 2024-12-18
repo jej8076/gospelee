@@ -3,6 +3,7 @@ package com.gospelee.api.config;
 import com.gospelee.api.auth.jwt.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -24,12 +25,13 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    return http
+    http
         .csrf(AbstractHttpConfigurer::disable)
         .formLogin(AbstractHttpConfigurer::disable)
-        .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configure(http))
-        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-        .build();
+        .cors(Customizer.withDefaults())
+        .addFilterBefore(jwtAuthenticationFilter,
+            UsernamePasswordAuthenticationFilter.class);
+    return http.build();
   }
 
   @Bean

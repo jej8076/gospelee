@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -54,7 +55,8 @@ public class JwtOIDCProvider {
       throws JsonProcessingException {
 
     if (!validationIdToken(token)) {
-      throw new RuntimeException("token 유효성 검증 실패 [" + token + "]");
+      log.error("token 유효성 검증 실패 [" + token + "]");
+      return null;
     }
 
     // 카카오 제공 공개키(캐싱)
@@ -83,10 +85,9 @@ public class JwtOIDCProvider {
           .email(claimsJws.getPayload().get("email", String.class))
           .build();
 
-    } catch (ExpiredJwtException e) {
-      throw new IllegalArgumentException("만료된 Id Token 입니다.");
     } catch (Exception e) {
-      throw new IllegalArgumentException("잘못된 Id Token 입니다.");
+      log.error("token 유효성 검증 실패 [" + token + "]");
+      return null;
     }
 
   }
