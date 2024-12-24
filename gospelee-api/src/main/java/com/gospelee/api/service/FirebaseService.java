@@ -51,7 +51,7 @@ public class FirebaseService {
     try {
       result = firebaseMessaging.send(message);
     } catch (FirebaseMessagingException e) {
-      e.printStackTrace();
+      e.getMessage();
     }
 
     return result;

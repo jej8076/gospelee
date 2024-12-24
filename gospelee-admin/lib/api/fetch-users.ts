@@ -11,4 +11,5 @@ export type Users = {
 
 export const fetchUsers = async (setUsers: (data: Users[]) => void) => {
   await fetchData<Users[]>("/api/account/getAccount", "POST", setUsers);
+  debugger;
 };

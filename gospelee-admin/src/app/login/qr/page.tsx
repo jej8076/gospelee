@@ -2,7 +2,6 @@
 
 import QRCode from 'qrcode.react';
 import {useEffect, useState} from "react";
-import {ServerEnum} from "~/enums/ServerEnum";
 import {useSearchParams, useRouter} from 'next/navigation';
 import {
   makeQrCodeAndGetCode,

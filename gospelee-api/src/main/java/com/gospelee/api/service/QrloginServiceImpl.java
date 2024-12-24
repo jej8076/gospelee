@@ -28,6 +28,9 @@ public class QrloginServiceImpl implements QrloginService {
   @Override
   public boolean updateQrlogin(Account account, String code) {
     QrLogin qrLogin = qrloginRepository.findByEmailAndCode(account.getEmail(), code);
+    if (qrLogin == null) {
+      return false;
+    }
     return qrloginRepository.updateQrLoginSuccess(qrLogin.getUid(), account.getId_token(),
         account.getEmail(),
         TimeUtils.now()) == 1;

@@ -2,6 +2,7 @@
 import {useEffect, useState} from "react";
 import useAuth from "~/lib/auth/check-auth";
 import {fetchUsers} from "~/lib/api/fetch-users";
+import {useRouter} from 'next/navigation';
 
 type Users = {
   name: string,
@@ -26,11 +27,24 @@ type Users = {
 
 export default function User() {
   useAuth();
-
+  const router = useRouter();
   const [user, setUsers] = useState<Users[]>([]);
 
   useEffect(() => {
-    fetchUsers(setUsers); // 상태 업데이트 함수를 인자로 전달
+    const fetch = async () => {
+      try {
+        debugger;
+        await fetchUsers(setUsers);
+      } catch (e: any) {
+        if (e.status === 401) {
+          router.push('/login'); // 401 에러 시 로그인 페이지로 리다이렉트
+        } else {
+          console.error("Unhandled error:", e.message);
+        }
+      }
+    }
+
+    fetch();
   }, []);
 
   return (

@@ -88,16 +88,23 @@ public class AccountController {
     QrLogin qrLogin = qrloginService.saveQrlogin(qrRequest.getEmail());
     Map<String, String> pushSendDataMap = new HashMap<>();
     pushSendDataMap.put("code", qrLogin.getCode());
+
     Account account = accountService.getAccountByEmail(qrRequest.getEmail()).orElseThrow(
         () -> new NoSuchElementException(
             "Not found Account By email : " + "[" + qrRequest.getEmail() + "]"));
-    System.out.println("account.getPushToken() = " + account.getPushToken());
+    String pushToken = account.getPushToken();
+
+    if (ObjectUtils.isEmpty(pushToken)) {
+      return new ResponseEntity<>(qrLogin, HttpStatus.OK);
+    }
+
     firebaseService.sendNotification(
         account.getPushToken(),
         "O O G",
         "앱을 사용해 로그인 해주세요.",
         pushSendDataMap
     );
+
     return new ResponseEntity<>(qrLogin, HttpStatus.OK);
   }
 

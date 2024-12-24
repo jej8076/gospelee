@@ -62,11 +62,19 @@ public class JwtOIDCProvider {
     // 카카오 제공 공개키(캐싱)
     JwkSetDTO cachedJwkSet = redisCacheService.getPublicKeySet();
 
-    String kid = getKid(token);
+//    String kid = getKid(token);
+
+    Optional<String> kidOptional = getKid(token);
+
+    // 예외 처리를 호출자 쪽으로 위임
+    if (kidOptional.isEmpty()) {
+      log.error("KID를 가져오지 못했습니다.");
+      return null;
+    }
 
     // kid가 서로 일치하는 데이터 가져옴
     JwkDTO jwkDTO = cachedJwkSet.getKeys().stream()
-        .filter(o -> o.getKid().equals(kid))
+        .filter(o -> o.getKid().equals(kidOptional.get()))
         .findFirst()
         .orElseThrow();
 
@@ -107,6 +115,10 @@ public class JwtOIDCProvider {
     }
 
     String[] idTokenArr = idToken.split("\\.");
+
+    if (idTokenArr.length <= 1) {
+      return false;
+    }
 
     String payload = decodeBase64(idTokenArr[1]);
 
@@ -153,16 +165,21 @@ public class JwtOIDCProvider {
     return keyFactory.generatePublic(keySpec);
   }
 
-  private String getKid(String token) throws JsonProcessingException {
-    String[] idTokenArr = token.split("\\.");
-    String header = decodeBase64(idTokenArr[0]);
-    ObjectMapper mapper = new ObjectMapper();
-    Map<String, Object> map;
+  private Optional<String> getKid(String token) {
+    try {
+      String[] idTokenArr = token.split("\\.");
+      String header = decodeBase64(idTokenArr[0]);
 
-    map = mapper.readValue(header, new TypeReference<HashMap<String, Object>>() {
-    });
+      ObjectMapper mapper = new ObjectMapper();
+      Map<String, Object> map = mapper.readValue(header,
+          new TypeReference<HashMap<String, Object>>() {
+          });
 
-    return String.valueOf(map.get("kid"));
+      return Optional.ofNullable(String.valueOf(map.get("kid")));
+    } catch (Exception e) {
+      log.error("getKid 처리 중 예외 발생", e);
+      return Optional.empty(); // 예외 발생 시 빈 Optional 반환
+    }
   }
 
   public Authentication getAuthentication(JwtPayload jwtPayload, String idToken) {
