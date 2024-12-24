@@ -1,5 +1,6 @@
 'use client'
 import {setCookie} from "~/lib/cookie/cookie-utils";
+import {AuthItems} from "~/constants/auth-items";
 
 export const makeQrCodeAndGetCode = async (email: string) => {
   console.log('API 호출 시작'); // API 호출 확인용 로그
@@ -40,6 +41,6 @@ export const qrCheckAndGetToken = async (email: string, code: string) => {
 }
 
 export const setBrowserCookie = async (token: string) => {
-  return setCookie("Authorization", token);
+  return setCookie(AuthItems.Authorization, token);
 
 }

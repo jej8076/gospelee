@@ -1,4 +1,5 @@
-import {fetchData} from "~/lib/api/common";
+import {expireCookie, getCookie} from "~/lib/cookie/cookie-utils";
+import {AuthItems} from "~/constants/auth-items";
 
 export type Users = {
   name: string;
@@ -9,7 +10,21 @@ export type Users = {
   image: string;
 };
 
-export const fetchUsers = async (setUsers: (data: Users[]) => void) => {
-  await fetchData<Users[]>("/api/account/getAccount", "POST", setUsers);
-  debugger;
+export const fetchUsers = async (): Promise<Users[]> => {
+  const response = await fetch("/api/account/getAccount/list", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
+    },
+  });
+
+  if (!response.ok) {
+    await expireCookie(AuthItems.Authorization);
+    const errorData = await response.json();
+    console.error("Error response from server:", errorData.message);
+    throw {status: response.status, message: errorData.message};
+  }
+
+  return response.json();
 };

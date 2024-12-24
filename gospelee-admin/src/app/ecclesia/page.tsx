@@ -4,6 +4,7 @@ import {useEffect, useState} from "react";
 import {ChevronRightIcon} from '@heroicons/react/20/solid'
 import {getCookie} from "~/lib/cookie/cookie-utils";
 import useAuth from "~/lib/auth/check-auth";
+import {AuthItems} from "~/constants/auth-items";
 
 type Ecclesias = {
   uid: bigint,
@@ -45,7 +46,7 @@ export default function Ecclesia() {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Bearer " + await getCookie("Authorization")
+          "Authorization": AuthItems.Bearer + await getCookie(AuthItems.Authorization)
         },
       })
       .then((response) => {

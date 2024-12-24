@@ -45,7 +45,7 @@ public class AccountController {
     return new ResponseEntity<>(getAccountAll, HttpStatus.OK);
   }
 
-  @PostMapping("/getAccount")
+  @PostMapping("/getAccount/list")
   public ResponseEntity<Object> getAccountByEcclesiaUid(@AuthenticationPrincipal Account account,
       EcclesiaDTO ecclesiaDTO) {
     if (RoleType.ADMIN.getName().equals(account.getRole().getName())) {
@@ -66,6 +66,15 @@ public class AccountController {
         .orElseThrow(
             () -> new NoSuchElementException("존재하는 핸드폰 번호가 없습니다 : [" + "phone : " + id + "]")),
         HttpStatus.OK);
+  }
+
+  /**
+   * @param account(security에서 id_token에 대해 인증 완료한 후 데이터 조회한 결과)
+   * @return
+   */
+  @PostMapping("/auth")
+  public ResponseEntity<Object> getAccount(@AuthenticationPrincipal Account account) {
+    return new ResponseEntity<>(account, HttpStatus.OK);
   }
 
   /**
