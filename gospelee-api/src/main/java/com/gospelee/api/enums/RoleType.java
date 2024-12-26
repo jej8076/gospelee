@@ -1,4 +1,4 @@
-package com.gospelee.api.entity;
+package com.gospelee.api.enums;
 
 public enum RoleType {
   LAYMAN("LAYMAN"), PASTOR("PASTOR"), SENIOR_PASTOR("SENIOR_PASTOR"), ADMIN("ADMIN");

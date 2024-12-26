@@ -6,7 +6,7 @@ import com.gospelee.api.dto.ecclesia.EcclesiaDTO;
 import com.gospelee.api.dto.firebase.PushTokenRequest;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.QrLogin;
-import com.gospelee.api.entity.RoleType;
+import com.gospelee.api.enums.RoleType;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.FirebaseService;
 import com.gospelee.api.service.QrloginService;
