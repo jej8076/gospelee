@@ -27,6 +27,13 @@ public class UserController {
   private final JwtOIDCProvider jwtOIDCProvider;
 
   @PostMapping
+  public ResponseEntity<Object> insertUser(@RequestHeader("token") String token)
+      throws JsonProcessingException {
+    JwtPayload payload = jwtOIDCProvider.getOIDCPayload(token);
+    return new ResponseEntity<>(userService.findUser(payload.getEmail()), HttpStatus.OK);
+  }
+
+  @PostMapping
   public ResponseEntity<Object> getUser(@RequestHeader("token") String token)
       throws JsonProcessingException {
     JwtPayload payload = jwtOIDCProvider.getOIDCPayload(token);
