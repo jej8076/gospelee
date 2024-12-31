@@ -12,7 +12,6 @@ import com.gospelee.api.entity.Account;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.RedisCacheService;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import java.math.BigInteger;

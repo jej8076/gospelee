@@ -1,5 +1,6 @@
 package com.gospelee.api.service;
 
+import com.gospelee.api.dto.ecclesia.EcclesiaInsertDTO;
 import com.gospelee.api.entity.Ecclesia;
 import com.gospelee.api.repository.EcclesiaRepository;
 import java.util.List;
@@ -16,6 +17,15 @@ public class EcclesiaServiceImpl implements EcclesiaService {
 
   public List<Ecclesia> getEcclesia() {
     return ecclesiaRepository.findAll();
+  }
+
+  public Ecclesia saveEcclesia(EcclesiaInsertDTO ecclesiaInsertDTO) {
+    Ecclesia ecclesia = Ecclesia.builder()
+        .name(ecclesiaInsertDTO.getName())
+        .churchIdentificationNumber(ecclesiaInsertDTO.getChurchIdentificationNumber())
+        .build();
+
+    return ecclesiaRepository.save(ecclesia);
   }
 
 

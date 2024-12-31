@@ -56,6 +56,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       JwtPayload emptyPayload = JwtPayload.builder().build();
       setAuthenticationToContext(emptyPayload, idToken);
       filterChain.doFilter(request, response);
+      return;
     }
 
     JwtPayload jwtPayload = jwtOIDCProvider.getOIDCPayload(idToken);

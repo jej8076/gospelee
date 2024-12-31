@@ -2,7 +2,7 @@
 import "./globals.css";
 import {Fragment, useEffect, useState} from 'react'
 import {usePathname} from 'next/navigation'
-import {Dialog, Menu, Transition} from '@headlessui/react'
+import {Button, Dialog, Menu, Transition} from '@headlessui/react'
 import Link from "next/link";
 import {
   Bars3Icon,
@@ -17,6 +17,10 @@ import {
   FolderIcon,
 } from '@heroicons/react/24/outline'
 import {ChevronDownIcon, MagnifyingGlassIcon} from '@heroicons/react/20/solid'
+import {expireCookie} from "~/lib/cookie/cookie-utils";
+import {AuthItems} from "~/constants/auth-items";
+import {useRouter} from 'next/navigation';
+import {AppRouterInstance} from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 const navigation = [
   {name: '대시보드', id: 'main', href: '/main', icon: HomeIcon},
@@ -24,14 +28,25 @@ const navigation = [
   {name: '성도님들', id: 'user', href: '/user', icon: UsersIcon},
   {name: '공지관리', id: 'noti', href: '/noti', icon: UsersIcon},
 ]
+
 const teams = [
   {id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false},
   {id: 2, name: 'Tailwind Labs', href: '#', initial: 'T', current: false},
   {id: 3, name: 'Workcation', href: '#', initial: 'W', current: false},
 ]
+
+const logout = async (router: AppRouterInstance) => {
+  try {
+    await expireCookie(AuthItems.Authorization);
+    await router.push('/login');
+  } catch (error) {
+    console.error('Error expiring cookie:', error);
+  }
+}
+
 const userNavigation = [
-  {name: 'Your profile', href: '#'},
-  {name: 'Sign out', href: '#'},
+  {id: 'profile', name: 'Your profile', href: '#'},
+  {id: 'signOut', name: 'Sign out', href: '#',},
 ]
 
 function classNames(...classes: String[]) {
@@ -47,10 +62,15 @@ export default function MainLayout({children}: Readonly<{
   const depth1 = currentPath.split('/')[1];
   const [nav, setNav] = useState(depth1);
 
+  const router = useRouter();
+  const handleLogout = async () => {
+    await logout(router);
+  };
+
   return (
       <html>
       <body>
-      {currentPath == '/login' ? (
+      {currentPath == '/login' || currentPath.startsWith('/apply') ? (
           <div>{children}</div>
       ) : (
           <div>
@@ -212,18 +232,17 @@ export default function MainLayout({children}: Readonly<{
                         <Menu.Items
                             className="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
                           {userNavigation.map((item) => (
-                              <Menu.Item key={item.name}>
-                                {({active}) => (
-                                    <a
-                                        href={item.href}
-                                        className={classNames(
-                                            active ? 'bg-gray-50' : '',
-                                            'block px-3 py-1 text-sm leading-6 text-gray-900'
-                                        )}
-                                    >
-                                      {item.name}
-                                    </a>
-                                )}
+                              <Menu.Item key={item.id}>
+                                <button
+                                    type="button"
+                                    onClick={() => handleLogout()}
+                                    className={classNames(
+                                        'ui-active:bg-gray-50',
+                                        'block px-3 py-1 text-sm leading-6 text-gray-900'
+                                    )}
+                                >
+                                  {item.name}
+                                </button>
                               </Menu.Item>
                           ))}
                         </Menu.Items>

@@ -4,10 +4,18 @@ import React, {useEffect, useState} from 'react'
 import {ChevronDownIcon} from '@heroicons/react/16/solid'
 import {Field, Label, Switch} from '@headlessui/react'
 import {AuthItems} from "~/constants/auth-items";
+import {useApiClient} from "@/hooks/useApiClient";
+import {fetchInsertEcclesia, Ecclesia} from "~/lib/api/fetch-ecclesias";
 
-export default function Example() {
+export default function ApplyChurch() {
   const [agreed, setAgreed] = useState(false);
   const [pastor, setPastor] = useState("");
+
+  const [name, setName] = useState("");
+  const [churchIdentificationNumber, setChurchIdentificationNumber] = useState("");
+
+  const {callApi} = useApiClient();
+  const [ecclesia, setEcclesia] = useState<Ecclesia>();
 
   useEffect(() => {
     const authInfo: string | null = localStorage.getItem(AuthItems.LastAuthInfo);
@@ -15,7 +23,17 @@ export default function Example() {
     setPastor(authInfoObj?.name);
   }, []);
 
+  const insertEcclesia = async () => {
+    const inputData = {
+      name,
+      churchIdentificationNumber,
+    };
+    // callApi(fetchInsertEcclesia(inputData), setEcclesia);
+    callApi(() => fetchInsertEcclesia(inputData), setEcclesia);
+  }
+
   return (
+
       <div className="isolate bg-white px-6 py-24 sm:py-32 lg:px-8">
         <div
             aria-hidden="true"
@@ -34,7 +52,7 @@ export default function Example() {
             Apply</h2>
           <p className="mt-2 text-lg/8 text-gray-600">교회 정보를 입력해주세요</p>
         </div>
-        <form action="#" method="POST" className="mx-auto mt-16 max-w-xl sm:mt-20">
+        <div className="mx-auto mt-16 max-w-xl sm:mt-20">
           <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label htmlFor="church-name" className="block text-sm/6 font-semibold text-gray-900">
@@ -55,35 +73,9 @@ export default function Example() {
                     id="church-name"
                     name="church-name"
                     type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     autoComplete="organization"
-                    className="block w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 border border-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600"
-                />
-              </div>
-            </div>
-            <div className="sm:col-span-2">
-              <label htmlFor="company" className="block text-sm/6 font-semibold text-gray-900">
-                Company
-              </label>
-              <div className="mt-2.5">
-                <input
-                    id="company"
-                    name="company"
-                    type="text"
-                    autoComplete="organization"
-                    className="block w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 border border-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600"
-                />
-              </div>
-            </div>
-            <div className="sm:col-span-2">
-              <label htmlFor="email" className="block text-sm/6 font-semibold text-gray-900">
-                Email
-              </label>
-              <div className="mt-2.5">
-                <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
                     className="block w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 border border-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600"
                 />
               </div>
@@ -100,26 +92,28 @@ export default function Example() {
                       id="identification-number"
                       name="identification-number"
                       type="text"
+                      value={churchIdentificationNumber}
+                      onChange={(e) => setChurchIdentificationNumber(e.target.value)}
                       autoComplete="organization"
                       className="block w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 border border-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600"
                   />
                 </div>
               </div>
             </div>
-            <div className="sm:col-span-2">
-              <label htmlFor="message" className="block text-sm/6 font-semibold text-gray-900">
-                Message
-              </label>
-              <div className="mt-2.5">
-              <textarea
-                  id="message"
-                  name="message"
-                  rows={4}
-                  className="block w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 border border-gray-300"
-                  defaultValue={''}
-              />
-              </div>
-            </div>
+            {/*<div className="sm:col-span-2">*/}
+            {/*  <label htmlFor="message" className="block text-sm/6 font-semibold text-gray-900">*/}
+            {/*    Message*/}
+            {/*  </label>*/}
+            {/*  <div className="mt-2.5">*/}
+            {/*  <textarea*/}
+            {/*      id="message"*/}
+            {/*      name="message"*/}
+            {/*      rows={4}*/}
+            {/*      className="block w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 border border-gray-300"*/}
+            {/*      defaultValue={''}*/}
+            {/*  />*/}
+            {/*  </div>*/}
+            {/*</div>*/}
             <Field className="flex gap-x-4 sm:col-span-2">
               <div className="flex h-6 items-center">
                 <Switch
@@ -144,14 +138,15 @@ export default function Example() {
             </Field>
           </div>
           <div className="mt-10">
-            <button
-                type="submit"
-                className="block w-full rounded-md bg-indigo-600 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            <input
+                type="button"
+                value="신청"
+                className="block w-full rounded-md bg-indigo-600 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
+                onClick={() => insertEcclesia()}
             >
-              신청
-            </button>
+            </input>
           </div>
-        </form>
+        </div>
       </div>
   )
 }

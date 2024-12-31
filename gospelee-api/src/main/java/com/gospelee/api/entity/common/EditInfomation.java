@@ -16,17 +16,18 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public class EditInfomation {
-    @Column(name = "insert_user")
-    private String insertUser;
 
-    @Column(name = "update_user")
-    private String updateUser;
+  @Column(name = "insert_user")
+  private String insertUser;
 
-    @CreatedDate
-    @Column(name = "insert_time")
-    private LocalDateTime insertTime;
+  @Column(name = "update_user")
+  private String updateUser;
 
-    @LastModifiedDate
-    @Column(name = "update_time")
-    private LocalDateTime updateTime;
+  @CreatedDate
+  @Column(name = "insert_time")
+  private LocalDateTime insertTime;
+
+  @LastModifiedDate
+  @Column(name = "update_time")
+  private LocalDateTime updateTime;
 }

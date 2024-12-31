@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -25,10 +26,22 @@ public class Ecclesia extends EditInfomation {
   @Column
   private String name;
 
+  @Column
+  private String status;
+
   @Column(name = "master_account_uid")
   private String masterAccountUid;
 
   @Column(name = "church_identification_number")
   private String churchIdentificationNumber;
 
+  @Builder
+  public Ecclesia(long uid, String name, String status, String masterAccountUid,
+      String churchIdentificationNumber) {
+    this.uid = uid;
+    this.name = name;
+    this.status = status;
+    this.masterAccountUid = masterAccountUid;
+    this.churchIdentificationNumber = churchIdentificationNumber;
+  }
 }
