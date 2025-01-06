@@ -1,5 +1,6 @@
 package com.gospelee.api.service;
 
+import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.journal.JournalBibleDTO;
 import com.gospelee.api.dto.journal.JournalDTO;
 import com.gospelee.api.entity.Account;
@@ -23,7 +24,7 @@ public class JournalServiceImpl implements JournalService {
   }
 
   @Override
-  public JournalDTO insertJournal(Account account, JournalDTO journalDTO) {
+  public JournalDTO insertJournal(AccountAuthDTO account, JournalDTO journalDTO) {
     Journal journal = Journal.builder()
         .accountUid(account.getUid())
         .content(journalDTO.getContent())

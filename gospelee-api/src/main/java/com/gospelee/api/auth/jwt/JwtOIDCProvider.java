@@ -5,6 +5,7 @@ import static util.Base64Util.decodeBase64;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.jwt.JwkDTO;
 import com.gospelee.api.dto.jwt.JwkSetDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
@@ -182,10 +183,10 @@ public class JwtOIDCProvider {
   }
 
   public Authentication getAuthentication(JwtPayload jwtPayload, String idToken) {
-    Optional<Account> accountOptional = accountService.saveAndGetAccount(jwtPayload, idToken);
+    Optional<AccountAuthDTO> accountAuthDTO = accountService.saveAndGetAccount(jwtPayload, idToken);
 
-    return accountOptional.map(account -> {
-      UserDetails userDetails = Account.builder()
+    return accountAuthDTO.map(account -> {
+      UserDetails userDetails = AccountAuthDTO.builder()
           .uid(account.getUid())
           .email(account.getEmail())
           .name(account.getName())
@@ -193,6 +194,7 @@ public class JwtOIDCProvider {
           .id_token(account.getId_token())
           .ecclesiaUid(account.getEcclesiaUid())
           .pushToken(account.getPushToken())
+          .ecclesiaStatus(account.getEcclesiaStatus())
           .build();
       return new UsernamePasswordAuthenticationToken(userDetails, idToken,
           userDetails.getAuthorities());

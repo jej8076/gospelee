@@ -2,6 +2,7 @@ package com.gospelee.api.service;
 
 import static com.gospelee.api.utils.RandomStringGenerator.makeQrLoginRandomCode;
 
+import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.qrlogin.QrLoginDTO;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.QrLogin;
@@ -26,7 +27,7 @@ public class QrloginServiceImpl implements QrloginService {
   }
 
   @Override
-  public boolean updateQrlogin(Account account, String code) {
+  public boolean updateQrlogin(AccountAuthDTO account, String code) {
     QrLogin qrLogin = qrloginRepository.findByEmailAndCode(account.getEmail(), code);
     if (qrLogin == null) {
       return false;

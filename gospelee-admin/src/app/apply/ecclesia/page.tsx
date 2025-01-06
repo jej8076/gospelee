@@ -28,7 +28,6 @@ export default function ApplyChurch() {
       name,
       churchIdentificationNumber,
     };
-    // callApi(fetchInsertEcclesia(inputData), setEcclesia);
     callApi(() => fetchInsertEcclesia(inputData), setEcclesia);
   }
 

@@ -25,7 +25,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @ToString
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Account extends EditInfomation implements UserDetails {
+public class Account extends EditInfomation {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -69,42 +69,5 @@ public class Account extends EditInfomation implements UserDetails {
     this.role = role;
     this.id_token = id_token;
     this.pushToken = pushToken;
-  }
-
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-    grantedAuthorities.add(new SimpleGrantedAuthority(role.name()));
-    return grantedAuthorities;
-  }
-
-  @Override
-  public String getPassword() {
-    return id_token;
-  }
-
-  @Override
-  public String getUsername() {
-    return email;
-  }
-
-  @Override
-  public boolean isAccountNonExpired() {
-    return false;
-  }
-
-  @Override
-  public boolean isAccountNonLocked() {
-    return false;
-  }
-
-  @Override
-  public boolean isCredentialsNonExpired() {
-    return false;
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return true;
   }
 }

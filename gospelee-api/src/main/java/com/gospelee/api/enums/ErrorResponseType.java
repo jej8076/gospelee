@@ -9,9 +9,9 @@ package com.gospelee.api.enums;
  */
 public enum ErrorResponseType {
   /* 공통 에러 코드 */
-  COMM_101("COMM_101", "테이블에 해당 데이터가 존재하지 않음"),
-  COMM_102("COMM_102", "비정상적인 접근이 시도됨"),
-  COMM_999("COMM_999", "예상치 못한 에러 발생"),
+  COMM_101("COMM-101", "테이블에 해당 데이터가 존재하지 않음"),
+  COMM_102("COMM-102", "비정상적인 접근이 시도됨"),
+  COMM_999("COMM-999", "예상치 못한 에러 발생"),
 
   /* AUTH */
   AUTH_101("AUTH-101", "로그인에 5회 실패 등으로 계정이 정지됨"),
@@ -24,6 +24,9 @@ public enum ErrorResponseType {
   AUTH_108("AUTH-108", "허용되지 않은 아이피"),
   AUTH_109("AUTH-109", "중복로그인으로 인한 로그아웃"),
   AUTH_110("AUTH-110", "토큰이 존재하지 않음"),
+
+  /* AUTH */
+  ECCL_101("ECCL-101", "교회 정보가 없음"),
   ;
 
   private final String code;

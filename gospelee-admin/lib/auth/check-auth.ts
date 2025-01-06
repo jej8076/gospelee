@@ -35,16 +35,23 @@ const useAuth = () => {
         },
       });
 
-      if (!response.ok) {
+      const responseBody = await response.json();
+
+      if (!response.ok || responseBody.status !== 200) {
         await expireCookie(AuthItems.Authorization);
+
+        if (responseBody.status === 403) {
+          router.push("/apply/ecclesia");
+          return responseBody;
+        }
+        
         router.push('/login');
+        return responseBody;
       }
 
-      // return response.json();
-      const responseBody = await response.json();
       const responseBodyString = JSON.stringify(responseBody);
-
       localStorage.setItem(AuthItems.LastAuthInfo, responseBodyString);
+
       return responseBody;
     };
 

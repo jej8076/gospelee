@@ -1,9 +1,13 @@
 package com.gospelee.api.service;
 
+import com.gospelee.api.dto.account.AccountAuthDTO;
+import com.gospelee.api.dto.account.AccountDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
 import com.gospelee.api.entity.Account;
+import com.gospelee.api.entity.Ecclesia;
 import com.gospelee.api.enums.RoleType;
 import com.gospelee.api.repository.AccountRepository;
+import com.gospelee.api.repository.EcclesiaRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -15,8 +19,12 @@ public class AccountServiceImpl implements AccountService {
 
   private final AccountRepository accountRepository;
 
-  public AccountServiceImpl(AccountRepository accountRepository) {
+  private final EcclesiaRepository ecclesiaRepository;
+
+  public AccountServiceImpl(AccountRepository accountRepository,
+      EcclesiaRepository ecclesiaRepository) {
     this.accountRepository = accountRepository;
+    this.ecclesiaRepository = ecclesiaRepository;
   }
 
   public List<Account> getAccountAll() {
@@ -42,13 +50,25 @@ public class AccountServiceImpl implements AccountService {
     return accountRepository.findByEmail(email);
   }
 
-  public Optional<Account> saveAndGetAccount(JwtPayload jwtPayload, String idToken) {
+  public Optional<AccountAuthDTO> saveAndGetAccount(JwtPayload jwtPayload, String idToken) {
+    Account result;
+
     if (idToken.equals("SUPER")) {
-      return accountRepository.findByEmail("super@super.com");
+      result = accountRepository.findByEmail("super@super.com").get();
+      Optional<Ecclesia> ecc = ecclesiaRepository.findEcclesiasByUid(result.getUid());
+      AccountAuthDTO accountAuthDTO = AccountAuthDTO.builder()
+          .email(result.getEmail())
+          .name(result.getName())
+          .phone(result.getPhone())
+          .rrn(result.getRrn())
+          .role(RoleType.ADMIN)
+          .ecclesiaStatus(ecc.map(Ecclesia::getStatus).orElse(null))
+          .build();
+      return Optional.ofNullable(accountAuthDTO);
     }
-    return accountRepository.findByEmail(jwtPayload.getEmail())
-        .map(acc -> Optional.of(
-            accountRepository.updateAccountIdTokenAndFindById(acc.getUid(), idToken)))
+
+    result = accountRepository.findByEmail(jwtPayload.getEmail())
+        .map(acc -> accountRepository.updateAccountIdTokenAndFindById(acc.getUid(), idToken))
         .orElseGet(() -> {
           Account account = Account.builder()
               .name(jwtPayload.getNickname())
@@ -63,8 +83,21 @@ public class AccountServiceImpl implements AccountService {
             throw new RuntimeException("Account 저장 실패");
           }
 
-          return Optional.of(savedAccount);
+          return savedAccount;
         });
+
+    Optional<Ecclesia> ecc = ecclesiaRepository.findEcclesiasByUid(result.getUid());
+    AccountAuthDTO accountAuthDTO = AccountAuthDTO.builder()
+        .email(result.getEmail())
+        .name(result.getName())
+        .phone(result.getPhone())
+        .rrn(result.getRrn())
+        .role(result.getRole())
+        .id_token(result.getId_token())
+        .ecclesiaStatus(ecc.map(Ecclesia::getStatus).orElse(null))
+        .build();
+
+    return Optional.ofNullable(accountAuthDTO);
   }
 
   public void savePushToken(Long uid, String pushToken) {

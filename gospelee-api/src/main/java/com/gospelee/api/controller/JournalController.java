@@ -1,5 +1,6 @@
 package com.gospelee.api.controller;
 
+import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.journal.JournalDTO;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.service.JournalService;
@@ -30,7 +31,8 @@ public class JournalController {
    * @return
    */
   @PostMapping
-  public ResponseEntity<Object> getJournalByAccountUid(@AuthenticationPrincipal Account account) {
+  public ResponseEntity<Object> getJournalByAccountUid(
+      @AuthenticationPrincipal AccountAuthDTO account) {
     List<JournalDTO> getJournalByAccountUid = journalService.getJournalList(account.getUid());
     return new ResponseEntity<>(getJournalByAccountUid, HttpStatus.OK);
   }
@@ -43,7 +45,7 @@ public class JournalController {
    */
   @PutMapping
   public ResponseEntity<Object> insertJournal(
-      @AuthenticationPrincipal Account account,
+      @AuthenticationPrincipal AccountAuthDTO account,
       @RequestBody JournalDTO journalDTO) {
     JournalDTO insertJournal = journalService.insertJournal(account, journalDTO);
     return new ResponseEntity<>(insertJournal, HttpStatus.OK);

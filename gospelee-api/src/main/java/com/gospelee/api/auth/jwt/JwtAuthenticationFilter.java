@@ -1,7 +1,9 @@
 package com.gospelee.api.auth.jwt;
 
+import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.common.ResponseDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
+import com.gospelee.api.enums.EcclesiaStatusType;
 import com.gospelee.api.enums.ErrorResponseType;
 import com.gospelee.api.utils.CookieUtils;
 import jakarta.servlet.FilterChain;
@@ -26,6 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final String AUTH_HEADER = "Authorization";
   private final String BEARER = "Bearer ";
+  private final String APP_ID = "X-App-Identifier";
 
   // 인증에서 제외할 url
   private static final List<String> EXCLUDE_SERVLET_PATH_LIST =
@@ -34,6 +37,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           "/account/qr/enter",
           "/account/qr/check"
       );
+
+  private static final List<String> ALLOW_AND_PENDING_PATH_LIST =
+      List.of(
+          "/api/account/qr/req/*"
+      );
+
   private final JwtOIDCProvider jwtOIDCProvider;
 
   public JwtAuthenticationFilter(JwtOIDCProvider jwtOIDCProvider) {
@@ -44,6 +53,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain filterChain) throws ServletException, IOException, BadCredentialsException {
     String idToken = request.getHeader(AUTH_HEADER);
+    String appId = request.getHeader(APP_ID);
+    String requestURI = request.getRequestURI();
+
+    boolean isWeb = false;
+    if ("OOG_WEB".equals(appId)) {
+      isWeb = true;
+    }
 
     if (!idToken.startsWith(BEARER)) {
       failResponse(response, ErrorResponseType.AUTH_103);
@@ -66,9 +82,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       return;
     }
 
-    setAuthenticationToContext(jwtPayload, idToken);
+    Authentication authentication = setAuthenticationToContext(jwtPayload, idToken);
 
-    filterChain.doFilter(request, response);
+    if (authentication == null || !(authentication.getPrincipal() instanceof AccountAuthDTO)) {
+      failResponse(response, ErrorResponseType.AUTH_103);
+      return;
+    }
+
+    AccountAuthDTO account = (AccountAuthDTO) authentication.getPrincipal();
+
+    /*
+    1. 웹에서 호출하지 않았고 2. 인증에 성공했지만 보류할 URI에 포함되어 있고 3. 로그인 시도한 사용자의 소속 교회가 없거나 승인되지 않았다면
+     */
+    if (!isWeb
+        && isAllowAndPendingPath(requestURI)
+        && !EcclesiaStatusType.APPROVAL.getName().equals(account.getEcclesiaStatus())
+    ) {
+      filterChain.doFilter(request, response);
+      return;
+    }
+
+    failResponse(response, ErrorResponseType.ECCL_101, HttpStatus.FORBIDDEN);
   }
 
   @Override
@@ -78,9 +112,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             .startsWith(path.split("\\/\\*")[0]) : path.equals(request.getServletPath()));
   }
 
-  private void setAuthenticationToContext(JwtPayload jwtPayload, String idToken) {
+  private boolean isAllowAndPendingPath(String requestURI) {
+    return ALLOW_AND_PENDING_PATH_LIST.stream()
+        .anyMatch(path -> path.contains("*") ? requestURI
+            .startsWith(path.split("\\/\\*")[0]) : path.equals(requestURI));
+  }
+
+  private Authentication setAuthenticationToContext(JwtPayload jwtPayload, String idToken) {
     Authentication authentication = jwtOIDCProvider.getAuthentication(jwtPayload, idToken);
     SecurityContextHolder.getContext().setAuthentication(authentication);
+    return authentication;
   }
 
   /**
@@ -90,8 +131,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    * @param errorResponseType
    */
   private void failResponse(HttpServletResponse response, ErrorResponseType errorResponseType) {
+    failResponse(response, errorResponseType, HttpStatus.UNAUTHORIZED);
+  }
 
-    int status = HttpStatus.UNAUTHORIZED.value();
+  private void failResponse(HttpServletResponse response, ErrorResponseType errorResponseType,
+      HttpStatus httpStatus) {
+    int status = httpStatus.value();
 
     response.setStatus(status);
     response.setContentType("application/json");
@@ -103,7 +148,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
       ResponseDTO responseDTO = ResponseDTO.builder()
           .status(status)
-          .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+          .error(httpStatus.getReasonPhrase())
           .message(errorResponseType.message())
           .build();
       String json = JsonUtils.toStringFromObject(responseDTO);

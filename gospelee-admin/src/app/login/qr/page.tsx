@@ -36,7 +36,7 @@ const QRCodePage = () => {
   const startCheckingStatus = (email: string, code: string) => {
     const intervalId = setInterval(async () => {
       const token = await qrCheckAndGetToken(email, code);
-
+      debugger;
       if (token == null) return;
 
       if (await setBrowserCookie(token) == 200) {
@@ -54,7 +54,7 @@ const QRCodePage = () => {
       <div>
         <h1>QR Code</h1>
         {code ? (
-            <QRCode value={`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/qr/${code}`}/>
+            <QRCode value={`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/qr/req/${code}`}/>
         ) : (
             <p>Loading...</p>
         )}

@@ -1,7 +1,9 @@
 package com.gospelee.api.controller;
 
 import com.google.firebase.messaging.FirebaseMessagingException;
+import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.account.AccountDTO;
+import com.gospelee.api.dto.account.AccountDTO.QrCheckRequest;
 import com.gospelee.api.dto.ecclesia.EcclesiaDTO;
 import com.gospelee.api.dto.firebase.PushTokenRequest;
 import com.gospelee.api.entity.Account;
@@ -10,6 +12,9 @@ import com.gospelee.api.enums.RoleType;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.FirebaseService;
 import com.gospelee.api.service.QrloginService;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,8 +51,8 @@ public class AccountController {
   }
 
   @PostMapping("/getAccount/list")
-  public ResponseEntity<Object> getAccountByEcclesiaUid(@AuthenticationPrincipal Account account,
-      EcclesiaDTO ecclesiaDTO) {
+  public ResponseEntity<Object> getAccountByEcclesiaUid(
+      @AuthenticationPrincipal AccountAuthDTO account, EcclesiaDTO ecclesiaDTO) {
     if (RoleType.ADMIN.getName().equals(account.getRole().getName())) {
       if (ObjectUtils.isEmpty(ecclesiaDTO.getEcclesiaUid())) {
         List<Account> getAccountAll = accountService.getAccountAll();
@@ -73,7 +78,7 @@ public class AccountController {
    * @return
    */
   @PostMapping("/auth")
-  public ResponseEntity<Object> getAccount(@AuthenticationPrincipal Account account) {
+  public ResponseEntity<Object> getAccount(@AuthenticationPrincipal AccountAuthDTO account) {
     return new ResponseEntity<>(account, HttpStatus.OK);
   }
 
@@ -84,7 +89,7 @@ public class AccountController {
    * @return
    */
   @PostMapping("/kakao/getAccount")
-  public ResponseEntity<Object> saveAccount(@AuthenticationPrincipal Account account,
+  public ResponseEntity<Object> saveAccount(@AuthenticationPrincipal AccountAuthDTO account,
       @RequestBody PushTokenRequest pushTokenRequest) {
     accountService.savePushToken(account.getUid(), pushTokenRequest.getPushToken());
     // save 결과와 상관없이 principal 정보를 return 한다
@@ -92,8 +97,7 @@ public class AccountController {
   }
 
   @PostMapping("/qr/enter")
-  public ResponseEntity<Object> qrEnter(@RequestBody AccountDTO.QrRequest qrRequest)
-      throws FirebaseMessagingException {
+  public ResponseEntity<Object> qrEnter(@RequestBody AccountDTO.QrRequest qrRequest) {
     QrLogin qrLogin = qrloginService.saveQrlogin(qrRequest.getEmail());
     Map<String, String> pushSendDataMap = new HashMap<>();
     pushSendDataMap.put("code", qrLogin.getCode());
@@ -128,9 +132,9 @@ public class AccountController {
    * @param code
    * @return
    */
-  @PostMapping("/qr/{code}")
+  @PostMapping("/qr/req/{code}")
   public ResponseEntity<Object> qrAuth(
-      @AuthenticationPrincipal Account account,
+      @AuthenticationPrincipal AccountAuthDTO account,
       @PathVariable(value = "code") String code
   ) {
     HttpStatus status = HttpStatus.OK;
@@ -153,6 +157,7 @@ public class AccountController {
    */
   @PostMapping("/qr/check")
   public ResponseEntity<Object> qrAuthCheck(
+      HttpServletResponse response,
       @RequestBody AccountDTO.QrCheckRequest qrCheckRequest
   ) {
     QrLogin qrLogin = qrloginService.getQrLogin(qrCheckRequest.getEmail(),
@@ -163,7 +168,7 @@ public class AccountController {
 
   @PostMapping("/send/noti")
   public String sendNotification(
-      @AuthenticationPrincipal Account account
+      @AuthenticationPrincipal AccountAuthDTO account
   ) throws FirebaseMessagingException {
     return firebaseService.sendNotification(
         account.getPushToken(),
