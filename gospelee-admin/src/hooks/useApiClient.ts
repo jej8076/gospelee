@@ -17,11 +17,7 @@ export const useApiClient = () => {
       onSuccess(data);
     } catch (error: any) {
       if (error.status === 401) {
-        debugger;
         router.push("/login");
-      } else if (error.status === 403) {
-        debugger;
-        router.push("/apply/ecclesia");
       } else {
         console.error("Unhandled error:", error.message || error);
       }

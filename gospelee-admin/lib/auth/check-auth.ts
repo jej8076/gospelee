@@ -40,11 +40,16 @@ const useAuth = () => {
       if (!response.ok || responseBody.status !== 200) {
         await expireCookie(AuthItems.Authorization);
 
+        if (responseBody.status === 401) {
+          router.push("/login");
+          return responseBody;
+        }
+
         if (responseBody.status === 403) {
           router.push("/apply/ecclesia");
           return responseBody;
         }
-        
+
         router.push('/login');
         return responseBody;
       }
