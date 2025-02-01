@@ -2,7 +2,7 @@
 
 import QRCode from 'qrcode.react';
 import {useEffect, useState} from "react";
-import {useSearchParams, useRouter} from 'next/navigation';
+import {useRouter, useSearchParams} from 'next/navigation';
 import {
   makeQrCodeAndGetCode,
   qrCheckAndGetToken,
@@ -36,7 +36,6 @@ const QRCodePage = () => {
   const startCheckingStatus = (email: string, code: string) => {
     const intervalId = setInterval(async () => {
       const token = await qrCheckAndGetToken(email, code);
-      debugger;
       if (token == null) return;
 
       if (await setBrowserCookie(token) == 200) {

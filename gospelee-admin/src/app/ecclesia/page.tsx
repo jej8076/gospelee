@@ -1,10 +1,10 @@
 "use client"
 
 import {useEffect, useState} from "react";
-import {ChevronRightIcon} from '@heroicons/react/20/solid'
 import {getCookie} from "~/lib/cookie/cookie-utils";
 import useAuth from "~/lib/auth/check-auth";
 import {AuthItems} from "~/constants/auth-items";
+import {apiFetch} from "~/lib/api-client";
 
 type Ecclesias = {
   uid: bigint,
@@ -42,19 +42,16 @@ export default function Ecclesia() {
 
   const fetchEcclesias = async () => {
     try {
-      await fetch(`/api/ecclesia/all`, {
-        method: 'POST',
+      const response = await apiFetch(`/api/ecclesia/all`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": AuthItems.Bearer + await getCookie(AuthItems.Authorization)
+          Authorization: `${AuthItems.Bearer}${await getCookie(AuthItems.Authorization)}`,
         },
-      })
-      .then((response) => {
-        return response.json();
-      })
-      .then((res: Ecclesias[]) => {
-        setEcc(res);
       });
+
+      const res: Ecclesias[] = await response.json();
+      setEcc(res);
     } catch (e) {
       console.error("Error fetching users:", e);
     }

@@ -1,5 +1,6 @@
 import {expireCookie, getCookie} from "~/lib/cookie/cookie-utils";
 import {AuthItems} from "~/constants/auth-items";
+import {apiFetch} from "~/lib/api-client";
 
 export type Users = {
   name: string;
@@ -14,7 +15,7 @@ export const fetchUsers = async (timeout = 5000): Promise<Users[]> => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-  const response = await fetch("/api/account/getAccount/list", {
+  const response = await apiFetch("/api/account/getAccount/list", {
     method: "POST",
     headers: {
       "X-App-Identifier": "OOG_WEB",

@@ -1,5 +1,6 @@
 import {expireCookie, getCookie} from "~/lib/cookie/cookie-utils";
 import {AuthItems} from "~/constants/auth-items";
+import {apiFetch} from "~/lib/api-client";
 
 export type Ecclesia = {
   name: string;
@@ -12,7 +13,7 @@ export const fetchInsertEcclesia = async (inputData: {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-  const response = await fetch("/api/ecclesia", {
+  const response = await apiFetch("/api/ecclesia", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

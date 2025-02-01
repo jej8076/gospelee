@@ -1,10 +1,11 @@
 'use client'
 import {setCookie} from "~/lib/cookie/cookie-utils";
 import {AuthItems} from "~/constants/auth-items";
+import {apiFetch} from "~/lib/api-client";
 
 export const makeQrCodeAndGetCode = async (email: string) => {
   console.log('API 호출 시작'); // API 호출 확인용 로그
-  const response = await fetch(`/api/account/qr/enter`, {
+  const response = await apiFetch(`/api/account/qr/enter`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -20,7 +21,7 @@ export const makeQrCodeAndGetCode = async (email: string) => {
 };
 
 export const qrCheckAndGetToken = async (email: string, code: string) => {
-  const response = await fetch(`/api/account/qr/check`, {
+  const response = await apiFetch(`/api/account/qr/check`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
