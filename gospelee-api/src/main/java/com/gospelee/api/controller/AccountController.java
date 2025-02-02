@@ -3,8 +3,7 @@ package com.gospelee.api.controller;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.account.AccountDTO;
-import com.gospelee.api.dto.account.AccountDTO.QrCheckRequest;
-import com.gospelee.api.dto.ecclesia.EcclesiaDTO;
+import com.gospelee.api.dto.ecclesia.EcclesiaRequestDTO;
 import com.gospelee.api.dto.firebase.PushTokenRequest;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.QrLogin;
@@ -12,9 +11,7 @@ import com.gospelee.api.enums.RoleType;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.FirebaseService;
 import com.gospelee.api.service.QrloginService;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,14 +49,15 @@ public class AccountController {
 
   @PostMapping("/getAccount/list")
   public ResponseEntity<Object> getAccountByEcclesiaUid(
-      @AuthenticationPrincipal AccountAuthDTO account, EcclesiaDTO ecclesiaDTO) {
+      @AuthenticationPrincipal AccountAuthDTO account, EcclesiaRequestDTO ecclesiaRequestDTO) {
     if (RoleType.ADMIN.getName().equals(account.getRole().getName())) {
-      if (ObjectUtils.isEmpty(ecclesiaDTO.getEcclesiaUid())) {
+      if (ObjectUtils.isEmpty(ecclesiaRequestDTO.getEcclesiaUid())) {
         List<Account> getAccountAll = accountService.getAccountAll();
         return new ResponseEntity<>(getAccountAll, HttpStatus.OK);
       }
       return new ResponseEntity<>(
-          accountService.getAccountByEcclesiaUid(ecclesiaDTO.getEcclesiaUid()), HttpStatus.OK);
+          accountService.getAccountByEcclesiaUid(ecclesiaRequestDTO.getEcclesiaUid()),
+          HttpStatus.OK);
     }
     return new ResponseEntity<>(accountService.getAccountByEcclesiaUid(account.getEcclesiaUid()),
         HttpStatus.OK);

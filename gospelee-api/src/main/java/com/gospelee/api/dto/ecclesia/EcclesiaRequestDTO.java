@@ -4,12 +4,12 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-public class EcclesiaDTO {
+public class EcclesiaRequestDTO {
 
   private String ecclesiaUid;
 
   @Builder
-  public EcclesiaDTO(String ecclesiaUid) {
+  public EcclesiaRequestDTO(String ecclesiaUid) {
     this.ecclesiaUid = ecclesiaUid;
   }
 }

@@ -1,6 +1,7 @@
 package com.gospelee.api.controller;
 
 import com.gospelee.api.dto.ecclesia.EcclesiaInsertDTO;
+import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
 import com.gospelee.api.entity.Ecclesia;
 import com.gospelee.api.service.EcclesiaService;
 import java.util.List;
@@ -23,7 +24,7 @@ public class EcclesiaController {
 
   @PostMapping("/all")
   public ResponseEntity<Object> getEcclesia() {
-    List<Ecclesia> getAccountAll = ecclesiaService.getEcclesia();
+    List<EcclesiaResponseDTO> getAccountAll = ecclesiaService.getEcclesiaAll();
     return new ResponseEntity<>(getAccountAll, HttpStatus.OK);
   }
 

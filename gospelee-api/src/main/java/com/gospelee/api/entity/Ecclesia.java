@@ -30,13 +30,13 @@ public class Ecclesia extends EditInfomation {
   private String status;
 
   @Column(name = "master_account_uid")
-  private String masterAccountUid;
+  private Long masterAccountUid;
 
   @Column(name = "church_identification_number")
   private String churchIdentificationNumber;
 
   @Builder
-  public Ecclesia(long uid, String name, String status, String masterAccountUid,
+  public Ecclesia(long uid, String name, String status, Long masterAccountUid,
       String churchIdentificationNumber) {
     this.uid = uid;
     this.name = name;
