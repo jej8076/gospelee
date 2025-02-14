@@ -66,13 +66,29 @@ public class AccountController {
         HttpStatus.OK);
   }
 
-  @GetMapping("/{id}")
-  public ResponseEntity<Object> getAccountById(@PathVariable(name = "id") String id) {
-    return new ResponseEntity<>(accountService.getAccountByPhone(id)
-        .orElseThrow(
-            () -> new NoSuchElementException("존재하는 핸드폰 번호가 없습니다 : [" + "phone : " + id + "]")),
+  /**
+   * 토큰으로 현재 인증된 스레드의 계정 정보를 가져옴
+   *
+   * @param account
+   * @return
+   */
+  @PostMapping("/me")
+  public ResponseEntity<Object> getAccountByToken(@AuthenticationPrincipal AccountAuthDTO account) {
+    return new ResponseEntity<>(DataResponseDTO.of("100", "성공", account),
         HttpStatus.OK);
   }
+
+/**
+ * 필요없으면 지울 것
+ */
+//  @GetMapping("/{id}")
+//  public ResponseEntity<Object> getAccountById(@PathVariable(name = "id") String id) {
+//    return new ResponseEntity<>(accountService.getAccountByPhone(id)
+//        .orElseThrow(
+//            () -> new NoSuchElementException("존재하는 핸드폰 번호가 없습니다 : [" + "phone : " + id + "]")),
+//        HttpStatus.OK);
+//  }
+
 
   /**
    * @param account(security에서 id_token에 대해 인증 완료한 후 데이터 조회한 결과)
