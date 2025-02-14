@@ -4,10 +4,10 @@ import {expireCookie, getCookie} from '~/lib/cookie/cookie-utils';
 import {Users} from "~/lib/api/fetch-users";
 import {AuthItems} from "~/constants/auth-items";
 import {apiFetch} from "~/lib/api-client";
+import {ResponseItems} from "~/constants/response-items";
 
 const useAuth = () => {
   const router = useRouter();
-  // const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
 
@@ -34,20 +34,22 @@ const useAuth = () => {
 
       const responseBody = await response.json();
 
-      if (responseBody.status !== 200) {
-        await expireCookie(AuthItems.Authorization);
+      if (responseBody.code !== ResponseItems.SUCC) {
 
         // 계정이 존재하고 로그인에 성공했지만 교회가 없음
-        if (responseBody.code === 'ECCL-101') {
-          router.push("/apply/ecclesia");
+        if (responseBody.code === ResponseItems.ECCL_101) {
+          router.push("/ecclesia/apply");
           return responseBody;
         }
 
         // 계정이 존재하고 로그인에 성공했고 교회도 있지만 교회가 승인되지 않음
-        if (responseBody.code === 'ECCL-102') {
-          router.push("/apply/ecclesia");
+        if (responseBody.code === ResponseItems.ECCL_102) {
+          router.push("/ecclesia/wait");
           return responseBody;
         }
+
+        // 토큰 만료
+        await expireCookie(AuthItems.Authorization);
 
         router.push('/login');
         return responseBody;

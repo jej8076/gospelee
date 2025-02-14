@@ -63,7 +63,7 @@ public class AccountServiceImpl implements AccountService {
           .phone(result.getPhone())
           .rrn(result.getRrn())
           .role(RoleType.ADMIN)
-          .ecclesiaUid(String.valueOf(ecc.get().getUid()))
+          .ecclesiaUid(ecc.map(ecclesia -> String.valueOf(ecclesia.getUid())).orElse(null))
           .ecclesiaStatus(ecc.map(Ecclesia::getStatus).orElse(null))
           .build();
       return Optional.ofNullable(accountAuthDTO);
@@ -98,7 +98,7 @@ public class AccountServiceImpl implements AccountService {
         .rrn(result.getRrn())
         .role(result.getRole())
         .id_token(result.getId_token())
-        .ecclesiaUid(String.valueOf(ecc.isPresent() ? ecc.get().getUid() : null))
+        .ecclesiaUid(ecc.map(ecclesia -> String.valueOf(ecclesia.getUid())).orElse(null))
         .ecclesiaStatus(ecc.map(Ecclesia::getStatus).orElse(null))
         .build();
 

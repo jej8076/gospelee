@@ -9,14 +9,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ResponseDTO {
 
-  private int status;
-  private String error;
   private String code;
+  private String message;
 
   @Builder
-  public ResponseDTO(int status, String error, String code) {
-    this.status = status;
-    this.error = error;
+  public ResponseDTO(String code, String message) {
     this.code = code;
+    this.message = message;
   }
 }

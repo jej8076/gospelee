@@ -1,7 +1,6 @@
 'use client'
 
 import React, {useEffect, useState} from 'react'
-import {ChevronDownIcon} from '@heroicons/react/16/solid'
 import {Field, Label, Switch} from '@headlessui/react'
 import {AuthItems} from "~/constants/auth-items";
 import {useApiClient} from "@/hooks/useApiClient";

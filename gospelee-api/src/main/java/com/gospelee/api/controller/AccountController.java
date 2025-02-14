@@ -3,9 +3,9 @@ package com.gospelee.api.controller;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.account.AccountDTO;
+import com.gospelee.api.dto.common.DataResponseDTO;
 import com.gospelee.api.dto.common.ResponseDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaRequestDTO;
-import com.gospelee.api.dto.firebase.PushTokenRequest;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.QrLogin;
 import com.gospelee.api.enums.EcclesiaStatusType;
@@ -79,15 +79,15 @@ public class AccountController {
    * @return
    */
   @PostMapping("/auth")
-  public ResponseEntity<Object> getAccount(@AuthenticationPrincipal AccountAuthDTO account) {
+  public ResponseEntity<ResponseDTO> getAccount(@AuthenticationPrincipal AccountAuthDTO account) {
     ErrorResponseType errorResponse = notValidAccountType(account);
     if (errorResponse != null) {
       return new ResponseEntity<>(ResponseDTO.builder()
-          .status(HttpStatus.FORBIDDEN.value())
           .code(errorResponse.code())
+          .message(errorResponse.message())
           .build(), HttpStatus.OK);
     }
-    return new ResponseEntity<>(account, HttpStatus.OK);
+    return new ResponseEntity<>(DataResponseDTO.of("100", "성공", account), HttpStatus.OK);
   }
 
   /**
@@ -96,16 +96,28 @@ public class AccountController {
    * @param account(security에서 id_token에 대해 인증 완료한 후 데이터 조회한 결과)
    * @return
    */
-  @PostMapping("/kakao/getAccount")
-  public ResponseEntity<Object> saveAccount(@AuthenticationPrincipal AccountAuthDTO account,
-      @RequestBody PushTokenRequest pushTokenRequest) {
-    accountService.savePushToken(account.getUid(), pushTokenRequest.getPushToken());
-    // save 결과와 상관없이 principal 정보를 return 한다
-    return new ResponseEntity<>(account, HttpStatus.OK);
-  }
+//  @PostMapping("/kakao/getAccount")
+//  public ResponseEntity<Object> saveAccount(@AuthenticationPrincipal AccountAuthDTO account,
+//      @RequestBody PushTokenRequest pushTokenRequest) {
+//    accountService.savePushToken(account.getUid(), pushTokenRequest.getPushToken());
+//    // save 결과와 상관없이 principal 정보를 return 한다
+//    return new ResponseEntity<>(account, HttpStatus.OK);
+//  }
 
+  /**
+   * <pre>
+   *   (인증 정보 없는 상태)
+   *   1. qr 로그인 코드 생성 및 DB저장
+   *   2. app에 push 메시지 전송
+   * </pre>
+   *
+   * @param qrRequest
+   * @return
+   */
   @PostMapping("/qr/enter")
   public ResponseEntity<Object> qrEnter(@RequestBody AccountDTO.QrRequest qrRequest) {
+
+    // qr 로그인 코드 생성 및 DB저장
     QrLogin qrLogin = qrloginService.saveQrlogin(qrRequest.getEmail());
     Map<String, String> pushSendDataMap = new HashMap<>();
     pushSendDataMap.put("code", qrLogin.getCode());
@@ -119,6 +131,7 @@ public class AccountController {
       return new ResponseEntity<>(qrLogin, HttpStatus.OK);
     }
 
+    // app에 push 메시지 전송
     firebaseService.sendNotification(
         account.getPushToken(),
         "O O G",

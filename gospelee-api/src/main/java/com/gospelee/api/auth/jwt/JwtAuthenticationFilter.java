@@ -135,9 +135,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       SecurityContextHolder.clearContext();
 
       ResponseDTO responseDTO = ResponseDTO.builder()
-          .status(status)
-          .error(httpStatus.getReasonPhrase())
           .code(errorResponseType.code())
+          .message(httpStatus.getReasonPhrase())
           .build();
       String json = JsonUtils.toStringFromObject(responseDTO);
 
