@@ -3,10 +3,13 @@ package com.gospelee.api.controller;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.account.AccountDTO;
+import com.gospelee.api.dto.common.ResponseDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaRequestDTO;
 import com.gospelee.api.dto.firebase.PushTokenRequest;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.QrLogin;
+import com.gospelee.api.enums.EcclesiaStatusType;
+import com.gospelee.api.enums.ErrorResponseType;
 import com.gospelee.api.enums.RoleType;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.FirebaseService;
@@ -77,6 +80,13 @@ public class AccountController {
    */
   @PostMapping("/auth")
   public ResponseEntity<Object> getAccount(@AuthenticationPrincipal AccountAuthDTO account) {
+    ErrorResponseType errorResponse = notValidAccountType(account);
+    if (errorResponse != null) {
+      return new ResponseEntity<>(ResponseDTO.builder()
+          .status(HttpStatus.FORBIDDEN.value())
+          .code(errorResponse.code())
+          .build(), HttpStatus.OK);
+    }
     return new ResponseEntity<>(account, HttpStatus.OK);
   }
 
@@ -173,6 +183,19 @@ public class AccountController {
         "제목테스트!!!!!!!!!!!!!!!!!!",
         "내용테스트!!!!!!!!!!!!!!"
     );
+  }
+
+  private ErrorResponseType notValidAccountType(AccountAuthDTO account) {
+
+    if (ObjectUtils.isEmpty(account.getEcclesiaUid())) {
+      return ErrorResponseType.ECCL_101;
+    }
+
+    if (!EcclesiaStatusType.APPROVAL.getName().equals(account.getEcclesiaStatus())) {
+      return ErrorResponseType.ECCL_102;
+    }
+
+    return null;
   }
 
 }

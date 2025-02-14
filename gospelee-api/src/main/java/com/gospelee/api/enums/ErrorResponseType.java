@@ -25,8 +25,9 @@ public enum ErrorResponseType {
   AUTH_109("AUTH-109", "중복로그인으로 인한 로그아웃"),
   AUTH_110("AUTH-110", "토큰이 존재하지 않음"),
 
-  /* AUTH */
+  /* ECCLESIA */
   ECCL_101("ECCL-101", "교회 정보가 없음"),
+  ECCL_102("ECCL-102", "교회 정보가 있지만 교회가 승인되지 않음"),
   ;
 
   private final String code;

@@ -11,12 +11,12 @@ public class ResponseDTO {
 
   private int status;
   private String error;
-  private String message;
+  private String code;
 
   @Builder
-  public ResponseDTO(int status, String error, String message) {
+  public ResponseDTO(int status, String error, String code) {
     this.status = status;
     this.error = error;
-    this.message = message;
+    this.code = code;
   }
 }

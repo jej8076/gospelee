@@ -82,6 +82,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       return;
     }
 
+    // 인증 주입
     Authentication authentication = setAuthenticationToContext(jwtPayload, idToken);
 
     if (authentication == null || !(authentication.getPrincipal() instanceof AccountAuthDTO)) {
@@ -89,20 +90,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       return;
     }
 
-    AccountAuthDTO account = (AccountAuthDTO) authentication.getPrincipal();
-
-    /*
-    1. 웹에서 호출하지 않았고 2. 인증에 성공했지만 보류할 URI에 포함되어 있고 3. 로그인 시도한 사용자의 소속 교회가 없거나 승인되지 않았다면
-     */
-    if (!isWeb
-        && isAllowAndPendingPath(requestURI)
-        && !EcclesiaStatusType.APPROVAL.getName().equals(account.getEcclesiaStatus())
-    ) {
-      filterChain.doFilter(request, response);
-      return;
-    }
-
-    failResponse(response, ErrorResponseType.ECCL_101, HttpStatus.FORBIDDEN);
+    filterChain.doFilter(request, response);
   }
 
   @Override
@@ -149,7 +137,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       ResponseDTO responseDTO = ResponseDTO.builder()
           .status(status)
           .error(httpStatus.getReasonPhrase())
-          .message(errorResponseType.message())
+          .code(errorResponseType.code())
           .build();
       String json = JsonUtils.toStringFromObject(responseDTO);
 

@@ -55,13 +55,15 @@ public class AccountServiceImpl implements AccountService {
 
     if (idToken.equals("SUPER")) {
       result = accountRepository.findByEmail("super@super.com").get();
-      Optional<Ecclesia> ecc = ecclesiaRepository.findEcclesiasByUid(result.getUid());
+      Optional<Ecclesia> ecc = ecclesiaRepository.findEcclesiasByMasterAccountUid(result.getUid());
       AccountAuthDTO accountAuthDTO = AccountAuthDTO.builder()
+          .uid(result.getUid())
           .email(result.getEmail())
           .name(result.getName())
           .phone(result.getPhone())
           .rrn(result.getRrn())
           .role(RoleType.ADMIN)
+          .ecclesiaUid(String.valueOf(ecc.get().getUid()))
           .ecclesiaStatus(ecc.map(Ecclesia::getStatus).orElse(null))
           .build();
       return Optional.ofNullable(accountAuthDTO);
@@ -86,14 +88,17 @@ public class AccountServiceImpl implements AccountService {
           return savedAccount;
         });
 
-    Optional<Ecclesia> ecc = ecclesiaRepository.findEcclesiasByUid(result.getUid());
+    // 계정 uid로 ecclasia 정보를 가져옴
+    Optional<Ecclesia> ecc = ecclesiaRepository.findEcclesiasByMasterAccountUid(result.getUid());
     AccountAuthDTO accountAuthDTO = AccountAuthDTO.builder()
+        .uid(result.getUid())
         .email(result.getEmail())
         .name(result.getName())
         .phone(result.getPhone())
         .rrn(result.getRrn())
         .role(result.getRole())
         .id_token(result.getId_token())
+        .ecclesiaUid(String.valueOf(ecc.isPresent() ? ecc.get().getUid() : null))
         .ecclesiaStatus(ecc.map(Ecclesia::getStatus).orElse(null))
         .build();
 

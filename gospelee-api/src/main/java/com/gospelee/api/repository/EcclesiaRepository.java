@@ -22,4 +22,6 @@ public interface EcclesiaRepository extends JpaRepository<Ecclesia, String> {
   List<EcclesiaResponseProjection> findAllWithMasterName();
 
   Optional<Ecclesia> findEcclesiasByUid(long uid);
+
+  Optional<Ecclesia> findEcclesiasByMasterAccountUid(long accountUid);
 }

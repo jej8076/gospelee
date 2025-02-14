@@ -34,11 +34,17 @@ const useAuth = () => {
 
       const responseBody = await response.json();
 
-      if (!response.ok || response.status !== 200) {
+      if (responseBody.status !== 200) {
         await expireCookie(AuthItems.Authorization);
 
         // 계정이 존재하고 로그인에 성공했지만 교회가 없음
-        if (responseBody.status === 403) {
+        if (responseBody.code === 'ECCL-101') {
+          router.push("/apply/ecclesia");
+          return responseBody;
+        }
+
+        // 계정이 존재하고 로그인에 성공했고 교회도 있지만 교회가 승인되지 않음
+        if (responseBody.code === 'ECCL-102') {
           router.push("/apply/ecclesia");
           return responseBody;
         }
