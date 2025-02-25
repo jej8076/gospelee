@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,9 +24,15 @@ public class EcclesiaController {
   private final EcclesiaService ecclesiaService;
 
   @PostMapping("/all")
-  public ResponseEntity<Object> getEcclesia() {
+  public ResponseEntity<Object> getEcclesias() {
     List<EcclesiaResponseDTO> getAccountAll = ecclesiaService.getEcclesiaAll();
     return new ResponseEntity<>(getAccountAll, HttpStatus.OK);
+  }
+
+  @PostMapping("/{ecclesiaUid}")
+  public ResponseEntity<Object> getEcclesia(@PathVariable("ecclesiaUid") Long ecclesiaUid) {
+    Ecclesia ecclesia = ecclesiaService.getEcclesia(ecclesiaUid);
+    return new ResponseEntity<>(ecclesia, HttpStatus.OK);
   }
 
   @PostMapping

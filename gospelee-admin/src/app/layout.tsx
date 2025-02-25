@@ -70,7 +70,7 @@ export default function MainLayout({children}: Readonly<{
   return (
       <html>
       <body>
-      {currentPath == '/login' || currentPath.includes('/apply') ? (
+      {currentPath == '/login' || (currentPath.includes('/apply') || currentPath.includes('/wait')) ? (
           <div>{children}</div>
       ) : (
           <div>

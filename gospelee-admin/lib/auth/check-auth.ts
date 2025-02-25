@@ -55,7 +55,7 @@ const useAuth = () => {
         return responseBody;
       }
 
-      const responseBodyString = JSON.stringify(responseBody);
+      const responseBodyString = JSON.stringify(responseBody.data);
       localStorage.setItem(AuthItems.LastAuthInfo, responseBodyString);
 
       return responseBody;

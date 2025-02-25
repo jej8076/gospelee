@@ -9,6 +9,8 @@ public interface EcclesiaService {
 
   List<EcclesiaResponseDTO> getEcclesiaAll();
 
+  Ecclesia getEcclesia(Long ecclesiaUid);
+
   Ecclesia saveEcclesia(EcclesiaInsertDTO ecclesiaInsertDTO);
 
 }

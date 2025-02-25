@@ -2,25 +2,39 @@
 
 import React, {useEffect, useState} from 'react'
 import {Field, Label, Switch} from '@headlessui/react'
-import {AuthItems} from "~/constants/auth-items";
 import {useApiClient} from "@/hooks/useApiClient";
 import {fetchInsertEcclesia, Ecclesia} from "~/lib/api/fetch-ecclesias";
+import {isEmpty} from "@/utils/validators";
+import {useRouter} from "next/navigation";
+import useDidMountEffect from "@/hooks/useDidMountEffect";
 
 export default function ApplyChurch() {
+  const router = useRouter();
+  const {callApi} = useApiClient();
+
+  const [ecclesia, setEcclesia] = useState<Ecclesia>();
+  const [churchName, setChurchName] = useState("");
+  const [churchIdentificationNumber, setChurchIdentificationNumber] = useState("");
   const [agreed, setAgreed] = useState(false);
 
-  const [name, setName] = useState("");
-  const [churchIdentificationNumber, setChurchIdentificationNumber] = useState("");
+  useDidMountEffect(() => {
 
-  const {callApi} = useApiClient();
-  const [ecclesia, setEcclesia] = useState<Ecclesia>();
+    if (!isEmpty(ecclesia?.uid)) {
+      router.push("/ecclesia/wait");
+      return;
+    }
+
+    alert("실패");
+  }, [ecclesia]);
 
   const insertEcclesia = async () => {
+
     const inputData = {
-      name,
+      churchName,
       churchIdentificationNumber,
     };
-    callApi(() => fetchInsertEcclesia(inputData), setEcclesia);
+
+    await callApi(() => fetchInsertEcclesia(inputData), setEcclesia);
   }
 
   return (
@@ -54,8 +68,8 @@ export default function ApplyChurch() {
                     id="church-name"
                     name="church-name"
                     type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    value={churchName}
+                    onChange={(e) => setChurchName(e.target.value)}
                     autoComplete="organization"
                     className="block w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 border border-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600"
                 />

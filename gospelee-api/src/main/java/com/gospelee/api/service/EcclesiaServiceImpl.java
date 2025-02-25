@@ -20,8 +20,13 @@ public class EcclesiaServiceImpl implements EcclesiaService {
   }
 
   public List<EcclesiaResponseDTO> getEcclesiaAll() {
-    List<EcclesiaResponseDTO> ecclesiaResponseProjections = ecclesiaRepository.findAllWithMasterName();
-    return ecclesiaResponseProjections;
+    return ecclesiaRepository.findAllWithMasterName();
+  }
+
+  public Ecclesia getEcclesia(Long ecclesiaUid) {
+    return ecclesiaRepository.findEcclesiasByUid(ecclesiaUid)
+        .orElseThrow(
+            () -> new IllegalArgumentException("해당 UID를 가진 Ecclesia를 찾을 수 없습니다: " + ecclesiaUid));
   }
 
   /**

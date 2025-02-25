@@ -1,34 +1,24 @@
 'use client'
 
 import React, {useEffect, useState} from 'react'
-import {Field, Label, Switch} from '@headlessui/react'
 import {AuthItems} from "~/constants/auth-items";
+import {Ecclesia, fetchGetEcclesia} from "~/lib/api/fetch-ecclesias";
 import {useApiClient} from "@/hooks/useApiClient";
-import {fetchInsertEcclesia, Ecclesia} from "~/lib/api/fetch-ecclesias";
 
 export default function ApplyChurch() {
-  const [agreed, setAgreed] = useState(false);
-  const [pastor, setPastor] = useState("");
-
-  const [name, setName] = useState("");
-  const [churchIdentificationNumber, setChurchIdentificationNumber] = useState("");
 
   const {callApi} = useApiClient();
+
   const [ecclesia, setEcclesia] = useState<Ecclesia>();
+  const [pastor, setPastor] = useState("");
 
   useEffect(() => {
-    const authInfo: string | null = localStorage.getItem(AuthItems.LastAuthInfo);
-    const authInfoObj = authInfo ? JSON.parse(authInfo) : null;
-    setPastor(authInfoObj?.name);
-  }, []);
+    const authInfoString: string | null = localStorage.getItem(AuthItems.LastAuthInfo);
+    const authInfo: AuthInfo = authInfoString ? JSON.parse(authInfoString) : null;
+    setPastor(authInfo?.name);
+    callApi(() => fetchGetEcclesia(authInfo.ecclesiaUid), setEcclesia);
 
-  const insertEcclesia = async () => {
-    const inputData = {
-      name,
-      churchIdentificationNumber,
-    };
-    callApi(() => fetchInsertEcclesia(inputData), setEcclesia);
-  }
+  }, []);
 
   return (
 
@@ -46,103 +36,32 @@ export default function ApplyChurch() {
           />
         </div>
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-4xl font-semibold tracking-tight text-balance text-gray-900 sm:text-5xl">Church
-            Apply</h2>
-          <p className="mt-2 text-lg/8 text-gray-600">교회 정보를 입력해주세요</p>
+          <h2 className="text-4xl font-semibold tracking-tight text-balance text-gray-900 sm:text-5xl">승인
+            대기중입니다</h2>
+          <p className="mt-2 text-lg/8 text-gray-600">관리자가 데이터를 검토하고 있어요</p>
         </div>
-        <div className="mx-auto mt-16 max-w-xl sm:mt-20">
+        <div className="mx-auto mt-16 max-w-xl sm:mt-20 space-y-20">
           <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label htmlFor="church-name" className="block text-sm/6 font-semibold text-gray-900">
-                담임목사
+              <label className="block text-2xl font-semibold text-gray-900">
+                교회 <span className="text-sm ml-3 font-light">{ecclesia?.name}</span>
               </label>
-              <div className="mt-2.5">
-                <div>
-                  {pastor}
-                </div>
-              </div>
             </div>
-            <div className="sm:col-span-2">
-              <label htmlFor="church-name" className="block text-sm/6 font-semibold text-gray-900">
-                Church
-              </label>
-              <div className="mt-2.5">
-                <input
-                    id="church-name"
-                    name="church-name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    autoComplete="organization"
-                    className="block w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 border border-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600"
-                />
-              </div>
-            </div>
-            <div className="sm:col-span-2">
-              <label htmlFor="identification-number"
-                     className="block text-sm/6 font-semibold text-gray-900">
-                교회고유번호
-              </label>
-              <div className="mt-2.5">
-                <div
-                    className="flex rounded-md bg-white outline-1 -outline-offset-1 outline-gray-300 has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2 has-[input:focus-within]:outline-indigo-600">
-                  <input
-                      id="identification-number"
-                      name="identification-number"
-                      type="text"
-                      value={churchIdentificationNumber}
-                      onChange={(e) => setChurchIdentificationNumber(e.target.value)}
-                      autoComplete="organization"
-                      className="block w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 border border-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600"
-                  />
-                </div>
-              </div>
-            </div>
-            {/*<div className="sm:col-span-2">*/}
-            {/*  <label htmlFor="message" className="block text-sm/6 font-semibold text-gray-900">*/}
-            {/*    Message*/}
-            {/*  </label>*/}
-            {/*  <div className="mt-2.5">*/}
-            {/*  <textarea*/}
-            {/*      id="message"*/}
-            {/*      name="message"*/}
-            {/*      rows={4}*/}
-            {/*      className="block w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 border border-gray-300"*/}
-            {/*      defaultValue={''}*/}
-            {/*  />*/}
-            {/*  </div>*/}
-            {/*</div>*/}
-            <Field className="flex gap-x-4 sm:col-span-2">
-              <div className="flex h-6 items-center">
-                <Switch
-                    checked={agreed}
-                    onChange={setAgreed}
-                    className="group flex w-8 flex-none cursor-pointer rounded-full bg-gray-200 p-px ring-1 ring-gray-900/5 transition-colors duration-200 ease-in-out ring-inset focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 data-checked:bg-indigo-600"
-                >
-                  <span className="sr-only">Agree to policies</span>
-                  <span
-                      aria-hidden="true"
-                      className="size-4 transform rounded-full bg-white ring-1 shadow-xs ring-gray-900/5 transition duration-200 ease-in-out group-data-checked:translate-x-3.5"
-                  />
-                </Switch>
-              </div>
-              <Label className="text-sm/6 text-gray-600">
-                개인정보 보호 정책에{' '}
-                <a href="#" className="font-semibold text-indigo-600">
-                  동의합니다
-                </a>
-                .
-              </Label>
-            </Field>
           </div>
-          <div className="mt-10">
-            <input
-                type="button"
-                value="신청"
-                className="block w-full rounded-md bg-indigo-600 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
-                onClick={() => insertEcclesia()}
-            >
-            </input>
+          <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <label className="block text-2xl font-semibold text-gray-900">
+                담임목사 <span className="text-sm ml-3 font-light">{pastor}</span>
+              </label>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <label className="block text-2xl font-semibold text-gray-900">
+                교회 고유번호 <span
+                  className="text-sm ml-3 font-light">{ecclesia?.churchIdentificationNumber}</span>
+              </label>
+            </div>
           </div>
         </div>
       </div>

@@ -72,8 +72,8 @@ public class AccountController {
    * @param account
    * @return
    */
-  @PostMapping("/me")
-  public ResponseEntity<Object> getAccountByToken(@AuthenticationPrincipal AccountAuthDTO account) {
+  @PostMapping
+  public ResponseEntity<Object> getLoginUser(@AuthenticationPrincipal AccountAuthDTO account) {
     return new ResponseEntity<>(DataResponseDTO.of("100", "성공", account),
         HttpStatus.OK);
   }
