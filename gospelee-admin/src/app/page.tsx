@@ -1,5 +1,18 @@
+"use client"
+
+import {useEffect} from 'react';
+import {useRouter} from "next/navigation";
+
+/**
+ * redirect => "/" to "/main"
+ * @constructor
+ */
 export default function Home() {
-  return (
-      <></>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push('/main');
+  }, []);
+
+  return null;
 }

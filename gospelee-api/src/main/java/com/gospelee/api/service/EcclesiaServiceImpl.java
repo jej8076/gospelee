@@ -5,9 +5,11 @@ import com.gospelee.api.dto.ecclesia.EcclesiaInsertDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
 import com.gospelee.api.entity.Ecclesia;
 import com.gospelee.api.enums.EcclesiaStatusType;
+import com.gospelee.api.enums.RoleType;
 import com.gospelee.api.repository.EcclesiaRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
 import java.util.List;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,6 +22,10 @@ public class EcclesiaServiceImpl implements EcclesiaService {
   }
 
   public List<EcclesiaResponseDTO> getEcclesiaAll() {
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+    if (!RoleType.ADMIN.equals(account.getRole())) {
+      throw new AccessDeniedException("접근할 권한이 없습니다.");
+    }
     return ecclesiaRepository.findAllWithMasterName();
   }
 

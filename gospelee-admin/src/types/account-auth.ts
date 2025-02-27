@@ -1,8 +1,8 @@
-interface Authority {
+interface AuthorityType {
   authority: string;
 }
 
-interface AuthInfo {
+interface AuthInfoType {
   uid: number;
   name: string;
   ecclesiaUid: string;
@@ -19,5 +19,5 @@ interface AuthInfo {
   accountNonLocked: boolean;
   username: string;
   password: string;
-  authorities: Authority[];
+  authorities: AuthorityType[];
 }

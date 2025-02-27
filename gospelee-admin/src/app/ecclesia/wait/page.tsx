@@ -1,9 +1,9 @@
 'use client'
 
 import React, {useEffect, useState} from 'react'
-import {AuthItems} from "~/constants/auth-items";
 import {Ecclesia, fetchGetEcclesia} from "~/lib/api/fetch-ecclesias";
 import {useApiClient} from "@/hooks/useApiClient";
+import {getLastLoginOrElseNull} from "@/utils/user-utils";
 
 export default function ApplyChurch() {
 
@@ -13,11 +13,9 @@ export default function ApplyChurch() {
   const [pastor, setPastor] = useState("");
 
   useEffect(() => {
-    const authInfoString: string | null = localStorage.getItem(AuthItems.LastAuthInfo);
-    const authInfo: AuthInfo = authInfoString ? JSON.parse(authInfoString) : null;
-    setPastor(authInfo?.name);
-    callApi(() => fetchGetEcclesia(authInfo.ecclesiaUid), setEcclesia);
-
+    const lastLoginInfo: AuthInfoType = getLastLoginOrElseNull();
+    setPastor(lastLoginInfo?.name);
+    callApi(() => fetchGetEcclesia(lastLoginInfo.ecclesiaUid), setEcclesia);
   }, []);
 
   return (

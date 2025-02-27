@@ -13,7 +13,7 @@ const useAuth = () => {
 
     const initializeToken = async (): Promise<string | null> => {
       try {
-        const cookieToken = await getCookie('Authorization'); // getCookie에서 await 사용
+        const cookieToken = await getCookie(AuthItems.Authorization); // getCookie에서 await 사용
         // setToken(cookieToken);
         return cookieToken; // 토큰 값을 반환
       } catch (error) {

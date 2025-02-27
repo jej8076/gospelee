@@ -17,17 +17,18 @@ import {
   FolderIcon,
 } from '@heroicons/react/24/outline'
 import {ChevronDownIcon, MagnifyingGlassIcon} from '@heroicons/react/20/solid'
-import {expireCookie} from "~/lib/cookie/cookie-utils";
+import {expireCookie, getCookie} from "~/lib/cookie/cookie-utils";
 import {AuthItems} from "~/constants/auth-items";
 import {useRouter} from 'next/navigation';
 import {AppRouterInstance} from "next/dist/shared/lib/app-router-context.shared-runtime";
+import {getLastLoginOrElseNull} from "@/utils/user-utils";
 
-const navigation = [
-  {name: '대시보드', id: 'main', href: '/main', icon: HomeIcon},
-  {name: '에클레시아', id: 'ecclesia', href: '/ecclesia', icon: FolderIcon},
-  {name: '성도님들', id: 'user', href: '/user', icon: UsersIcon},
-  {name: '공지관리', id: 'noti', href: '/noti', icon: UsersIcon},
-]
+// @formatter:off
+const dashBoardMenu: NavigationItemType = {name: '대시보드', id: 'main', href: '/main', icon: HomeIcon};
+const ecclesiaMenu: NavigationItemType = {name: '에클레시아', id: 'ecclesia', href: '/ecclesia', icon: FolderIcon};
+const userMenu: NavigationItemType = {name: '성도님들', id: 'user', href: '/user', icon: UsersIcon};
+const notiMenu: NavigationItemType = {name: '공지관리', id: 'noti', href: '/noti', icon: UsersIcon};
+// @formatter:on
 
 const teams = [
   {id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false},
@@ -36,8 +37,15 @@ const teams = [
 ]
 
 const logout = async (router: AppRouterInstance) => {
+
   try {
+    // 토큰 만료
     await expireCookie(AuthItems.Authorization);
+
+    // 마지막 로그인 정보 제거
+    localStorage.removeItem(AuthItems.LastAuthInfo)
+
+    // 이동
     await router.push('/login');
   } catch (error) {
     console.error('Error expiring cookie:', error);
@@ -56,16 +64,49 @@ function classNames(...classes: String[]) {
 export default function MainLayout({children}: Readonly<{
   children: React.ReactNode;
 }>) {
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [navigation, setNavigation] = useState<NavigationItemType[]>([]);
 
   const currentPath = usePathname();
   const depth1 = currentPath.split('/')[1];
   const [nav, setNav] = useState(depth1);
 
   const router = useRouter();
+
   const handleLogout = async () => {
     await logout(router);
   };
+
+  useEffect(() => {
+    // 메뉴 노출 제어
+    const fetchNavigation = async () => {
+      const lastLoginInfo: AuthInfoType = getLastLoginOrElseNull();
+      if (lastLoginInfo == null) {
+        return;
+      }
+
+      const nav = [];
+
+      if (lastLoginInfo.role === "ADMIN") {
+        nav.push(dashBoardMenu);
+        nav.push(ecclesiaMenu);
+        nav.push(userMenu);
+        nav.push(notiMenu);
+      } else if (lastLoginInfo.role === "SENIOR_PASTOR" || lastLoginInfo.role === "PASTOR") {
+        nav.push(dashBoardMenu);
+        nav.push(userMenu);
+        nav.push(notiMenu);
+      } else {
+        alert("권한이 없습니다.");
+        await logout(router);
+      }
+
+      setNavigation(nav);
+    };
+
+    fetchNavigation();
+  }, []);
 
   return (
       <html>

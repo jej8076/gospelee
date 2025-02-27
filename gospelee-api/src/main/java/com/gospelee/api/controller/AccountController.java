@@ -53,7 +53,7 @@ public class AccountController {
   @PostMapping("/getAccount/list")
   public ResponseEntity<Object> getAccountByEcclesiaUid(
       @AuthenticationPrincipal AccountAuthDTO account, EcclesiaRequestDTO ecclesiaRequestDTO) {
-    if (RoleType.ADMIN.getName().equals(account.getRole().getName())) {
+    if (RoleType.ADMIN.name().equals(account.getRole().name())) {
       if (ObjectUtils.isEmpty(ecclesiaRequestDTO.getEcclesiaUid())) {
         List<Account> getAccountAll = accountService.getAccountAll();
         return new ResponseEntity<>(getAccountAll, HttpStatus.OK);

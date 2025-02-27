@@ -17,4 +17,8 @@ public class ResponseDTO {
     this.code = code;
     this.message = message;
   }
+
+  public static ResponseDTO of(String code, String description) {
+    return new ResponseDTO(code, description);
+  }
 }
