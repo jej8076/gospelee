@@ -30,8 +30,8 @@ export default function ApplyChurch() {
   const insertEcclesia = async () => {
 
     const inputData = {
-      churchName,
-      churchIdentificationNumber,
+      name: churchName,
+      churchIdentificationNumber: churchIdentificationNumber,
     };
 
     await callApi(() => fetchInsertEcclesia(inputData), setEcclesia);

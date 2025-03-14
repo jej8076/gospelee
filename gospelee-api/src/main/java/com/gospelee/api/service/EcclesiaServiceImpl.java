@@ -50,7 +50,7 @@ public class EcclesiaServiceImpl implements EcclesiaService {
     Ecclesia ecclesia = Ecclesia.builder()
         .name(ecclesiaInsertDTO.getName())
         .churchIdentificationNumber(ecclesiaInsertDTO.getChurchIdentificationNumber())
-        .status(EcclesiaStatusType.APPROVAL.getName())
+        .status(EcclesiaStatusType.REQUEST.getName())
         // insert를 요청하는 인증된 사용자가 교회의 master account가 되도록 강제함
         .masterAccountUid(account.getUid())
         .build();

@@ -34,6 +34,9 @@ const useAuth = () => {
 
       const responseBody = await response.json();
 
+      const responseBodyString = JSON.stringify(responseBody.data);
+      localStorage.setItem(AuthItems.LastAuthInfo, responseBodyString);
+
       if (responseBody.code !== ResponseItems.SUCC) {
 
         // 계정이 존재하고 로그인에 성공했지만 교회가 없음
@@ -54,9 +57,6 @@ const useAuth = () => {
         router.push('/login');
         return responseBody;
       }
-
-      const responseBodyString = JSON.stringify(responseBody.data);
-      localStorage.setItem(AuthItems.LastAuthInfo, responseBodyString);
 
       return responseBody;
     };

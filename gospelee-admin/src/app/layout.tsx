@@ -98,8 +98,9 @@ export default function MainLayout({children}: Readonly<{
         nav.push(userMenu);
         nav.push(notiMenu);
       } else {
-        alert("권한이 없습니다.");
-        await logout(router);
+        // alert("권한이 없습니다.");
+        // await logout(router);
+        console.log("ROLE : " + lastLoginInfo.role);
       }
 
       setNavigation(nav);

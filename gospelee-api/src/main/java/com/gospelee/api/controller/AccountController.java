@@ -78,19 +78,9 @@ public class AccountController {
         HttpStatus.OK);
   }
 
-/**
- * 필요없으면 지울 것
- */
-//  @GetMapping("/{id}")
-//  public ResponseEntity<Object> getAccountById(@PathVariable(name = "id") String id) {
-//    return new ResponseEntity<>(accountService.getAccountByPhone(id)
-//        .orElseThrow(
-//            () -> new NoSuchElementException("존재하는 핸드폰 번호가 없습니다 : [" + "phone : " + id + "]")),
-//        HttpStatus.OK);
-//  }
-
-
   /**
+   * TODO jej8076 ControllerAdvice 를 사용할 것
+   *
    * @param account(security에서 id_token에 대해 인증 완료한 후 데이터 조회한 결과)
    * @return
    */
@@ -98,27 +88,12 @@ public class AccountController {
   public ResponseEntity<ResponseDTO> getAccount(@AuthenticationPrincipal AccountAuthDTO account) {
     ErrorResponseType errorResponse = notValidAccountType(account);
     if (errorResponse != null) {
-      return new ResponseEntity<>(ResponseDTO.builder()
-          .code(errorResponse.code())
-          .message(errorResponse.message())
-          .build(), HttpStatus.OK);
+      return new ResponseEntity<>(
+          DataResponseDTO.of(errorResponse.code(), errorResponse.message(), account),
+          HttpStatus.OK);
     }
     return new ResponseEntity<>(DataResponseDTO.of("100", "성공", account), HttpStatus.OK);
   }
-
-  /**
-   * 카카오 API를 사용해 클라이언트 자체 로그인 성공 후 return된 결과로 이 API를 호출하여 계정정보와 토큰을 저장하며 최종 로그인 성공시키는 API
-   *
-   * @param account(security에서 id_token에 대해 인증 완료한 후 데이터 조회한 결과)
-   * @return
-   */
-//  @PostMapping("/kakao/getAccount")
-//  public ResponseEntity<Object> saveAccount(@AuthenticationPrincipal AccountAuthDTO account,
-//      @RequestBody PushTokenRequest pushTokenRequest) {
-//    accountService.savePushToken(account.getUid(), pushTokenRequest.getPushToken());
-//    // save 결과와 상관없이 principal 정보를 return 한다
-//    return new ResponseEntity<>(account, HttpStatus.OK);
-//  }
 
   /**
    * <pre>
