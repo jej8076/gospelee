@@ -5,6 +5,10 @@ import {getCookie} from "~/lib/cookie/cookie-utils";
 import useAuth from "~/lib/auth/check-auth";
 import {AuthItems} from "~/constants/auth-items";
 import {apiFetch} from "~/lib/api-client";
+import {
+  ecclesiaStatusKor, ecclesiaStatusStyle
+} from "@/enums/ecclesia/status";
+import Modal from "@/components/modal";
 
 type Ecclesias = {
   ecclesiaUid: bigint,
@@ -13,13 +17,6 @@ type Ecclesias = {
   ecclesiaName: string,
   masterAccountName: string,
   insertTime: string,
-  // name: string,
-  // email: string,
-  // role: string,
-  // imageUrl: string
-  // href: string
-  // lastSeen: string
-  // lastSeenDateTime: string
 };
 
 // const ecc = [
@@ -40,6 +37,7 @@ export default function Ecclesia() {
   useAuth();
 
   const [ecc, setEcc] = useState<Ecclesias[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const fetchEcclesias = async () => {
     try {
@@ -123,13 +121,17 @@ export default function Ecclesia() {
                       {/*</td>*/}
                       <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{u.masterAccountName}</td>
                       <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                      <span
-                          className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                        Active
-                      </span>
+                        <span
+                            className={ecclesiaStatusStyle(u.status)}>
+                          {ecclesiaStatusKor(u.status)}
+                        </span>
                       </td>
                       <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                        <a href="#" className="text-indigo-600 hover:text-indigo-900">Edit</a>
+                        <button
+                            className="text-indigo-600 hover:text-indigo-900"
+                            onClick={() => setIsModalOpen(true)}
+                        >Edit
+                        </button>
                       </td>
                     </tr>
                 ))}
@@ -138,6 +140,33 @@ export default function Ecclesia() {
             </div>
           </div>
         </div>
+
+        <Modal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            title="모달 제목"
+            footer={
+              <>
+                <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
+                >
+                  취소
+                </button>
+                <button
+                    onClick={() => {
+                      // 확인 시 로직
+                      setIsModalOpen(false);
+                    }}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                >
+                  확인
+                </button>
+              </>
+            }
+        >
+          <p>모달 내용이 여기에 들어갑니다.</p>
+        </Modal>
       </div>
   );
 }
