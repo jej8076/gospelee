@@ -10,20 +10,15 @@ export type Ecclesia = {
   masterAccountUid: number;
 };
 
-export const fetchGetEcclesia = async (ecclesiaUid: string, timeout = 5000): Promise<Ecclesia> => {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
+export const fetchGetEcclesia = async (ecclesiaUid: string): Promise<Ecclesia> => {
 
   const response = await apiFetch(`/api/ecclesia/${ecclesiaUid}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
-    },
-    signal: controller.signal
+    }
   });
-
-  clearTimeout(timeoutId);
 
   if (!response.ok) {
     await expireCookie(AuthItems.Authorization);
@@ -35,11 +30,7 @@ export const fetchGetEcclesia = async (ecclesiaUid: string, timeout = 5000): Pro
   return response.json();
 };
 
-export const fetchInsertEcclesia = async (inputData: {
-  [key: string]: any
-}, timeout = 5000): Promise<Ecclesia> => {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
+export const fetchInsertEcclesia = async (inputData: { [key: string]: any }): Promise<Ecclesia> => {
 
   const response = await apiFetch("/api/ecclesia", {
     method: "POST",
@@ -48,10 +39,7 @@ export const fetchInsertEcclesia = async (inputData: {
       Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
     },
     body: JSON.stringify(inputData),
-    signal: controller.signal
   });
-
-  clearTimeout(timeoutId);
 
   if (!response.ok) {
     await expireCookie(AuthItems.Authorization);

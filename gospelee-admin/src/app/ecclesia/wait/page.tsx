@@ -3,7 +3,9 @@
 import React, {useEffect, useState} from 'react'
 import {Ecclesia, fetchGetEcclesia} from "~/lib/api/fetch-ecclesias";
 import {useApiClient} from "@/hooks/useApiClient";
-import {getLastLoginOrElseNull} from "@/utils/user-utils";
+import {getLastLoginOrElseNull, logout} from "@/utils/user-utils";
+import {useRouter} from "next/navigation";
+
 
 export default function ApplyChurch() {
 
@@ -11,6 +13,12 @@ export default function ApplyChurch() {
 
   const [ecclesia, setEcclesia] = useState<Ecclesia>();
   const [pastor, setPastor] = useState("");
+
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logout(router);
+  };
 
   useEffect(() => {
     const lastLoginInfo: AuthInfoType = getLastLoginOrElseNull();
@@ -60,6 +68,21 @@ export default function ApplyChurch() {
                   className="text-sm ml-3 font-light">{ecclesia?.churchIdentificationNumber}</span>
               </label>
             </div>
+          </div>
+        </div>
+
+        {/* 로그아웃 버튼 추가 */}
+        <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2 mt-20">
+          <div className="sm:col-span-2 flex justify-center">
+            <button
+                type="button"
+                onClick={() => {
+                  handleLogout();
+                }}
+                className="rounded-md bg-gray-400 px-6 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400"
+            >
+              로그아웃
+            </button>
           </div>
         </div>
       </div>

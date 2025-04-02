@@ -11,9 +11,7 @@ export type Users = {
   image: string;
 };
 
-export const fetchUsers = async (timeout = 5000): Promise<Users[]> => {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
+export const fetchUsers = async (): Promise<Users[]> => {
 
   const response = await apiFetch("/api/account/getAccount/list", {
     method: "POST",
@@ -21,11 +19,8 @@ export const fetchUsers = async (timeout = 5000): Promise<Users[]> => {
       "X-App-Identifier": "OOG_WEB",
       "Content-Type": "application/json",
       Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
-    },
-    signal: controller.signal
+    }
   });
-
-  clearTimeout(timeoutId);
 
   if (!response.ok) {
     await expireCookie(AuthItems.Authorization);

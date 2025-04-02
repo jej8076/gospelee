@@ -17,11 +17,8 @@ import {
   FolderIcon,
 } from '@heroicons/react/24/outline'
 import {ChevronDownIcon, MagnifyingGlassIcon} from '@heroicons/react/20/solid'
-import {expireCookie, getCookie} from "~/lib/cookie/cookie-utils";
-import {AuthItems} from "~/constants/auth-items";
 import {useRouter} from 'next/navigation';
-import {AppRouterInstance} from "next/dist/shared/lib/app-router-context.shared-runtime";
-import {getLastLoginOrElseNull} from "@/utils/user-utils";
+import {getLastLoginOrElseNull, logout} from "@/utils/user-utils";
 
 // @formatter:off
 const dashBoardMenu: NavigationItemType = {name: '대시보드', id: 'main', href: '/main', icon: HomeIcon};
@@ -35,22 +32,6 @@ const teams = [
   {id: 2, name: 'Tailwind Labs', href: '#', initial: 'T', current: false},
   {id: 3, name: 'Workcation', href: '#', initial: 'W', current: false},
 ]
-
-const logout = async (router: AppRouterInstance) => {
-
-  try {
-    // 토큰 만료
-    await expireCookie(AuthItems.Authorization);
-
-    // 마지막 로그인 정보 제거
-    localStorage.removeItem(AuthItems.LastAuthInfo)
-
-    // 이동
-    await router.push('/login');
-  } catch (error) {
-    console.error('Error expiring cookie:', error);
-  }
-}
 
 const userNavigation = [
   {id: 'profile', name: 'Your profile', href: '#'},
@@ -87,7 +68,6 @@ export default function MainLayout({children}: Readonly<{
       }
 
       const nav = [];
-
       if (lastLoginInfo.role === "ADMIN") {
         nav.push(dashBoardMenu);
         nav.push(ecclesiaMenu);
