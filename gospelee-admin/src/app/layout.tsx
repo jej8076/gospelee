@@ -1,31 +1,14 @@
 "use client"
 import "./globals.css";
 import {Fragment, useEffect, useState} from 'react'
-import {usePathname} from 'next/navigation'
-import {Button, Dialog, Menu, Transition} from '@headlessui/react'
+import {usePathname, useRouter} from 'next/navigation'
+import {Menu, Transition} from '@headlessui/react'
 import Link from "next/link";
-import {
-  Bars3Icon,
-  BellIcon,
-  Cog6ToothIcon,
-  HomeIcon,
-  UsersIcon,
-  CalendarIcon,
-  ChartPieIcon,
-  XMarkIcon,
-  DocumentDuplicateIcon,
-  FolderIcon,
-} from '@heroicons/react/24/outline'
+import {Bars3Icon, BellIcon, Cog6ToothIcon,} from '@heroicons/react/24/outline'
 import {ChevronDownIcon, MagnifyingGlassIcon} from '@heroicons/react/20/solid'
-import {useRouter} from 'next/navigation';
-import {getLastLoginOrElseNull, logout} from "@/utils/user-utils";
-
-// @formatter:off
-const dashBoardMenu: NavigationItemType = {name: '대시보드', id: 'main', href: '/main', icon: HomeIcon};
-const ecclesiaMenu: NavigationItemType = {name: '에클레시아', id: 'ecclesia', href: '/ecclesia', icon: FolderIcon};
-const userMenu: NavigationItemType = {name: '성도님들', id: 'user', href: '/user', icon: UsersIcon};
-const notiMenu: NavigationItemType = {name: '공지관리', id: 'noti', href: '/noti', icon: UsersIcon};
-// @formatter:on
+import {logout} from "@/utils/user-utils";
+import {useMenuListStore} from "@/hooks/useMenuList";
+import {getUserMenuList} from "@/utils/menu-utils";
 
 const teams = [
   {id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false},
@@ -47,7 +30,9 @@ export default function MainLayout({children}: Readonly<{
 }>) {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [navigation, setNavigation] = useState<NavigationItemType[]>([]);
+
+  const menuList = useMenuListStore((state) => state.menuList);
+  const setMenuList = useMenuListStore((state) => state.setMenuList);
 
   const currentPath = usePathname();
   const depth1 = currentPath.split('/')[1];
@@ -62,28 +47,10 @@ export default function MainLayout({children}: Readonly<{
   useEffect(() => {
     // 메뉴 노출 제어
     const fetchNavigation = async () => {
-      const lastLoginInfo: AuthInfoType = getLastLoginOrElseNull();
-      if (lastLoginInfo == null) {
-        return;
-      }
+      const menuList: MenuType[] = getUserMenuList();
 
-      const nav = [];
-      if (lastLoginInfo.role === "ADMIN") {
-        nav.push(dashBoardMenu);
-        nav.push(ecclesiaMenu);
-        nav.push(userMenu);
-        nav.push(notiMenu);
-      } else if (lastLoginInfo.role === "SENIOR_PASTOR" || lastLoginInfo.role === "PASTOR") {
-        nav.push(dashBoardMenu);
-        nav.push(userMenu);
-        nav.push(notiMenu);
-      } else {
-        // alert("권한이 없습니다.");
-        // await logout(router);
-        console.log("ROLE : " + lastLoginInfo.role);
-      }
-
-      setNavigation(nav);
+      // setNavigation(nav);
+      setMenuList(menuList);
     };
 
     fetchNavigation();
@@ -92,7 +59,7 @@ export default function MainLayout({children}: Readonly<{
   return (
       <html>
       <body>
-      {currentPath == '/login' || (currentPath.includes('/apply') || currentPath.includes('/wait')) ? (
+      {currentPath == '/login' || currentPath.indexOf('/login/qr') > -1 || (currentPath.includes('/apply') || currentPath.includes('/wait')) ? (
           <div>{children}</div>
       ) : (
           <div>
@@ -111,32 +78,34 @@ export default function MainLayout({children}: Readonly<{
                 <nav className="flex flex-1 flex-col">
                   <ul role="list" className="flex flex-1 flex-col gap-y-7">
                     <li>
-                      <ul role="list" className="-mx-2 space-y-1">
-                        {navigation.map((item) => (
-                            <li key={item.name} onClick={() => {
-                              setNav(item.id)
-                            }}>
-                              <Link
-                                  href={item.href}
-                                  className={classNames(
-                                      nav == item.id
-                                          ? 'bg-gray-50 text-indigo-600'
-                                          : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50',
-                                      'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                                  )}
-                              >
-                                <item.icon
-                                    className={classNames(
-                                        nav == item.id ? 'text-indigo-600' : 'text-gray-400 group-hover:text-indigo-600',
-                                        'h-6 w-6 shrink-0'
-                                    )}
-                                    aria-hidden="true"
-                                />
-                                {item.name}
-                              </Link>
-                            </li>
-                        ))}
-                      </ul>
+                      {(!menuList || menuList.length === 0) ? "" : (
+                          <ul role="list" className="-mx-2 space-y-1">
+                            {menuList.map((item) => (
+                                <li key={item.name} onClick={() => {
+                                  setNav(item.id)
+                                }}>
+                                  <Link
+                                      href={item.href}
+                                      className={classNames(
+                                          nav == item.id
+                                              ? 'bg-gray-50 text-indigo-600'
+                                              : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50',
+                                          'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
+                                      )}
+                                  >
+                                    <item.icon
+                                        className={classNames(
+                                            nav == item.id ? 'text-indigo-600' : 'text-gray-400 group-hover:text-indigo-600',
+                                            'h-6 w-6 shrink-0'
+                                        )}
+                                        aria-hidden="true"
+                                    />
+                                    {item.name}
+                                  </Link>
+                                </li>
+                            ))}
+                          </ul>
+                      )}
                     </li>
                     <li>
                       <div className="text-xs font-semibold leading-6 text-gray-400">Your teams

@@ -5,17 +5,18 @@ import {Users} from "~/lib/api/fetch-users";
 import {AuthItems} from "~/constants/auth-items";
 import {apiFetch} from "~/lib/api-client";
 import {ResponseItems} from "~/constants/response-items";
+import {useMenuListStore} from "@/hooks/useMenuList";
+import {getUserMenuList} from "@/utils/menu-utils";
 
 const useAuth = () => {
   const router = useRouter();
+  const setMenuList = useMenuListStore((state) => state.setMenuList);
 
   useEffect(() => {
 
     const initializeToken = async (): Promise<string | null> => {
       try {
-        const cookieToken = await getCookie(AuthItems.Authorization); // getCookie에서 await 사용
-        // setToken(cookieToken);
-        return cookieToken; // 토큰 값을 반환
+        return await getCookie(AuthItems.Authorization); // 토큰 값을 반환
       } catch (error) {
         console.error('Failed to get token:', error);
         // setToken(null);
@@ -62,7 +63,6 @@ const useAuth = () => {
     };
 
     const initializeAuth = async () => {
-      // await initializeToken(); // 토큰 초기화
       const token = await initializeToken(); // 토큰을 직접 받아옴
 
       if (!token) {
@@ -71,6 +71,9 @@ const useAuth = () => {
       }
 
       await auth(token);
+
+      const menuList: MenuType[] = getUserMenuList();
+      setMenuList(menuList);
     };
 
     initializeAuth();

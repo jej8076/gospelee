@@ -1,4 +1,4 @@
-interface NavigationItemType {
+interface MenuType {
   name: string;
   id: string;
   href: string;

@@ -50,10 +50,12 @@ const QRCodePage = () => {
   };
 
   return (
-      <div>
-        <h1>QR Code</h1>
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <h1 className="text-2xl font-bold mb-6">QR Code</h1>
         {code ? (
-            <QRCode value={`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/qr/req/${code}`}/>
+            <div className="flex justify-center">
+              <QRCode value={`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/qr/req/${code}`}/>
+            </div>
         ) : (
             <p>Loading...</p>
         )}

@@ -1,13 +1,15 @@
 'use client'
 
 import {useRouter} from 'next/navigation';
-import {useState, ChangeEvent, MouseEvent} from 'react';
+import {ChangeEvent, MouseEvent, useState} from 'react';
 import {setCookie} from "~/lib/cookie/cookie-utils";
 import {AuthItems} from "~/constants/auth-items";
+import {useMenuListStore} from "@/hooks/useMenuList";
 
 export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState<string>('');
+  const setMenuList = useMenuListStore((state) => state.setMenuList);
 
   const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -15,15 +17,20 @@ export default function Login() {
 
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
+
+    setMenuList([]);
+
     if (email === 'super@super.com') {
       setCookie(AuthItems.Authorization, "SUPER").then(r => router.push(`/main`));
       return;
     }
+
     if (email) {
       router.push(`/login/qr?email=${encodeURIComponent(email)}`);
     } else {
       alert('이메일 주소를 입력하세요.');
     }
+
   };
 
   return (
