@@ -20,5 +20,6 @@ export const apiFetch = async (
   const response = await fetch(url, fetchOptions);
 
   clearTimeout(timeoutId);
+
   return response;
 };

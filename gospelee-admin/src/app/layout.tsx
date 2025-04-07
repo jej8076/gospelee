@@ -9,6 +9,7 @@ import {ChevronDownIcon, MagnifyingGlassIcon} from '@heroicons/react/20/solid'
 import {logout} from "@/utils/user-utils";
 import {useMenuListStore} from "@/hooks/useMenuList";
 import {getUserMenuList} from "@/utils/menu-utils";
+import {layoutFadeStyle} from "@/app/style/layout/common";
 
 const teams = [
   {id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false},
@@ -29,7 +30,11 @@ export default function MainLayout({children}: Readonly<{
   children: React.ReactNode;
 }>) {
 
+  // const [loading, setLoading] = useState(false)
+  const [fadeState, setFadeState] = useState<'hidden' | 'visible'>('hidden')
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname()
 
   const menuList = useMenuListStore((state) => state.menuList);
   const setMenuList = useMenuListStore((state) => state.setMenuList);
@@ -37,8 +42,6 @@ export default function MainLayout({children}: Readonly<{
   const currentPath = usePathname();
   const depth1 = currentPath.split('/')[1];
   const [nav, setNav] = useState(depth1);
-
-  const router = useRouter();
 
   const handleLogout = async () => {
     await logout(router);
@@ -48,13 +51,26 @@ export default function MainLayout({children}: Readonly<{
     // 메뉴 노출 제어
     const fetchNavigation = async () => {
       const menuList: MenuType[] = getUserMenuList();
-
-      // setNavigation(nav);
       setMenuList(menuList);
     };
 
     fetchNavigation();
+
   }, []);
+
+  useEffect(() => {
+    setFadeState('hidden') // 페이지 전환 시 먼저 숨김
+
+    const timeout = setTimeout(() => {
+      setFadeState('visible') // 약간의 딜레이 후 서서히 나타남
+    }, 150)
+
+    return () => {
+      clearTimeout(timeout);
+      // 페이지 이탈 시 fade out을 위해 hidden으로 설정
+      setFadeState('hidden');
+    };
+  }, [pathname]);
 
   return (
       <html>
@@ -244,7 +260,9 @@ export default function MainLayout({children}: Readonly<{
               </div>
 
               <main className="py-10">
-                <div className="px-4 sm:px-6 lg:px-8">{children}</div>
+                <div className={layoutFadeStyle(fadeState)}>
+                  {children}
+                </div>
               </main>
             </div>
           </div>

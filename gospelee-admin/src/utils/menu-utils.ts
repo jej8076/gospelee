@@ -9,7 +9,6 @@ const notiMenu: MenuType = {name: '공지관리', id: 'noti', href: '/noti', ico
 // @formatter:on
 
 export const getUserMenuList = (): MenuType[] => {
-  debugger;
   const lastLoginInfo: AuthInfoType = getLastLoginOrElseNull();
   if (lastLoginInfo == null) {
     return [];

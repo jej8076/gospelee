@@ -5,9 +5,8 @@ import {getCookie} from "~/lib/cookie/cookie-utils";
 import useAuth from "~/lib/auth/check-auth";
 import {AuthItems} from "~/constants/auth-items";
 import {apiFetch} from "~/lib/api-client";
-import {
-  ecclesiaStatusKor, ecclesiaStatusStyle
-} from "@/enums/ecclesia/status";
+import {ecclesiaStatusKor} from "@/enums/ecclesia/status";
+import {ecclesiaStatusStyle} from "@/app/style/ecclesia/ecclesia-status";
 import Modal from "@/components/modal";
 
 type Ecclesias = {
