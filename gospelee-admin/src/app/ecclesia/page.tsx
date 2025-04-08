@@ -7,7 +7,8 @@ import {AuthItems} from "~/constants/auth-items";
 import {apiFetch} from "~/lib/api-client";
 import {ecclesiaStatusKor} from "@/enums/ecclesia/status";
 import {ecclesiaStatusStyle} from "@/app/style/ecclesia/ecclesia-status";
-import Modal from "@/components/modal";
+import Modal from "@/components/modal/modal";
+import {grayButton, blueButton} from "@/components/modal/modal-buttons";
 
 type Ecclesias = {
   ecclesiaUid: bigint,
@@ -58,6 +59,10 @@ export default function Ecclesia() {
   useEffect(() => {
     fetchEcclesias();
   }, []);
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   return (
       <div className="px-4 sm:px-6 lg:px-8">
@@ -142,25 +147,12 @@ export default function Ecclesia() {
 
         <Modal
             isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
+            onClose={() => closeModal()}
             title="모달 제목"
             footer={
               <>
-                <button
-                    onClick={() => setIsModalOpen(false)}
-                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
-                >
-                  취소
-                </button>
-                <button
-                    onClick={() => {
-                      // 확인 시 로직
-                      setIsModalOpen(false);
-                    }}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                >
-                  확인
-                </button>
+                {grayButton("취소", closeModal)}
+                {blueButton("확인", closeModal)}
               </>
             }
         >
