@@ -1,14 +1,8 @@
-export const layoutFadeStyle = (fadeState: string) => {
-  const pageTransitionClass = "transition-opacity opacity-0";
-  const defaultClasses = 'px-4 sm:px-6 lg:px-8 ' + pageTransitionClass;
-  const fadeOutClass = " opacity-0";
-  const fadeInClass = " opacity-100";
-  switch (fadeState) {
-    case 'hidden':
-      return defaultClasses + fadeOutClass;
-    case 'visible':
-      return defaultClasses + fadeInClass;
-    default:
-      return defaultClasses;
-  }
-}
+export const layoutFadeStyle = (
+    state: 'hidden' | 'visible',
+    duration: 150 | 200 | 300 | 500 | 700 | 1000 = 300
+): string => {
+  return state === 'visible'
+      ? `opacity-100 transition-opacity duration-${duration} ease-in`
+      : `opacity-0 transition-opacity duration-${duration} ease-out`;
+};

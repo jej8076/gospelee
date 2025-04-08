@@ -26,13 +26,18 @@ function classNames(...classes: String[]) {
   return classes.filter(Boolean).join('  ')
 }
 
+const FADE_TIME_MS: 150 | 200 | 300 | 500 | 700 | 1000 = 200;
+
 export default function MainLayout({children}: Readonly<{
   children: React.ReactNode;
 }>) {
 
-  // const [loading, setLoading] = useState(false)
   const [fadeState, setFadeState] = useState<'hidden' | 'visible'>('hidden')
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  // const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isLoading, setLoading] = useState(false);
+  const [currentChildren, setCurrentChildren] = useState(children);
+
   const router = useRouter();
   const pathname = usePathname()
 
@@ -55,27 +60,70 @@ export default function MainLayout({children}: Readonly<{
     };
 
     fetchNavigation();
-
   }, []);
 
+  // 현재 페이지 정보 저장
   useEffect(() => {
-    setFadeState('hidden') // 페이지 전환 시 먼저 숨김
+    if (!isLoading) {
+      setCurrentChildren(children);
+    }
+  }, [children, isLoading]);
 
-    const timeout = setTimeout(() => {
-      setFadeState('visible') // 약간의 딜레이 후 서서히 나타남
-    }, 150)
+  // 페이지 전환 처리
+  useEffect(() => {
 
-    return () => {
-      clearTimeout(timeout);
-      // 페이지 이탈 시 fade out을 위해 hidden으로 설정
-      setFadeState('hidden');
-    };
-  }, [pathname]);
+    // 페이지 진입 시 초기 설정
+    if (!isLoading) {
+      // 초기 로드 시 visible로 설정
+      const timeout = setTimeout(() => {
+        setFadeState('visible');
+      }, 150);
+
+      return () => clearTimeout(timeout);
+    } else {
+      // 페이지 전환이 완료되었을 때
+      const transitionEndTimeout = setTimeout(() => {
+        setCurrentChildren(children);
+        setLoading(false);
+
+        // 새 콘텐츠가 설정된 후 fade in
+        const fadeInTimeout = setTimeout(() => {
+          setFadeState('visible');
+        }, 50);
+
+        return () => {
+          clearTimeout(fadeInTimeout);
+        };
+      }, FADE_TIME_MS); // fade out이 완료될 때까지의 시간
+
+      return () => {
+        clearTimeout(transitionEndTimeout);
+      };
+    }
+  }, [pathname, isLoading, children]);
+
+  // 커스텀 라우팅 핸들링
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string): void => {
+    e.preventDefault();
+    // 현재 페이지에서 fade out
+    setFadeState('hidden');
+    setLoading(true);
+
+    // fade out 애니메이션이 완료된 후 페이지 이동
+    setTimeout(() => {
+      router.push(href);
+    }, FADE_TIME_MS);
+  };
+
+  const isSpecialPage = currentPath === '/login' ||
+      currentPath.indexOf('/login/qr') > -1 ||
+      currentPath.includes('/apply') ||
+      currentPath.includes('/wait');
 
   return (
       <html>
       <body>
-      {currentPath == '/login' || currentPath.indexOf('/login/qr') > -1 || (currentPath.includes('/apply') || currentPath.includes('/wait')) ? (
+      {isSpecialPage ? (
           <div>{children}</div>
       ) : (
           <div>
@@ -100,8 +148,9 @@ export default function MainLayout({children}: Readonly<{
                                 <li key={item.name} onClick={() => {
                                   setNav(item.id)
                                 }}>
-                                  <Link
+                                  <a
                                       href={item.href}
+                                      onClick={(e) => handleLinkClick(e, item.href)}
                                       className={classNames(
                                           nav == item.id
                                               ? 'bg-gray-50 text-indigo-600'
@@ -117,7 +166,7 @@ export default function MainLayout({children}: Readonly<{
                                         aria-hidden="true"
                                     />
                                     {item.name}
-                                  </Link>
+                                  </a>
                                 </li>
                             ))}
                           </ul>
@@ -129,8 +178,9 @@ export default function MainLayout({children}: Readonly<{
                       <ul role="list" className="-mx-2 mt-2 space-y-1">
                         {teams.map((team) => (
                             <li key={team.name}>
-                              <Link
+                              <a
                                   href={team.href}
+                                  onClick={(e) => handleLinkClick(e, team.href)}
                                   className={classNames(
                                       team.current
                                           ? 'bg-gray-50 text-indigo-600'
@@ -138,18 +188,18 @@ export default function MainLayout({children}: Readonly<{
                                       'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
                                   )}
                               >
-                          <span
-                              className={classNames(
-                                  team.current
-                                      ? 'text-indigo-600 border-indigo-600'
-                                      : 'text-gray-400 border-gray-200 group-hover:border-indigo-600 group-hover:text-indigo-600',
-                                  'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white'
-                              )}
-                          >
-                            {team.initial}
-                          </span>
+                              <span
+                                  className={classNames(
+                                      team.current
+                                          ? 'text-indigo-600 border-indigo-600'
+                                          : 'text-gray-400 border-gray-200 group-hover:border-indigo-600 group-hover:text-indigo-600',
+                                      'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white'
+                                  )}
+                              >
+                                {team.initial}
+                              </span>
                                 <span className="truncate">{team.name}</span>
-                              </Link>
+                              </a>
                             </li>
                         ))}
                       </ul>
@@ -220,12 +270,13 @@ export default function MainLayout({children}: Readonly<{
                             alt=""
                         />
                         <span className="hidden lg:flex lg:items-center">
-                      <span className="ml-4 text-sm font-semibold leading-6 text-gray-900"
-                            aria-hidden="true">
-                        Tom Cook
-                      </span>
-                      <ChevronDownIcon className="ml-2 h-5 w-5 text-gray-400" aria-hidden="true"/>
-                    </span>
+                          <span className="ml-4 text-sm font-semibold leading-6 text-gray-900"
+                                aria-hidden="true">
+                            Tom Cook
+                          </span>
+                          <ChevronDownIcon className="ml-2 h-5 w-5 text-gray-400"
+                                           aria-hidden="true"/>
+                        </span>
                       </Menu.Button>
                       <Transition
                           as={Fragment}
@@ -260,8 +311,9 @@ export default function MainLayout({children}: Readonly<{
               </div>
 
               <main className="py-10">
-                <div className={layoutFadeStyle(fadeState)}>
-                  {children}
+                <div className={layoutFadeStyle(fadeState, FADE_TIME_MS)}>
+                  {/* 페이지 전환 중에는 이전 페이지 컨텐츠를 유지 */}
+                  {currentChildren}
                 </div>
               </main>
             </div>
