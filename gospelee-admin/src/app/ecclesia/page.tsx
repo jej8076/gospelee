@@ -36,7 +36,12 @@ type Ecclesias = {
 export default function Ecclesia() {
   useAuth();
 
-  const [ecc, setEcc] = useState<Ecclesias[]>([]);
+  // 데이터 목록
+  const [eccList, setEccList] = useState<Ecclesias[]>([]);
+
+  // modal 에 사용될 단일 데이터 저장 변수
+  const [selectedEcclesia, setSelectedEcclesia] = useState<Ecclesias | null>(null);
+
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const fetchEcclesias = async () => {
@@ -50,7 +55,7 @@ export default function Ecclesia() {
       });
 
       const res: Ecclesias[] = await response.json();
-      setEcc(res);
+      setEccList(res);
     } catch (e) {
       console.error("Error fetching users:", e);
     }
@@ -59,6 +64,11 @@ export default function Ecclesia() {
   useEffect(() => {
     fetchEcclesias();
   }, []);
+
+  const openModal = (ecc: Ecclesias) => {
+    setSelectedEcclesia(ecc);
+    setIsModalOpen(true);
+  };
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -106,16 +116,17 @@ export default function Ecclesia() {
                 </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                {!(ecc.length > 0) ? null : ecc.map((u) => (
-                    <tr key={u.ecclesiaUid}>
+                {!(eccList.length > 0) ? null : eccList.map((ecc) => (
+                    <tr key={ecc.ecclesiaUid}>
                       <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
                         <div className="flex items-center">
                           <div className="h-11 w-11 flex-shrink-0">
                             <img className="h-11 w-11 rounded-full" src="" alt=""/>
                           </div>
                           <div className="ml-4">
-                            <div className="font-medium text-gray-900">{u.ecclesiaName}</div>
-                            <div className="mt-1 text-gray-500">{u.churchIdentificationNumber}</div>
+                            <div className="font-medium text-gray-900">{ecc.ecclesiaName}</div>
+                            <div
+                                className="mt-1 text-gray-500">{ecc.churchIdentificationNumber}</div>
                           </div>
                         </div>
                       </td>
@@ -123,17 +134,17 @@ export default function Ecclesia() {
                       {/*  <div className="text-gray-900">{u.churchIdentificationNumber}</div>*/}
                       {/*  <div className="mt-1 text-gray-500">{u.name}</div>*/}
                       {/*</td>*/}
-                      <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{u.masterAccountName}</td>
+                      <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{ecc.masterAccountName}</td>
                       <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
                         <span
-                            className={ecclesiaStatusStyle(u.status)}>
-                          {ecclesiaStatusKor(u.status)}
+                            className={ecclesiaStatusStyle(ecc.status)}>
+                          {ecclesiaStatusKor(ecc.status)}
                         </span>
                       </td>
                       <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                         <button
-                            className="text-indigo-600 hover:text-indigo-900"
-                            onClick={() => setIsModalOpen(true)}
+                            className="text-indigo-600 hover:text-indigo-900 cursor-pointer"
+                            onClick={() => openModal(ecc)}
                         >Edit
                         </button>
                       </td>
@@ -148,7 +159,7 @@ export default function Ecclesia() {
         <Modal
             isOpen={isModalOpen}
             onClose={() => closeModal()}
-            title="모달 제목"
+            title={selectedEcclesia?.ecclesiaName}
             footer={
               <>
                 {grayButton("취소", closeModal)}
@@ -156,7 +167,15 @@ export default function Ecclesia() {
               </>
             }
         >
-          <p>모달 내용이 여기에 들어갑니다.</p>
+          {selectedEcclesia && (
+              <div>
+                <p>교회명: {selectedEcclesia.ecclesiaName}</p>
+                <p>교회 식별 번호: {selectedEcclesia.churchIdentificationNumber}</p>
+                <p>관리자: {selectedEcclesia.masterAccountName}</p>
+                <p>상태: {ecclesiaStatusKor(selectedEcclesia.status)}</p>
+                {/* 수정할 입력 필드들 추가 */}
+              </div>
+          )}
         </Modal>
       </div>
   );
