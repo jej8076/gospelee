@@ -9,6 +9,15 @@ public enum EcclesiaStatusType {
     this.name = name;
   }
 
+  public static EcclesiaStatusType fromName(String name) {
+    for (EcclesiaStatusType type : EcclesiaStatusType.values()) {
+      if (type.getName().equals(name)) {
+        return type;
+      }
+    }
+    throw new IllegalArgumentException("Unknown status name: " + name);
+  }
+
   public String getName() {
     return name;
   }

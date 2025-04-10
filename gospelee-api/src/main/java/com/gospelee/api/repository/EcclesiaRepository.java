@@ -5,7 +5,7 @@ import com.gospelee.api.repository.Ecclesia.EcclesiaRepositoryCustom;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface EcclesiaRepository extends JpaRepository<Ecclesia, String>,
+public interface EcclesiaRepository extends JpaRepository<Ecclesia, Long>,
     EcclesiaRepositoryCustom {
 
   Optional<Ecclesia> findEcclesiasByUid(long uid);

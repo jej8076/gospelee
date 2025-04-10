@@ -1,6 +1,7 @@
 package com.gospelee.api.entity;
 
 import com.gospelee.api.entity.common.EditInfomation;
+import com.gospelee.api.enums.EcclesiaStatusType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -43,5 +44,9 @@ public class Ecclesia extends EditInfomation {
     this.status = status;
     this.masterAccountUid = masterAccountUid;
     this.churchIdentificationNumber = churchIdentificationNumber;
+  }
+
+  public void changeStatus(EcclesiaStatusType status) {
+    this.status = status.getName();
   }
 }
