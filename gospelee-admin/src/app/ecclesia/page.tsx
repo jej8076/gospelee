@@ -9,15 +9,7 @@ import {ecclesiaStatusKor} from "@/enums/ecclesia/status";
 import {ecclesiaStatusStyle} from "@/app/style/ecclesia/ecclesia-status";
 import Modal from "@/components/modal/modal";
 import {grayButton, blueButton} from "@/components/modal/modal-buttons";
-
-type Ecclesias = {
-  ecclesiaUid: bigint,
-  churchIdentificationNumber: string,
-  status: string,
-  ecclesiaName: string,
-  masterAccountName: string,
-  insertTime: string,
-};
+import StatusSelector from "@/components/ecclesia/status-selector";
 
 // const ecc = [
 //   {
@@ -32,16 +24,14 @@ type Ecclesias = {
 //   }
 // ]
 
-
 export default function Ecclesia() {
   useAuth();
 
   // 데이터 목록
-  const [eccList, setEccList] = useState<Ecclesias[]>([]);
-
+  const [eccList, setEccList] = useState<Ecclesia[]>([]);
   // modal 에 사용될 단일 데이터 저장 변수
-  const [selectedEcclesia, setSelectedEcclesia] = useState<Ecclesias | null>(null);
-
+  const [selectedEcclesia, setSelectedEcclesia] = useState<Ecclesia | null>(null);
+  // modal open or close
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const fetchEcclesias = async () => {
@@ -54,7 +44,7 @@ export default function Ecclesia() {
         },
       });
 
-      const res: Ecclesias[] = await response.json();
+      const res: Ecclesia[] = await response.json();
       setEccList(res);
     } catch (e) {
       console.error("Error fetching users:", e);
@@ -65,7 +55,7 @@ export default function Ecclesia() {
     fetchEcclesias();
   }, []);
 
-  const openModal = (ecc: Ecclesias) => {
+  const openModal = (ecc: Ecclesia) => {
     setSelectedEcclesia(ecc);
     setIsModalOpen(true);
   };
@@ -169,11 +159,12 @@ export default function Ecclesia() {
         >
           {selectedEcclesia && (
               <div>
-                <p>교회명: {selectedEcclesia.ecclesiaName}</p>
-                <p>교회 식별 번호: {selectedEcclesia.churchIdentificationNumber}</p>
                 <p>관리자: {selectedEcclesia.masterAccountName}</p>
-                <p>상태: {ecclesiaStatusKor(selectedEcclesia.status)}</p>
-                {/* 수정할 입력 필드들 추가 */}
+                <p>교회 식별 번호: {selectedEcclesia.churchIdentificationNumber}</p>
+                <div className="ecclesia-detail">
+                  {/* 버튼 형태의 상태 선택기 사용 */}
+                  <StatusSelector currentStatus={selectedEcclesia.status}/>
+                </div>
               </div>
           )}
         </Modal>
