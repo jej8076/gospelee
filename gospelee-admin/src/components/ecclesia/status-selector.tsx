@@ -6,10 +6,13 @@ import {
   EcclesiaStatusType,
   getEcclesiaStatusOptions
 } from '@/enums/ecclesia/status';
+import {useApiClient} from "@/hooks/useApiClient";
+import {fetchUpdateEcclesiaStatus} from "~/lib/api/fetch-ecclesias";
 
-export default function StatusSelector({currentStatus}: { currentStatus: string }) {
+export default function StatusSelector({ecclesiaUid, currentStatus}: EcclesiaStatusSelectorProps) {
   const statusOptions = getEcclesiaStatusOptions();
   const [ecclesiaStatus, setEcclesiaStatus] = useState<EcclesiaStatusType>(convertEcclesiaStatusType(currentStatus));
+  const {callApi} = useApiClient();
 
   // 각 상태별 버튼 스타일 (활성화 상태)
   const getActiveButtonStyle = (status: string) => {
@@ -39,11 +42,13 @@ export default function StatusSelector({currentStatus}: { currentStatus: string 
     }
   };
 
+  const saveEcclesiaStatus = async (ecclesiaStatusSelectorProps: EcclesiaStatusSelectorProps) => {
+    await callApi(() => fetchUpdateEcclesiaStatus(ecclesiaStatusSelectorProps), setEcclesiaStatus);
+  }
+
   const changeHandler = (status: string) => {
     setEcclesiaStatus(convertEcclesiaStatusType(status))
-
-    // 실제 구현 시에는 여기서 API 호출을 통해 상태 변경을 서버에 저장할 수 있습니다
-    // saveEcclesiaStatus(selectedEcclesia.ecclesiaUid, newStatus);
+    saveEcclesiaStatus({ecclesiaUid: ecclesiaUid, currentStatus: status});
   }
 
   return (

@@ -6,3 +6,8 @@ type Ecclesia = {
   masterAccountName: string,
   insertTime: string,
 };
+
+type EcclesiaStatusSelectorProps = {
+  ecclesiaUid: number;
+  currentStatus: string;
+};
