@@ -85,18 +85,25 @@ export default function Ecclesia() {
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="sm:flex sm:items-center">
           <div className="sm:flex-auto">
-            <h1 className="text-base font-semibold leading-6 text-gray-900">Users</h1>
+            <h1 className="text-base font-semibold leading-6 text-gray-900">에베소서 2:19–22</h1>
             <p className="mt-2 text-sm text-gray-700">
-              A list of all the users in your account including their name, title, email and role.
+              그러므로 이제부터 너희는 외인도 아니요 나그네도 아니요 오직 성도들과 동일한 시민이요 하나님의 권속이라
+            </p>
+            <p className="text-sm text-gray-700">
+              너희는 사도들과 선지자들의 터 위에 세우심을 입은 자라 그리스도 예수께서 친히 모퉁잇돌이 되셨느니라
+            </p>
+            <p className="text-sm text-gray-700">
+              그의 안에서 건물마다 서로 연결하여 주 안에서 성전이 되어 가고
+              너희도 성령 안에서 하나님이 거하실 처소가 되기 위하여 그리스도 예수 안에서 함께 지어져 가느니라
             </p>
           </div>
           <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-            <button
-                type="button"
-                className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            >
-              Add user
-            </button>
+            {/*<button*/}
+            {/*    type="button"*/}
+            {/*    className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"*/}
+            {/*>*/}
+            {/*  Add user*/}
+            {/*</button>*/}w
           </div>
         </div>
         <div className="mt-8 flow-root">
