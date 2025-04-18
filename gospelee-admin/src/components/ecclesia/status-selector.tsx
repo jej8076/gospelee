@@ -1,4 +1,3 @@
-// 색상 테마가 적용된 버튼 형태의 상태 선택기 (TSX)
 import React, {useState} from 'react';
 import {
   convertEcclesiaStatusType,
@@ -9,9 +8,14 @@ import {
 import {useApiClient} from "@/hooks/useApiClient";
 import {fetchUpdateEcclesiaStatus} from "~/lib/api/fetch-ecclesias";
 
-export default function StatusSelector({ecclesiaUid, currentStatus}: EcclesiaStatusSelectorProps) {
+export default function StatusSelector({
+                                         status,
+                                         ecclesiaUid,
+                                         onStatusChange
+                                       }: EcclesiaStatusSelectorPropsWithCallback) {
+
   const statusOptions = getEcclesiaStatusOptions();
-  const [ecclesiaStatus, setEcclesiaStatus] = useState<EcclesiaStatusType>(convertEcclesiaStatusType(currentStatus));
+  const [ecclesiaStatus, setEcclesiaStatus] = useState<EcclesiaStatusType>(convertEcclesiaStatusType(status));
   const {callApi} = useApiClient();
 
   // 각 상태별 버튼 스타일 (활성화 상태)
@@ -47,8 +51,16 @@ export default function StatusSelector({ecclesiaUid, currentStatus}: EcclesiaSta
   }
 
   const changeHandler = (status: string) => {
-    setEcclesiaStatus(convertEcclesiaStatusType(status))
-    saveEcclesiaStatus({ecclesiaUid: ecclesiaUid, currentStatus: status});
+    saveEcclesiaStatus({
+      ecclesiaUid: ecclesiaUid,
+      status: status
+    }).then(r => {
+      // modal 안에서 변경사항 셋팅
+      setEcclesiaStatus(convertEcclesiaStatusType(status));
+
+      // 부모 컴포넌트에 변경사항 셋팅
+      onStatusChange?.(status);
+    });
   }
 
   return (

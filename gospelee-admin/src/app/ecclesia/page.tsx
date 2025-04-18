@@ -34,6 +34,10 @@ export default function Ecclesia() {
   // modal open or close
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
+  useEffect(() => {
+    fetchEcclesias();
+  }, []);
+
   const fetchEcclesias = async () => {
     try {
       const response = await apiFetch(`/api/ecclesia/all`, {
@@ -51,9 +55,22 @@ export default function Ecclesia() {
     }
   }
 
-  useEffect(() => {
-    fetchEcclesias();
-  }, []);
+  const updateEcclesiaStatus = (ecclesiaUid: bigint, newStatus: string) => {
+    // 기존 목록에서 해당 교회를 찾아 상태만 업데이트
+    const updatedList = eccList.map(ecc =>
+        ecc.ecclesiaUid === ecclesiaUid
+            ? {...ecc, status: newStatus}
+            : ecc
+    );
+
+    // 업데이트된 목록으로 상태 갱신
+    setEccList(updatedList);
+
+    // 모달의 선택된 교회 정보도 업데이트
+    if (selectedEcclesia && selectedEcclesia.ecclesiaUid === ecclesiaUid) {
+      setSelectedEcclesia({...selectedEcclesia, status: newStatus});
+    }
+  };
 
   const openModal = (ecc: Ecclesia) => {
     setSelectedEcclesia(ecc);
@@ -163,7 +180,14 @@ export default function Ecclesia() {
                 <p>교회 식별 번호: {selectedEcclesia.churchIdentificationNumber}</p>
                 <div className="ecclesia-detail">
                   {/* 버튼 형태의 상태 선택기 사용 */}
-                  <StatusSelector currentStatus={selectedEcclesia.status}/>
+                  <StatusSelector
+                      ecclesiaUid={selectedEcclesia.ecclesiaUid}
+                      status={selectedEcclesia.status}
+                      onStatusChange={(newStatus) => {
+                        // 상태가 변경됐을 때 전체 목록 업데이트
+                        updateEcclesiaStatus(selectedEcclesia.ecclesiaUid, newStatus);
+                      }}
+                  />
                 </div>
               </div>
           )}

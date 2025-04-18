@@ -14,7 +14,7 @@ public class AuthorizationService {
   public boolean canUpdateEcclesiaStatus(AccountAuthDTO user, Ecclesia ecclesia) {
 
     // 관리자는 항상 수정 가능
-    if (!RoleType.ADMIN.equals(user.getRole())) {
+    if (RoleType.ADMIN.equals(user.getRole())) {
       return true;
     }
 

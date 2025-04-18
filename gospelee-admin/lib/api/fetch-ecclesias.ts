@@ -58,8 +58,10 @@ export const fetchUpdateEcclesiaStatus = async (inputData: {
   [key: string]: any
 }): Promise<EcclesiaStatusType> => {
 
-  const response = await apiFetch("/api/ecclesia", {
-    method: "POST",
+  const typedData = inputData as EcclesiaStatusSelectorProps;
+
+  const response = await apiFetch(`/api/ecclesia/${typedData.ecclesiaUid}`, {
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
       Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
