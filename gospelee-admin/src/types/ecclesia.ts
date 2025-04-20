@@ -4,6 +4,7 @@ type Ecclesia = {
   status: string,
   ecclesiaName: string,
   masterAccountName: string,
+  image: string,
   insertTime: string,
 };
 

@@ -8,7 +8,7 @@ import {apiFetch} from "~/lib/api-client";
 import {ecclesiaStatusKor} from "@/enums/ecclesia/status";
 import {ecclesiaStatusStyle} from "@/app/style/ecclesia/ecclesia-status";
 import Modal from "@/components/modal/modal";
-import {grayButton, blueButton} from "@/components/modal/modal-buttons";
+import {blueButton} from "@/components/modal/modal-buttons";
 import StatusSelector from "@/components/ecclesia/status-selector";
 
 // const ecc = [
@@ -135,7 +135,10 @@ export default function Ecclesia() {
                       <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
                         <div className="flex items-center">
                           <div className="h-11 w-11 flex-shrink-0">
-                            <img className="h-11 w-11 rounded-full" src="" alt=""/>
+                            <img
+                                className="h-11 w-11 rounded-full"
+                                src={ecc.image || '/images/ecclesia/default_church.jpg'}
+                                alt=""/>
                           </div>
                           <div className="ml-4">
                             <div className="font-medium text-gray-900">{ecc.ecclesiaName}</div>
@@ -176,7 +179,7 @@ export default function Ecclesia() {
             title={selectedEcclesia?.ecclesiaName}
             footer={
               <>
-                {grayButton("취소", closeModal)}
+                {/*{grayButton("취소", closeModal)}*/}
                 {blueButton("확인", closeModal)}
               </>
             }

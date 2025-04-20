@@ -3,9 +3,8 @@ import "./globals.css";
 import {Fragment, useEffect, useState} from 'react'
 import {usePathname, useRouter} from 'next/navigation'
 import {Menu, Transition} from '@headlessui/react'
-import Link from "next/link";
 import {Bars3Icon, BellIcon, Cog6ToothIcon,} from '@heroicons/react/24/outline'
-import {ChevronDownIcon, MagnifyingGlassIcon} from '@heroicons/react/20/solid'
+import {ChevronDownIcon} from '@heroicons/react/20/solid'
 import {logout} from "@/utils/user-utils";
 import {useMenuListStore} from "@/hooks/useMenuList";
 import {getUserMenuList} from "@/utils/menu-utils";
@@ -237,17 +236,17 @@ export default function MainLayout({children}: Readonly<{
                     <label htmlFor="search-field" className="sr-only">
                       Search
                     </label>
-                    <MagnifyingGlassIcon
-                        className="pointer-events-none absolute inset-y-0 left-0 h-full w-5 text-gray-400"
-                        aria-hidden="true"
-                    />
-                    <input
-                        id="search-field"
-                        className="block h-full w-full border-0 py-0 pl-8 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
-                        placeholder="Search..."
-                        type="search"
-                        name="search"
-                    />
+                    {/*<MagnifyingGlassIcon*/}
+                    {/*    className="pointer-events-none absolute inset-y-0 left-0 h-full w-5 text-gray-400"*/}
+                    {/*    aria-hidden="true"*/}
+                    {/*/>*/}
+                    {/*<input*/}
+                    {/*    id="search-field"*/}
+                    {/*    className="block h-full w-full border-0 py-0 pl-8 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"*/}
+                    {/*    placeholder="검색 기능은 조금만 기다려 주세요..!"*/}
+                    {/*    type="search"*/}
+                    {/*    name="search"*/}
+                    {/*/>*/}
                   </form>
                   <div className="flex items-center gap-x-4 lg:gap-x-6">
                     <button type="button"
@@ -266,7 +265,7 @@ export default function MainLayout({children}: Readonly<{
                         <span className="sr-only">Open user menu</span>
                         <img
                             className="h-8 w-8 rounded-full bg-gray-50"
-                            src=""
+                            src="/images/users/default_user.jpg"
                             alt=""
                         />
                         <span className="hidden lg:flex lg:items-center">
