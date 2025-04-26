@@ -35,10 +35,10 @@ public class FirebaseConfig {
           .fromStream(inputStream)
           .createScoped(List.of(CLOUD_PLATFORM_SCOPE, FIREBASE_MESSAGING_SCOPE));
 
-      FirebaseOptions options = new FirebaseOptions.Builder()
+      FirebaseOptions options = FirebaseOptions.builder()
           .setCredentials(credentials)
           .build();
-      
+
       firebaseApp = FirebaseApp.initializeApp(options, "oog-dev");
     } catch (RuntimeException e) {
       e.printStackTrace();

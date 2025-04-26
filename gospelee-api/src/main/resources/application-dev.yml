@@ -7,9 +7,9 @@ spring:
   application:
     name: api
   datasource:
-    url: jdbc:mysql://13.124.200.73:3306/gospelee?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
-    username: gospelee
-    password: 1234qwer
+    url: jdbc:mysql://localhost:33333/db-oog-dev?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+    username: oog-dev
+    password: 528c3bEKOc
     hikari:
       pool-name: HikariCP
       maximum-pool-size: 10
@@ -25,7 +25,8 @@ spring:
       hibernate:
         show_sql: true
         format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
+        #        dialect: org.hibernate.dialect.MySQLDialect
+        dialect: org.hibernate.dialect.MariaDBDialect
   cache:
     type: redis
     redis:
@@ -53,4 +54,4 @@ kakao:
 
 firebase:
   admin-sdk:
-    path: firebase/oog-dev-firebase-adminsdk-9zrmg-6208291886.json
+    path: /Users/ej/dev/firebase/oog-dev-firebase-adminsdk-9zrmg-3a05b8e54d.json
