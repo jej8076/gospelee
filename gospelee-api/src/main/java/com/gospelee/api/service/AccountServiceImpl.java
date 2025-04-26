@@ -1,7 +1,6 @@
 package com.gospelee.api.service;
 
 import com.gospelee.api.dto.account.AccountAuthDTO;
-import com.gospelee.api.dto.account.AccountDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.Ecclesia;
@@ -98,6 +97,7 @@ public class AccountServiceImpl implements AccountService {
         .rrn(result.getRrn())
         .role(result.getRole())
         .id_token(result.getId_token())
+        .pushToken(result.getPushToken())
         .ecclesiaUid(ecc.map(ecclesia -> String.valueOf(ecclesia.getUid())).orElse(null))
         .ecclesiaStatus(ecc.map(Ecclesia::getStatus).orElse(null))
         .build();

@@ -3,6 +3,7 @@ package com.gospelee.api.controller;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.account.AccountDTO;
+import com.gospelee.api.dto.account.PushTokenDTO;
 import com.gospelee.api.dto.common.DataResponseDTO;
 import com.gospelee.api.dto.common.ResponseDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaRequestDTO;
@@ -25,7 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.ObjectUtils;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -93,6 +94,20 @@ public class AccountController {
           HttpStatus.OK);
     }
     return new ResponseEntity<>(DataResponseDTO.of("100", "성공", account), HttpStatus.OK);
+  }
+
+  /**
+   * 토큰으로 현재 인증된 스레드의 계정 정보를 가져옴
+   *
+   * @param account
+   * @return
+   */
+  @PatchMapping("/pushToken")
+  public ResponseEntity<Object> patchPushToken(@AuthenticationPrincipal AccountAuthDTO account,
+      @RequestBody PushTokenDTO pushTokenDTO) {
+    accountService.savePushToken(account.getUid(), pushTokenDTO.getPushToken());
+    return new ResponseEntity<>(DataResponseDTO.of("100", "성공", account),
+        HttpStatus.OK);
   }
 
   /**

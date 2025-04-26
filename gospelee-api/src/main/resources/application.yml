@@ -53,7 +53,7 @@ kakao:
 
 firebase:
   admin-sdk:
-    path: firebase/oog-dev-firebase-adminsdk-9zrmg-6208291886.json
+    path: /Users/ej/dev/firebase/oog-dev-firebase-adminsdk-9zrmg-3a05b8e54d.json
 
 auth:
   max-age: 60 * 60 * 24 # 1일

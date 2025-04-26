@@ -1,5 +1,7 @@
 package com.gospelee.api.service;
 
+import com.google.firebase.messaging.ApnsConfig;
+import com.google.firebase.messaging.Aps;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
@@ -24,8 +26,18 @@ public class FirebaseService {
         .setBody(content)
         .build();
 
+    // apple APNs setting
+    Aps aps = Aps.builder()
+        .setSound("default")
+        .setContentAvailable(true)
+        .build();
+    ApnsConfig apnsConfig = ApnsConfig.builder()
+        .setAps(aps)
+        .build();
+
     Message message = Message.builder()
         .setNotification(notification)
+        .setApnsConfig(apnsConfig)
         .setToken(pushToken)
         .build();
 
