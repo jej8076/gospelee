@@ -47,19 +47,10 @@ redis:
   host: localhost
   port: 6377
 
-kakao:
-  issuer: https://kauth.kakao.com
-  app-key: bc9ac0fd4cd17a858c971f6d4aede305
-
-firebase:
-  admin-sdk:
-    path: /Users/ej/dev/firebase/oog-dev-firebase-adminsdk-9zrmg-3a05b8e54d.json
-
 auth:
   max-age: 60 * 60 * 24 # 1일
   cookie:
     path: /
     domains:
       localhost,
-      13.124.200.73,
       127.0.0.1
