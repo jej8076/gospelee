@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+/gospelee-api/src/main/resources/application-dev.yml
+/gospelee-api/src/main/resources/application-prod.yml
+/.java-version
