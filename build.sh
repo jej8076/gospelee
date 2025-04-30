@@ -7,6 +7,7 @@ JAR_FILE="$PROJECT_DIR/$MODULE_NAME/build/libs/$MODULE_NAME.jar"
 
 # Teleport 변수
 TELEPORT_PROXY="teleport.oog.kr"
+TELEPORT_USER="jej8076"
 TARGET_HOST="localhost" # proxy 상태이기 때문에 localhost가 가능함
 REMOTE_PATH="/home/jej/oog/api"
 REMOTE_JAR="$REMOTE_PATH/$MODULE_NAME.jar"
@@ -74,7 +75,7 @@ function deploy_project {
 
     echo -e "${YELLOW}[Info] Teleport 로그인을 진행합니다...${NC}"
     # Teleport tsh 로그인 (인터랙티브 로그인)
-    tsh login --proxy=$TELEPORT_PROXY
+    tsh login --proxy=$TELEPORT_PROXY --user=$TELEPORT_USER
 
     # 로그인 성공 확인
     if [ $? -ne 0 ]; then
@@ -86,7 +87,7 @@ function deploy_project {
 
     # 원격 서버에 디렉토리가 존재하는지 확인
     echo -e "${YELLOW}[Info] 원격 서버의 디렉토리 확인...${NC}"
-    tsh ssh $TARGET_HOST "if [ !-d \"$REMOTE_PATH\" ]; then mkdir -p \"$REMOTE_PATH\"; echo \"배포 디렉토리를 생성했습니다.\"; fi"
+    tsh ssh $TARGET_HOST "if [ ! -d \"$REMOTE_PATH\" ]; then mkdir -p \"$REMOTE_PATH\"; echo \"배포 디렉토리를 생성했습니다.\"; fi"
 
     echo -e "${YELLOW}[Info] JAR 파일을 원격 서버로 전송합니다...${NC}"
 
