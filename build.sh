@@ -8,6 +8,7 @@ JAR_FILE="$PROJECT_DIR/$MODULE_NAME/build/libs/$MODULE_NAME.jar"
 # Teleport 변수
 TELEPORT_PROXY="teleport.oog.kr"
 TELEPORT_USER="jej8076"
+TELEPORT_SSH_USER="jej"
 TARGET_HOST="localhost" # proxy 상태이기 때문에 localhost가 가능함
 REMOTE_PATH="/home/jej/oog/api"
 REMOTE_JAR="$REMOTE_PATH/$MODULE_NAME.jar"
@@ -87,12 +88,12 @@ function deploy_project {
 
     # 원격 서버에 디렉토리가 존재하는지 확인
     echo -e "${YELLOW}[Info] 원격 서버의 디렉토리 확인...${NC}"
-    tsh ssh $TARGET_HOST "if [ ! -d \"$REMOTE_PATH\" ]; then mkdir -p \"$REMOTE_PATH\"; echo \"배포 디렉토리를 생성했습니다.\"; fi"
+    tsh ssh $TELEPORT_SSH_USER@$TARGET_HOST "if [ ! -d \"$REMOTE_PATH\" ]; then mkdir -p \"$REMOTE_PATH\"; echo \"배포 디렉토리를 생성했습니다.\"; fi"
 
     echo -e "${YELLOW}[Info] JAR 파일을 원격 서버로 전송합니다...${NC}"
 
     # 파일 전송 (기존 파일 덮어쓰기)
-    tsh scp $JAR_FILE $TARGET_HOST:$REMOTE_PATH/
+    tsh scp $JAR_FILE $TELEPORT_SSH_USER@$TARGET_HOST:$REMOTE_PATH/
 
     if [ $? -ne 0 ]; then
         echo -e "${RED}[Error] JAR 파일 전송에 실패했습니다.${NC}"
@@ -112,7 +113,7 @@ function deploy_project {
     fi
 
     # 실행 권한 부여
-    tsh ssh $TARGET_HOST "chmod +x $REMOTE_SCRIPT"
+    tsh ssh $TELEPORT_SSH_USER@$TARGET_HOST "chmod +x $REMOTE_SCRIPT"
 
     echo -e "${GREEN}[Success] 파일 전송 완료${NC}"
     echo -e "${YELLOW}[Info] 원격 서버에서 애플리케이션을 실행합니다...${NC}"
@@ -126,8 +127,8 @@ function deploy_project {
     fi
 
     echo -e "${GREEN}[Success] 배포가 성공적으로 완료되었습니다!${NC}"
-    echo -e "${YELLOW}[Info] 애플리케이션 로그 확인: tsh ssh $TARGET_HOST 'tail -f $REMOTE_PATH/logs/latest.log'${NC}"
-    echo -e "${YELLOW}[Info] 오류 로그 확인: tsh ssh $TARGET_HOST 'tail -f $REMOTE_PATH/logs/latest_error.log'${NC}"
+    echo -e "${YELLOW}[Info] 애플리케이션 로그 확인: tsh ssh $TELEPORT_SSH_USER@$TARGET_HOST 'tail -f $REMOTE_PATH/logs/latest.log'${NC}"
+    echo -e "${YELLOW}[Info] 오류 로그 확인: tsh ssh $TELEPORT_SSH_USER@$TARGET_HOST 'tail -f $REMOTE_PATH/logs/latest_error.log'${NC}"
 }
 
 # 메인 실행 로직

@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
-public interface AccountRepository extends JpaRepository<Account, String> {
+public interface AccountRepository extends JpaRepository<Account, Long> {
 
   Optional<Account> findByPhone(String phone);
 
@@ -26,7 +26,7 @@ public interface AccountRepository extends JpaRepository<Account, String> {
 
   default Account updateAccountIdTokenAndFindById(Long uid, String idToken) {
     updateAccountIdTokenByUid(uid, idToken, LocalDateTime.now());
-    return findById(String.valueOf(uid)).orElse(null);
+    return findById(uid).orElse(null);
   }
 
   @Modifying

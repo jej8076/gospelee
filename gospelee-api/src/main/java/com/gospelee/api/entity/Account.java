@@ -1,6 +1,7 @@
 package com.gospelee.api.entity;
 
 import com.gospelee.api.entity.common.EditInfomation;
+import com.gospelee.api.enums.EcclesiaStatusType;
 import com.gospelee.api.enums.RoleType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -70,4 +71,10 @@ public class Account extends EditInfomation {
     this.id_token = id_token;
     this.pushToken = pushToken;
   }
+
+  public void changeRole(RoleType role) {
+    this.role = role;
+  }
+
+
 }
