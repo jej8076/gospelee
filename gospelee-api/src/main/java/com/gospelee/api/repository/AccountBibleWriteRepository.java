@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface AccountBibleWriteRepository extends JpaRepository<AccountBibleWrite, String> {
+public interface AccountBibleWriteRepository extends JpaRepository<AccountBibleWrite, Long> {
 
   Optional<List<AccountBibleWrite>> findAllByAccountUid(long accountUid);
 

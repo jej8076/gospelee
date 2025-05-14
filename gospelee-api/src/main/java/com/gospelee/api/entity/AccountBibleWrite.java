@@ -18,10 +18,10 @@ public class AccountBibleWrite extends EditInfomation {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  private long idx;
+  private Long idx;
 
   @Column(name = "account_id")
-  private long accountUid;
+  private Long accountUid;
 
   // 구약 = 1, 신약 = 2
   @Column
