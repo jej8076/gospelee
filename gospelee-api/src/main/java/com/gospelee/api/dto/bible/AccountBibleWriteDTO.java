@@ -1,10 +1,12 @@
 package com.gospelee.api.dto.bible;
 
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
 
 @Getter
-@ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AccountBibleWriteDTO {
 
   private String phone;
@@ -16,4 +18,12 @@ public class AccountBibleWriteDTO {
 
   // N장
   private int chapter;
+
+  @Builder
+  public AccountBibleWriteDTO(String phone, int cate, int book, int chapter) {
+    this.phone = phone;
+    this.cate = cate;
+    this.book = book;
+    this.chapter = chapter;
+  }
 }

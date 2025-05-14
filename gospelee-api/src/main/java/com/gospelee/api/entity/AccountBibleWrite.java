@@ -6,30 +6,18 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
-import java.io.Serializable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.hibernate.annotations.ColumnDefault;
 
 @Entity
-@ToString
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(uniqueConstraints = {
-    @UniqueConstraint(name = "uk_account_bible_write", columnNames = {"account_id", "cate", "book",
-        "chapter"})
-})
-public class AccountBibleWrite extends EditInfomation implements Serializable {
+public class AccountBibleWrite extends EditInfomation {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account_bible_write_seq")
-  @SequenceGenerator(name = "account_bible_write_seq", sequenceName = "account_bible_write_seq", allocationSize = 1)
-  @Column
+  @GeneratedValue(strategy = GenerationType.AUTO)
   private long idx;
 
   @Column(name = "account_id")
