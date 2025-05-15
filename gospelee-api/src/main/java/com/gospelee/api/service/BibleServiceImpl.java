@@ -1,5 +1,6 @@
 package com.gospelee.api.service;
 
+import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.bible.AccountBibleWriteDTO;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.AccountBibleWrite;
@@ -7,10 +8,10 @@ import com.gospelee.api.entity.Bible;
 import com.gospelee.api.repository.AccountBibleWriteRepository;
 import com.gospelee.api.repository.AccountRepository;
 import com.gospelee.api.repository.BibleRepository;
+import com.gospelee.api.utils.AuthenticatedUserUtils;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
-import util.FieldUtil;
 
 @Service
 public class BibleServiceImpl implements BibleService {
@@ -47,22 +48,24 @@ public class BibleServiceImpl implements BibleService {
   }
 
   @Override
-  public Optional<AccountBibleWrite> saveBibleWrite(AccountBibleWriteDTO dto) {
-    AccountBibleWrite bibleWrite = (AccountBibleWrite) FieldUtil.toEntity(dto);
+  public Optional<AccountBibleWrite> saveBibleWrite(AccountBibleWriteDTO bibleWriteDTO) {
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
 
     return Optional.of(
-        accountBibleWriteRepository.findByUniqueConstraint(bibleWrite.getAccountUid(),
-            bibleWrite.getCate(), bibleWrite.getBook(), bibleWrite.getChapter()).map(write -> {
+        accountBibleWriteRepository.findByUniqueConstraint(account.getUid(),
+                bibleWriteDTO.getBook(), bibleWriteDTO.getChapter())
+            .map(write -> {
 
-          // 값이 있을 경우 count를 1올린다
-          int result = accountBibleWriteRepository.increaseCountByIdx(write.getIdx());
-          
-          // 증가된 count가 적용된 최신 상태의 엔티티를 다시 조회
-          return result > 0 ? accountBibleWriteRepository.findById(write.getIdx()).orElse(write)
-              : write;
+              // 값이 있을 경우 count를 1올린다
+              int result = accountBibleWriteRepository.increaseCountByIdx(write.getIdx());
 
-          // 값이 없으면 데이터를 저장한다
-        }).orElseGet(() -> accountBibleWriteRepository.save(bibleWrite)));
+              // 증가된 count가 적용된 최신 상태의 엔티티를 다시 조회
+              return result > 0 ? accountBibleWriteRepository.findById(write.getIdx()).orElse(write)
+                  : write;
+
+              // 값이 없으면 데이터를 저장한다
+            }).orElseGet(
+                () -> accountBibleWriteRepository.save(bibleWriteDTO.toEntity(account.getUid()))));
 
   }
 }

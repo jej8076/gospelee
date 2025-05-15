@@ -1,5 +1,9 @@
 package com.gospelee.api.dto.bible;
 
+import static com.gospelee.api.utils.BibleUtils.getCateByBook;
+
+import com.gospelee.api.entity.AccountBibleWrite;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,21 +13,35 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AccountBibleWriteDTO {
 
-  private String phone;
-
-  // 구약 = 1, 신약 = 2
-  private int cate;
-
-  private int book;
+  // 1(창세기)~66(요한계시록)
+  @NotNull
+  private Integer book;
 
   // N장
-  private int chapter;
+  @NotNull
+  private Integer chapter;
 
   @Builder
-  public AccountBibleWriteDTO(String phone, int cate, int book, int chapter) {
-    this.phone = phone;
-    this.cate = cate;
+  public AccountBibleWriteDTO(Integer book, Integer chapter) {
     this.book = book;
     this.chapter = chapter;
   }
+
+  public static AccountBibleWriteDTO fromEntity(AccountBibleWrite entity) {
+    return AccountBibleWriteDTO.builder()
+        .book(entity.getBook())
+        .chapter(entity.getChapter())
+        .build();
+  }
+
+  public AccountBibleWrite toEntity(Long accountUid) {
+    return AccountBibleWrite.builder()
+        .accountUid(accountUid)
+        .cate(getCateByBook(this.book))
+        .book(this.book)
+        .chapter(this.chapter)
+        .count(1)
+        .build();
+  }
+
 }

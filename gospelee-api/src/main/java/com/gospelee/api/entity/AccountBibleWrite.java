@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
@@ -39,4 +40,13 @@ public class AccountBibleWrite extends EditInfomation {
   @ColumnDefault("1")
   private int count;
 
+  @Builder
+  public AccountBibleWrite(Long idx, Long accountUid, int cate, int book, int chapter, int count) {
+    this.idx = idx;
+    this.accountUid = accountUid;
+    this.cate = cate;
+    this.book = book;
+    this.chapter = chapter;
+    this.count = count;
+  }
 }

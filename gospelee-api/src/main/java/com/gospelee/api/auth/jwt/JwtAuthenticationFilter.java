@@ -3,12 +3,9 @@ package com.gospelee.api.auth.jwt;
 import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.common.ResponseDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
-import com.gospelee.api.enums.EcclesiaStatusType;
 import com.gospelee.api.enums.ErrorResponseType;
-import com.gospelee.api.utils.CookieUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -16,7 +13,6 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
@@ -26,23 +22,21 @@ import util.JsonUtils;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-  private final String AUTH_HEADER = "Authorization";
-  private final String BEARER = "Bearer ";
-  private final String APP_ID = "X-App-Identifier";
-
   // 인증에서 제외할 url
   private static final List<String> EXCLUDE_SERVLET_PATH_LIST =
       List.of(
-          "/bible/*",
+          "/bible/view/*",
           "/account/qr/enter",
           "/account/qr/check"
       );
-
   private static final List<String> ALLOW_AND_PENDING_PATH_LIST =
       List.of(
           "/api/account/qr/req/*"
       );
-
+  
+  private final String AUTH_HEADER = "Authorization";
+  private final String BEARER = "Bearer ";
+  private final String APP_ID = "X-App-Identifier";
   private final JwtOIDCProvider jwtOIDCProvider;
 
   public JwtAuthenticationFilter(JwtOIDCProvider jwtOIDCProvider) {
