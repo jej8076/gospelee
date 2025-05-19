@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .                         # 루트 폴더 기준
+      dockerfile: dockerfile.api        # 특정 Dockerfile 사용
+      target: runtime                   # optional: 멀티스테이지의 마지막 단계 지정
+    image: gospelee-api                 # 빌드된 이미지 이름
+    ports:
+      - "8080:8080"                     # 호스트:컨테이너 포트
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev      # dev profile 지정
+
