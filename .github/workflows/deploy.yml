@@ -30,4 +30,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push image
-        run: docker buildx build --no-cache --platform linux/amd64 -f dockerfile.api -t ghcr.io/${{ github.repository }}/gospelee-api:latest --push .
+        run: |
+          docker buildx build --no-cache \
+            --platform linux/amd64 \
+            -f dockerfile.api \
+            -t ghcr.io/${{ github.repository }}/gospelee-api:latest \
+            --label build_time=$(date +%s) \
+            --push .
