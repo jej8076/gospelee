@@ -55,6 +55,12 @@ public class BibleController {
         HttpStatus.OK);
   }
 
+  /**
+   * 성경쓰기 submit에 대한 기록 저장
+   *
+   * @param dto
+   * @return
+   */
   @PostMapping("/write/save")
   public ResponseEntity<Object> postBibleWriteByPhone(
       @RequestBody @Valid AccountBibleWriteDTO dto) {
