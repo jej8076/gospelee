@@ -1,0 +1,20 @@
+# 1단계: 빌드
+FROM gradle:8.4.0-jdk17 AS builder
+WORKDIR /app
+
+# 의존성 캐시 최적화
+COPY build.gradle settings.gradle ./
+COPY gradle ./gradle
+RUN gradle dependencies --no-daemon || return 0
+
+# 전체 소스 복사 후 빌드
+COPY . .
+RUN gradle :gospelee-api:bootJar --no-daemon
+
+# 2단계: 실행
+FROM eclipse-temurin:17-jre AS runtime
+WORKDIR /app
+
+COPY --from=builder /app/gospelee-api/build/libs/*.jar app.jar
+
+ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-XX:InitialRAMPercentage=50.0", "-jar", "app.jar"]
