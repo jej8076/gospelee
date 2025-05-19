@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'org.springframework.boot' version '3.2.3'
 }
 
 dependencies {
@@ -20,9 +21,6 @@ dependencies {
     // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
     implementation 'io.jsonwebtoken:jjwt:0.12.5'
 
-    // https://mvnrepository.com/artifact/com.auth0/java-jwt
-//    implementation 'com.auth0:java-jwt:4.4.0'
-
     // https://mvnrepository.com/artifact/org.springframework.data/spring-data-redis
     implementation 'org.springframework.data:spring-data-redis:3.2.4'
 
@@ -33,7 +31,7 @@ dependencies {
     implementation 'io.lettuce:lettuce-core:6.3.2.RELEASE'
 
     // https://mvnrepository.com/artifact/org.springframework/spring-webflux
-    implementation 'org.springframework:spring-webflux:6.1.5'
+    implementation 'org.springframework:spring-webflux:6.2.7'
 
     // https://mvnrepository.com/artifact/com.google.firebase/firebase-admin
     implementation 'com.google.firebase:firebase-admin:9.4.3'
@@ -49,6 +47,7 @@ test {
 
 bootJar {
     enabled = true
+    mainClass = 'com.gospelee.api.ApiApplication'
 }
 
 jar {
