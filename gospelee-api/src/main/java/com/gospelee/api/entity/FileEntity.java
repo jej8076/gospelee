@@ -7,12 +7,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity
+@Table(name = "File")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SequenceGenerator(
@@ -21,7 +24,7 @@ import lombok.ToString;
     allocationSize = 1
 )
 @ToString
-public class File extends EditInfomation {
+public class FileEntity extends EditInfomation {
 
   @Id
   @GeneratedValue(
@@ -31,15 +34,28 @@ public class File extends EditInfomation {
   private Long id;
 
   @Column
-  private String accountUid;
+  private String parentId;
+
+  @Column
+  private Long accountUid;
 
   @Column
   private String category;
 
   @Column
-  private Long totalCount;
+  private Integer totalCount;
 
   @Column
   private String delYn;
 
+  @Builder
+  public FileEntity(Long id, String parentId, Long accountUid, String category, Integer totalCount,
+      String delYn) {
+    this.id = id;
+    this.parentId = parentId;
+    this.accountUid = accountUid;
+    this.category = category;
+    this.totalCount = totalCount;
+    this.delYn = delYn;
+  }
 }

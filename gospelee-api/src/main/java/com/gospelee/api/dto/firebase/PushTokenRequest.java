@@ -6,4 +6,5 @@ import lombok.Getter;
 public class PushTokenRequest {
 
   private String pushToken;
+
 }

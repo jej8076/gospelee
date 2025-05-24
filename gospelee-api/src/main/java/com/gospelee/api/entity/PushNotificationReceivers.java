@@ -1,4 +1,3 @@
-
 package com.gospelee.api.entity;
 
 import jakarta.persistence.Column;
@@ -8,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -39,4 +39,12 @@ public class PushNotificationReceivers {
   @Column
   private String status;
 
+  @Builder
+  public PushNotificationReceivers(Long id, Long pushNotificationId, Long receiveAccountUid,
+      String status) {
+    this.id = id;
+    this.pushNotificationId = pushNotificationId;
+    this.receiveAccountUid = receiveAccountUid;
+    this.status = status;
+  }
 }

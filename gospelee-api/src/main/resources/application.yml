@@ -52,3 +52,6 @@ auth:
     domains:
       localhost,
       127.0.0.1
+
+file:
+  base-path:

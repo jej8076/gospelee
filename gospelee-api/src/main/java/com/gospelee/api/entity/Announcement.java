@@ -32,6 +32,13 @@ public class Announcement extends EditInfomation {
   private Long id;
 
   @Column
+  private String organizationType;
+
+  // EcclesiaUid or ..
+  @Column
+  private String organizationId;
+
+  @Column
   private String subject;
 
   @Column
@@ -44,12 +51,18 @@ public class Announcement extends EditInfomation {
   private String pushNotificationIds;
 
   @Builder
-  public Announcement(Long id, String subject, String text, Long fileUid,
-      String pushNotificationIds) {
+  public Announcement(Long id, String organizationType, String organizationId, String subject,
+      String text, Long fileUid, String pushNotificationIds) {
     this.id = id;
+    this.organizationType = organizationType;
+    this.organizationId = organizationId;
     this.subject = subject;
     this.text = text;
     this.fileUid = fileUid;
+    this.pushNotificationIds = pushNotificationIds;
+  }
+
+  public void changePushNotificationIds(String pushNotificationIds) {
     this.pushNotificationIds = pushNotificationIds;
   }
 }

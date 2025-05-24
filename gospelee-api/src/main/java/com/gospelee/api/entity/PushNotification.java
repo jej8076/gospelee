@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -31,7 +32,7 @@ public class PushNotification extends EditInfomation {
   private Long id;
 
   @Column
-  private String sendAccountUid;
+  private Long sendAccountUid;
 
   @Column
   private String title;
@@ -43,6 +44,17 @@ public class PushNotification extends EditInfomation {
   private String category;
 
   @Column
-  private Long totalCount;
+  private Integer totalCount;
 
+  @Builder
+  public PushNotification(Long id, Long sendAccountUid, String title, String message,
+      String category,
+      Integer totalCount) {
+    this.id = id;
+    this.sendAccountUid = sendAccountUid;
+    this.title = title;
+    this.message = message;
+    this.category = category;
+    this.totalCount = totalCount;
+  }
 }

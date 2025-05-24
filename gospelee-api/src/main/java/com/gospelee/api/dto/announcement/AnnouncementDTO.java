@@ -11,29 +11,22 @@ import lombok.NoArgsConstructor;
 public class AnnouncementDTO {
 
   private Long id;
+  private String organizationType;
   private String subject;
   private String text;
   private Long fileUid;
-  private String pushNotificationIds;
+  private String pushNotificationSendYn;
 
   @Builder
-  public AnnouncementDTO(Long id, String subject, String text, Long fileUid,
-      String pushNotificationIds) {
+  public AnnouncementDTO(Long id, String organizationType, String subject, String text,
+      Long fileUid,
+      String pushNotificationSendYn) {
     this.id = id;
+    this.organizationType = organizationType;
     this.subject = subject;
     this.text = text;
     this.fileUid = fileUid;
-    this.pushNotificationIds = pushNotificationIds;
-  }
-
-  public Announcement toEntity() {
-    return Announcement.builder()
-        .id(this.id)
-        .subject(this.subject)
-        .text(this.text)
-        .fileUid(this.fileUid)
-        .pushNotificationIds(this.pushNotificationIds)
-        .build();
+    this.pushNotificationSendYn = pushNotificationSendYn;
   }
 
   public static AnnouncementDTO fromEntity(Announcement announcement) {
@@ -42,7 +35,16 @@ public class AnnouncementDTO {
         .subject(announcement.getSubject())
         .text(announcement.getText())
         .fileUid(announcement.getFileUid())
-        .pushNotificationIds(announcement.getPushNotificationIds())
+        .build();
+  }
+
+  public Announcement toEntity() {
+    return Announcement.builder()
+        .id(this.id)
+        .organizationType(this.organizationType)
+        .subject(this.subject)
+        .text(this.text)
+        .fileUid(this.fileUid)
         .build();
   }
 }
