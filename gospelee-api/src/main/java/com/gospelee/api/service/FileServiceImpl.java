@@ -5,7 +5,7 @@ import com.gospelee.api.dto.file.FileUploadRequestDTO;
 import com.gospelee.api.dto.file.FileUploadWrapperDTO;
 import com.gospelee.api.entity.FileDetails;
 import com.gospelee.api.entity.FileEntity;
-import com.gospelee.api.enums.FileCategoryType;
+import com.gospelee.api.enums.CategoryType;
 import com.gospelee.api.repository.FileDetailsRepository;
 import com.gospelee.api.repository.FileRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
@@ -44,14 +44,14 @@ public class FileServiceImpl implements FileService {
 
     FileEntity fileEntity = FileEntity.builder()
         .accountUid(fileUploadWrapperDTO.getAccountAuth().getUid())
-        .category(fileUploadWrapperDTO.getFileCategoryType().name())
+        .category(fileUploadWrapperDTO.getCategoryType().name())
         .parentId(String.valueOf(fileUploadWrapperDTO.getParentId()))
         .delYn("N")
         .build();
 
     fileEntity = fileRepository.save(fileEntity);
 
-    FileUploadRequestDTO request = fileToDTO(fileUploadWrapperDTO.getFileCategoryType(),
+    FileUploadRequestDTO request = fileToDTO(fileUploadWrapperDTO.getCategoryType(),
         fileUploadWrapperDTO.getFile(), fileUploadWrapperDTO.getAccountAuth());
 
     FileDetails fileDetails = FileDetails.builder()
@@ -70,7 +70,7 @@ public class FileServiceImpl implements FileService {
     return true;
   }
 
-  private FileUploadRequestDTO fileToDTO(FileCategoryType fileCategoryType, MultipartFile file,
+  private FileUploadRequestDTO fileToDTO(CategoryType categoryType, MultipartFile file,
       AccountAuthDTO account) {
     if (file == null || file.isEmpty()) {
       throw new IllegalArgumentException("파일이 비어있습니다.");
@@ -84,7 +84,7 @@ public class FileServiceImpl implements FileService {
     }
 
     return FileUploadRequestDTO.builder()
-        .filePath(makeFilePath(fileCategoryType, account.getUid()))
+        .filePath(makeFilePath(categoryType, account.getUid()))
         .fileOriginalName(originalFilename)
         .fileSaveName(UUID.randomUUID() + DOT + extension)
         .fileSize(file.getSize())
@@ -93,12 +93,12 @@ public class FileServiceImpl implements FileService {
         .build();
   }
 
-  private String makeFilePath(FileCategoryType fileCategoryType, Long userUid) {
+  private String makeFilePath(CategoryType categoryType, Long userUid) {
     if (userUid == null) {
       throw new IllegalArgumentException("파일 경로에 userUid가 존재하지 않음");
     }
 
-    String path = userUid + File.separator + fileCategoryType.lowerCaseName();
+    String path = userUid + File.separator + categoryType.lowerCaseName();
     String fullPath = fileBasePath + File.separator + path;
 
     if (!createDirectoryIfNotExists(fullPath)) {

@@ -7,7 +7,7 @@ import com.gospelee.api.dto.file.FileUploadWrapperDTO;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.PushNotification;
 import com.gospelee.api.entity.PushNotificationReceivers;
-import com.gospelee.api.enums.FileCategoryType;
+import com.gospelee.api.enums.CategoryType;
 import com.gospelee.api.enums.OrganizationType;
 import com.gospelee.api.enums.PushNotificationSendStatusType;
 import com.gospelee.api.repository.AnnouncementRepository;
@@ -68,7 +68,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     // file upload
     if (file != null) {
       FileUploadWrapperDTO fileUploadWrapper = FileUploadWrapperDTO.builder()
-          .fileCategoryType(FileCategoryType.fromName(announcementDTO.getOrganizationType()))
+          .categoryType(CategoryType.ANNOUNCEMENT)
           .file(file)
           .accountAuth(account)
           .parentId(announcement.getId())
@@ -91,7 +91,8 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     PushNotification pushNotification = PushNotification.builder()
         .sendAccountUid(account.getUid())
-        .category(OrganizationType.fromName(announcement.getOrganizationType()).name())
+        .organization(OrganizationType.fromName(announcement.getOrganizationType()).name())
+        .category(CategoryType.ANNOUNCEMENT.name())
         .title("교회에서 공지사항을 등록했습니다.")
         .message("공지사항을 확인해주세요.")
         .build();

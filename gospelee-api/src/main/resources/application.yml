@@ -54,4 +54,4 @@ auth:
       127.0.0.1
 
 file:
-  base-path:
+  base-path: /Users/ej/dev/testFiles/gospelee/api

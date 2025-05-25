@@ -1,7 +1,7 @@
 'use client'
 
 import React, {useEffect, useState} from 'react'
-import {Ecclesia, fetchGetEcclesia} from "~/lib/api/fetch-ecclesias";
+import {fetchGetEcclesia} from "~/lib/api/fetch-ecclesias";
 import {useApiClient} from "@/hooks/useApiClient";
 import {getLastLoginOrElseNull, logout} from "@/utils/user-utils";
 import {useRouter} from "next/navigation";
@@ -21,9 +21,9 @@ export default function ApplyChurch() {
   };
 
   useEffect(() => {
-    const lastLoginInfo: AuthInfoType = getLastLoginOrElseNull();
-    setPastor(lastLoginInfo?.name);
-    callApi(() => fetchGetEcclesia(lastLoginInfo.ecclesiaUid), setEcclesia);
+    const lastLoginInfo: AuthInfoType | null = getLastLoginOrElseNull();
+    setPastor(lastLoginInfo?.name ?? "");
+    callApi(() => fetchGetEcclesia(lastLoginInfo?.ecclesiaUid ?? ""), setEcclesia);
   }, []);
 
   return (
@@ -50,7 +50,7 @@ export default function ApplyChurch() {
           <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label className="block text-2xl font-semibold text-gray-900">
-                교회 <span className="text-sm ml-3 font-light">{ecclesia?.name}</span>
+                교회 <span className="text-sm ml-3 font-light">{ecclesia?.ecclesiaName}</span>
               </label>
             </div>
           </div>

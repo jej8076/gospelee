@@ -1,7 +1,7 @@
 package com.gospelee.api.dto.file;
 
 import com.gospelee.api.dto.account.AccountAuthDTO;
-import com.gospelee.api.enums.FileCategoryType;
+import com.gospelee.api.enums.CategoryType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,15 +12,15 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FileUploadWrapperDTO {
 
-  private FileCategoryType fileCategoryType;
+  private CategoryType categoryType;
   private MultipartFile file;
   private AccountAuthDTO accountAuth;
   private Long parentId;
 
   @Builder
-  public FileUploadWrapperDTO(FileCategoryType fileCategoryType, MultipartFile file,
+  public FileUploadWrapperDTO(CategoryType categoryType, MultipartFile file,
       AccountAuthDTO accountAuth, Long parentId) {
-    this.fileCategoryType = fileCategoryType;
+    this.categoryType = categoryType;
     this.file = file;
     this.accountAuth = accountAuth;
     this.parentId = parentId;

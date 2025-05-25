@@ -13,7 +13,7 @@ import StatusSelector from "@/components/ecclesia/status-selector";
 
 export default function Ecclesia() {
   useAuth();
-
+  
   // 데이터 목록
   const [eccList, setEccList] = useState<Ecclesia[]>([]);
   // modal 에 사용될 단일 데이터 저장 변수

@@ -3,6 +3,7 @@ type Ecclesia = {
   churchIdentificationNumber: string,
   status: string,
   ecclesiaName: string,
+  masterAccountUid: number;
   masterAccountName: string,
   image: string,
   insertTime: string,

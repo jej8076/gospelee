@@ -41,6 +41,9 @@ public class PushNotification extends EditInfomation {
   private String message;
 
   @Column
+  private String organization;
+
+  @Column
   private String category;
 
   @Column
@@ -48,12 +51,12 @@ public class PushNotification extends EditInfomation {
 
   @Builder
   public PushNotification(Long id, Long sendAccountUid, String title, String message,
-      String category,
-      Integer totalCount) {
+      String organization, String category, Integer totalCount) {
     this.id = id;
     this.sendAccountUid = sendAccountUid;
     this.title = title;
     this.message = message;
+    this.organization = organization;
     this.category = category;
     this.totalCount = totalCount;
   }

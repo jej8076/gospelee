@@ -1,6 +1,7 @@
 package com.gospelee.api.dto.announcement;
 
 import com.gospelee.api.entity.Announcement;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,10 +12,13 @@ import lombok.NoArgsConstructor;
 public class AnnouncementDTO {
 
   private Long id;
+  @NotBlank
   private String organizationType;
+  @NotBlank
   private String subject;
   private String text;
   private Long fileUid;
+  @NotBlank
   private String pushNotificationSendYn;
 
   @Builder
@@ -32,6 +36,7 @@ public class AnnouncementDTO {
   public static AnnouncementDTO fromEntity(Announcement announcement) {
     return AnnouncementDTO.builder()
         .id(announcement.getId())
+        .organizationType(announcement.getOrganizationType())
         .subject(announcement.getSubject())
         .text(announcement.getText())
         .fileUid(announcement.getFileUid())

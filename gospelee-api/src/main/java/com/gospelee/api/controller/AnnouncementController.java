@@ -31,7 +31,7 @@ public class AnnouncementController {
 
   @PostMapping
   public ResponseEntity<Object> insertAnnouncement(
-      @RequestPart("file") MultipartFile file,
+      @RequestPart(value = "file", required = false) MultipartFile file,
       @RequestPart("body") @Valid AnnouncementDTO announcementDTO
   ) {
     AnnouncementDTO announcement = announcementService.insertAnnouncement(file, announcementDTO);
