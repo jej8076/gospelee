@@ -36,6 +36,7 @@ public class AnnouncementController {
   ) {
     AnnouncementDTO announcement = announcementService.insertAnnouncement(file, announcementDTO);
     return new ResponseEntity<>(announcement, HttpStatus.OK);
+    
   }
 
 }
