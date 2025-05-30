@@ -16,18 +16,11 @@ import org.hibernate.annotations.ColumnDefault;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SequenceGenerator(
-    name = "ACCOUNT_BIBLE_WRITE_GENERATOR",
-    sequenceName = "ACCOUNT_BIBLE_WRITE_SEQ01",
-    allocationSize = 1
-)
 public class AccountBibleWrite extends EditInfomation {
 
   @Id
-  @GeneratedValue(
-      strategy = GenerationType.AUTO,
-      generator = "ACCOUNT_BIBLE_WRITE_GENERATOR"
-  )
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column
   private Long idx;
 
   @Column(name = "account_id")
