@@ -2,7 +2,7 @@ import {AuthItems} from "~/constants/auth-items";
 import {AppRouterInstance} from "next/dist/shared/lib/app-router-context.shared-runtime";
 import {expireCookie} from "~/lib/cookie/cookie-utils";
 
-export const getLastLoginOrElseNull = (): AuthInfoType => {
+export const getLastLoginOrElseNull = (): AuthInfoType | null => {
   const authInfoString: string | null = localStorage.getItem(AuthItems.LastAuthInfo);
   return authInfoString ? JSON.parse(authInfoString) : null;
 };

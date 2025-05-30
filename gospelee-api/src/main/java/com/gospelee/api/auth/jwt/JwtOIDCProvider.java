@@ -9,7 +9,6 @@ import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.jwt.JwkDTO;
 import com.gospelee.api.dto.jwt.JwkSetDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
-import com.gospelee.api.entity.Account;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.RedisCacheService;
 import io.jsonwebtoken.Claims;
@@ -27,7 +26,6 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,11 +38,11 @@ public class JwtOIDCProvider {
 
   private final RedisCacheService redisCacheService;
   private final AccountService accountService;
+  private final String BEARER = "Bearer ";
   @Value("${kakao.issuer}")
   private String KAKAO_ISS;
   @Value("${kakao.app-key}")
   private String KAKAO_SERVICE_APP_KEY;
-  private final String BEARER = "Bearer ";
 
   public JwtOIDCProvider(RedisCacheService redisCacheService, AccountService accountService) {
     this.redisCacheService = redisCacheService;

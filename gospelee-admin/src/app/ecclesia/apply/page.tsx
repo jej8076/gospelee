@@ -1,9 +1,9 @@
 'use client'
 
-import React, {useEffect, useState} from 'react'
+import React, {useState} from 'react'
 import {Field, Label, Switch} from '@headlessui/react'
 import {useApiClient} from "@/hooks/useApiClient";
-import {fetchInsertEcclesia, Ecclesia} from "~/lib/api/fetch-ecclesias";
+import {fetchInsertEcclesia} from "~/lib/api/fetch-ecclesias";
 import {isEmpty} from "@/utils/validators";
 import {useRouter} from "next/navigation";
 import useDidMountEffect from "@/hooks/useDidMountEffect";
@@ -19,7 +19,7 @@ export default function ApplyChurch() {
 
   useDidMountEffect(() => {
 
-    if (!isEmpty(ecclesia?.uid)) {
+    if (!isEmpty(ecclesia?.ecclesiaUid)) {
       router.push("/ecclesia/wait");
       return;
     }
