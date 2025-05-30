@@ -14,7 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Getter
 public class AccountAuthDTO implements UserDetails {
 
-  private long uid;
+  private Long uid;
 
   private String name;
 

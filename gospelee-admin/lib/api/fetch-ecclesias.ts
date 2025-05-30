@@ -3,15 +3,11 @@ import {AuthItems} from "~/constants/auth-items";
 import {apiFetch} from "~/lib/api-client";
 import {convertEcclesiaStatusType, EcclesiaStatusType} from "@/enums/ecclesia/status";
 
-export type Ecclesia = {
-  uid: number;
-  name: string;
-  churchIdentificationNumber: string;
-  status: string;
-  masterAccountUid: number;
-};
-
 export const fetchGetEcclesia = async (ecclesiaUid: string): Promise<Ecclesia> => {
+
+  if (ecclesiaUid === null || ecclesiaUid === "") {
+    throw {status: 500, message: 'ecclesiaUid가 없음'};
+  }
 
   const response = await apiFetch(`/api/ecclesia/${ecclesiaUid}`, {
     method: "POST",
