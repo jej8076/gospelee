@@ -18,19 +18,12 @@ import lombok.ToString;
 @Table(name = "File")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SequenceGenerator(
-    name = "FILE_GENERATOR",
-    sequenceName = "FILE_SEQ01",
-    allocationSize = 1
-)
 @ToString
 public class FileEntity extends EditInfomation {
 
   @Id
-  @GeneratedValue(
-      strategy = GenerationType.AUTO,
-      generator = "FILE_GENERATOR"
-  )
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column
   private Long id;
 
   @Column

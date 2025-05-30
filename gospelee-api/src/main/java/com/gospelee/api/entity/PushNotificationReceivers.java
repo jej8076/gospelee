@@ -15,19 +15,12 @@ import lombok.ToString;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SequenceGenerator(
-    name = "PUSH_NOTIFICATION_RECEIVERS_GENERATOR",
-    sequenceName = "PUSH_NOTIFICATION_RECEIVERS_SEQ01",
-    allocationSize = 1
-)
 @ToString
 public class PushNotificationReceivers {
 
   @Id
-  @GeneratedValue(
-      strategy = GenerationType.AUTO,
-      generator = "PUSH_NOTIFICATION_RECEIVERS_GENERATOR"
-  )
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column
   private Long id;
 
   @Column

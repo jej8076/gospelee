@@ -16,19 +16,12 @@ import lombok.ToString;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SequenceGenerator(
-    name = "ANNOUNCEMENT_GENERATOR",
-    sequenceName = "ANNOUNCEMENT_SEQ01",
-    allocationSize = 1
-)
 @ToString
 public class Announcement extends EditInfomation {
 
   @Id
-  @GeneratedValue(
-      strategy = GenerationType.AUTO,
-      generator = "ANNOUNCEMENT_GENERATOR"
-  )
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column
   private Long id;
 
   @Column
