@@ -9,6 +9,8 @@ import {useApiClient} from "@/hooks/useApiClient";
 import useDidMountEffect from "@/hooks/useDidMountEffect";
 import {isEmpty} from "@/utils/validators";
 import {useRouter} from "next/navigation";
+import Modal from "@/components/modal/modal";
+import {blueButton, grayButton} from "@/components/modal/modal-buttons";
 
 export default function CreateNoti() {
   useAuth();
@@ -18,11 +20,20 @@ export default function CreateNoti() {
   const [text, setText] = useState("");
   const [files, setFiles] = useState<File[] | []>([]);
   const [pushNotificationSendYn, setPushNotificationSendYn] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const [announcement, setAnnouncement] = useState<Announcement>();
 
   const {callApi} = useApiClient();
   const router = useRouter();
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   useEffect(() => {
     const lastLoginInfo: AuthInfoType | null = getLastLoginOrElseNull();
@@ -30,7 +41,6 @@ export default function CreateNoti() {
   }, []);
 
   useDidMountEffect(() => {
-    debugger;
     if (!isEmpty(announcement?.id)) {
       router.push("/manage/noti");
       return;
@@ -68,7 +78,7 @@ export default function CreateNoti() {
   };
 
   return (
-      <form>
+      <div>
         <div className="space-y-12 px-8">
           <div className="border-b border-gray-900/10 pb-12">
             <h2 className="text-base/7 font-semibold text-gray-900">공지사항 새로만들기</h2>
@@ -236,9 +246,24 @@ export default function CreateNoti() {
               type="button"
               value="Save"
               className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
-              onClick={() => insertAnnouncement()}
+              onClick={() => openModal()}
           />
         </div>
-      </form>
+        <Modal
+            isOpen={isModalOpen}
+            onClose={() => closeModal()}
+            title={"공지사항을 등록합니다."}
+            footer={
+              <>
+                {grayButton("취소", closeModal)}
+                {blueButton("확인", insertAnnouncement)}
+              </>
+            }
+        >
+          {
+            <div></div>
+          }
+        </Modal>
+      </div>
   )
 }
