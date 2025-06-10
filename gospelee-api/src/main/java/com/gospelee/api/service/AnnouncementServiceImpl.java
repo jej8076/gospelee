@@ -5,6 +5,7 @@ import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.announcement.AnnouncementDTO;
 import com.gospelee.api.dto.file.FileUploadWrapperDTO;
 import com.gospelee.api.entity.Account;
+import com.gospelee.api.entity.Announcement;
 import com.gospelee.api.entity.PushNotification;
 import com.gospelee.api.entity.PushNotificationReceivers;
 import com.gospelee.api.enums.CategoryType;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,10 +37,15 @@ public class AnnouncementServiceImpl implements AnnouncementService {
   private final FirebaseService firebaseService;
 
   @Override
-  public List<AnnouncementDTO> getAnnouncementList() {
+  public List<AnnouncementDTO> getAnnouncementList(String announcementType) {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
-    // TODO 임시코드임
-    return Collections.singletonList(AnnouncementDTO.builder().build());
+    // 임시로 ecclesia 공지사항만 고려함
+    List<Announcement> announcementList = announcementRepository.findByOrganizationTypeAndOrganizationId(
+        OrganizationType.fromName(announcementType).name(), account.getEcclesiaUid());
+
+    return announcementList.stream()
+        .map(AnnouncementDTO::fromEntity)
+        .collect(Collectors.toList());
   }
 
   /**
@@ -63,7 +70,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     // 공지사항 데이터 저장
     AnnouncementDTO announcement = AnnouncementDTO.fromEntity(
-        announcementRepository.save(announcementDTO.toEntity()));
+        announcementRepository.save(announcementDTO.toEntity(account)));
 
     // file upload
     if (file != null) {

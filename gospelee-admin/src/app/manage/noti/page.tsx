@@ -1,8 +1,10 @@
 "use client"
 
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import useAuth from "~/lib/auth/check-auth";
 import {useRouter} from "next/navigation";
+import {useApiClient} from "@/hooks/useApiClient";
+import {fetchAnnouncements} from "~/lib/api/fetch-announcement";
 
 type Person = {
   name: string
@@ -29,10 +31,18 @@ export default function ManageNoti(): JSX.Element {
   useAuth();
 
   const router = useRouter();
+  const {callApi} = useApiClient();
+  const [announcement, setAnnouncement] = useState<Announcement[]>([]);
 
   const routeCreate = () => {
     router.push(`/manage/noti/create`)
   };
+
+  useEffect(() => {
+    callApi(fetchAnnouncements, setAnnouncement);
+  }, []);
+
+  console.log(announcement);
 
   return (
       <div className="px-4 sm:px-6 lg:px-8">
@@ -61,80 +71,61 @@ export default function ManageNoti(): JSX.Element {
                 <tr>
                   <th
                       scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter sm:pl-6 lg:pl-8"
-                  >
-                    Name
+                      className="sticky top-0 z-10 hidden border-b border-gray-300 bg-white/75 px-8 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter sm:table-cell">
+                    제목
+                  </th>
+
+                  <th
+                      scope="col"
+                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 px-8 py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter sm:pl-6 lg:pl-8">
+                    본문
+                  </th>
+
+                  <th
+                      scope="col"
+                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 px-8 py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter sm:pl-6 lg:pl-8">
+                    푸시알림
+                  </th>
+
+                  <th
+                      scope="col"
+                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 px-8 py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter sm:pl-6 lg:pl-8">
+                    등록시간
+                  </th>
+
+                  <th
+                      scope="col"
+                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 px-8 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter">
+                    수정
                   </th>
                   <th
                       scope="col"
-                      className="sticky top-0 z-10 hidden border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter sm:table-cell"
-                  >
-                    Title
-                  </th>
-                  <th
-                      scope="col"
-                      className="sticky top-0 z-10 hidden border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter lg:table-cell"
-                  >
-                    Email
-                  </th>
-                  <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur-sm backdrop-filter"
-                  >
-                    Role
-                  </th>
-                  <th
-                      scope="col"
-                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-4 pl-3 backdrop-blur-sm backdrop-filter sm:pr-6 lg:pr-8"
-                  >
+                      className="sticky top-0 z-10 border-b border-gray-300 bg-white/75 py-3.5 pr-4 pl-3 backdrop-blur-sm backdrop-filter sm:pr-6 lg:pr-8">
                     <span className="sr-only">Edit</span>
                   </th>
                 </tr>
                 </thead>
                 <tbody>
-                {people.map((person, personIdx) => (
-                    <tr key={person.email}>
-                      <td
-                          className={classNames(
-                              personIdx !== people.length - 1 ? 'border-b border-gray-200' : '',
-                              'py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900 sm:pl-6 lg:pl-8',
-                          )}
-                      >
-                        {person.name}
+                {!(announcement.length > 0) ? null : announcement.map((a) => (
+                    <tr key={a.id}>
+                      <td className='border-b border-gray-200 py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900 sm:pl-6 lg:pl-8'>
+                        {a.subject}
                       </td>
-                      <td
-                          className={classNames(
-                              personIdx !== people.length - 1 ? 'border-b border-gray-200' : '',
-                              'hidden px-3 py-4 text-sm whitespace-nowrap text-gray-500 sm:table-cell',
-                          )}
-                      >
-                        {person.title}
+                      <td className='border-b border-gray-200 py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900 sm:pl-6 lg:pl-8'>
+                        {a.text}
                       </td>
-                      <td
-                          className={classNames(
-                              personIdx !== people.length - 1 ? 'border-b border-gray-200' : '',
-                              'hidden px-3 py-4 text-sm whitespace-nowrap text-gray-500 lg:table-cell',
-                          )}
-                      >
-                        {person.email}
+                      <td className='border-b border-gray-200 py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900 sm:pl-6 lg:pl-8'>
+                        {a.pushNotificationIds == null ? "발송안함" : "발송"}
                       </td>
-                      <td
-                          className={classNames(
-                              personIdx !== people.length - 1 ? 'border-b border-gray-200' : '',
-                              'px-3 py-4 text-sm whitespace-nowrap text-gray-500',
-                          )}
-                      >
-                        {person.role}
+                      <td className='border-b border-gray-200 py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900 sm:pl-6 lg:pl-8'>
+                        {a.insertTime}
                       </td>
-                      <td
-                          className={classNames(
-                              personIdx !== people.length - 1 ? 'border-b border-gray-200' : '',
-                              'relative py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-8 lg:pr-8',
-                          )}
-                      >
-                        <a href="#" className="text-indigo-600 hover:text-indigo-900">
-                          Edit<span className="sr-only">, {person.name}</span>
-                        </a>
+                      <td className='border-b border-gray-200 py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900 sm:pl-6 lg:pl-8'>
+                        {a.pushNotificationIds == null && (
+                            <a className="text-indigo-600 hover:text-indigo-900 cursor-pointer">
+                              Edit
+                            </a>
+                        )}
                       </td>
                     </tr>
                 ))}

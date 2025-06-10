@@ -4,7 +4,7 @@ export const isObject = (value: unknown): boolean => {
 
 export const isEmpty = (value: unknown): boolean => {
   // null 이면 true
-  if (value == null) return true;
+  if (value === undefined || value === null) return true;
 
   // string 타입이면서 공백이면 true
   if (typeof value === 'string' && value.trim() === '') return true;

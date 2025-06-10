@@ -6,7 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface AnnouncementService {
 
-  List<AnnouncementDTO> getAnnouncementList();
+  List<AnnouncementDTO> getAnnouncementList(String announcementType);
 
   AnnouncementDTO insertAnnouncement(MultipartFile file, AnnouncementDTO announcementDTO);
 }

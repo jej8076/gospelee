@@ -1,10 +1,13 @@
 import {AuthItems} from "~/constants/auth-items";
 import {AppRouterInstance} from "next/dist/shared/lib/app-router-context.shared-runtime";
 import {expireCookie} from "~/lib/cookie/cookie-utils";
+import {isEmpty} from "@/utils/validators";
+import {tryParseJson} from "@/utils/json-utils";
 
 export const getLastLoginOrElseNull = (): AuthInfoType | null => {
   const authInfoString: string | null = localStorage.getItem(AuthItems.LastAuthInfo);
-  return authInfoString ? JSON.parse(authInfoString) : null;
+  const result = tryParseJson<AuthInfoType>(authInfoString);
+  return result.success ? result.data : null;
 };
 
 export const logout = async (router: AppRouterInstance) => {
