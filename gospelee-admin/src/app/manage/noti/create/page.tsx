@@ -9,20 +9,81 @@ import {useApiClient} from "@/hooks/useApiClient";
 import useDidMountEffect from "@/hooks/useDidMountEffect";
 import {isEmpty} from "@/utils/validators";
 import {useRouter} from "next/navigation";
+import Modal from "@/components/modal/modal";
+import {blueButton, grayButton} from "@/components/modal/modal-buttons";
+import MarkdownEditorField from '@/components/markdown/MarkdownEditorField';
 
 export default function CreateNoti() {
   useAuth();
 
   const [userName, setUserName] = useState("");
   const [subject, setSubject] = useState("");
-  const [text, setText] = useState("");
   const [files, setFiles] = useState<File[] | []>([]);
   const [pushNotificationSendYn, setPushNotificationSendYn] = useState("");
-
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [announcement, setAnnouncement] = useState<Announcement>();
+  const [announcementText, setAnnouncementText] = useState<string>(''); // 마크다운 내용 저장
+
+  const LINE = "  \n";
+
+  interface ImageSize {
+    width: number;
+    height: number;
+  }
 
   const {callApi} = useApiClient();
   const router = useRouter();
+
+  const openModal = () => {
+    if (pushNotificationSendYn === "") {
+      alert("푸시 알림 발송 여부를 선택해주세요");
+      return;
+    }
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPushNotificationSendYn(event.target.value);
+  };
+
+  const handleMarkdownImage = (index: number, file: File) => {
+    // ![대체 텍스트](이미지_URL_또는_경로 "선택적_제목")
+    const blobUrl = URL.createObjectURL(file);
+    const previewText = "preview-" + index;
+
+    getImageDimensionsFromBlobUrl(blobUrl)
+    .then(imageSize => {
+      const markdownImage: string = `<img src="${blobUrl}" width="${imageSize.width}" height="${imageSize.height}" alt="${previewText}">`;
+      setAnnouncementText(prevContent => prevContent + LINE + markdownImage);
+    })
+    .catch(error => console.error(error));
+
+  };
+
+  const getImageDimensionsFromBlobUrl: (blobUrl: string) => Promise<ImageSize> = (blobUrl: string) => {
+    return new Promise((resolve, reject) => {
+
+      const img = new Image();
+
+      img.onload = () => {
+        const width = img.width;
+        const height = img.height;
+        const imageSize: ImageSize = {width: width, height: height};
+        resolve(imageSize);
+      };
+
+      img.onerror = (error) => {
+        URL.revokeObjectURL(blobUrl); // 오류 발생 시에도 해제
+        reject(new Error("Blob URL에서 이미지를 로드하는 중 오류가 발생했습니다."));
+      };
+
+      img.src = blobUrl; // blobUrl을 이미지 소스로 사용
+    });
+  }
 
   useEffect(() => {
     const lastLoginInfo: AuthInfoType | null = getLastLoginOrElseNull();
@@ -30,7 +91,6 @@ export default function CreateNoti() {
   }, []);
 
   useDidMountEffect(() => {
-    debugger;
     if (!isEmpty(announcement?.id)) {
       router.push("/manage/noti");
       return;
@@ -52,9 +112,9 @@ export default function CreateNoti() {
       // TODO 임시로 고정 값을 넣음, 교회의 공지사항이 아닐 경우엔 가변적으로
       organizationType: "ECCLESIA",
       subject: subject,
-      text: text,
+      text: announcementText,
       file: files[0],
-      pushNotificationSendYn: "Y",
+      pushNotificationSendYn: pushNotificationSendYn,
     };
 
     await callApi(() => fetchInsertAnnouncement(inputData), setAnnouncement);
@@ -68,7 +128,7 @@ export default function CreateNoti() {
   };
 
   return (
-      <form>
+      <div>
         <div className="space-y-12 px-8">
           <div className="border-b border-gray-900/10 pb-12">
             <h2 className="text-base/7 font-semibold text-gray-900">공지사항 새로만들기</h2>
@@ -141,13 +201,23 @@ export default function CreateNoti() {
                   {files.map((file, index) => (
                       <div
                           key={index}
-                          className="w-36 h-36 border rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center"
-                      >
-                        <img
-                            src={URL.createObjectURL(file)}
-                            alt={`preview-${index}`}
-                            className="object-cover w-full h-full"
-                        />
+                          className="flex flex-col items-center justify-center space-y-2">
+                        <div
+                            className="w-36 h-36 border rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
+                          <img
+                              src={URL.createObjectURL(file)}
+                              alt={`preview-${index}`}
+                              className="object-cover w-full h-full"
+                          />
+                        </div>
+                        <div>
+                          <input
+                              type="button"
+                              value="사용"
+                              className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
+                              onClick={() => handleMarkdownImage(index, file)}
+                          />
+                        </div>
                       </div>
                   ))}
                 </div>
@@ -158,14 +228,18 @@ export default function CreateNoti() {
                   본문
                 </label>
                 <div className="mt-2">
-                <textarea
-                    id="about"
-                    name="about"
-                    onChange={(e) => setText(e.target.value)}
-                    rows={3}
-                    className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border border-gray-300"
-                    defaultValue={''}
-                />
+                  <MarkdownEditorField
+                      value={announcementText} // 기존에 저장된 내용이 있다면 전달
+                      onMarkdownChange={setAnnouncementText} // 에디터 내용 변경 시 상태 업데이트
+                  />
+                  {/*<textarea*/}
+                  {/*    id="about"*/}
+                  {/*    name="about"*/}
+                  {/*    onChange={(e) => setText(e.target.value)}*/}
+                  {/*    rows={3}*/}
+                  {/*    className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border border-gray-300"*/}
+                  {/*    defaultValue={''}*/}
+                  {/*/>*/}
                 </div>
                 {/*<p className="mt-3 text-sm/6 text-gray-600">Write a few sentences about*/}
                 {/*  yourself.</p>*/}
@@ -185,31 +259,21 @@ export default function CreateNoti() {
               <fieldset>
                 <legend className="text-sm/6 font-semibold text-gray-900">푸시 알림
                 </legend>
-                <p className="mt-1 text-sm/6 text-gray-600">IOS/Android 앱에 푸시알림을 발송합니다.</p>
+                <p className="mt-1 text-sm/6 text-gray-600">앱 푸시 알림을 발송할 지 선택해 주세요</p>
                 <div className="mt-6 space-y-6">
                   <div className="flex items-center gap-x-3">
                     <input
-                        defaultChecked
-                        id="push-everything"
+                        id="push-everyone"
                         name="push-notifications"
                         type="radio"
+                        value="Y" // 이 라디오 버튼이 선택될 때의 값
+                        checked={pushNotificationSendYn === "Y"} // 현재 상태에 따라 체크 여부 결정
+                        onChange={handleRadioChange} // 변경 이벤트 핸들러
                         className="relative size-4 appearance-none rounded-full border border-gray-300 bg-white before:absolute before:inset-1 before:rounded-full before:bg-white not-checked:before:hidden checked:border-indigo-600 checked:bg-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:before:bg-gray-400 forced-colors:appearance-auto forced-colors:before:hidden"
                     />
-                    <label htmlFor="push-everything"
+                    <label htmlFor="push-everyone"
                            className="block text-sm/6 font-medium text-gray-900">
-                      Everything
-                    </label>
-                  </div>
-                  <div className="flex items-center gap-x-3">
-                    <input
-                        id="push-email"
-                        name="push-notifications"
-                        type="radio"
-                        className="relative size-4 appearance-none rounded-full border border-gray-300 bg-white before:absolute before:inset-1 before:rounded-full before:bg-white not-checked:before:hidden checked:border-indigo-600 checked:bg-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:before:bg-gray-400 forced-colors:appearance-auto forced-colors:before:hidden"
-                    />
-                    <label htmlFor="push-email"
-                           className="block text-sm/6 font-medium text-gray-900">
-                      Same as email
+                      등록 교인 전체발송
                     </label>
                   </div>
                   <div className="flex items-center gap-x-3">
@@ -217,11 +281,14 @@ export default function CreateNoti() {
                         id="push-nothing"
                         name="push-notifications"
                         type="radio"
+                        value="N" // 이 라디오 버튼이 선택될 때의 값
+                        checked={pushNotificationSendYn === "N"} // 현재 상태에 따라 체크 여부 결정
+                        onChange={handleRadioChange} // 변경 이벤트 핸들러
                         className="relative size-4 appearance-none rounded-full border border-gray-300 bg-white before:absolute before:inset-1 before:rounded-full before:bg-white not-checked:before:hidden checked:border-indigo-600 checked:bg-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:before:bg-gray-400 forced-colors:appearance-auto forced-colors:before:hidden"
                     />
                     <label htmlFor="push-nothing"
                            className="block text-sm/6 font-medium text-gray-900">
-                      No push notifications
+                      발송안함
                     </label>
                   </div>
                 </div>
@@ -230,15 +297,30 @@ export default function CreateNoti() {
           </div>
         </div>
 
-        <div className="mt-6 flex items-center justify-end gap-x-6">
+        <div className="mt-6 mr-6 flex items-center justify-end gap-x-6">
           <input type="button" value="Cancel" className="text-sm/6 font-semibold text-gray-900"/>
           <input
               type="button"
               value="Save"
-              className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              onClick={() => insertAnnouncement()}
+              className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
+              onClick={() => openModal()}
           />
         </div>
-      </form>
+        <Modal
+            isOpen={isModalOpen}
+            onClose={() => closeModal()}
+            title={"공지사항을 등록합니다."}
+            footer={
+              <>
+                {grayButton("취소", closeModal)}
+                {blueButton("확인", insertAnnouncement)}
+              </>
+            }
+        >
+          {
+            <div></div>
+          }
+        </Modal>
+      </div>
   )
 }

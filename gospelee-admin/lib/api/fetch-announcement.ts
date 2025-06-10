@@ -1,34 +1,28 @@
 import {expireCookie, getCookie} from "~/lib/cookie/cookie-utils";
 import {AuthItems} from "~/constants/auth-items";
 import {apiFetch} from "~/lib/api-client";
+import {Users} from "~/lib/api/fetch-users";
 
-export type Ecclesia = {
-  uid: number;
-  name: string;
-  churchIdentificationNumber: string;
-  status: string;
-  masterAccountUid: number;
+export const fetchAnnouncements = async (): Promise<Announcement[]> => {
+
+  const response = await apiFetch("/api/announcement/ECCLESIA", {
+    method: "GET",
+    headers: {
+      "X-App-Identifier": "OOG_WEB",
+      "Content-Type": "application/json",
+      Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
+    }
+  });
+
+  if (!response.ok) {
+    await expireCookie(AuthItems.Authorization);
+    const errorData = await response.json();
+    console.error("Error response from server:", errorData.message);
+    throw {status: response.status, message: errorData.message};
+  }
+
+  return response.json();
 };
-
-// export const fetchGetEcclesia = async (ecclesiaUid: string): Promise<Ecclesia> => {
-//
-//   const response = await apiFetch(`/api/announcement/${ecclesiaUid}`, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//       Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
-//     }
-//   });
-//
-//   if (!response.ok) {
-//     await expireCookie(AuthItems.Authorization);
-//     const errorData = await response.json();
-//     console.error("Error response from server:", errorData.message);
-//     throw {status: response.status, message: errorData.message};
-//   }
-//
-//   return response.json();
-// };
 
 export const fetchInsertAnnouncement = async (inputData: {
   [key: string]: any

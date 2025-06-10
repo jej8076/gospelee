@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -23,9 +24,11 @@ public class AnnouncementController {
 
   private final AnnouncementService announcementService;
 
-  @GetMapping
-  public ResponseEntity<Object> getAnnouncementList() {
-    List<AnnouncementDTO> getJournalByAccountUid = announcementService.getAnnouncementList();
+  @GetMapping("/{announcementType}")
+  public ResponseEntity<Object> getAnnouncementList(
+      @PathVariable("announcementType") String announcementType) {
+    List<AnnouncementDTO> getJournalByAccountUid = announcementService.getAnnouncementList(
+        announcementType);
     return new ResponseEntity<>(getJournalByAccountUid, HttpStatus.OK);
   }
 
@@ -36,7 +39,7 @@ public class AnnouncementController {
   ) {
     AnnouncementDTO announcement = announcementService.insertAnnouncement(file, announcementDTO);
     return new ResponseEntity<>(announcement, HttpStatus.OK);
-    
+
   }
 
 }

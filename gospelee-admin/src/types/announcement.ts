@@ -5,4 +5,7 @@ type Announcement = {
   text: string;
   fileUid?: bigint | null; // 파일이 없을 수도 있음
   pushNotificationSendYn: 'Y' | 'N'; // 문자열로 Y/N 제한
+  pushNotificationIds: string;
+  insertTime: string;
+  updateTime: string;
 };

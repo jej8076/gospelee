@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.custom-md-editor .w-md-editor-toolbar svg {
+  width: 20px !important; /* 원하는 너비 */
+  height: 20px !important; /* 원하는 높이 */
+  /* !important를 사용하면 라이브러리의 기본 스타일을 확실히 덮어쓸 수 있습니다. */
+  /* 필요에 따라 padding, margin 등도 조절할 수 있습니다. */
+}
+
+.w-md-editor-toolbar {
+  padding: 10px 10px 18px 10px !important; /* 원하는 높이 */
+}

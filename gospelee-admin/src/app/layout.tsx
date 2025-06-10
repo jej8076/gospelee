@@ -9,6 +9,7 @@ import {logout} from "@/utils/user-utils";
 import {useMenuListStore} from "@/hooks/useMenuList";
 import {getUserMenuList} from "@/utils/menu-utils";
 import {layoutFadeStyle} from "@/app/style/layout/common";
+import '@uiw/react-md-editor/markdown-editor.css';
 
 const teams = [
   {id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false},
