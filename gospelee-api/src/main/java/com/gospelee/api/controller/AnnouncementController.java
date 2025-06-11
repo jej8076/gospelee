@@ -32,6 +32,15 @@ public class AnnouncementController {
     return new ResponseEntity<>(getJournalByAccountUid, HttpStatus.OK);
   }
 
+  @GetMapping("/{announcementType}/{id}")
+  public ResponseEntity<Object> getAnnouncement(
+      @PathVariable("announcementType") String announcementType,
+      @PathVariable("id") Long id
+  ) {
+    AnnouncementDTO announcement = announcementService.getAnnouncement(announcementType, id);
+    return new ResponseEntity<>(announcement, HttpStatus.OK);
+  }
+
   @PostMapping
   public ResponseEntity<Object> insertAnnouncement(
       @RequestPart(value = "file", required = false) MultipartFile file,

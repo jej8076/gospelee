@@ -8,5 +8,7 @@ public interface AnnouncementService {
 
   List<AnnouncementDTO> getAnnouncementList(String announcementType);
 
+  AnnouncementDTO getAnnouncement(String announcementType, Long id);
+
   AnnouncementDTO insertAnnouncement(MultipartFile file, AnnouncementDTO announcementDTO);
 }

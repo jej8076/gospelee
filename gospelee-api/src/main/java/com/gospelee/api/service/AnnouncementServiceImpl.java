@@ -16,7 +16,6 @@ import com.gospelee.api.repository.PushNotificationReceiversRepository;
 import com.gospelee.api.repository.PushNotificationRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,6 +38,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
   @Override
   public List<AnnouncementDTO> getAnnouncementList(String announcementType) {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+    
     // 임시로 ecclesia 공지사항만 고려함
     List<Announcement> announcementList = announcementRepository.findByOrganizationTypeAndOrganizationId(
         OrganizationType.fromName(announcementType).name(), account.getEcclesiaUid());
@@ -46,6 +46,21 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     return announcementList.stream()
         .map(AnnouncementDTO::fromEntity)
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public AnnouncementDTO getAnnouncement(String announcementType, Long id) {
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+
+    // 임시로 ecclesia 공지사항만 고려함
+    Optional<Announcement> announcement = announcementRepository.findByIdAndOrganizationTypeAndOrganizationId(
+        id, announcementType, account.getEcclesiaUid());
+
+    if (announcement.isEmpty()) {
+      throw new RuntimeException("실패함");
+    }
+
+    return AnnouncementDTO.fromEntity(announcement.get());
   }
 
   /**

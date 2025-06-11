@@ -1,19 +1,7 @@
 "use client";
 
-import React, {useEffect, useState} from 'react';
-import dynamic from 'next/dynamic';
-// import commands from '@uiw/react-md-editor'; // commands 임포트
-// import commands from '@uiw/react-md-editor';
+import React from 'react';
 import MDEditor, {commands, ICommand} from "@uiw/react-md-editor";
-
-// import ICommand from '@uiw/react-md-editor';
-// import * as mdCommands from '@uiw/react-md-editor/lib/commands'; // <--- 이 부분이 핵심!
-
-// SSR 문제를 피하기 위해 MDEditor 컴포넌트를 동적으로 임포트합니다.
-// const MDEditor = dynamic(
-//     () => import('@uiw/react-md-editor'),
-//     {ssr: false} // SSR을 비활성화하여 클라이언트에서만 렌더링되도록 합니다.
-// );
 
 interface MarkdownEditorFieldProps {
   value: string;
