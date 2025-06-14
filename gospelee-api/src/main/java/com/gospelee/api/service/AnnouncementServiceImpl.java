@@ -3,6 +3,7 @@ package com.gospelee.api.service;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.announcement.AnnouncementDTO;
+import com.gospelee.api.dto.announcement.AnnouncementResponseDTO;
 import com.gospelee.api.dto.file.FileUploadWrapperDTO;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.Announcement;
@@ -11,14 +12,13 @@ import com.gospelee.api.entity.PushNotificationReceivers;
 import com.gospelee.api.enums.CategoryType;
 import com.gospelee.api.enums.OrganizationType;
 import com.gospelee.api.enums.PushNotificationSendStatusType;
-import com.gospelee.api.repository.AnnouncementRepository;
 import com.gospelee.api.repository.PushNotificationReceiversRepository;
 import com.gospelee.api.repository.PushNotificationRepository;
+import com.gospelee.api.repository.announcement.AnnouncementRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,16 +36,11 @@ public class AnnouncementServiceImpl implements AnnouncementService {
   private final FirebaseService firebaseService;
 
   @Override
-  public List<AnnouncementDTO> getAnnouncementList(String announcementType) {
+  public List<AnnouncementResponseDTO> getAnnouncementList(String announcementType) {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
-    
-    // 임시로 ecclesia 공지사항만 고려함
-    List<Announcement> announcementList = announcementRepository.findByOrganizationTypeAndOrganizationId(
-        OrganizationType.fromName(announcementType).name(), account.getEcclesiaUid());
 
-    return announcementList.stream()
-        .map(AnnouncementDTO::fromEntity)
-        .collect(Collectors.toList());
+    return announcementRepository.findByOrganizationTypeAndOrganizationId(
+        OrganizationType.fromName(announcementType).name(), account.getEcclesiaUid());
   }
 
   @Override

@@ -1,6 +1,7 @@
 package com.gospelee.api.controller;
 
 import com.gospelee.api.dto.announcement.AnnouncementDTO;
+import com.gospelee.api.dto.announcement.AnnouncementResponseDTO;
 import com.gospelee.api.service.AnnouncementService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -8,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,15 +24,15 @@ public class AnnouncementController {
 
   private final AnnouncementService announcementService;
 
-  @GetMapping("/{announcementType}")
+  @PostMapping("/{announcementType}")
   public ResponseEntity<Object> getAnnouncementList(
       @PathVariable("announcementType") String announcementType) {
-    List<AnnouncementDTO> getJournalByAccountUid = announcementService.getAnnouncementList(
+    List<AnnouncementResponseDTO> getJournalByAccountUid = announcementService.getAnnouncementList(
         announcementType);
     return new ResponseEntity<>(getJournalByAccountUid, HttpStatus.OK);
   }
 
-  @GetMapping("/{announcementType}/{id}")
+  @PostMapping("/{announcementType}/{id}")
   public ResponseEntity<Object> getAnnouncement(
       @PathVariable("announcementType") String announcementType,
       @PathVariable("id") Long id

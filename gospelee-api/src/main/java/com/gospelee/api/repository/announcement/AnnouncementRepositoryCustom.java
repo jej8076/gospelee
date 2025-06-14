@@ -1,0 +1,10 @@
+package com.gospelee.api.repository.announcement;
+
+import com.gospelee.api.dto.announcement.AnnouncementResponseDTO;
+import java.util.List;
+
+public interface AnnouncementRepositoryCustom {
+
+  List<AnnouncementResponseDTO> findByOrganizationTypeAndOrganizationId(String organizationType,
+      String organizationId);
+}

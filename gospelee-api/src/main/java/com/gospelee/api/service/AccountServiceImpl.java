@@ -6,7 +6,7 @@ import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.Ecclesia;
 import com.gospelee.api.enums.RoleType;
 import com.gospelee.api.repository.AccountRepository;
-import com.gospelee.api.repository.EcclesiaRepository;
+import com.gospelee.api.repository.Ecclesia.EcclesiaRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;

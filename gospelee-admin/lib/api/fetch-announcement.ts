@@ -1,12 +1,11 @@
 import {expireCookie, getCookie} from "~/lib/cookie/cookie-utils";
 import {AuthItems} from "~/constants/auth-items";
 import {apiFetch} from "~/lib/api-client";
-import {Users} from "~/lib/api/fetch-users";
 
 export const fetchAnnouncements = async (): Promise<Announcement[]> => {
 
   const response = await apiFetch("/api/announcement/ECCLESIA", {
-    method: "GET",
+    method: "POST",
     headers: {
       "X-App-Identifier": "OOG_WEB",
       "Content-Type": "application/json",

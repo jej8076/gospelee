@@ -1,15 +1,14 @@
-package com.gospelee.api.repository;
+package com.gospelee.api.repository.announcement;
 
 import com.gospelee.api.entity.Announcement;
-import jakarta.validation.constraints.NotNull;
-import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface AnnouncementRepository extends JpaRepository<Announcement, Long> {
+public interface AnnouncementRepository extends JpaRepository<Announcement, Long>,
+    AnnouncementRepositoryCustom {
 
   @Modifying
   @Query("UPDATE Announcement a SET a.pushNotificationIds = :pushNotificationIds WHERE a.id = :id")
@@ -17,8 +16,8 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
       @Param("id") Long id,
       @Param("pushNotificationIds") String pushNotificationIds);
 
-  List<Announcement> findByOrganizationTypeAndOrganizationId(String organizationType,
-      String organizationId);
+//  List<Announcement> findByOrganizationTypeAndOrganizationId(String organizationType,
+//      String organizationId);
 
   @Query("SELECT a FROM Announcement a WHERE a.id = :id AND a.organizationType = :organizationType AND a.organizationId = :organizationId")
   Optional<Announcement> findByIdAndOrganizationTypeAndOrganizationId(

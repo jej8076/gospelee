@@ -9,12 +9,11 @@ import com.gospelee.api.entity.Ecclesia;
 import com.gospelee.api.enums.EcclesiaStatusType;
 import com.gospelee.api.enums.RoleType;
 import com.gospelee.api.repository.AccountRepository;
-import com.gospelee.api.repository.EcclesiaRepository;
+import com.gospelee.api.repository.Ecclesia.EcclesiaRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
