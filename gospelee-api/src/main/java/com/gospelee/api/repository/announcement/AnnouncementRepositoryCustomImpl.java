@@ -17,7 +17,7 @@ public class AnnouncementRepositoryCustomImpl implements AnnouncementRepositoryC
 
   @Override
   public List<AnnouncementResponseDTO> findByOrganizationTypeAndOrganizationId(
-      String organizationType, String organizationId) {
+      String organizationType, Long organizationId) {
 
     OrganizationType type = OrganizationType.fromName(organizationType);
 
@@ -26,6 +26,10 @@ public class AnnouncementRepositoryCustomImpl implements AnnouncementRepositoryC
         .from(QAnnouncement.announcement)
         .join(type.getEntity())
         .on(QAnnouncement.announcement.organizationId.eq(type.getIdField()))
+        .where(
+            QAnnouncement.announcement.organizationId.eq(organizationId)
+                .and(QAnnouncement.announcement.organizationType.eq(type.name()))
+        )
         .fetch();
   }
 }

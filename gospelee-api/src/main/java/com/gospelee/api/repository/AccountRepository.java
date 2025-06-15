@@ -16,7 +16,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
   Optional<Account> findByEmail(String email);
 
-  Optional<List<Account>> findByEcclesiaUid(String ecclesiaUid);
+  Optional<List<Account>> findByEcclesiaUid(Long ecclesiaUid);
 
   @Modifying
   @Transactional

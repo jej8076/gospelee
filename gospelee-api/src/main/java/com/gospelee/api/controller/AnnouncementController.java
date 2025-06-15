@@ -27,9 +27,9 @@ public class AnnouncementController {
   @PostMapping("/{announcementType}")
   public ResponseEntity<Object> getAnnouncementList(
       @PathVariable("announcementType") String announcementType) {
-    List<AnnouncementResponseDTO> getJournalByAccountUid = announcementService.getAnnouncementList(
+    List<AnnouncementResponseDTO> announcementList = announcementService.getAnnouncementList(
         announcementType);
-    return new ResponseEntity<>(getJournalByAccountUid, HttpStatus.OK);
+    return new ResponseEntity<>(announcementList, HttpStatus.OK);
   }
 
   @PostMapping("/{announcementType}/{id}")

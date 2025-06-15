@@ -23,6 +23,6 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
   Optional<Announcement> findByIdAndOrganizationTypeAndOrganizationId(
       @Param("id") Long id,
       @Param("organizationType") String organizationType,
-      @Param("organizationId") String organizationId);
+      @Param("organizationId") Long organizationId);
 
 }

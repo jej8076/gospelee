@@ -10,7 +10,7 @@ public interface AccountService {
 
   List<Account> getAccountAll();
 
-  Optional<List<Account>> getAccountByEcclesiaUid(String ecclesiaUid);
+  Optional<List<Account>> getAccountByEcclesiaUid(Long ecclesiaUid);
 
   Optional<Account> getAccountByPhone(final String Phone);
 

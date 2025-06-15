@@ -6,5 +6,5 @@ import java.util.List;
 public interface AnnouncementRepositoryCustom {
 
   List<AnnouncementResponseDTO> findByOrganizationTypeAndOrganizationId(String organizationType,
-      String organizationId);
+      Long organizationId);
 }

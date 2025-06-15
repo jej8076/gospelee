@@ -44,4 +44,5 @@ public enum OrganizationType {
   public String lowerCaseName() {
     return this.name().toLowerCase();
   }
+
 }
