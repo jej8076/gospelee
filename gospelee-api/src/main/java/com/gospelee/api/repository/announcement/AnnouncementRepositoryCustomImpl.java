@@ -30,6 +30,7 @@ public class AnnouncementRepositoryCustomImpl implements AnnouncementRepositoryC
             QAnnouncement.announcement.organizationId.eq(organizationId)
                 .and(QAnnouncement.announcement.organizationType.eq(type.name()))
         )
+        .orderBy(QAnnouncement.announcement.insertTime.desc())
         .fetch();
   }
 }
