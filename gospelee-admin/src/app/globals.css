@@ -12,3 +12,9 @@
 .w-md-editor-toolbar {
   padding: 10px 10px 18px 10px !important; /* 원하는 높이 */
 }
+
+/* 모든 헤딩 태그의 하단 테두리 제거 */
+.w-md-editor-preview h1,
+.w-md-editor-preview h2 {
+  border-bottom: none !important;
+}

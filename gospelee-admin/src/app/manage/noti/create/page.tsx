@@ -157,20 +157,20 @@ export default function CreateNoti() {
                 </div>
               </div>
 
-              <div className="col-span-full">
-                <label htmlFor="subject" className="block text-sm/6 font-medium text-gray-900">
-                  제목
-                </label>
-                <div className="mt-2">
-                  <input
-                      type="text"
-                      id="subject"
-                      onChange={(e) => setSubject(e.target.value)}
-                      className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border border-gray-300"
-                      defaultValue={''}
-                  />
-                </div>
-              </div>
+              {/*<div className="col-span-full">*/}
+              {/*  <label htmlFor="subject" className="block text-sm/6 font-medium text-gray-900">*/}
+              {/*    제목*/}
+              {/*  </label>*/}
+              {/*  <div className="mt-2">*/}
+              {/*    <input*/}
+              {/*        type="text"*/}
+              {/*        id="subject"*/}
+              {/*        onChange={(e) => setSubject(e.target.value)}*/}
+              {/*        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border border-gray-300"*/}
+              {/*        defaultValue={''}*/}
+              {/*    />*/}
+              {/*  </div>*/}
+              {/*</div>*/}
 
               <div className="col-span-full">
                 <label htmlFor="cover-photo" className="block text-sm font-medium text-gray-900">

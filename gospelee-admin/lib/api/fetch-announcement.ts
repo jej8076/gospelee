@@ -30,6 +30,7 @@ export const fetchInsertAnnouncement = async (inputData: {
 
   if (inputData?.file) {
     formData.append('file', inputData.file);
+    delete inputData.file;
   }
 
   formData.append('body', new Blob([JSON.stringify(inputData)], {type: 'application/json'}));

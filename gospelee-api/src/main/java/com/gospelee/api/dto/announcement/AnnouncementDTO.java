@@ -18,7 +18,6 @@ public class AnnouncementDTO {
   @NotBlank
   private String organizationType;
   private String organizationId;
-  @NotBlank
   private String subject;
   private String text;
   private Long fileUid;
