@@ -43,12 +43,19 @@ public class AnnouncementController {
 
   @PostMapping
   public ResponseEntity<Object> insertAnnouncement(
-      @RequestPart(value = "file", required = false) MultipartFile file,
+      @RequestPart(value = "files", required = false) List<MultipartFile> files,
       @RequestPart("body") @Valid AnnouncementDTO announcementDTO
   ) {
-    AnnouncementDTO announcement = announcementService.insertAnnouncement(file, announcementDTO);
+    log.info("공지사항 등록 요청 - 파일 개수: {}, DTO: {}", 
+        files != null ? files.size() : 0, announcementDTO);
+    
+    if (files != null) {
+      for (int i = 0; i < files.size(); i++) {
+        log.info("파일 {}: 이름={}, 크기={}", i, files.get(i).getOriginalFilename(), files.get(i).getSize());
+      }
+    }
+    
+    AnnouncementDTO announcement = announcementService.insertAnnouncement(files, announcementDTO);
     return new ResponseEntity<>(announcement, HttpStatus.OK);
-
   }
-
 }

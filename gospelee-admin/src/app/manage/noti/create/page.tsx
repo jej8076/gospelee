@@ -23,6 +23,7 @@ export default function CreateNoti() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [announcement, setAnnouncement] = useState<Announcement>();
   const [announcementText, setAnnouncementText] = useState<string>(''); // 마크다운 내용 저장
+  const [blobFileMapping, setBlobFileMapping] = useState<{[key: string]: string}>({}); // blob URL과 파일명 매핑
 
   const LINE = "  \n";
 
@@ -54,6 +55,12 @@ export default function CreateNoti() {
     // ![대체 텍스트](이미지_URL_또는_경로 "선택적_제목")
     const blobUrl = URL.createObjectURL(file);
     const previewText = "preview-" + index;
+
+    // blob URL과 파일명 매핑 저장
+    setBlobFileMapping(prev => ({
+      ...prev,
+      [blobUrl]: file.name
+    }));
 
     getImageDimensionsFromBlobUrl(blobUrl)
     .then(imageSize => {
@@ -101,29 +108,53 @@ export default function CreateNoti() {
 
   const insertAnnouncement = async () => {
 
-    // 예: 파일 input에서 선택된 파일
-    // const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-    // const file = fileInput?.files?.[0];
-
-    const fileSet: File[] = files;
-
-    /* 일단 file 1개만 개발됨 */
-    const inputData = {
+    // 여러 파일 업로드 지원
+    const inputData: any = {
       // TODO 임시로 고정 값을 넣음, 교회의 공지사항이 아닐 경우엔 가변적으로
       organizationType: "ECCLESIA",
-      subject: subject,
+      subject: subject || "공지사항", // subject가 비어있으면 기본값 설정
       text: announcementText,
-      file: files[0],
       pushNotificationSendYn: pushNotificationSendYn,
     };
+
+    // 파일이 있을 때만 추가
+    if (files && files.length > 0) {
+      inputData.files = files;
+    }
+
+    // blob 매핑이 있을 때만 추가
+    if (Object.keys(blobFileMapping).length > 0) {
+      inputData.blobFileMapping = blobFileMapping;
+    }
+
+    console.log('전송할 데이터:', inputData);
 
     await callApi(() => fetchInsertAnnouncement(inputData), setAnnouncement);
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFiles((prevFiles) => [...prevFiles, selectedFile]);
+    const selectedFiles = e.target.files;
+    if (selectedFiles) {
+      const fileArray = Array.from(selectedFiles);
+      setFiles((prevFiles) => [...prevFiles, ...fileArray]);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+    
+    // 해당 파일과 관련된 blob URL 매핑도 제거
+    const fileToRemove = files[index];
+    if (fileToRemove) {
+      setBlobFileMapping(prev => {
+        const newMapping = { ...prev };
+        Object.keys(newMapping).forEach(blobUrl => {
+          if (newMapping[blobUrl] === fileToRemove.name) {
+            delete newMapping[blobUrl];
+          }
+        });
+        return newMapping;
+      });
     }
   };
 
@@ -192,6 +223,8 @@ export default function CreateNoti() {
                         id="file-upload"
                         name="file-upload"
                         type="file"
+                        multiple
+                        accept="image/*"
                         onChange={handleFileChange}
                         className="sr-only"
                     />
@@ -201,16 +234,24 @@ export default function CreateNoti() {
                   {files.map((file, index) => (
                       <div
                           key={index}
-                          className="flex flex-col items-center justify-center space-y-2">
+                          className="flex flex-col items-center justify-center space-y-2 relative">
                         <div
-                            className="w-36 h-36 border rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
+                            className="w-36 h-36 border rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center relative">
                           <img
                               src={URL.createObjectURL(file)}
                               alt={`preview-${index}`}
                               className="object-cover w-full h-full"
                           />
+                          {/* 삭제 버튼 */}
+                          <button
+                              type="button"
+                              onClick={() => removeFile(index)}
+                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                          >
+                            ×
+                          </button>
                         </div>
-                        <div>
+                        <div className="flex space-x-2">
                           <input
                               type="button"
                               value="사용"

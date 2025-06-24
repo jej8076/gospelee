@@ -27,13 +27,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       List.of(
           "/bible/view/*",
           "/account/qr/enter",
-          "/account/qr/check"
+          "/account/qr/check",
+          "/file/*"
       );
   private static final List<String> ALLOW_AND_PENDING_PATH_LIST =
       List.of(
           "/api/account/qr/req/*"
       );
-  
+
   private final String AUTH_HEADER = "Authorization";
   private final String BEARER = "Bearer ";
   private final String APP_ID = "X-App-Identifier";

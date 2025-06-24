@@ -5,6 +5,8 @@ import com.gospelee.api.entity.Announcement;
 import com.gospelee.api.enums.OrganizationType;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,11 +28,14 @@ public class AnnouncementDTO {
   private String pushNotificationIds;
   private LocalDateTime insertTime;
   private LocalDateTime updateTime;
+  
+  // blob URL과 파일명 매핑을 위한 필드 (요청 시에만 사용)
+  private Map<String, String> blobFileMapping;
 
   @Builder
   public AnnouncementDTO(Long id, String organizationType, String organizationId, String subject,
       String text, Long fileUid, String pushNotificationSendYn, String pushNotificationIds,
-      LocalDateTime insertTime, LocalDateTime updateTime) {
+      LocalDateTime insertTime, LocalDateTime updateTime, Map<String, String> blobFileMapping) {
     this.id = id;
     this.organizationType = organizationType;
     this.organizationId = organizationId;
@@ -41,6 +46,7 @@ public class AnnouncementDTO {
     this.pushNotificationIds = pushNotificationIds;
     this.insertTime = insertTime;
     this.updateTime = updateTime;
+    this.blobFileMapping = blobFileMapping;
   }
 
   public static AnnouncementDTO fromEntity(Announcement announcement) {
