@@ -23,7 +23,7 @@ export default function CreateNoti() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [announcement, setAnnouncement] = useState<Announcement>();
   const [announcementText, setAnnouncementText] = useState<string>(''); // 마크다운 내용 저장
-  const [blobFileMapping, setBlobFileMapping] = useState<{[key: string]: string}>({}); // blob URL과 파일명 매핑
+  const [blobFileMapping, setBlobFileMapping] = useState<{ [key: string]: string }>({}); // blob URL과 파일명 매핑
 
   const LINE = "  \n";
 
@@ -142,12 +142,12 @@ export default function CreateNoti() {
 
   const removeFile = (index: number) => {
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-    
+
     // 해당 파일과 관련된 blob URL 매핑도 제거
     const fileToRemove = files[index];
     if (fileToRemove) {
       setBlobFileMapping(prev => {
-        const newMapping = { ...prev };
+        const newMapping = {...prev};
         Object.keys(newMapping).forEach(blobUrl => {
           if (newMapping[blobUrl] === fileToRemove.name) {
             delete newMapping[blobUrl];
@@ -254,7 +254,7 @@ export default function CreateNoti() {
                         <div className="flex space-x-2">
                           <input
                               type="button"
-                              value="사용"
+                              value="적용"
                               className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
                               onClick={() => handleMarkdownImage(index, file)}
                           />
