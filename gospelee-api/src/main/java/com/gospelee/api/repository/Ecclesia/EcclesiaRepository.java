@@ -1,7 +1,6 @@
-package com.gospelee.api.repository;
+package com.gospelee.api.repository.Ecclesia;
 
 import com.gospelee.api.entity.Ecclesia;
-import com.gospelee.api.repository.Ecclesia.EcclesiaRepositoryCustom;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 

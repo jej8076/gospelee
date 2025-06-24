@@ -1,6 +1,7 @@
 package com.gospelee.api.controller;
 
 import com.gospelee.api.dto.announcement.AnnouncementDTO;
+import com.gospelee.api.dto.announcement.AnnouncementResponseDTO;
 import com.gospelee.api.service.AnnouncementService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -8,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,15 +24,15 @@ public class AnnouncementController {
 
   private final AnnouncementService announcementService;
 
-  @GetMapping("/{announcementType}")
+  @PostMapping("/{announcementType}")
   public ResponseEntity<Object> getAnnouncementList(
       @PathVariable("announcementType") String announcementType) {
-    List<AnnouncementDTO> getJournalByAccountUid = announcementService.getAnnouncementList(
+    List<AnnouncementResponseDTO> announcementList = announcementService.getAnnouncementList(
         announcementType);
-    return new ResponseEntity<>(getJournalByAccountUid, HttpStatus.OK);
+    return new ResponseEntity<>(announcementList, HttpStatus.OK);
   }
 
-  @GetMapping("/{announcementType}/{id}")
+  @PostMapping("/{announcementType}/{id}")
   public ResponseEntity<Object> getAnnouncement(
       @PathVariable("announcementType") String announcementType,
       @PathVariable("id") Long id
@@ -43,12 +43,19 @@ public class AnnouncementController {
 
   @PostMapping
   public ResponseEntity<Object> insertAnnouncement(
-      @RequestPart(value = "file", required = false) MultipartFile file,
+      @RequestPart(value = "files", required = false) List<MultipartFile> files,
       @RequestPart("body") @Valid AnnouncementDTO announcementDTO
   ) {
-    AnnouncementDTO announcement = announcementService.insertAnnouncement(file, announcementDTO);
+    log.info("공지사항 등록 요청 - 파일 개수: {}, DTO: {}", 
+        files != null ? files.size() : 0, announcementDTO);
+    
+    if (files != null) {
+      for (int i = 0; i < files.size(); i++) {
+        log.info("파일 {}: 이름={}, 크기={}", i, files.get(i).getOriginalFilename(), files.get(i).getSize());
+      }
+    }
+    
+    AnnouncementDTO announcement = announcementService.insertAnnouncement(files, announcementDTO);
     return new ResponseEntity<>(announcement, HttpStatus.OK);
-
   }
-
 }

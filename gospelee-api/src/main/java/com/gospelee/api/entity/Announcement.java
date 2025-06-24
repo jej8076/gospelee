@@ -28,7 +28,7 @@ public class Announcement extends EditInfomation {
 
   // EcclesiaUid or ..
   @Column
-  private String organizationId;
+  private Long organizationId;
 
   @Column
   private String subject;
@@ -43,7 +43,7 @@ public class Announcement extends EditInfomation {
   private String pushNotificationIds;
 
   @Builder
-  public Announcement(Long id, String organizationType, String organizationId, String subject,
+  public Announcement(Long id, String organizationType, Long organizationId, String subject,
       String text, Long fileUid, String pushNotificationIds) {
     this.id = id;
     this.organizationType = organizationType;

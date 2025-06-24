@@ -6,10 +6,10 @@ import org.springframework.cache.annotation.EnableCaching;
 
 @SpringBootApplication
 @EnableCaching
-public class GospeleeSocketApplication {
+public class SocketApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(GospeleeSocketApplication.class, args);
+    SpringApplication.run(SocketApplication.class, args);
   }
 
 }

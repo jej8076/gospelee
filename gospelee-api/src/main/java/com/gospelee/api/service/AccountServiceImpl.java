@@ -6,7 +6,7 @@ import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.Ecclesia;
 import com.gospelee.api.enums.RoleType;
 import com.gospelee.api.repository.AccountRepository;
-import com.gospelee.api.repository.EcclesiaRepository;
+import com.gospelee.api.repository.Ecclesia.EcclesiaRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +30,7 @@ public class AccountServiceImpl implements AccountService {
     return accountRepository.findAll();
   }
 
-  public Optional<List<Account>> getAccountByEcclesiaUid(String ecclesiaUid) {
+  public Optional<List<Account>> getAccountByEcclesiaUid(Long ecclesiaUid) {
     return accountRepository.findByEcclesiaUid(ecclesiaUid);
   }
 
@@ -62,7 +62,7 @@ public class AccountServiceImpl implements AccountService {
           .phone(result.getPhone())
           .rrn(result.getRrn())
           .role(RoleType.ADMIN)
-          .ecclesiaUid(ecc.map(ecclesia -> String.valueOf(ecclesia.getUid())).orElse(null))
+          .ecclesiaUid(ecc.map(Ecclesia::getUid).orElse(null))
           .ecclesiaStatus(ecc.map(Ecclesia::getStatus).orElse(null))
           .build();
       return Optional.ofNullable(accountAuthDTO);
@@ -98,7 +98,7 @@ public class AccountServiceImpl implements AccountService {
         .role(result.getRole())
         .id_token(result.getId_token())
         .pushToken(result.getPushToken())
-        .ecclesiaUid(ecc.map(ecclesia -> String.valueOf(ecclesia.getUid())).orElse(null))
+        .ecclesiaUid(ecc.map(Ecclesia::getUid).orElse(null))
         .ecclesiaStatus(ecc.map(Ecclesia::getStatus).orElse(null))
         .build();
 

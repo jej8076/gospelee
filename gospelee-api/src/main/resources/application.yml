@@ -1,5 +1,6 @@
 server:
   port: 8008
+  domain: https://api.oog.kr:8888
   servlet:
     context-path: /api
 

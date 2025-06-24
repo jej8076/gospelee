@@ -41,14 +41,18 @@ public class FileEntity extends EditInfomation {
   @Column
   private String delYn;
 
+  @Column
+  private String accessToken;
+
   @Builder
   public FileEntity(Long id, String parentId, Long accountUid, String category, Integer totalCount,
-      String delYn) {
+      String delYn, String accessToken) {
     this.id = id;
     this.parentId = parentId;
     this.accountUid = accountUid;
     this.category = category;
     this.totalCount = totalCount;
     this.delYn = delYn;
+    this.accessToken = accessToken;
   }
 }

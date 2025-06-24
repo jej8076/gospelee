@@ -21,7 +21,7 @@ export default function MarkdownEditorField({
 
   // markdown 이미지 삽입 버튼 제거
   const filteredCommands = commands.getCommands().filter(
-      (cmd: ICommand) => cmd.name !== 'image'
+      (cmd: ICommand) => cmd.name !== 'image' && cmd.name !== 'table'
   );
 
   return (
