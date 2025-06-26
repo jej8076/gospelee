@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -54,17 +55,36 @@ public class AccountController {
   @PostMapping("/getAccount/list")
   public ResponseEntity<Object> getAccountByEcclesiaUid(
       @AuthenticationPrincipal AccountAuthDTO account, EcclesiaRequestDTO ecclesiaRequestDTO) {
+
     if (RoleType.ADMIN.name().equals(account.getRole().name())) {
+
       if (ObjectUtils.isEmpty(ecclesiaRequestDTO.getEcclesiaUid())) {
         List<Account> getAccountAll = accountService.getAccountAll();
         return new ResponseEntity<>(getAccountAll, HttpStatus.OK);
       }
-      return new ResponseEntity<>(
-          accountService.getAccountByEcclesiaUid(ecclesiaRequestDTO.getEcclesiaUid()),
-          HttpStatus.OK);
+
+      Optional<List<Account>> accountList = accountService.getAccountByEcclesiaUid(
+          ecclesiaRequestDTO.getEcclesiaUid());
+
+//      if (accountList.isEmpty()) {
+//        return new ResponseEntity<>(List.of(), HttpStatus.OK);
+//      }
+
+      // 호출된 body의 ecclesiaUid로 교인 목록을 조회함
+//      return new ResponseEntity<>(accountList, HttpStatus.OK);
+      return accountList.<ResponseEntity<Object>>map(
+              accounts -> new ResponseEntity<>(accounts, HttpStatus.OK))
+          .orElseGet(() -> new ResponseEntity<>(List.of(), HttpStatus.OK));
     }
-    return new ResponseEntity<>(accountService.getAccountByEcclesiaUid(account.getEcclesiaUid()),
-        HttpStatus.OK);
+
+    // 로그인 한 계정의 교회 정보로 교인 목록을 조회함
+    Optional<List<Account>> accountList = accountService.getAccountByEcclesiaUid(
+        account.getEcclesiaUid());
+
+    return accountList.<ResponseEntity<Object>>map(
+            accounts -> new ResponseEntity<>(accounts, HttpStatus.OK))
+        .orElseGet(() -> new ResponseEntity<>(List.of(), HttpStatus.OK));
+
   }
 
   /**

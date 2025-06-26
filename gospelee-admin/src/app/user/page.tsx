@@ -32,6 +32,7 @@ export default function User() {
   const {callApi} = useApiClient();
   const [user, setUsers] = useState<Users[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -42,7 +43,17 @@ export default function User() {
   };
 
   useEffect(() => {
-    callApi(fetchUsers, setUsers);
+    const loadUsers = async () => {
+      try {
+        await callApi(() => fetchUsers(), setUsers);
+      } catch (error) {
+        console.error('사용자 목록 로드 실패:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadUsers();
   }, []);
 
   return (
@@ -88,41 +99,55 @@ export default function User() {
                 </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                {!(user.length > 0) ? null : user.map((u) => (
-                    <tr key={u.email}>
-                      <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
-                        <div className="flex items-center">
-                          <div className="h-11 w-11 flex-shrink-0">
-                            <img
-                                className="h-11 w-11 rounded-full"
-                                src={u.image || '/images/users/default_user.jpg'}
-                                alt=""
-                            />
-                          </div>
-                          <div className="ml-4">
-                            <div className="font-medium text-gray-900">{u.name}</div>
-                            <div className="mt-1 text-gray-500">{u.email}</div>
-                          </div>
-                        </div>
+                {isLoading ? (
+                    <tr>
+                      <td colSpan={4} className="text-center py-4">
+                        로딩 중...
                       </td>
-                      {/*<td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">*/}
-                      {/*  <div className="text-gray-900">{u.title}</div>*/}
-                      {/*  <div className="mt-1 text-gray-500">{u.department}</div>*/}
-                      {/*</td>*/}
-                      <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                    </tr>
+                ) : user.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="text-center py-4">
+                        사용자가 없습니다.
+                      </td>
+                    </tr>
+                ) : (
+                    user.map((u) => (
+                        <tr key={u.email}>
+                          <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
+                            <div className="flex items-center">
+                              <div className="h-11 w-11 flex-shrink-0">
+                                <img
+                                    className="h-11 w-11 rounded-full"
+                                    src={u.image || '/images/users/default_user.jpg'}
+                                    alt=""
+                                />
+                              </div>
+                              <div className="ml-4">
+                                <div className="font-medium text-gray-900">{u.name}</div>
+                                <div className="mt-1 text-gray-500">{u.email}</div>
+                              </div>
+                            </div>
+                          </td>
+                          {/*<td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">*/}
+                          {/*  <div className="text-gray-900">{u.title}</div>*/}
+                          {/*  <div className="mt-1 text-gray-500">{u.department}</div>*/}
+                          {/*</td>*/}
+                          <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
                       <span
                           className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
                         Active
                       </span>
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{u.role}</td>
-                      <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                        <a href="#" className="text-indigo-600 hover:text-indigo-900">
-                          Edit<span className="sr-only">, {u.name}</span>
-                        </a>
-                      </td>
-                    </tr>
-                ))}
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{u.role}</td>
+                          <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
+                            <a href="#" className="text-indigo-600 hover:text-indigo-900">
+                              Edit<span className="sr-only">, {u.name}</span>
+                            </a>
+                          </td>
+                        </tr>
+                    ))
+                )}
                 </tbody>
               </table>
             </div>
