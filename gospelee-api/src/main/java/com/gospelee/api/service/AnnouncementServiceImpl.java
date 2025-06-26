@@ -114,7 +114,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
           FileUploadResponseDTO uploadResult = fileService.uploadFileWithResponse(
               fileUploadWrapper);
 
-          String fileUrl = serverDomain + "/api/file/secure/" + uploadResult.getAccessToken() + "/"
+          String fileUrl = serverDomain + "/api/file/" + uploadResult.getAccessToken() + "/"
               + uploadResult.getFileDetailId();
 
           // blobFileMapping을 통해 blob URL과 파일명을 매핑

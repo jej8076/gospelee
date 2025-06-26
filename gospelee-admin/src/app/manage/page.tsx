@@ -8,6 +8,7 @@ import {
 } from '@heroicons/react/24/outline'
 
 import {FC} from 'react'
+import Link from 'next/link'
 
 type Action = {
   title: string
@@ -101,10 +102,10 @@ export default function Noti(): JSX.Element {
               </div>
               <div className="mt-8">
                 <h3 className="text-base font-semibold text-gray-900">
-                  <a href={action.href} className="focus:outline-hidden">
+                  <Link href={action.href} className="focus:outline-hidden">
                     <span aria-hidden="true" className="absolute inset-0"/>
                     {action.title}
-                  </a>
+                  </Link>
                 </h3>
                 <p className="mt-2 text-sm text-gray-500">
                   {action.description}

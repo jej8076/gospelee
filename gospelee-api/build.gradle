@@ -55,21 +55,3 @@ bootJar {
 jar {
     enabled = false
 }
-
-//def querydslDir = "build/generated/sources/annotationProcessor/java/main"
-//
-//sourceSets {
-//    main {
-//        java {
-//            srcDir querydslDir
-//        }
-//    }
-//}
-//
-//tasks.withType(JavaCompile).configureEach {
-//    options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir)
-//}
-//
-//clean {
-//    delete file(querydslDir)
-//}
