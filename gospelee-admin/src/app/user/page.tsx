@@ -3,8 +3,7 @@ import {useEffect, useState} from "react";
 import useAuth from "~/lib/auth/check-auth";
 import {useApiClient} from "@/hooks/useApiClient";
 import {fetchUsers} from "~/lib/api/fetch-users";
-import Modal from "@/components/modal/modal";
-import {blueButton} from "@/components/modal/modal-buttons";
+import InviteModal from "@/components/modal/invite-modal";
 
 type Users = {
   name: string,
@@ -31,15 +30,15 @@ export default function User() {
   useAuth();
   const {callApi} = useApiClient();
   const [user, setUsers] = useState<Users[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const openModal = () => {
-    setIsModalOpen(true);
+  const openInviteModal = () => {
+    setIsInviteModalOpen(true);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
+  const closeInviteModal = () => {
+    setIsInviteModalOpen(false);
   };
 
   useEffect(() => {
@@ -69,7 +68,7 @@ export default function User() {
             <button
                 type="button"
                 className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                onClick={() => openModal()}
+                onClick={() => openInviteModal()}
             >
               초대하기
             </button>
@@ -154,38 +153,10 @@ export default function User() {
           </div>
         </div>
 
-        <Modal
-            isOpen={isModalOpen}
-            onClose={() => closeModal()}
-            title={"초대하기"}
-            footer={
-              <>
-                {/*{grayButton("취소", closeModal)}*/}
-                {blueButton("확인", closeModal)}
-              </>
-            }
-        >
-          {
-            <div></div>
-          }
-          {/*{selectedEcclesia && (*/}
-          {/*    <div>*/}
-          {/*      <p>관리자: {selectedEcclesia.masterAccountName}</p>*/}
-          {/*      <p>교회 식별 번호: {selectedEcclesia.churchIdentificationNumber}</p>*/}
-          {/*      <div className="ecclesia-detail">*/}
-          {/*        /!* 버튼 형태의 상태 선택기 사용 *!/*/}
-          {/*        <StatusSelector*/}
-          {/*            ecclesiaUid={selectedEcclesia.ecclesiaUid}*/}
-          {/*            status={selectedEcclesia.status}*/}
-          {/*            onStatusChange={(newStatus) => {*/}
-          {/*              // 상태가 변경됐을 때 전체 목록 업데이트*/}
-          {/*              updateEcclesiaStatus(selectedEcclesia.ecclesiaUid, newStatus);*/}
-          {/*            }}*/}
-          {/*        />*/}
-          {/*      </div>*/}
-          {/*    </div>*/}
-          {/*)}*/}
-        </Modal>
+        <InviteModal
+            isOpen={isInviteModalOpen}
+            onClose={closeInviteModal}
+        />
 
       </div>
   );
