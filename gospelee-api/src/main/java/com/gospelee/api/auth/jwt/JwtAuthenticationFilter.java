@@ -28,7 +28,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           "/bible/view/*",
           "/account/qr/enter",
           "/account/qr/check",
-          "/file/*"
+          "/file/*",
+          "/app-link/*"
       );
   private static final List<String> ALLOW_AND_PENDING_PATH_LIST =
       List.of(
