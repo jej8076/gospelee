@@ -36,7 +36,11 @@ const useAuth = () => {
       const responseBody = await response.json();
 
       const responseBodyString = JSON.stringify(responseBody.data);
-      localStorage.setItem(AuthItems.LastAuthInfo, responseBodyString);
+      
+      // 클라이언트에서만 localStorage 사용
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(AuthItems.LastAuthInfo, responseBodyString);
+      }
 
       if (responseBody.code !== ResponseItems.SUCC) {
 
