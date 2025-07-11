@@ -6,4 +6,6 @@ import java.util.List;
 public interface EcclesiaRepositoryCustom {
 
   List<EcclesiaResponseDTO> findAllWithMasterName();
+
+  List<EcclesiaResponseDTO> searchEcclesia(String text);
 }

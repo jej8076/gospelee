@@ -1,5 +1,6 @@
 package com.gospelee.api.controller;
 
+import com.gospelee.api.dto.common.SearchDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaInsertDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaUpdateDTO;
@@ -25,10 +26,16 @@ public class EcclesiaController {
 
   private final EcclesiaService ecclesiaService;
 
-  @PostMapping("/all")
+  @PostMapping("/list")
   public ResponseEntity<Object> getEcclesias() {
-    List<EcclesiaResponseDTO> getAccountAll = ecclesiaService.getEcclesiaAll();
-    return new ResponseEntity<>(getAccountAll, HttpStatus.OK);
+    List<EcclesiaResponseDTO> ecclesiaList = ecclesiaService.getEcclesiaList();
+    return new ResponseEntity<>(ecclesiaList, HttpStatus.OK);
+  }
+
+  @PostMapping("/search")
+  public ResponseEntity<Object> searchEcclesia(@RequestBody SearchDTO searchDTO) {
+    List<EcclesiaResponseDTO> ecclesiaList = ecclesiaService.searchEcclesia(searchDTO.getText());
+    return new ResponseEntity<>(ecclesiaList, HttpStatus.OK);
   }
 
   @PostMapping("/{ecclesiaUid}")
