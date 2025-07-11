@@ -8,7 +8,9 @@ import java.util.List;
 
 public interface EcclesiaService {
 
-  List<EcclesiaResponseDTO> getEcclesiaAll();
+  List<EcclesiaResponseDTO> getEcclesiaList();
+
+  List<EcclesiaResponseDTO> searchEcclesia(String text);
 
   Ecclesia getEcclesia(Long ecclesiaUid);
 

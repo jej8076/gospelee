@@ -5,10 +5,12 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public class EcclesiaRepositoryCustomImpl implements EcclesiaRepositoryCustom {
+// TODO jej8076 JPQL 사용한 부분은 추후 제거할 예정
+@Repository("jpqlEcclesiaRepository")
+public class JpqlEcclesiaRepositoryCustomImpl implements EcclesiaRepositoryCustom {
 
   @PersistenceContext
   private EntityManager entityManager;
@@ -29,5 +31,10 @@ public class EcclesiaRepositoryCustomImpl implements EcclesiaRepositoryCustom {
     TypedQuery<EcclesiaResponseDTO> query = entityManager.createQuery(jpql,
         EcclesiaResponseDTO.class);
     return query.getResultList();
+  }
+
+  @Override
+  public List<EcclesiaResponseDTO> searchEcclesia(String text) {
+    return List.of();
   }
 }
