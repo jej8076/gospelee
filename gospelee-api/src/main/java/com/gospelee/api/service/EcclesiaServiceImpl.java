@@ -14,32 +14,50 @@ import com.gospelee.api.exception.EcclesiaException;
 import com.gospelee.api.repository.AccountEcclesiaHistoryRepository;
 import com.gospelee.api.repository.AccountRepository;
 import com.gospelee.api.repository.ecclesia.EcclesiaRepository;
+import com.gospelee.api.repository.ecclesia.EcclesiaRepositoryCustom;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class EcclesiaServiceImpl implements EcclesiaService {
 
   private final EcclesiaRepository ecclesiaRepository;
+  private final EcclesiaRepositoryCustom ecclesiaRepositoryCustom;
   private final AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository;
   private final AuthorizationService authorizationService;
   private final AccountRepository accountRepository;
 
-  public List<EcclesiaResponseDTO> getEcclesiaAll() {
+  public EcclesiaServiceImpl(EcclesiaRepository ecclesiaRepository,
+      @Qualifier("jdbcEcclesiaRepository") EcclesiaRepositoryCustom ecclesiaRepositoryCustom,
+      AuthorizationService authorizationService,
+      AccountRepository accountRepository) {
+    this.ecclesiaRepository = ecclesiaRepository;
+    this.ecclesiaRepositoryCustom = ecclesiaRepositoryCustom;
+    this.authorizationService = authorizationService;
+    this.accountRepository = accountRepository;
+  }
+
+  @Override
+  public List<EcclesiaResponseDTO> getEcclesiaList() {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
     if (!RoleType.ADMIN.equals(account.getRole())) {
       throw new AccessDeniedException("접근할 권한이 없습니다.");
     }
-    return ecclesiaRepository.findAllWithMasterName();
+    return ecclesiaRepositoryCustom.findAllWithMasterName();
   }
 
+  @Override
+  public List<EcclesiaResponseDTO> searchEcclesia(String text) {
+    return ecclesiaRepositoryCustom.searchEcclesia(text);
+  }
+
+  @Override
   public Ecclesia getEcclesia(Long ecclesiaUid) {
     return ecclesiaRepository.findEcclesiasByUid(ecclesiaUid)
         .orElseThrow(
@@ -56,6 +74,7 @@ public class EcclesiaServiceImpl implements EcclesiaService {
    * @param ecclesiaInsertDTO
    * @return
    */
+  @Override
   public Ecclesia saveEcclesia(EcclesiaInsertDTO ecclesiaInsertDTO) {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
     Ecclesia ecclesia = Ecclesia.builder()
@@ -69,6 +88,7 @@ public class EcclesiaServiceImpl implements EcclesiaService {
     return ecclesiaRepository.save(ecclesia);
   }
 
+  @Override
   @Transactional
   public EcclesiaResponseDTO updateEcclesia(long uid, EcclesiaUpdateDTO ecclesiaUpdateDTO) {
 

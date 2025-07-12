@@ -13,7 +13,7 @@ import StatusSelector from "@/components/ecclesia/status-selector";
 
 export default function Ecclesia() {
   useAuth();
-  
+
   // 데이터 목록
   const [eccList, setEccList] = useState<Ecclesia[]>([]);
   // modal 에 사용될 단일 데이터 저장 변수
@@ -27,7 +27,7 @@ export default function Ecclesia() {
 
   const fetchEcclesias = async () => {
     try {
-      const response = await apiFetch(`/api/ecclesia/all`, {
+      const response = await apiFetch(`/api/ecclesia/list`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
