@@ -35,10 +35,12 @@ public class EcclesiaServiceImpl implements EcclesiaService {
 
   public EcclesiaServiceImpl(EcclesiaRepository ecclesiaRepository,
       @Qualifier("jdbcEcclesiaRepository") EcclesiaRepositoryCustom ecclesiaRepositoryCustom,
+      AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository,
       AuthorizationService authorizationService,
       AccountRepository accountRepository) {
     this.ecclesiaRepository = ecclesiaRepository;
     this.ecclesiaRepositoryCustom = ecclesiaRepositoryCustom;
+    this.accountEcclesiaHistoryRepository = accountEcclesiaHistoryRepository;
     this.authorizationService = authorizationService;
     this.accountRepository = accountRepository;
   }
