@@ -18,7 +18,7 @@ public class EcclesiaRepositoryCustomImpl implements EcclesiaRepositoryCustom {
     String jpql = """
         SELECT e.uid AS ecclesiaUid,
                e.churchIdentificationNumber AS churchIdentificationNumber,
-               e.status AS status,
+               e.accountEcclesiaHistoryStatusType AS accountEcclesiaHistoryStatusType,
                e.name AS ecclesiaName,
                a.name AS masterAccountName,
                e.insertTime AS insertTime

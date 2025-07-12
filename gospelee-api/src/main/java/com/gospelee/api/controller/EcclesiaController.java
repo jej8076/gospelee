@@ -3,6 +3,7 @@ package com.gospelee.api.controller;
 import com.gospelee.api.dto.ecclesia.EcclesiaInsertDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaUpdateDTO;
+import com.gospelee.api.entity.AccountEcclesiaHistory;
 import com.gospelee.api.entity.Ecclesia;
 import com.gospelee.api.service.EcclesiaService;
 import java.util.List;
@@ -49,6 +50,18 @@ public class EcclesiaController {
     EcclesiaResponseDTO responseDTO = ecclesiaService.updateEcclesia(ecclesiaUid,
         ecclesiaUpdateDTO);
     return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+  }
+
+  /**
+   * 교회 참여 요청
+   *
+   * @param ecclesiaUid
+   * @return
+   */
+  @PostMapping("/join/request/{ecclesiaUid}")
+  public ResponseEntity<Object> joinRequestEcclesia(@PathVariable("ecclesiaUid") Long ecclesiaUid) {
+    AccountEcclesiaHistory result = ecclesiaService.joinRequestEcclesia(ecclesiaUid);
+    return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
 }

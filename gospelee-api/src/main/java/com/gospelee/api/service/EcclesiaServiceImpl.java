@@ -5,31 +5,32 @@ import com.gospelee.api.dto.ecclesia.EcclesiaInsertDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaUpdateDTO;
 import com.gospelee.api.entity.Account;
+import com.gospelee.api.entity.AccountEcclesiaHistory;
 import com.gospelee.api.entity.Ecclesia;
+import com.gospelee.api.enums.AccountEcclesiaHistoryStatusType;
 import com.gospelee.api.enums.EcclesiaStatusType;
 import com.gospelee.api.enums.RoleType;
+import com.gospelee.api.exception.EcclesiaException;
+import com.gospelee.api.repository.AccountEcclesiaHistoryRepository;
 import com.gospelee.api.repository.AccountRepository;
 import com.gospelee.api.repository.ecclesia.EcclesiaRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class EcclesiaServiceImpl implements EcclesiaService {
 
   private final EcclesiaRepository ecclesiaRepository;
+  private final AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository;
   private final AuthorizationService authorizationService;
   private final AccountRepository accountRepository;
-
-  public EcclesiaServiceImpl(EcclesiaRepository ecclesiaRepository,
-      AuthorizationService authorizationService, AccountRepository accountRepository) {
-    this.ecclesiaRepository = ecclesiaRepository;
-    this.authorizationService = authorizationService;
-    this.accountRepository = accountRepository;
-  }
 
   public List<EcclesiaResponseDTO> getEcclesiaAll() {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
@@ -101,6 +102,24 @@ public class EcclesiaServiceImpl implements EcclesiaService {
     }
 
     return EcclesiaResponseDTO.fromEntity(ecc);
+  }
+
+  @Override
+  public AccountEcclesiaHistory joinRequestEcclesia(Long ecclesiaUid) {
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+
+    if (account.getEcclesiaUid() != null) {
+      throw new EcclesiaException("이미 교회에 가입된 계정입니다. accountUid:{}", account.getUid());
+    }
+
+    AccountEcclesiaHistory accountEcclesiaHistory = AccountEcclesiaHistory.builder()
+        .accountUid(account.getUid())
+        .ecclesiaUid(ecclesiaUid)
+        .status(AccountEcclesiaHistoryStatusType.JOIN_REQUEST)
+        .insertTime(LocalDateTime.now())
+        .build();
+
+    return accountEcclesiaHistoryRepository.save(accountEcclesiaHistory);
   }
 
 
