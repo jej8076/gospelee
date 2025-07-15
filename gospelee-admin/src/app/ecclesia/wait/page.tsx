@@ -135,7 +135,7 @@ export default function WaitPage() {
                 </div>
                 <div className="flex-1 h-1 bg-gray-200 mx-4 rounded-full">
                   <div className="h-1 bg-blue-500 rounded-full animate-pulse"
-                       style={{width: '60%'}}></div>
+                       style={{width: '100%'}}></div>
                 </div>
                 <div className="flex flex-col items-center">
                   <div
