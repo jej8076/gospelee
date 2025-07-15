@@ -66,6 +66,14 @@ public class EcclesiaServiceImpl implements EcclesiaService {
             () -> new IllegalArgumentException("해당 UID를 가진 Ecclesia를 찾을 수 없습니다: " + ecclesiaUid));
   }
 
+  @Override
+  public Ecclesia getEcclesiaByAccountUid(Long accountUid) {
+    return ecclesiaRepository.findEcclesiasByMasterAccountUid(accountUid)
+        .orElseThrow(
+            () -> new IllegalArgumentException(
+                "해당 accountUid를 가진 Ecclesia를 찾을 수 없습니다: " + accountUid));
+  }
+
   /**
    * <pre>
    * 교회 등록(요청)
@@ -82,6 +90,7 @@ public class EcclesiaServiceImpl implements EcclesiaService {
     Ecclesia ecclesia = Ecclesia.builder()
         .name(ecclesiaInsertDTO.getName())
         .churchIdentificationNumber(ecclesiaInsertDTO.getChurchIdentificationNumber())
+        .telephone(ecclesiaInsertDTO.getTelephone())
         .status(EcclesiaStatusType.REQUEST.getName())
         // insert를 요청하는 인증된 사용자가 교회의 master account가 되도록 강제함
         .masterAccountUid(account.getUid())

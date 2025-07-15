@@ -45,6 +45,12 @@ public class EcclesiaController {
     return new ResponseEntity<>(ecclesia, HttpStatus.OK);
   }
 
+  @PostMapping("/account/{accountUid}")
+  public ResponseEntity<Object> getEcclesiaByAccount(@PathVariable("accountUid") Long accountUid) {
+    Ecclesia ecclesia = ecclesiaService.getEcclesiaByAccountUid(accountUid);
+    return new ResponseEntity<>(ecclesia, HttpStatus.OK);
+  }
+
   @PostMapping
   public ResponseEntity<Object> insertEcclesia(@RequestBody EcclesiaInsertDTO ecclesiaInsertDTO) {
     Ecclesia ecclesia = ecclesiaService.saveEcclesia(ecclesiaInsertDTO);

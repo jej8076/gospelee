@@ -15,6 +15,8 @@ public interface EcclesiaService {
 
   Ecclesia getEcclesia(Long ecclesiaUid);
 
+  Ecclesia getEcclesiaByAccountUid(Long accountUid);
+
   Ecclesia saveEcclesia(EcclesiaInsertDTO ecclesiaInsertDTO);
 
   EcclesiaResponseDTO updateEcclesia(long uid, EcclesiaUpdateDTO ecclesiaUpdateDTO);
