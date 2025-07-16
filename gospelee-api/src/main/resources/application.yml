@@ -4,6 +4,10 @@ server:
   servlet:
     context-path: /api
 
+cors:
+  allowed-origins:
+    - https://admin.oog.kr:8800
+
 spring:
   application:
     name: api

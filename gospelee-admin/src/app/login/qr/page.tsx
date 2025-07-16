@@ -8,6 +8,7 @@ import {
   qrCheckAndGetToken,
   setBrowserCookie
 } from "~/services/login/LoginService";
+import PageTransition from '@/components/PageTransition';
 
 const QRCodePage = () => {
   const searchParams = useSearchParams();
@@ -50,16 +51,40 @@ const QRCodePage = () => {
   };
 
   return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-2xl font-bold mb-6">QR Code</h1>
-        {code ? (
-            <div className="flex justify-center">
-              <QRCode value={`${process.env.NEXT_PUBLIC_API_URL}/api/account/qr/req/${code}`}/>
+    <PageTransition>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+        <div className="bg-white p-8 rounded-lg shadow-sm">
+          <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">QR 코드로 로그인</h1>
+          <div className="text-center mb-6">
+            <p className="text-gray-600 mb-2">모바일 앱으로 QR 코드를 스캔해주세요</p>
+            <p className="text-sm text-gray-500">이메일: {email}</p>
+          </div>
+          {code ? (
+            <div className="flex justify-center p-4 bg-white rounded-lg border">
+              <QRCode 
+                value={`${process.env.NEXT_PUBLIC_API_URL}/api/account/qr/req/${code}`}
+                size={200}
+                level="M"
+                includeMargin={true}
+              />
             </div>
-        ) : (
-            <p>Loading...</p>
-        )}
+          ) : (
+            <div className="flex justify-center items-center h-48">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <p className="ml-3 text-gray-600">QR 코드 생성 중...</p>
+            </div>
+          )}
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => router.back()}
+              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+            >
+              ← 이전으로 돌아가기
+            </button>
+          </div>
+        </div>
       </div>
+    </PageTransition>
   );
 };
 

@@ -1,6 +1,9 @@
 package com.gospelee.api.config;
 
 import com.gospelee.api.auth.jwt.JwtAuthenticationFilter;
+import com.gospelee.api.properties.CorsProperties;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -18,9 +21,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final CorsProperties corsProperties;
 
-  public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+  public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+      CorsProperties corsProperties) {
     this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    this.corsProperties = corsProperties;
   }
 
   @Bean
@@ -37,9 +43,9 @@ public class SecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.addAllowedOrigin("http://localhost:3000");
     configuration.addAllowedHeader("*");
     configuration.addAllowedMethod("*");
+    configuration.setAllowedOrigins(corsProperties.getAllowedOrigins());
     configuration.setAllowCredentials(true);
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
