@@ -140,7 +140,7 @@ public class EcclesiaServiceImpl implements EcclesiaService {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
 
     if (account.getEcclesiaUid() != null) {
-      throw new EcclesiaException("이미 교회에 가입된 계정입니다. accountUid:{}", account.getUid());
+      throw new EcclesiaException("이미 교회에 등록 요청 되었거나 소속되었습니다.");
     }
 
     AccountEcclesiaHistory accountEcclesiaHistory = AccountEcclesiaHistory.builder()
