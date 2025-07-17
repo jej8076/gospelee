@@ -4,6 +4,7 @@ import com.gospelee.api.dto.common.SearchDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaInsertDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaUpdateDTO;
+import com.gospelee.api.entity.AccountEcclesiaHistory;
 import com.gospelee.api.entity.Ecclesia;
 import com.gospelee.api.service.EcclesiaService;
 import java.util.List;
@@ -44,6 +45,12 @@ public class EcclesiaController {
     return new ResponseEntity<>(ecclesia, HttpStatus.OK);
   }
 
+  @PostMapping("/account/{accountUid}")
+  public ResponseEntity<Object> getEcclesiaByAccount(@PathVariable("accountUid") Long accountUid) {
+    Ecclesia ecclesia = ecclesiaService.getEcclesiaByAccountUid(accountUid);
+    return new ResponseEntity<>(ecclesia, HttpStatus.OK);
+  }
+
   @PostMapping
   public ResponseEntity<Object> insertEcclesia(@RequestBody EcclesiaInsertDTO ecclesiaInsertDTO) {
     Ecclesia ecclesia = ecclesiaService.saveEcclesia(ecclesiaInsertDTO);
@@ -56,6 +63,18 @@ public class EcclesiaController {
     EcclesiaResponseDTO responseDTO = ecclesiaService.updateEcclesia(ecclesiaUid,
         ecclesiaUpdateDTO);
     return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+  }
+
+  /**
+   * 교회 참여 요청
+   *
+   * @param ecclesiaUid
+   * @return
+   */
+  @PostMapping("/join/request/{ecclesiaUid}")
+  public ResponseEntity<Object> joinRequestEcclesia(@PathVariable("ecclesiaUid") Long ecclesiaUid) {
+    AccountEcclesiaHistory result = ecclesiaService.joinRequestEcclesia(ecclesiaUid);
+    return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
 }

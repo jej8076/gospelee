@@ -1,9 +1,9 @@
-package com.gospelee.api.repository.ecclesia;
+package com.gospelee.api.repository.jdbc.ecclesia;
 
 import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
 import java.util.List;
 
-public interface EcclesiaRepositoryCustom {
+public interface JdbcEcclesiaRepository {
 
   List<EcclesiaResponseDTO> findAllWithMasterName();
 

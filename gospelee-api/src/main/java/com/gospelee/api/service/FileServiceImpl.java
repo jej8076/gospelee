@@ -7,8 +7,8 @@ import com.gospelee.api.dto.file.FileUploadWrapperDTO;
 import com.gospelee.api.entity.FileDetails;
 import com.gospelee.api.entity.FileEntity;
 import com.gospelee.api.enums.CategoryType;
-import com.gospelee.api.repository.FileDetailsRepository;
-import com.gospelee.api.repository.FileRepository;
+import com.gospelee.api.repository.jpa.FileDetailsRepository;
+import com.gospelee.api.repository.jpa.FileRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
 import java.io.File;
 import java.io.IOException;
@@ -123,30 +123,31 @@ public class FileServiceImpl implements FileService {
     // file 테이블에서 파일 정보 조회
     FileEntity fileEntity = fileRepository.findById(fileId)
         .orElseThrow(() -> new IllegalArgumentException("파일을 찾을 수 없습니다. fileId: " + fileId));
-    
+
     // 삭제된 파일인지 확인
     if ("Y".equals(fileEntity.getDelYn())) {
       throw new IllegalArgumentException("삭제된 파일입니다.");
     }
-    
+
     // file_details 테이블에서 파일 상세 정보 조회
     FileDetails fileDetails = fileDetailsRepository.findById(fileDetailId)
-        .orElseThrow(() -> new IllegalArgumentException("파일 상세 정보를 찾을 수 없습니다. fileDetailId: " + fileDetailId));
-    
+        .orElseThrow(() -> new IllegalArgumentException(
+            "파일 상세 정보를 찾을 수 없습니다. fileDetailId: " + fileDetailId));
+
     // file_details의 fileId가 요청한 fileId와 일치하는지 확인
     if (!fileEntity.getId().equals(fileDetails.getFileId())) {
       throw new IllegalArgumentException("파일 ID와 파일 상세 ID가 일치하지 않습니다.");
     }
-    
+
     // 실제 파일 경로 생성
     String fullPath = fileBasePath + fileDetails.getFilePath();
     File file = new File(fullPath);
-    
+
     // 파일 존재 여부 확인
     if (!file.exists()) {
       throw new IllegalArgumentException("실제 파일이 존재하지 않습니다. path: " + fullPath);
     }
-    
+
     return new FileSystemResource(file);
   }
 
@@ -155,25 +156,26 @@ public class FileServiceImpl implements FileService {
     // accessToken으로 파일 정보 조회 (삭제되지 않은 파일만)
     FileEntity fileEntity = fileRepository.findByAccessTokenAndDelYn(accessToken, "N")
         .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 접근 토큰입니다."));
-    
+
     // file_details 테이블에서 파일 상세 정보 조회
     FileDetails fileDetails = fileDetailsRepository.findById(fileDetailId)
-        .orElseThrow(() -> new IllegalArgumentException("파일 상세 정보를 찾을 수 없습니다. fileDetailId: " + fileDetailId));
-    
+        .orElseThrow(() -> new IllegalArgumentException(
+            "파일 상세 정보를 찾을 수 없습니다. fileDetailId: " + fileDetailId));
+
     // file_details의 fileId가 조회된 fileId와 일치하는지 확인
     if (!fileEntity.getId().equals(fileDetails.getFileId())) {
       throw new IllegalArgumentException("파일 ID와 파일 상세 ID가 일치하지 않습니다.");
     }
-    
+
     // 실제 파일 경로 생성
     String fullPath = fileBasePath + fileDetails.getFilePath();
     File file = new File(fullPath);
-    
+
     // 파일 존재 여부 확인
     if (!file.exists()) {
       throw new IllegalArgumentException("실제 파일이 존재하지 않습니다. path: " + fullPath);
     }
-    
+
     return new FileSystemResource(file);
   }
 

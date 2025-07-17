@@ -1,4 +1,4 @@
-package com.gospelee.api.repository.ecclesia;
+package com.gospelee.api.repository.jpa.ecclesia;
 
 import com.gospelee.api.entity.Ecclesia;
 import java.util.Optional;

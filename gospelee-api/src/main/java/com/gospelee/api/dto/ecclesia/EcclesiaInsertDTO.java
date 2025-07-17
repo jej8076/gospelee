@@ -13,10 +13,13 @@ public class EcclesiaInsertDTO {
 
   private String churchIdentificationNumber;
 
+  private String telephone;
+
   @Builder
-  public EcclesiaInsertDTO(String name, String churchIdentificationNumber) {
+  public EcclesiaInsertDTO(String name, String churchIdentificationNumber, String telephone) {
     this.name = name;
     this.churchIdentificationNumber = churchIdentificationNumber;
+    this.telephone = telephone;
   }
 }
 

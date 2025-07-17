@@ -1,19 +1,16 @@
-package com.gospelee.api.repository.ecclesia;
+package com.gospelee.api.repository.jdbc.ecclesia;
 
 import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
-@Repository("jdbcEcclesiaRepository")
+@Repository
 @RequiredArgsConstructor
-public class JdbcEcclesiaRepositoryCustomImpl implements EcclesiaRepositoryCustom {
+public class JdbcEcclesiaRepositoryImpl implements JdbcEcclesiaRepository {
 
-  private final JdbcTemplate jdbcTemplate;
-  private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+  private final JdbcClient jdbcClient;
 
   @Override
   public List<EcclesiaResponseDTO> findAllWithMasterName() {
@@ -28,14 +25,16 @@ public class JdbcEcclesiaRepositoryCustomImpl implements EcclesiaRepositoryCusto
         LEFT JOIN account a ON e.master_account_uid = a.uid
         """;
 
-    return jdbcTemplate.query(sql, (rs, rowNum) -> new EcclesiaResponseDTO(
-        rs.getLong("ecclesia_uid"),
-        rs.getString("church_identification_number"),
-        rs.getString("status"),
-        rs.getString("ecclesia_name"),
-        rs.getString("master_account_name"),
-        rs.getTimestamp("insert_time").toLocalDateTime()
-    ));
+    return jdbcClient.sql(sql)
+        .query((rs, rowNum) -> new EcclesiaResponseDTO(
+            rs.getLong("ecclesia_uid"),
+            rs.getString("church_identification_number"),
+            rs.getString("status"),
+            rs.getString("ecclesia_name"),
+            rs.getString("master_account_name"),
+            rs.getTimestamp("insert_time").toLocalDateTime()
+        ))
+        .list();
   }
 
   @Override
@@ -50,19 +49,16 @@ public class JdbcEcclesiaRepositoryCustomImpl implements EcclesiaRepositoryCusto
         WHERE e.name LIKE :keyword
         """;
 
-    MapSqlParameterSource params = new MapSqlParameterSource()
-        .addValue("keyword", "%" + text + "%");
-
-    return namedParameterJdbcTemplate.query(
-        sql,
-        params,
-        (rs, rowNum) -> new EcclesiaResponseDTO(
+    return jdbcClient.sql(sql)
+        .param("keyword", "%" + text + "%")
+        .query((rs, rowNum) -> new EcclesiaResponseDTO(
             rs.getLong("ecclesia_uid"),
             rs.getString("church_identification_number"),
             rs.getString("status"),
             rs.getString("ecclesia_name"),
             null,
             rs.getTimestamp("insert_time").toLocalDateTime()
-        ));
+        ))
+        .list();
   }
 }

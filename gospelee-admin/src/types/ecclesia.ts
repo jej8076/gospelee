@@ -1,10 +1,11 @@
 type Ecclesia = {
-  ecclesiaUid: bigint,
+  uid: bigint,
   churchIdentificationNumber: string,
   status: string,
-  ecclesiaName: string,
+  name: string,
   masterAccountUid: number;
   masterAccountName: string,
+  telephone: string;
   image: string,
   insertTime: string,
 };

@@ -1,4 +1,4 @@
-package com.gospelee.api.repository;
+package com.gospelee.api.repository.jpa;
 
 import com.gospelee.api.entity.Account;
 import io.lettuce.core.dynamic.annotation.Param;
