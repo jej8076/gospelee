@@ -1,4 +1,4 @@
-package com.gospelee.api.repository;
+package com.gospelee.api.repository.jpa;
 
 import com.gospelee.api.entity.AccountBibleWrite;
 import jakarta.transaction.Transactional;

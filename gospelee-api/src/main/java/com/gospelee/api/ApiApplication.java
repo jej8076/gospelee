@@ -3,18 +3,22 @@ package com.gospelee.api;
 import com.gospelee.api.dto.account.AccountDTO;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.enums.RoleType;
-import com.gospelee.api.repository.AccountRepository;
+import com.gospelee.api.repository.jpa.AccountRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import util.FieldUtil;
 
 @EnableJpaAuditing
 @EnableCaching
+@EnableJpaRepositories(basePackages = "com.gospelee.api.repository.jpa")
+@EnableJdbcRepositories(basePackages = "com.gospelee.api.repository.jdbc")
 @SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 public class ApiApplication {
 

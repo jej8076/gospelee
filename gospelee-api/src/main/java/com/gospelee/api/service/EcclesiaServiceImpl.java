@@ -11,39 +11,28 @@ import com.gospelee.api.enums.AccountEcclesiaHistoryStatusType;
 import com.gospelee.api.enums.EcclesiaStatusType;
 import com.gospelee.api.enums.RoleType;
 import com.gospelee.api.exception.EcclesiaException;
-import com.gospelee.api.repository.AccountEcclesiaHistoryRepository;
-import com.gospelee.api.repository.AccountRepository;
-import com.gospelee.api.repository.ecclesia.EcclesiaRepository;
-import com.gospelee.api.repository.ecclesia.EcclesiaRepositoryCustom;
+import com.gospelee.api.repository.jdbc.ecclesia.JdbcEcclesiaRepository;
+import com.gospelee.api.repository.jpa.AccountEcclesiaHistoryRepository;
+import com.gospelee.api.repository.jpa.AccountRepository;
+import com.gospelee.api.repository.jpa.ecclesia.EcclesiaRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class EcclesiaServiceImpl implements EcclesiaService {
 
   private final EcclesiaRepository ecclesiaRepository;
-  private final EcclesiaRepositoryCustom ecclesiaRepositoryCustom;
+  private final JdbcEcclesiaRepository jdbcEcclesiaRepository;
   private final AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository;
   private final AuthorizationService authorizationService;
   private final AccountRepository accountRepository;
-
-  public EcclesiaServiceImpl(EcclesiaRepository ecclesiaRepository,
-      @Qualifier("jdbcEcclesiaRepository") EcclesiaRepositoryCustom ecclesiaRepositoryCustom,
-      AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository,
-      AuthorizationService authorizationService,
-      AccountRepository accountRepository) {
-    this.ecclesiaRepository = ecclesiaRepository;
-    this.ecclesiaRepositoryCustom = ecclesiaRepositoryCustom;
-    this.accountEcclesiaHistoryRepository = accountEcclesiaHistoryRepository;
-    this.authorizationService = authorizationService;
-    this.accountRepository = accountRepository;
-  }
 
   @Override
   public List<EcclesiaResponseDTO> getEcclesiaList() {
@@ -51,12 +40,12 @@ public class EcclesiaServiceImpl implements EcclesiaService {
     if (!RoleType.ADMIN.equals(account.getRole())) {
       throw new AccessDeniedException("접근할 권한이 없습니다.");
     }
-    return ecclesiaRepositoryCustom.findAllWithMasterName();
+    return jdbcEcclesiaRepository.findAllWithMasterName();
   }
 
   @Override
   public List<EcclesiaResponseDTO> searchEcclesia(String text) {
-    return ecclesiaRepositoryCustom.searchEcclesia(text);
+    return jdbcEcclesiaRepository.searchEcclesia(text);
   }
 
   @Override

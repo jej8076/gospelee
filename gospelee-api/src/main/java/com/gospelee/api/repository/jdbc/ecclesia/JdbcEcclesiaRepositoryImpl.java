@@ -1,4 +1,4 @@
-package com.gospelee.api.repository.ecclesia;
+package com.gospelee.api.repository.jdbc.ecclesia;
 
 import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
 import java.util.List;
@@ -6,9 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
-@Repository("jdbcEcclesiaRepository")
+@Repository
 @RequiredArgsConstructor
-public class JdbcEcclesiaRepositoryCustomImpl implements EcclesiaRepositoryCustom {
+public class JdbcEcclesiaRepositoryImpl implements JdbcEcclesiaRepository {
 
   private final JdbcClient jdbcClient;
 

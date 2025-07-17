@@ -1,4 +1,4 @@
-package com.gospelee.api.repository.announcement;
+package com.gospelee.api.repository.jpa.announcement;
 
 import com.gospelee.api.entity.Announcement;
 import java.util.Optional;
