@@ -10,16 +10,17 @@ import com.gospelee.api.entity.Ecclesia;
 import com.gospelee.api.enums.AccountEcclesiaHistoryStatusType;
 import com.gospelee.api.enums.EcclesiaStatusType;
 import com.gospelee.api.enums.RoleType;
+import com.gospelee.api.exception.AccountNotFoundException;
 import com.gospelee.api.exception.EcclesiaException;
-import com.gospelee.api.repository.jdbc.ecclesia.JdbcEcclesiaRepository;
-import com.gospelee.api.repository.jpa.AccountEcclesiaHistoryRepository;
-import com.gospelee.api.repository.jpa.AccountRepository;
-import com.gospelee.api.repository.jpa.ecclesia.EcclesiaRepository;
+import com.gospelee.api.repository.EcclesiaRepository;
+import com.gospelee.api.repository.jpa.account.AccountEcclesiaHistoryRepository;
+import com.gospelee.api.repository.jpa.account.AccountRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,6 @@ import org.springframework.stereotype.Service;
 public class EcclesiaServiceImpl implements EcclesiaService {
 
   private final EcclesiaRepository ecclesiaRepository;
-  private final JdbcEcclesiaRepository jdbcEcclesiaRepository;
   private final AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository;
   private final AuthorizationService authorizationService;
   private final AccountRepository accountRepository;
@@ -40,12 +40,12 @@ public class EcclesiaServiceImpl implements EcclesiaService {
     if (!RoleType.ADMIN.equals(account.getRole())) {
       throw new AccessDeniedException("접근할 권한이 없습니다.");
     }
-    return jdbcEcclesiaRepository.findAllWithMasterName();
+    return ecclesiaRepository.findAllWithMasterName();
   }
 
   @Override
   public List<EcclesiaResponseDTO> searchEcclesia(String text) {
-    return jdbcEcclesiaRepository.searchEcclesia(text);
+    return ecclesiaRepository.searchEcclesia(text);
   }
 
   @Override
@@ -85,16 +85,34 @@ public class EcclesiaServiceImpl implements EcclesiaService {
         .masterAccountUid(account.getUid())
         .build();
 
-    return ecclesiaRepository.save(ecclesia);
+    Optional<Account> findAccount = accountRepository.findById(account.getUid());
+    if (findAccount.isEmpty()) {
+      throw new AccountNotFoundException("계정이 존재하지 않습니다. accountUid:{}",
+          findAccount.get().getUid());
+    }
+
+    Ecclesia saveEcclesia = ecclesiaRepository.save(ecclesia);
+    if (saveEcclesia.getUid() <= 0) {
+      throw new EcclesiaException("교회 등록 요청에 실패하였습니다. requestChurchName:{} accountUid:{}",
+          ecclesiaInsertDTO.getName(), account.getUid());
+    }
+
+    // 등록 요청자의 교회 소속을 결정
+    Account acc = findAccount.get();
+    acc.changeEcclesiaUid(ecclesia.getUid());
+    accountRepository.save(acc);
+
+    return saveEcclesia;
   }
 
   @Override
   @Transactional
-  public EcclesiaResponseDTO updateEcclesia(long uid, EcclesiaUpdateDTO ecclesiaUpdateDTO) {
+  public EcclesiaResponseDTO updateEcclesia(EcclesiaUpdateDTO ecclesiaUpdateDTO) {
 
     // Ecclesia 조회, 없으면 예외 발생
-    Ecclesia ecclesia = ecclesiaRepository.findById(uid).orElseThrow(
-        () -> new EntityNotFoundException("Ecclesia not found with id: " + uid));
+    Ecclesia ecclesia = ecclesiaRepository.findById(ecclesiaUpdateDTO.getEcclesiaUid()).orElseThrow(
+        () -> new EntityNotFoundException(
+            "Ecclesia not found with id: " + ecclesiaUpdateDTO.getEcclesiaUid()));
 
     AccountAuthDTO accountAuth = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
     if (!authorizationService.canUpdateEcclesiaStatus(accountAuth, ecclesia)) {

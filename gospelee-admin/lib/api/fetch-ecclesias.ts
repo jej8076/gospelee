@@ -56,7 +56,7 @@ export const fetchUpdateEcclesiaStatus = async (inputData: {
 
   const typedData = inputData as EcclesiaStatusSelectorProps;
 
-  const response = await apiFetch(`/api/ecclesia/${typedData.ecclesiaUid}`, {
+  const response = await apiFetch(`/api/ecclesia/status`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",

@@ -5,8 +5,8 @@ import com.gospelee.api.dto.jwt.JwtPayload;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.Ecclesia;
 import com.gospelee.api.enums.RoleType;
-import com.gospelee.api.repository.jpa.AccountRepository;
-import com.gospelee.api.repository.jpa.ecclesia.EcclesiaRepository;
+import com.gospelee.api.repository.jpa.account.AccountRepository;
+import com.gospelee.api.repository.jpa.ecclesia.EcclesiaJpaRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +27,7 @@ public class AccountServiceImpl implements AccountService {
   private static final String SUPER_EMAIL = "super@super.com";
 
   private final AccountRepository accountRepository;
-  private final EcclesiaRepository ecclesiaRepository;
+  private final EcclesiaJpaRepository ecclesiaJpaRepository;
 
   /**
    * 모든 계정을 조회합니다.
@@ -127,7 +127,7 @@ public class AccountServiceImpl implements AccountService {
     Account superAccount = accountRepository.findByEmail(SUPER_EMAIL)
         .orElseThrow(() -> new RuntimeException("슈퍼 계정을 찾을 수 없습니다."));
 
-    Optional<Ecclesia> ecclesia = ecclesiaRepository.findEcclesiasByMasterAccountUid(
+    Optional<Ecclesia> ecclesia = ecclesiaJpaRepository.findEcclesiasByMasterAccountUid(
         superAccount.getUid());
 
     AccountAuthDTO authDTO = AccountAuthDTO.builder()
@@ -189,7 +189,7 @@ public class AccountServiceImpl implements AccountService {
   private Optional<AccountAuthDTO> buildAccountAuthDTO(Account account) {
     log.debug("계정 인증 DTO 생성. uid: {}", account.getUid());
 
-    Optional<Ecclesia> ecclesia = ecclesiaRepository.findEcclesiasByMasterAccountUid(
+    Optional<Ecclesia> ecclesia = ecclesiaJpaRepository.findEcclesiasByMasterAccountUid(
         account.getUid());
 
     AccountAuthDTO authDTO = AccountAuthDTO.builder()

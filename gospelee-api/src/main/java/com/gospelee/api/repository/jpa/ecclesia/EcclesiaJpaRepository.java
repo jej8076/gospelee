@@ -4,7 +4,7 @@ import com.gospelee.api.entity.Ecclesia;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface EcclesiaRepository extends JpaRepository<Ecclesia, Long> {
+public interface EcclesiaJpaRepository extends JpaRepository<Ecclesia, Long> {
 
   Optional<Ecclesia> findEcclesiasByUid(long uid);
 

@@ -19,7 +19,7 @@ public interface EcclesiaService {
 
   Ecclesia saveEcclesia(EcclesiaInsertDTO ecclesiaInsertDTO);
 
-  EcclesiaResponseDTO updateEcclesia(long uid, EcclesiaUpdateDTO ecclesiaUpdateDTO);
+  EcclesiaResponseDTO updateEcclesia(EcclesiaUpdateDTO ecclesiaUpdateDTO);
 
   AccountEcclesiaHistory joinRequestEcclesia(Long ecclesiaUid);
 

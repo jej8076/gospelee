@@ -9,8 +9,8 @@ import {useApiClient} from "@/hooks/useApiClient";
 import {fetchUpdateEcclesiaStatus} from "~/lib/api/fetch-ecclesias";
 
 export default function StatusSelector({
-                                         status,
                                          ecclesiaUid,
+                                         status,
                                          onStatusChange
                                        }: EcclesiaStatusSelectorPropsWithCallback) {
 

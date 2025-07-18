@@ -29,11 +29,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and Push image
+      - name: Build and Push API image
         run: |
           docker buildx build --no-cache \
             --platform linux/amd64 \
             -f dockerfile.api \
             -t ghcr.io/${{ github.repository }}/gospelee-api:latest \
+            --label build_time=$(date +%s) \
+            --push .
+
+      - name: Build and Push Admin image
+        run: |
+          docker buildx build --no-cache \
+            --platform linux/amd64 \
+            -f dockerfile.admin \
+            -t ghcr.io/${{ github.repository }}/gospelee-admin:latest \
             --label build_time=$(date +%s) \
             --push .

@@ -5,7 +5,7 @@ import com.gospelee.api.dto.journal.JournalBibleDTO;
 import com.gospelee.api.dto.journal.JournalDTO;
 import com.gospelee.api.entity.Journal;
 import com.gospelee.api.entity.JournalBible;
-import com.gospelee.api.repository.jpa.JournalRepository;
+import com.gospelee.api.repository.jpa.journal.JournalRepository;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.gospelee.api.repository.jpa;
+package com.gospelee.api.repository.jpa.journal;
 
 import com.gospelee.api.entity.Journal;
 import java.util.List;

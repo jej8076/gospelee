@@ -1,4 +1,4 @@
-package com.gospelee.api.repository.jpa;
+package com.gospelee.api.repository.jpa.qrlogin;
 
 import com.gospelee.api.entity.QrLogin;
 import java.time.LocalDateTime;

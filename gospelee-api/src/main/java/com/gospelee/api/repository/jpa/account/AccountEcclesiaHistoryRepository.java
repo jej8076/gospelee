@@ -1,4 +1,4 @@
-package com.gospelee.api.repository.jpa;
+package com.gospelee.api.repository.jpa.account;
 
 import com.gospelee.api.entity.AccountEcclesiaHistory;
 import org.springframework.data.jpa.repository.JpaRepository;

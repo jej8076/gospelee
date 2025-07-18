@@ -1,4 +1,4 @@
-package com.gospelee.api.repository.jpa;
+package com.gospelee.api.repository.jpa.bible;
 
 import com.gospelee.api.entity.Bible;
 import java.util.List;

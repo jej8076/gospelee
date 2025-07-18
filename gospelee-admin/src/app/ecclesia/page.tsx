@@ -45,7 +45,7 @@ export default function Ecclesia() {
   const updateEcclesiaStatus = (ecclesiaUid: bigint, newStatus: string) => {
     // 기존 목록에서 해당 교회를 찾아 상태만 업데이트
     const updatedList = eccList.map(ecc =>
-        ecc.ecclesiaUid === ecclesiaUid
+        ecc.uid === ecclesiaUid
             ? {...ecc, status: newStatus}
             : ecc
     );
@@ -54,7 +54,7 @@ export default function Ecclesia() {
     setEccList(updatedList);
 
     // 모달의 선택된 교회 정보도 업데이트
-    if (selectedEcclesia && selectedEcclesia.ecclesiaUid === ecclesiaUid) {
+    if (selectedEcclesia && selectedEcclesia.uid === ecclesiaUid) {
       setSelectedEcclesia({...selectedEcclesia, status: newStatus});
     }
   };
@@ -118,7 +118,7 @@ export default function Ecclesia() {
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
                 {!(eccList.length > 0) ? null : eccList.map((ecc) => (
-                    <tr key={ecc.ecclesiaUid}>
+                    <tr key={ecc.uid}>
                       <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
                         <div className="flex items-center">
                           <div className="h-11 w-11 flex-shrink-0">
@@ -128,7 +128,7 @@ export default function Ecclesia() {
                                 alt=""/>
                           </div>
                           <div className="ml-4">
-                            <div className="font-medium text-gray-900">{ecc.ecclesiaName}</div>
+                            <div className="font-medium text-gray-900">{ecc.name}</div>
                             <div
                                 className="mt-1 text-gray-500">{ecc.churchIdentificationNumber}</div>
                           </div>
@@ -163,7 +163,7 @@ export default function Ecclesia() {
         <Modal
             isOpen={isModalOpen}
             onClose={() => closeModal()}
-            title={selectedEcclesia?.ecclesiaName}
+            title={selectedEcclesia?.name}
             footer={
               <>
                 {/*{grayButton("취소", closeModal)}*/}
@@ -178,11 +178,11 @@ export default function Ecclesia() {
                 <div className="ecclesia-detail">
                   {/* 버튼 형태의 상태 선택기 사용 */}
                   <StatusSelector
-                      ecclesiaUid={selectedEcclesia.ecclesiaUid}
+                      ecclesiaUid={selectedEcclesia.uid}
                       status={selectedEcclesia.status}
                       onStatusChange={(newStatus) => {
                         // 상태가 변경됐을 때 전체 목록 업데이트
-                        updateEcclesiaStatus(selectedEcclesia.ecclesiaUid, newStatus);
+                        updateEcclesiaStatus(selectedEcclesia.uid, newStatus);
                       }}
                   />
                 </div>
