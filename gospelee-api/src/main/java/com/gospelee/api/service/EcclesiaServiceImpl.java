@@ -10,6 +10,7 @@ import com.gospelee.api.entity.Ecclesia;
 import com.gospelee.api.enums.AccountEcclesiaHistoryStatusType;
 import com.gospelee.api.enums.EcclesiaStatusType;
 import com.gospelee.api.enums.RoleType;
+import com.gospelee.api.exception.AccountNotFoundException;
 import com.gospelee.api.exception.EcclesiaException;
 import com.gospelee.api.repository.EcclesiaRepository;
 import com.gospelee.api.repository.jpa.account.AccountEcclesiaHistoryRepository;
@@ -19,6 +20,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -27,8 +29,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EcclesiaServiceImpl implements EcclesiaService {
 
-  //  private final EcclesiaJpaRepository ecclesiaJpaRepository;
-//  private final EcclesiaJdbcRepository jdbcEcclesiaRepository;
   private final EcclesiaRepository ecclesiaRepository;
   private final AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository;
   private final AuthorizationService authorizationService;
@@ -85,7 +85,24 @@ public class EcclesiaServiceImpl implements EcclesiaService {
         .masterAccountUid(account.getUid())
         .build();
 
-    return ecclesiaRepository.save(ecclesia);
+    Optional<Account> findAccount = accountRepository.findById(account.getUid());
+    if (findAccount.isEmpty()) {
+      throw new AccountNotFoundException("계정이 존재하지 않습니다. accountUid:{}",
+          findAccount.get().getUid());
+    }
+
+    Ecclesia saveEcclesia = ecclesiaRepository.save(ecclesia);
+    if (saveEcclesia.getUid() <= 0) {
+      throw new EcclesiaException("교회 등록 요청에 실패하였습니다. requestChurchName:{} accountUid:{}",
+          ecclesiaInsertDTO.getName(), account.getUid());
+    }
+
+    // 등록 요청자의 교회 소속을 결정
+    Account acc = findAccount.get();
+    acc.changeEcclesiaUid(ecclesia.getUid());
+    accountRepository.save(acc);
+
+    return saveEcclesia;
   }
 
   @Override

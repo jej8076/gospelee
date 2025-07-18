@@ -69,5 +69,9 @@ public class Account extends EditInfomation {
     this.role = role;
   }
 
+  public void changeEcclesiaUid(long ecclesiaUid) {
+    this.ecclesiaUid = ecclesiaUid;
+  }
+
 
 }
