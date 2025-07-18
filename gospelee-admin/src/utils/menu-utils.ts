@@ -9,7 +9,7 @@ const notiMenu: MenuType = {name: '관리', id: 'manage', href: '/manage', icon:
 // @formatter:on
 
 export const getUserMenuList = (): MenuType[] => {
-  const lastLoginInfo: AuthInfoType = getLastLoginOrElseNull();
+  const lastLoginInfo: AuthInfoType | null = getLastLoginOrElseNull();
   if (lastLoginInfo == null) {
     return [];
   }
