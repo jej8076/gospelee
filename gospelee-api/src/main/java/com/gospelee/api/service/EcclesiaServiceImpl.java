@@ -90,11 +90,12 @@ public class EcclesiaServiceImpl implements EcclesiaService {
 
   @Override
   @Transactional
-  public EcclesiaResponseDTO updateEcclesia(long uid, EcclesiaUpdateDTO ecclesiaUpdateDTO) {
+  public EcclesiaResponseDTO updateEcclesia(EcclesiaUpdateDTO ecclesiaUpdateDTO) {
 
     // Ecclesia 조회, 없으면 예외 발생
-    Ecclesia ecclesia = ecclesiaRepository.findById(uid).orElseThrow(
-        () -> new EntityNotFoundException("Ecclesia not found with id: " + uid));
+    Ecclesia ecclesia = ecclesiaRepository.findById(ecclesiaUpdateDTO.getEcclesiaUid()).orElseThrow(
+        () -> new EntityNotFoundException(
+            "Ecclesia not found with id: " + ecclesiaUpdateDTO.getEcclesiaUid()));
 
     AccountAuthDTO accountAuth = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
     if (!authorizationService.canUpdateEcclesiaStatus(accountAuth, ecclesia)) {

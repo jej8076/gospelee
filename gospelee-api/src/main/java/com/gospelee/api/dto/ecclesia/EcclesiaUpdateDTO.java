@@ -9,12 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EcclesiaUpdateDTO {
 
+  private Long ecclesiaUid;
+
   private String status;
 
-  @Builder
-  public EcclesiaUpdateDTO(String status) {
-    this.status = status;
-  }
 }
 
 

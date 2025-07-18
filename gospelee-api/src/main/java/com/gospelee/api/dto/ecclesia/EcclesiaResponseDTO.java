@@ -11,28 +11,29 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class EcclesiaResponseDTO {
 
-  private Long ecclesiaUid;
+  private Long uid;
   private String churchIdentificationNumber;
   private String status;
-  private String ecclesiaName;
+  private String name;
   private String masterAccountName;
   private LocalDateTime insertTime;
 
   @Builder
-  public EcclesiaResponseDTO(Long ecclesiaUid, String churchIdentificationNumber, String status,
-      String ecclesiaName, String masterAccountName, LocalDateTime insertTime) {
-    this.ecclesiaUid = ecclesiaUid;
+  public EcclesiaResponseDTO(Long uid, String churchIdentificationNumber, String status,
+      String name,
+      String masterAccountName, LocalDateTime insertTime) {
+    this.uid = uid;
     this.churchIdentificationNumber = churchIdentificationNumber;
     this.status = status;
-    this.ecclesiaName = ecclesiaName;
+    this.name = name;
     this.masterAccountName = masterAccountName;
     this.insertTime = insertTime;
   }
 
   public static EcclesiaResponseDTO fromEntity(Ecclesia ecclesia) {
     return EcclesiaResponseDTO.builder()
-        .ecclesiaUid(ecclesia.getUid())
-        .ecclesiaName(ecclesia.getName())
+        .uid(ecclesia.getUid())
+        .name(ecclesia.getName())
         .status(ecclesia.getStatus())
         .insertTime(ecclesia.getInsertTime())
         .build();

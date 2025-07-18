@@ -15,10 +15,10 @@ public class EcclesiaJdbcRepositoryImpl implements EcclesiaJdbcRepository {
   @Override
   public List<EcclesiaResponseDTO> findAllWithMasterName() {
     String sql = """
-        SELECT e.uid AS ecclesia_uid,
+        SELECT e.uid AS uid,
                e.church_identification_number,
                e.status,
-               e.name AS ecclesia_name,
+               e.name AS name,
                a.name AS master_account_name,
                e.insert_time
         FROM ecclesia e
@@ -27,10 +27,10 @@ public class EcclesiaJdbcRepositoryImpl implements EcclesiaJdbcRepository {
 
     return jdbcClient.sql(sql)
         .query((rs, rowNum) -> new EcclesiaResponseDTO(
-            rs.getLong("ecclesia_uid"),
+            rs.getLong("uid"),
             rs.getString("church_identification_number"),
             rs.getString("status"),
-            rs.getString("ecclesia_name"),
+            rs.getString("name"),
             rs.getString("master_account_name"),
             rs.getTimestamp("insert_time").toLocalDateTime()
         ))
@@ -40,10 +40,10 @@ public class EcclesiaJdbcRepositoryImpl implements EcclesiaJdbcRepository {
   @Override
   public List<EcclesiaResponseDTO> searchEcclesia(String text) {
     String sql = """
-        SELECT e.uid AS ecclesia_uid,
+        SELECT e.uid AS uid,
                e.church_identification_number,
                e.status,
-               e.name AS ecclesia_name,
+               e.name AS name,
                e.insert_time
         FROM ecclesia e
         WHERE e.name LIKE :keyword
@@ -52,10 +52,10 @@ public class EcclesiaJdbcRepositoryImpl implements EcclesiaJdbcRepository {
     return jdbcClient.sql(sql)
         .param("keyword", "%" + text + "%")
         .query((rs, rowNum) -> new EcclesiaResponseDTO(
-            rs.getLong("ecclesia_uid"),
+            rs.getLong("uid"),
             rs.getString("church_identification_number"),
             rs.getString("status"),
-            rs.getString("ecclesia_name"),
+            rs.getString("name"),
             null,
             rs.getTimestamp("insert_time").toLocalDateTime()
         ))

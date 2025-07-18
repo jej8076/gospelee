@@ -61,19 +61,17 @@ public class AccountController {
   }
 
   /**
-   * 교회별 계정 목록을 조회합니다. - ADMIN 권한: 요청된 교회의 계정 목록 또는 전체 목록 조회 - 일반 사용자: 본인 교회의 계정 목록만 조회
+   * 교회별 계정 목록을 조회합니다. - ADMIN 권한: 전체 목록 조회 - 일반 사용자: 본인 교회의 계정 목록만 조회
    *
-   * @param account            인증된 사용자 정보
-   * @param ecclesiaRequestDTO 교회 요청 정보
+   * @param account 인증된 사용자 정보
    * @return 계정 목록
    */
   @PostMapping("/getAccount/list")
   public ResponseEntity<Object> getAccountsByEcclesia(
-      @AuthenticationPrincipal AccountAuthDTO account,
-      @RequestBody EcclesiaRequestDTO ecclesiaRequestDTO) {
+      @AuthenticationPrincipal AccountAuthDTO account) {
 
     if (isAdminUser(account)) {
-      return handleAdminAccountRequest(ecclesiaRequestDTO);
+      return handleAdminAccountRequest();
     }
 
     return handleUserAccountRequest(account);
@@ -228,19 +226,9 @@ public class AccountController {
   /**
    * 관리자의 계정 조회 요청을 처리합니다.
    */
-  private ResponseEntity<Object> handleAdminAccountRequest(EcclesiaRequestDTO ecclesiaRequestDTO) {
-    if (ObjectUtils.isEmpty(ecclesiaRequestDTO.getEcclesiaUid())) {
-      List<Account> allAccounts = accountService.getAccountAll();
-      return ResponseEntity.ok(allAccounts);
-    }
-
-    Optional<List<Account>> accountList = accountService.getAccountByEcclesiaUid(
-        ecclesiaRequestDTO.getEcclesiaUid()
-    );
-
-    return accountList
-        .map(accounts -> ResponseEntity.ok((Object) accounts))
-        .orElseGet(() -> ResponseEntity.ok(List.of()));
+  private ResponseEntity<Object> handleAdminAccountRequest() {
+    List<Account> allAccounts = accountService.getAccountAll();
+    return ResponseEntity.ok(allAccounts);
   }
 
   /**

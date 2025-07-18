@@ -57,11 +57,9 @@ public class EcclesiaController {
     return new ResponseEntity<>(ecclesia, HttpStatus.OK);
   }
 
-  @PatchMapping("/{ecclesiaUid}")
-  public ResponseEntity<Object> updateEcclesia(@PathVariable("ecclesiaUid") Long ecclesiaUid,
-      @RequestBody EcclesiaUpdateDTO ecclesiaUpdateDTO) {
-    EcclesiaResponseDTO responseDTO = ecclesiaService.updateEcclesia(ecclesiaUid,
-        ecclesiaUpdateDTO);
+  @PatchMapping("/status")
+  public ResponseEntity<Object> updateEcclesia(@RequestBody EcclesiaUpdateDTO ecclesiaUpdateDTO) {
+    EcclesiaResponseDTO responseDTO = ecclesiaService.updateEcclesia(ecclesiaUpdateDTO);
     return new ResponseEntity<>(responseDTO, HttpStatus.OK);
   }
 
