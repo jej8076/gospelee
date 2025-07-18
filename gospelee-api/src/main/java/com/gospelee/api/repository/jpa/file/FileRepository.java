@@ -1,4 +1,4 @@
-package com.gospelee.api.repository.jpa;
+package com.gospelee.api.repository.jpa.file;
 
 import com.gospelee.api.entity.FileEntity;
 import java.util.Optional;

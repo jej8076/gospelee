@@ -3,7 +3,7 @@ package com.gospelee.api;
 import com.gospelee.api.dto.account.AccountDTO;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.enums.RoleType;
-import com.gospelee.api.repository.jpa.AccountRepository;
+import com.gospelee.api.repository.jpa.account.AccountRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -5,7 +5,7 @@ import static com.gospelee.api.utils.RandomStringGenerator.makeQrLoginRandomCode
 import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.qrlogin.QrLoginDTO;
 import com.gospelee.api.entity.QrLogin;
-import com.gospelee.api.repository.jpa.QrloginRepository;
+import com.gospelee.api.repository.jpa.qrlogin.QrloginRepository;
 import com.gospelee.api.utils.TimeUtils;
 import org.springframework.stereotype.Service;
 

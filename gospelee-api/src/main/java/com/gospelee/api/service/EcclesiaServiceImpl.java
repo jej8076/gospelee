@@ -11,10 +11,9 @@ import com.gospelee.api.enums.AccountEcclesiaHistoryStatusType;
 import com.gospelee.api.enums.EcclesiaStatusType;
 import com.gospelee.api.enums.RoleType;
 import com.gospelee.api.exception.EcclesiaException;
-import com.gospelee.api.repository.jdbc.ecclesia.JdbcEcclesiaRepository;
-import com.gospelee.api.repository.jpa.AccountEcclesiaHistoryRepository;
-import com.gospelee.api.repository.jpa.AccountRepository;
-import com.gospelee.api.repository.jpa.ecclesia.EcclesiaRepository;
+import com.gospelee.api.repository.EcclesiaRepository;
+import com.gospelee.api.repository.jpa.account.AccountEcclesiaHistoryRepository;
+import com.gospelee.api.repository.jpa.account.AccountRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -28,8 +27,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EcclesiaServiceImpl implements EcclesiaService {
 
+  //  private final EcclesiaJpaRepository ecclesiaJpaRepository;
+//  private final EcclesiaJdbcRepository jdbcEcclesiaRepository;
   private final EcclesiaRepository ecclesiaRepository;
-  private final JdbcEcclesiaRepository jdbcEcclesiaRepository;
   private final AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository;
   private final AuthorizationService authorizationService;
   private final AccountRepository accountRepository;
@@ -40,12 +40,12 @@ public class EcclesiaServiceImpl implements EcclesiaService {
     if (!RoleType.ADMIN.equals(account.getRole())) {
       throw new AccessDeniedException("접근할 권한이 없습니다.");
     }
-    return jdbcEcclesiaRepository.findAllWithMasterName();
+    return ecclesiaRepository.findAllWithMasterName();
   }
 
   @Override
   public List<EcclesiaResponseDTO> searchEcclesia(String text) {
-    return jdbcEcclesiaRepository.searchEcclesia(text);
+    return ecclesiaRepository.searchEcclesia(text);
   }
 
   @Override

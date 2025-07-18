@@ -1,4 +1,4 @@
-package com.gospelee.api.repository.jpa;
+package com.gospelee.api.repository.jpa.pushnotification;
 
 import com.gospelee.api.entity.PushNotification;
 import org.springframework.data.jpa.repository.JpaRepository;

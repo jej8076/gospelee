@@ -1,7 +1,7 @@
 package com.gospelee.api.controller;
 
 import com.gospelee.api.entity.FileDetails;
-import com.gospelee.api.repository.jpa.FileDetailsRepository;
+import com.gospelee.api.repository.jpa.file.FileDetailsRepository;
 import com.gospelee.api.service.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

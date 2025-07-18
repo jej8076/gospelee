@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class JdbcEcclesiaRepositoryImpl implements JdbcEcclesiaRepository {
+public class EcclesiaJdbcRepositoryImpl implements EcclesiaJdbcRepository {
 
   private final JdbcClient jdbcClient;
 
