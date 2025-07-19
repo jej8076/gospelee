@@ -40,7 +40,7 @@ export default function ManageNoti(): JSX.Element {
 
   useEffect(() => {
     callApi(fetchAnnouncements, setAnnouncement);
-  }, []);
+  }, [callApi]);
 
   console.log(announcement);
 

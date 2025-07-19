@@ -2,6 +2,7 @@
 
 import {PhotoIcon} from '@heroicons/react/24/solid'
 import {useEffect, useState} from "react";
+import NextImage from 'next/image';
 import useAuth from "~/lib/auth/check-auth";
 import {getLastLoginOrElseNull} from "@/utils/user-utils";
 import {fetchInsertAnnouncement} from "~/lib/api/fetch-announcement";
@@ -237,10 +238,12 @@ export default function CreateNoti() {
                           className="flex flex-col items-center justify-center space-y-2 relative">
                         <div
                             className="w-36 h-36 border rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center relative">
-                          <img
+                          <NextImage
                               src={URL.createObjectURL(file)}
                               alt={`preview-${index}`}
                               className="object-cover w-full h-full"
+                              width={144}
+                              height={144}
                           />
                           {/* 삭제 버튼 */}
                           <button

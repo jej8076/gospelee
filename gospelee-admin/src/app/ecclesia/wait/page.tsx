@@ -30,7 +30,7 @@ export default function WaitPage() {
     const lastLoginInfo: AuthInfoType | null = getLastLoginOrElseNull();
     setManager(lastLoginInfo?.name ?? "");
     callApi(() => fetchGetEcclesia(lastLoginInfo?.uid ?? 0), setEcclesia);
-  }, []);
+  }, [callApi]);
 
   return (
       <div className="min-h-screen bg-gray-50">

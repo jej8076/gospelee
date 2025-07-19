@@ -2,6 +2,7 @@
 
 import {useRouter} from 'next/navigation';
 import {ChangeEvent, FormEvent, KeyboardEvent, useEffect, useRef, useState} from 'react';
+import Image from 'next/image';
 import {setCookie} from "~/lib/cookie/cookie-utils";
 import {AuthItems} from "~/constants/auth-items";
 import {useMenuListStore} from "@/hooks/useMenuList";
@@ -67,10 +68,12 @@ export default function Login() {
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           {/* 로고 */}
           <div className="flex justify-center mb-8">
-            <img
+            <Image
               className="h-16 w-auto"
               src="/images/logo/logo_oog.svg"
               alt="Gospelee"
+              width={64}
+              height={64}
             />
           </div>
           

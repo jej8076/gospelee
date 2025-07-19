@@ -2,6 +2,7 @@
 import "./globals.css";
 import {Fragment, useEffect, useState} from 'react'
 import {usePathname, useRouter} from 'next/navigation'
+import Image from 'next/image'
 import {Menu, Transition} from '@headlessui/react'
 import {Bars3Icon, BellIcon, Cog6ToothIcon,} from '@heroicons/react/24/outline'
 import {ChevronDownIcon} from '@heroicons/react/20/solid'
@@ -60,7 +61,7 @@ export default function MainLayout({children}: Readonly<{
     };
 
     fetchNavigation();
-  }, []);
+  }, [setMenuList]);
 
   // 현재 페이지 정보 저장
   useEffect(() => {
@@ -133,10 +134,12 @@ export default function MainLayout({children}: Readonly<{
               <div
                   className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pb-4">
                 <div className="flex h-16 shrink-0 items-center justify-center">
-                  <img
+                  <Image
                       className="h-8 w-auto"
-                      src={'/images/logo/logo_oog.png'}
+                      src="/images/logo/logo_oog.png"
                       alt="Your Company"
+                      width={32}
+                      height={32}
                   />
                 </div>
                 <nav className="flex flex-1 flex-col">
@@ -264,10 +267,12 @@ export default function MainLayout({children}: Readonly<{
                     <Menu as="div" className="relative">
                       <Menu.Button className="-m-1.5 flex items-center p-1.5">
                         <span className="sr-only">Open user menu</span>
-                        <img
+                        <Image
                             className="h-8 w-8 rounded-full bg-gray-50"
                             src="/images/users/default_user.jpg"
                             alt=""
+                            width={32}
+                            height={32}
                         />
                         <span className="hidden lg:flex lg:items-center">
                           <span className="ml-4 text-sm font-semibold leading-6 text-gray-900"

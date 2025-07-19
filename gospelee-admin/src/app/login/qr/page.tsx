@@ -1,7 +1,7 @@
 "use client";
 
 import QRCode from 'qrcode.react';
-import {useEffect, useState} from "react";
+import {useEffect, useState, Suspense, useRef, useCallback} from "react";
 import {useRouter, useSearchParams} from 'next/navigation';
 import {
   makeQrCodeAndGetCode,
@@ -10,31 +10,14 @@ import {
 } from "~/services/login/LoginService";
 import PageTransition from '@/components/PageTransition';
 
-const QRCodePage = () => {
+const QRCodeContent = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const email = searchParams.get('email');
   const [code, setCode] = useState('');
-  let isReq = false;
+  const isReqRef = useRef(false);
 
-  useEffect(() => {
-    if (!email || isReq) return;
-
-    isReq = true;
-
-    const fetchCode = async () => {
-      const qrCode = await makeQrCodeAndGetCode(email);
-
-      if (qrCode) {
-        setCode(qrCode.code);
-        startCheckingStatus(email, qrCode.code);
-      }
-    };
-
-    fetchCode();
-  }, []);
-
-  const startCheckingStatus = (email: string, code: string) => {
+  const startCheckingStatus = useCallback((email: string, code: string) => {
     const intervalId = setInterval(async () => {
       const token = await qrCheckAndGetToken(email, code);
       if (token == null) return;
@@ -48,7 +31,24 @@ const QRCodePage = () => {
 
     // Clean up interval on component unmount
     return () => clearInterval(intervalId);
-  };
+  }, [router]);
+
+  useEffect(() => {
+    if (!email || isReqRef.current) return;
+
+    isReqRef.current = true;
+
+    const fetchCode = async () => {
+      const qrCode = await makeQrCodeAndGetCode(email);
+
+      if (qrCode) {
+        setCode(qrCode.code);
+        startCheckingStatus(email, qrCode.code);
+      }
+    };
+
+    fetchCode();
+  }, [email, startCheckingStatus]);
 
   return (
     <PageTransition>
@@ -85,6 +85,25 @@ const QRCodePage = () => {
         </div>
       </div>
     </PageTransition>
+  );
+};
+
+const QRCodePage = () => {
+  return (
+    <Suspense fallback={
+      <PageTransition>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+          <div className="bg-white p-8 rounded-lg shadow-sm">
+            <div className="flex justify-center items-center h-48">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <p className="ml-3 text-gray-600">로딩 중...</p>
+            </div>
+          </div>
+        </div>
+      </PageTransition>
+    }>
+      <QRCodeContent />
+    </Suspense>
   );
 };
 

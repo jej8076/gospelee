@@ -1,5 +1,6 @@
 "use client"
 import {useEffect, useState} from "react";
+import Image from 'next/image';
 import useAuth from "~/lib/auth/check-auth";
 import {useApiClient} from "@/hooks/useApiClient";
 import {fetchUsers} from "~/lib/api/fetch-users";
@@ -53,7 +54,7 @@ export default function User() {
     };
 
     loadUsers();
-  }, []);
+  }, [callApi]);
 
   return (
       <div className="px-4 sm:px-6 lg:px-8">
@@ -116,10 +117,12 @@ export default function User() {
                           <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
                             <div className="flex items-center">
                               <div className="h-11 w-11 flex-shrink-0">
-                                <img
+                                <Image
                                     className="h-11 w-11 rounded-full"
                                     src={u.image || '/images/users/default_user.jpg'}
                                     alt=""
+                                    width={44}
+                                    height={44}
                                 />
                               </div>
                               <div className="ml-4">
