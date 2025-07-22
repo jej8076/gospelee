@@ -9,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -21,6 +22,11 @@ import util.JsonUtils;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+  // TODO class 변수는 enum 파일이나 설정파일에서 관리할 수 있도록 수정되어야 함
+
+  // SUPER ADMIN 허용 IP
+  private static final String[] superAdminIp = {"localhost", "192.168.1.43"};
 
   // 인증에서 제외할 url
   private static final List<String> EXCLUDE_SERVLET_PATH_LIST =
@@ -50,7 +56,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       FilterChain filterChain) throws ServletException, IOException, BadCredentialsException {
     String idToken = request.getHeader(AUTH_HEADER);
     String appId = request.getHeader(APP_ID);
-    String requestURI = request.getRequestURI();
 
     boolean isWeb = false;
     if ("OOG_WEB".equals(appId)) {
@@ -64,7 +69,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     idToken = idToken.replace(BEARER, "");
 
-    if (idToken.equals("SUPER")) {
+    if (idToken.equals("SUPER") && isSuper(request)) {
       JwtPayload emptyPayload = JwtPayload.builder().build();
       setAuthenticationToContext(emptyPayload, idToken);
       filterChain.doFilter(request, response);
@@ -106,6 +111,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     Authentication authentication = jwtOIDCProvider.getAuthentication(jwtPayload, idToken);
     SecurityContextHolder.getContext().setAuthentication(authentication);
     return authentication;
+  }
+
+  private boolean isSuper(HttpServletRequest request) {
+    String clientIp = request.getRemoteAddr();
+    return Arrays.asList(superAdminIp).contains(clientIp);
   }
 
   /**

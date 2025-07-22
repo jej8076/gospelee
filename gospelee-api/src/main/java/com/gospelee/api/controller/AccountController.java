@@ -177,13 +177,11 @@ public class AccountController {
    * QR 로그인 상태를 확인합니다. 프론트엔드에서 주기적으로 호출하여 로그인 완료 여부를 확인합니다.
    * TODO: 웹소켓으로 대체 예정
    *
-   * @param response       HTTP 응답
    * @param qrCheckRequest QR 확인 요청 정보
    * @return QR 로그인 상태
    */
   @PostMapping("/qr/check")
   public ResponseEntity<Object> checkQrLoginStatus(
-      HttpServletResponse response,
       @RequestBody AccountDTO.QrCheckRequest qrCheckRequest) {
 
     QrLogin qrLogin = qrloginService.getQrLogin(
