@@ -36,7 +36,6 @@ public class EcclesiaRepositoryImpl implements EcclesiaRepository {
     return ecclesiaJpaRepository.findById(id);
   }
 
-  // JDBC 메서드들 - 복잡한 조인 쿼리
   @Override
   public List<EcclesiaResponseDTO> findAllWithMasterName() {
     return ecclesiaJdbcRepository.findAllWithMasterName();

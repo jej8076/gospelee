@@ -1,6 +1,7 @@
 package com.gospelee.api.controller;
 
 import com.gospelee.api.dto.common.SearchDTO;
+import com.gospelee.api.dto.ecclesia.AccountEcclesiaHistoryDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaInsertDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaUpdateDTO;
@@ -72,6 +73,12 @@ public class EcclesiaController {
   @PostMapping("/join/request/{ecclesiaUid}")
   public ResponseEntity<Object> joinRequestEcclesia(@PathVariable("ecclesiaUid") Long ecclesiaUid) {
     AccountEcclesiaHistory result = ecclesiaService.joinRequestEcclesia(ecclesiaUid);
+    return new ResponseEntity<>(result, HttpStatus.OK);
+  }
+
+  @PostMapping("/list/join-request")
+  public ResponseEntity<Object> joinRequestList() {
+    List<AccountEcclesiaHistoryDTO> result = ecclesiaService.getJoinRequestList();
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 

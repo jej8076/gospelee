@@ -1,6 +1,7 @@
 "use client"
 
 import {useEffect, useState} from "react";
+import Image from 'next/image';
 import {getCookie} from "~/lib/cookie/cookie-utils";
 import useAuth from "~/lib/auth/check-auth";
 import {AuthItems} from "~/constants/auth-items";
@@ -122,10 +123,13 @@ export default function Ecclesia() {
                       <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
                         <div className="flex items-center">
                           <div className="h-11 w-11 flex-shrink-0">
-                            <img
+                            <Image
                                 className="h-11 w-11 rounded-full"
                                 src={ecc.image || '/images/ecclesia/default_church.jpg'}
-                                alt=""/>
+                                alt=""
+                                width={44}
+                                height={44}
+                            />
                           </div>
                           <div className="ml-4">
                             <div className="font-medium text-gray-900">{ecc.name}</div>

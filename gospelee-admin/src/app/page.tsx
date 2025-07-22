@@ -12,7 +12,7 @@ export default function Home() {
 
   useEffect(() => {
     router.push('/main');
-  }, []);
+  }, [router]);
 
   return null;
 }

@@ -1,6 +1,7 @@
 package com.gospelee.api.service;
 
 import com.gospelee.api.dto.account.AccountAuthDTO;
+import com.gospelee.api.dto.ecclesia.AccountEcclesiaHistoryDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaInsertDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaUpdateDTO;
@@ -12,8 +13,8 @@ import com.gospelee.api.enums.EcclesiaStatusType;
 import com.gospelee.api.enums.RoleType;
 import com.gospelee.api.exception.AccountNotFoundException;
 import com.gospelee.api.exception.EcclesiaException;
+import com.gospelee.api.repository.AccountEcclesiaHistoryRepository;
 import com.gospelee.api.repository.EcclesiaRepository;
-import com.gospelee.api.repository.jpa.account.AccountEcclesiaHistoryRepository;
 import com.gospelee.api.repository.jpa.account.AccountRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
 import jakarta.persistence.EntityNotFoundException;
@@ -158,6 +159,17 @@ public class EcclesiaServiceImpl implements EcclesiaService {
         .build();
 
     return accountEcclesiaHistoryRepository.save(accountEcclesiaHistory);
+  }
+
+  @Override
+  public List<AccountEcclesiaHistoryDTO> getJoinRequestList() {
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+    Long ecclesiaUid = account.getEcclesiaUid();
+    if (ecclesiaUid == null) {
+      throw new EcclesiaException("소속된 교회 정보가 없습니다.");
+    }
+
+    return accountEcclesiaHistoryRepository.findByStatusAndEcclesiaId(account.getEcclesiaUid());
   }
 
 
