@@ -44,8 +44,8 @@ public class JournalDTO {
         .accountUid(entity.getAccountUid())
         .content(entity.getContent())
         .journalBibleList(JournalBibleDTO.toDtoList(entity.getJournalBibleList()))
-        .insertTime(DateUtils.timeToStringDate(entity.getInsertTime()))
-        .updateTime(DateUtils.timeToStringDate(entity.getUpdateTime()))
+        .insertTime(DateUtils.timeToStringSec(entity.getInsertTime()))
+        .updateTime(DateUtils.timeToStringSec(entity.getUpdateTime()))
         .build();
   }
 
