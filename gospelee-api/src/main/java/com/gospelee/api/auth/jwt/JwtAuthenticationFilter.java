@@ -4,12 +4,15 @@ import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.common.ResponseDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
 import com.gospelee.api.enums.ErrorResponseType;
+import com.gospelee.api.utils.IpUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -20,7 +23,13 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import util.JsonUtils;
 
 @Component
+@Log4j2
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+  // TODO class 변수는 enum 파일이나 설정파일에서 관리할 수 있도록 수정되어야 함
+
+  // SUPER ADMIN 허용 IP
+  private static final String[] superAdminIp = {"localhost", "192.168.1.43"};
 
   // 인증에서 제외할 url
   private static final List<String> EXCLUDE_SERVLET_PATH_LIST =
@@ -50,7 +59,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       FilterChain filterChain) throws ServletException, IOException, BadCredentialsException {
     String idToken = request.getHeader(AUTH_HEADER);
     String appId = request.getHeader(APP_ID);
-    String requestURI = request.getRequestURI();
 
     boolean isWeb = false;
     if ("OOG_WEB".equals(appId)) {
@@ -63,8 +71,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     idToken = idToken.replace(BEARER, "");
+    String clientIp = IpUtils.getClientIp(request);
 
-    if (idToken.equals("SUPER")) {
+    if (isSuper(idToken, clientIp)) {
+      log.info("[SUPERLOGIN] clientIp:{}", clientIp);
       JwtPayload emptyPayload = JwtPayload.builder().build();
       setAuthenticationToContext(emptyPayload, idToken);
       filterChain.doFilter(request, response);
@@ -106,6 +116,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     Authentication authentication = jwtOIDCProvider.getAuthentication(jwtPayload, idToken);
     SecurityContextHolder.getContext().setAuthentication(authentication);
     return authentication;
+  }
+
+  private boolean isSuper(String idToken, String clientIp) {
+    return idToken.equals("SUPER") && Arrays.asList(superAdminIp).contains(clientIp);
   }
 
   /**
