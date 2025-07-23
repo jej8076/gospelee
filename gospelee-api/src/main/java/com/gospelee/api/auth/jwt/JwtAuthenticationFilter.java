@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -21,6 +22,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import util.JsonUtils;
 
 @Component
+@Log4j2
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   // TODO class 변수는 enum 파일이나 설정파일에서 관리할 수 있도록 수정되어야 함
@@ -115,6 +117,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private boolean isSuper(HttpServletRequest request) {
     String clientIp = request.getRemoteAddr();
+    log.error("clientIp ::: " + clientIp);
     return Arrays.asList(superAdminIp).contains(clientIp);
   }
 
