@@ -4,6 +4,7 @@ import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.common.ResponseDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
 import com.gospelee.api.enums.ErrorResponseType;
+import com.gospelee.api.utils.IpUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -70,8 +71,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     idToken = idToken.replace(BEARER, "");
+    String clientIp = IpUtils.getClientIp(request);
 
-    if (idToken.equals("SUPER") && isSuper(request)) {
+    if (isSuper(idToken, clientIp)) {
+      log.info("[SUPERLOGIN] clientIp:{}", clientIp);
       JwtPayload emptyPayload = JwtPayload.builder().build();
       setAuthenticationToContext(emptyPayload, idToken);
       filterChain.doFilter(request, response);
@@ -115,10 +118,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     return authentication;
   }
 
-  private boolean isSuper(HttpServletRequest request) {
-    String clientIp = request.getRemoteAddr();
-    log.error("clientIp ::: " + clientIp);
-    return Arrays.asList(superAdminIp).contains(clientIp);
+  private boolean isSuper(String idToken, String clientIp) {
+    return idToken.equals("SUPER") && Arrays.asList(superAdminIp).contains(clientIp);
   }
 
   /**
