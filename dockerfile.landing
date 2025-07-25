@@ -1,0 +1,50 @@
+FROM node:18-alpine AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+# Install dependencies based on the preferred package manager
+COPY gospelee-landing/package.json gospelee-landing/package-lock.json* ./
+RUN npm ci
+
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY gospelee-landing/ .
+
+RUN npm run build
+
+# Production image, serve static files with nginx
+FROM nginx:alpine AS runner
+WORKDIR /usr/share/nginx/html
+
+# Remove default nginx static assets
+RUN rm -rf ./*
+
+# Copy static files from builder stage
+COPY --from=builder /app/out .
+
+# Copy nginx configuration
+COPY <<EOF /etc/nginx/conf.d/default.conf
+server {
+    listen 3000;
+    server_name localhost;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    location / {
+        try_files \$uri \$uri/ /index.html;
+    }
+
+    # Enable gzip compression
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+}
+EOF
+
+EXPOSE 3000
+
+CMD ["nginx", "-g", "daemon off;"]
