@@ -30,7 +30,7 @@ COPY --from=builder /app/out .
 # Copy nginx configuration
 COPY <<EOF /etc/nginx/conf.d/default.conf
 server {
-    listen 3000;
+    listen 8076;
     server_name localhost;
     root /usr/share/nginx/html;
     index index.html;
@@ -45,6 +45,6 @@ server {
 }
 EOF
 
-EXPOSE 3000
+EXPOSE 8076
 
 CMD ["nginx", "-g", "daemon off;"]
