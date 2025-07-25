@@ -5,30 +5,20 @@ on:
     branches: [ deploy ]
 
 jobs:
-  build-and-push:
+  build-api:
     runs-on: ubuntu-latest
-
     permissions:
       contents: read
       packages: write
-
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v3
-
-      - name: Set up QEMU (multi-arch support)
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
+      - uses: actions/checkout@v3
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build and Push API image
         run: |
           docker buildx build --no-cache \
@@ -38,6 +28,21 @@ jobs:
             --label build_time=$(date +%s) \
             --push .
 
+  build-admin:
+    runs-on: ubuntu-latest
+    needs: build-api
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and Push Admin image
         run: |
           docker buildx build --no-cache \
@@ -47,6 +52,21 @@ jobs:
             --label build_time=$(date +%s) \
             --push .
 
+  build-landing:
+    runs-on: ubuntu-latest
+    needs: build-admin
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and Push Landing image
         run: |
           docker buildx build --no-cache \
