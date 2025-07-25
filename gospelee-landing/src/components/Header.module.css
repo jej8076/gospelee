@@ -50,7 +50,7 @@
 }
 
 .navLink:hover {
-  color: #007bff;
+  color: #316049;
 }
 
 .navLink::after {
@@ -60,7 +60,7 @@
   left: 0;
   width: 0;
   height: 2px;
-  background: #007bff;
+  background: #316049;
   transition: width 0.3s ease;
 }
 

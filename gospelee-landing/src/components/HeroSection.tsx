@@ -1,21 +1,47 @@
 'use client';
 
+import {useState, useEffect} from 'react';
 import Image from 'next/image';
 import styles from './HeroSection.module.css';
 
 const HeroSection = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const words = ['our', 'my'];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex(prev => (prev + 1) % words.length);
+    }, 2000); // 2초마다 변경
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
       <section className={styles.hero}>
         <div className="container">
           <div className={styles.heroContent}>
             <div className={styles.textContent}>
               <h1 className={styles.title}>
-                함께하는 <br/>
-                <span className={styles.highlight}>OOG</span>
+                Oh{' '}
+                <span className={styles.wordContainer}>
+                  {words.map((word, index) => (
+                      <span
+                          key={word}
+                          className={`${styles.animatedWord} ${
+                              index === currentIndex ? styles.active : ''
+                          }`}
+                          style={{
+                            transform: `translateY(${(index - currentIndex) * 100}%)`
+                          }}
+                      >
+                      {word}
+                    </span>
+                  ))}
+                </span>{' '}
+                God
               </h1>
               <p className={styles.subtitle}>
-                Gospelee와 함께 성경을 더 깊이 이해하고,<br/>
-                일상 속에서 말씀을 실천해보세요.
+                우리는 교회, 교회는 우리<br/>
               </p>
               <div className={styles.buttonGroup}>
                 <button className={styles.primaryButton}>
