@@ -18,15 +18,18 @@ public class JournalBibleDTO {
 
   private int book;
 
+  private int cate;
+
   private int chapter;
 
   private int verse;
 
   @Builder
-  public JournalBibleDTO(Long uid, Long journalUid, int book, int chapter, int verse) {
+  public JournalBibleDTO(Long uid, Long journalUid, int book, int cate, int chapter, int verse) {
     this.uid = uid;
     this.journalUid = journalUid;
     this.book = book;
+    this.cate = cate;
     this.chapter = chapter;
     this.verse = verse;
   }
