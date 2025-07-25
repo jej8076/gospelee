@@ -11,7 +11,7 @@ const HeroSection = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex(prev => (prev + 1) % words.length);
-    }, 2000); // 2초마다 변경
+    }, 2000);
 
     return () => clearInterval(interval);
   }, []);
