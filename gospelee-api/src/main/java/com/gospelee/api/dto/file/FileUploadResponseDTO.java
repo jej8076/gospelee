@@ -1,5 +1,6 @@
 package com.gospelee.api.dto.file;
 
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,16 +10,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FileUploadResponseDTO {
 
-  private String savedFileName;
   private Long fileId;
-  private Long fileDetailId;
+  private List<FileUploadDetailResponseDTO> fileDetailList;
   private String accessToken;
 
   @Builder
-  public FileUploadResponseDTO(String savedFileName, Long fileId, Long fileDetailId, String accessToken) {
-    this.savedFileName = savedFileName;
+  public FileUploadResponseDTO(Long fileId, List<FileUploadDetailResponseDTO> fileDetailList,
+      String accessToken) {
     this.fileId = fileId;
-    this.fileDetailId = fileDetailId;
+    this.fileDetailList = fileDetailList;
     this.accessToken = accessToken;
   }
 }

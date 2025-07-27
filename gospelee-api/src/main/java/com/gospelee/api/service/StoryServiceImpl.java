@@ -3,30 +3,26 @@ package com.gospelee.api.service;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.announcement.AnnouncementDTO;
-import com.gospelee.api.dto.announcement.AnnouncementResponseDTO;
-import com.gospelee.api.dto.file.FileDetailsDTO;
+import com.gospelee.api.dto.file.FileUploadDetailResponseDTO;
 import com.gospelee.api.dto.file.FileUploadResponseDTO;
 import com.gospelee.api.dto.file.FileUploadWrapperDTO;
 import com.gospelee.api.entity.Account;
-import com.gospelee.api.entity.Announcement;
-import com.gospelee.api.entity.FileDetails;
-import com.gospelee.api.entity.FileEntity;
 import com.gospelee.api.entity.PushNotification;
 import com.gospelee.api.entity.PushNotificationReceivers;
 import com.gospelee.api.enums.CategoryType;
 import com.gospelee.api.enums.OrganizationType;
 import com.gospelee.api.enums.PushNotificationSendStatusType;
-import com.gospelee.api.enums.Yn;
 import com.gospelee.api.repository.jpa.announcement.AnnouncementRepository;
-import com.gospelee.api.repository.jpa.file.FileDetailsRepository;
-import com.gospelee.api.repository.jpa.file.FileRepository;
 import com.gospelee.api.repository.jpa.pushnotification.PushNotificationReceiversRepository;
 import com.gospelee.api.repository.jpa.pushnotification.PushNotificationRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,10 +30,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * TODO 개발자 스토리 게시글 작성에 사용될 예정
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AnnouncementServiceImpl implements AnnouncementService {
+public class StoryServiceImpl implements StoryService {
 
   private final AnnouncementRepository announcementRepository;
   private final PushNotificationRepository pushNotificationRepository;
@@ -45,63 +44,9 @@ public class AnnouncementServiceImpl implements AnnouncementService {
   private final AccountService accountService;
   private final FileService fileService;
   private final FirebaseService firebaseService;
-  private final FileDetailsRepository fileDetailsRepository;
-  private final FileRepository fileRepository;
 
   @Value("${server.domain:http://localhost:8008}")
   private String serverDomain;
-
-  @Override
-  public List<AnnouncementResponseDTO> getAnnouncementList(String announcementType) {
-    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
-
-    List<AnnouncementResponseDTO> responseList = announcementRepository.findByOrganizationTypeAndOrganizationId(
-        OrganizationType.fromName(announcementType).name(), account.getEcclesiaUid());
-
-    for (AnnouncementResponseDTO ann : responseList) {
-      if (ann.getFileUid() == null) {
-        continue;
-      }
-      Optional<FileEntity> file = fileRepository.findByIdAndDelYn(ann.getFileUid(), Yn.N.name());
-      if (file.isEmpty()) {
-        continue;
-      }
-      ann.changeImageAccessToken(file.get().getAccessToken());
-
-      List<FileDetails> fileDetailList = fileDetailsRepository.findAllByFileId(
-          ann.getFileUid());
-
-      List<FileDetailsDTO> fileDetailDtoList = fileDetailList.stream()
-          .map(FileDetailsDTO::fromEntity)
-          .toList();
-
-      ann.changeFileDetail(fileDetailDtoList);
-    }
-
-    return responseList;
-  }
-
-  @Override
-  public AnnouncementDTO getAnnouncement(String announcementType, Long id) {
-    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
-
-    // 임시로 ecclesia 공지사항만 고려함
-    Optional<Announcement> announcement = announcementRepository.findByIdAndOrganizationTypeAndOrganizationId(
-        id, announcementType, account.getEcclesiaUid());
-
-    if (announcement.isEmpty()) {
-      throw new RuntimeException("실패함");
-    }
-
-    List<FileDetails> fileDetailList = fileDetailsRepository.findAllByFileId(
-        announcement.get().getFileUid());
-
-    List<FileDetailsDTO> fileDetailDtoList = fileDetailList.stream()
-        .map(FileDetailsDTO::fromEntity)
-        .toList();
-
-    return AnnouncementDTO.fromEntity(announcement.get(), fileDetailDtoList);
-  }
 
   /**
    * <pre>
@@ -121,7 +66,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
    */
   @Override
   @Transactional
-  public AnnouncementDTO insertAnnouncement(List<MultipartFile> files,
+  public AnnouncementDTO insertStory(List<MultipartFile> files,
       AnnouncementDTO announcementDTO) {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
 
@@ -129,7 +74,11 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     AnnouncementDTO announcement = AnnouncementDTO.fromEntity(
         announcementRepository.save(announcementDTO.toEntity(account)), null);
 
+    // 파일 업로드 및 blob URL 매핑 생성
+    Map<String, String> blobToFileUrlMap = new HashMap<>();
+
     if (files != null && !files.isEmpty()) {
+
       FileUploadWrapperDTO fileUploadWrapper = FileUploadWrapperDTO.builder()
           .categoryType(CategoryType.ANNOUNCEMENT)
           .files(files)
@@ -137,11 +86,65 @@ public class AnnouncementServiceImpl implements AnnouncementService {
           .parentId(announcement.getId())
           .build();
 
-      FileUploadResponseDTO fileUploadResponse = fileService.uploadFileWithResponse(
+      FileUploadResponseDTO uploadResult = fileService.uploadFileWithResponse(
           fileUploadWrapper);
 
-      // 업로드한 fileId announcement 에 입력
-      announcementRepository.updateFileId(announcement.getId(), fileUploadResponse.getFileId());
+      List<FileUploadDetailResponseDTO> detailList = uploadResult.getFileDetailList();
+
+      for (FileUploadDetailResponseDTO dto : detailList) {
+        String fileUrl = serverDomain + "/api/file/" + uploadResult.getAccessToken() + "/"
+            + dto.getFileDetailId();
+
+        // blobFileMapping이 있는 경우 이를 활용
+        // blobFileMapping을 통해 blob URL과 파일명을 매핑
+        Map<String, String> blobFileMapping = announcementDTO.getBlobFileMapping();
+        String originalFileName = dto.getFileOriginalName();
+        if (blobFileMapping != null) {
+          for (Map.Entry<String, String> entry : blobFileMapping.entrySet()) {
+            if (entry.getValue().equals(originalFileName)) {
+              blobToFileUrlMap.put(entry.getKey(), fileUrl);
+              log.info("Blob URL 매핑 생성: {} -> {}", entry.getKey(), fileUrl);
+              break;
+            }
+          }
+        } else {
+          // blobFileMapping이 없는 경우 기존 로직 사용 (순서대로 매핑)
+          if (originalFileName != null) {
+            // text에서 blob URL 패턴을 찾아서 순서대로 매핑
+            String blobPattern = "blob:[^\"\\s]+";
+            Pattern pattern = Pattern.compile(blobPattern);
+            Matcher matcher = pattern.matcher(announcementDTO.getText());
+
+            if (matcher.find()) {
+              String blobUrl = matcher.group();
+              if (!blobToFileUrlMap.containsKey(blobUrl)) {
+                blobToFileUrlMap.put(blobUrl, fileUrl);
+                log.info("Blob URL 매핑 생성 (자동): {} -> {}", blobUrl, fileUrl);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // text 내용의 blob URL을 실제 파일 URL로 치환
+    String updatedText = replaceBlobUrls(announcementDTO.getText(), blobToFileUrlMap);
+
+    // 업데이트된 text로 공지사항 다시 저장
+    if (!updatedText.equals(announcementDTO.getText())) {
+      announcementRepository.updateTextById(announcement.getId(), updatedText);
+      announcement = AnnouncementDTO.builder()
+          .id(announcement.getId())
+          .organizationType(announcement.getOrganizationType())
+          .organizationId(announcement.getOrganizationId())
+          .subject(announcement.getSubject())
+          .text(updatedText)
+          .fileUid(announcement.getFileUid())
+          .pushNotificationSendYn(announcement.getPushNotificationSendYn())
+          .pushNotificationIds(announcement.getPushNotificationIds())
+          .insertTime(announcement.getInsertTime())
+          .updateTime(announcement.getUpdateTime())
+          .build();
     }
 
     // push 알림을 활성화하지 않으면 발송안함

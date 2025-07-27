@@ -1,6 +1,7 @@
 package com.gospelee.api.service;
 
 import com.gospelee.api.dto.account.AccountAuthDTO;
+import com.gospelee.api.dto.file.FileUploadDetailResponseDTO;
 import com.gospelee.api.dto.file.FileUploadRequestDTO;
 import com.gospelee.api.dto.file.FileUploadResponseDTO;
 import com.gospelee.api.dto.file.FileUploadWrapperDTO;
@@ -15,6 +16,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,45 +40,6 @@ public class FileServiceImpl implements FileService {
 
   @Override
   @Transactional
-  public boolean uploadFile(FileUploadWrapperDTO fileUploadWrapperDTO) {
-
-    // upload를 호출하는 곳에서 계정정보를 안넣어줄 수 있음
-    if (fileUploadWrapperDTO.getAccountAuth() == null) {
-      fileUploadWrapperDTO.changeAccountAuth(
-          AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow());
-    }
-
-    FileEntity fileEntity = FileEntity.builder()
-        .accountUid(fileUploadWrapperDTO.getAccountAuth().getUid())
-        .category(fileUploadWrapperDTO.getCategoryType().name())
-        .parentId(String.valueOf(fileUploadWrapperDTO.getParentId()))
-        .delYn("N")
-        .accessToken(UUID.randomUUID().toString())
-        .build();
-
-    fileEntity = fileRepository.save(fileEntity);
-
-    FileUploadRequestDTO request = fileToDTO(fileUploadWrapperDTO.getCategoryType(),
-        fileUploadWrapperDTO.getFile(), fileUploadWrapperDTO.getAccountAuth());
-
-    FileDetails fileDetails = FileDetails.builder()
-        .fileId(fileEntity.getId())
-        .fileSize(request.getFileSize())
-        .fileType(request.getFileType())
-        .fileOriginalName(request.getFileOriginalName())
-        .filePath(request.getFilePath() + File.separator + request.getFileSaveName())
-        .extension(request.getExtension())
-        .build();
-
-    fileDetailsRepository.save(fileDetails);
-
-    saveFile(request, fileUploadWrapperDTO.getFile());
-
-    return true;
-  }
-
-  @Override
-  @Transactional
   public FileUploadResponseDTO uploadFileWithResponse(FileUploadWrapperDTO fileUploadWrapperDTO) {
 
     // upload를 호출하는 곳에서 계정정보를 안넣어줄 수 있음
@@ -94,26 +58,34 @@ public class FileServiceImpl implements FileService {
 
     fileEntity = fileRepository.save(fileEntity);
 
-    FileUploadRequestDTO request = fileToDTO(fileUploadWrapperDTO.getCategoryType(),
-        fileUploadWrapperDTO.getFile(), fileUploadWrapperDTO.getAccountAuth());
+    List<FileUploadDetailResponseDTO> fileDetailList = new ArrayList<>();
+    for (MultipartFile file : fileUploadWrapperDTO.getFiles()) {
+      FileUploadRequestDTO request = fileToDTO(fileUploadWrapperDTO.getCategoryType(), file,
+          fileUploadWrapperDTO.getAccountAuth());
 
-    FileDetails fileDetails = FileDetails.builder()
-        .fileId(fileEntity.getId())
-        .fileSize(request.getFileSize())
-        .fileType(request.getFileType())
-        .fileOriginalName(request.getFileOriginalName())
-        .filePath(request.getFilePath() + File.separator + request.getFileSaveName())
-        .extension(request.getExtension())
-        .build();
+      FileDetails fileDetails = FileDetails.builder()
+          .fileId(fileEntity.getId())
+          .fileSize(request.getFileSize())
+          .fileType(request.getFileType())
+          .fileOriginalName(request.getFileOriginalName())
+          .filePath(request.getFilePath() + File.separator + request.getFileSaveName())
+          .extension(request.getExtension())
+          .build();
 
-    fileDetails = fileDetailsRepository.save(fileDetails);
+      // 파일 물리 저장
+      saveFile(request, file);
 
-    saveFile(request, fileUploadWrapperDTO.getFile());
+      // detail 영속성 데이터 저장
+      fileDetails = fileDetailsRepository.save(fileDetails);
+      fileDetailList.add(FileUploadDetailResponseDTO.builder()
+          .fileDetailId(fileDetails.getId())
+          .fileOriginalName(file.getOriginalFilename())
+          .build());
+    }
 
     return FileUploadResponseDTO.builder()
-        .savedFileName(request.getFileSaveName())
         .fileId(fileEntity.getId())
-        .fileDetailId(fileDetails.getId())
+        .fileDetailList(fileDetailList)
         .accessToken(fileEntity.getAccessToken())
         .build();
   }

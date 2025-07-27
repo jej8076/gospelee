@@ -22,8 +22,11 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
       @Param("id") Long id,
       @Param("text") String text);
 
-//  List<Announcement> findByOrganizationTypeAndOrganizationId(String organizationType,
-//      String organizationId);
+  @Modifying
+  @Query("UPDATE Announcement a SET a.fileUid = :fileId WHERE a.id = :id")
+  void updateFileId(
+      @Param("id") Long id,
+      @Param("fileId") Long fileId);
 
   @Query("SELECT a FROM Announcement a WHERE a.id = :id AND a.organizationType = :organizationType AND a.organizationId = :organizationId")
   Optional<Announcement> findByIdAndOrganizationTypeAndOrganizationId(

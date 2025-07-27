@@ -12,6 +12,7 @@ import {isEmpty} from "@/utils/validators";
 import {useRouter} from "next/navigation";
 import Modal from "@/components/modal/modal";
 import {blueButton, grayButton} from "@/components/modal/modal-buttons";
+import MarkdownEditorField from '@/components/markdown/MarkdownEditorField';
 
 export default function CreateNoti() {
   useAuth();
@@ -253,14 +254,14 @@ export default function CreateNoti() {
                             ×
                           </button>
                         </div>
-                        {/*<div className="flex space-x-2">*/}
-                        {/*  <input*/}
-                        {/*      type="button"*/}
-                        {/*      value="적용"*/}
-                        {/*      className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"*/}
-                        {/*      onClick={() => handleMarkdownImage(index, file)}*/}
-                        {/*  />*/}
-                        {/*</div>*/}
+                        <div className="flex space-x-2">
+                          <input
+                              type="button"
+                              value="적용"
+                              className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
+                              onClick={() => handleMarkdownImage(index, file)}
+                          />
+                        </div>
                       </div>
                   ))}
                 </div>
@@ -271,19 +272,21 @@ export default function CreateNoti() {
                   본문
                 </label>
                 <div className="mt-2">
-                  {/*<MarkdownEditorField*/}
-                  {/*    value={announcementText} // 기존에 저장된 내용이 있다면 전달*/}
-                  {/*    onMarkdownChange={setAnnouncementText} // 에디터 내용 변경 시 상태 업데이트*/}
-                  {/*/>*/}
-                  <textarea
-                      id="about"
-                      name="about"
-                      onChange={(e) => setAnnouncementText(e.target.value)}
-                      rows={3}
-                      className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border border-gray-300"
-                      defaultValue={''}
+                  <MarkdownEditorField
+                      value={announcementText} // 기존에 저장된 내용이 있다면 전달
+                      onMarkdownChange={setAnnouncementText} // 에디터 내용 변경 시 상태 업데이트
                   />
+                  {/*<textarea*/}
+                  {/*    id="about"*/}
+                  {/*    name="about"*/}
+                  {/*    onChange={(e) => setText(e.target.value)}*/}
+                  {/*    rows={3}*/}
+                  {/*    className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border border-gray-300"*/}
+                  {/*    defaultValue={''}*/}
+                  {/*/>*/}
                 </div>
+                {/*<p className="mt-3 text-sm/6 text-gray-600">Write a few sentences about*/}
+                {/*  yourself.</p>*/}
               </div>
 
             </div>

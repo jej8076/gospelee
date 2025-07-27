@@ -24,7 +24,7 @@ public class AnnouncementRepositoryCustomImpl implements AnnouncementRepositoryC
     return queryFactory
         .select(AnnouncementProjections.toColumn(type.getNameField()))
         .from(QAnnouncement.announcement)
-        .join(type.getEntity())
+        .leftJoin(type.getEntity())
         .on(QAnnouncement.announcement.organizationId.eq(type.getIdField()))
         .where(
             QAnnouncement.announcement.organizationId.eq(organizationId)
