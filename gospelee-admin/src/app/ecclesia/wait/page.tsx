@@ -6,11 +6,11 @@ import {useApiClient} from "@/hooks/useApiClient";
 import {getLastLoginOrElseNull, logout} from "@/utils/user-utils";
 import {useRouter} from "next/navigation";
 import {
-  ClockIcon,
+  BuildingOfficeIcon,
   CheckCircleIcon,
-  UserIcon,
+  ClockIcon,
   PhoneIcon,
-  BuildingOfficeIcon
+  UserIcon
 } from '@heroicons/react/24/outline';
 
 export default function WaitPage() {
@@ -30,7 +30,7 @@ export default function WaitPage() {
     const lastLoginInfo: AuthInfoType | null = getLastLoginOrElseNull();
     setManager(lastLoginInfo?.name ?? "");
     callApi(() => fetchGetEcclesia(lastLoginInfo?.uid ?? 0), setEcclesia);
-  }, [callApi]);
+  }, []);
 
   return (
       <div className="min-h-screen bg-gray-50">

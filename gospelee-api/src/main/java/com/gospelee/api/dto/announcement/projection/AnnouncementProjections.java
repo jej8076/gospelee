@@ -9,14 +9,14 @@ import com.querydsl.core.types.dsl.StringPath;
 public class AnnouncementProjections {
 
   private static final QAnnouncement announcement = QAnnouncement.announcement;
-  
+
   public static final Expression<String> pushNotificationSendYnExpression =
       new CaseBuilder()
           .when(announcement.pushNotificationIds.isNotNull())
           .then("Y")
           .otherwise("N");
 
-  // DTO 생성용 프로젝션
+  // DTO 생성용 프로젝션 (fileDetailList 제외)
   public static QAnnouncementResponseDTO toColumn(StringPath orgName) {
     return new QAnnouncementResponseDTO(
         announcement.id,

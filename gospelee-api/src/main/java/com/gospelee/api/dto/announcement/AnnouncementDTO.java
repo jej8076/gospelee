@@ -1,6 +1,7 @@
 package com.gospelee.api.dto.announcement;
 
 import com.gospelee.api.dto.account.AccountAuthDTO;
+import com.gospelee.api.dto.file.FileDetailsDTO;
 import com.gospelee.api.entity.Announcement;
 import com.gospelee.api.enums.OrganizationType;
 import jakarta.validation.constraints.NotBlank;
@@ -23,25 +24,28 @@ public class AnnouncementDTO {
   private String subject;
   private String text;
   private Long fileUid;
+  private List<FileDetailsDTO> fileDetailList;
   @NotBlank
   private String pushNotificationSendYn;
   private String pushNotificationIds;
   private LocalDateTime insertTime;
   private LocalDateTime updateTime;
-  
+
   // blob URL과 파일명 매핑을 위한 필드 (요청 시에만 사용)
   private Map<String, String> blobFileMapping;
 
   @Builder
   public AnnouncementDTO(Long id, String organizationType, String organizationId, String subject,
-      String text, Long fileUid, String pushNotificationSendYn, String pushNotificationIds,
-      LocalDateTime insertTime, LocalDateTime updateTime, Map<String, String> blobFileMapping) {
+      String text, Long fileUid, List<FileDetailsDTO> fileDetailList, String pushNotificationSendYn,
+      String pushNotificationIds, LocalDateTime insertTime, LocalDateTime updateTime,
+      Map<String, String> blobFileMapping) {
     this.id = id;
     this.organizationType = organizationType;
     this.organizationId = organizationId;
     this.subject = subject;
     this.text = text;
     this.fileUid = fileUid;
+    this.fileDetailList = fileDetailList;
     this.pushNotificationSendYn = pushNotificationSendYn;
     this.pushNotificationIds = pushNotificationIds;
     this.insertTime = insertTime;
@@ -49,7 +53,8 @@ public class AnnouncementDTO {
     this.blobFileMapping = blobFileMapping;
   }
 
-  public static AnnouncementDTO fromEntity(Announcement announcement) {
+  public static AnnouncementDTO fromEntity(Announcement announcement,
+      List<FileDetailsDTO> fileDetails) {
     return AnnouncementDTO.builder()
         .id(announcement.getId())
         .organizationType(announcement.getOrganizationType())
@@ -57,6 +62,7 @@ public class AnnouncementDTO {
         .subject(announcement.getSubject())
         .text(announcement.getText())
         .fileUid(announcement.getFileUid())
+        .fileDetailList(fileDetails)
         .pushNotificationIds(announcement.getPushNotificationIds())
         .insertTime(announcement.getInsertTime())
         .updateTime(announcement.getUpdateTime())
@@ -67,7 +73,7 @@ public class AnnouncementDTO {
     return Announcement.builder()
         .id(this.id)
         .organizationType(OrganizationType.fromName(this.organizationType).name())
-        .organizationId(Long.valueOf(accountAuthDTO.getEcclesiaUid()))
+        .organizationId(accountAuthDTO.getEcclesiaUid())
         .subject(this.subject)
         .text(this.text)
         .fileUid(this.fileUid)

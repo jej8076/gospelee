@@ -1,8 +1,10 @@
 package com.gospelee.api.dto.announcement;
 
+import com.gospelee.api.dto.file.FileDetailsDTO;
 import com.querydsl.core.annotations.QueryProjection;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,6 +23,8 @@ public class AnnouncementResponseDTO {
   private String subject;
   private String text;
   private Long fileUid;
+  private String imageAccessToken;
+  private List<FileDetailsDTO> fileDetailList;
   @NotBlank
   private String pushNotificationSendYn;
   private String pushNotificationIds;
@@ -31,8 +35,9 @@ public class AnnouncementResponseDTO {
   @QueryProjection
   public AnnouncementResponseDTO(Long id, String organizationType, Long organizationId,
       String organizationName, String subject, String text, Long fileUid,
-      String pushNotificationSendYn, String pushNotificationIds, LocalDateTime insertTime,
-      LocalDateTime updateTime) {
+      List<FileDetailsDTO> fileDetailList, String pushNotificationSendYn,
+      String pushNotificationIds,
+      LocalDateTime insertTime, LocalDateTime updateTime) {
     this.id = id;
     this.organizationType = organizationType;
     this.organizationId = organizationId;
@@ -40,9 +45,38 @@ public class AnnouncementResponseDTO {
     this.subject = subject;
     this.text = text;
     this.fileUid = fileUid;
+    this.fileDetailList = fileDetailList;
     this.pushNotificationSendYn = pushNotificationSendYn;
     this.pushNotificationIds = pushNotificationIds;
     this.insertTime = insertTime;
     this.updateTime = updateTime;
+  }
+
+  // QueryDSL용 생성자 (fileDetailList 제외)
+  @QueryProjection
+  public AnnouncementResponseDTO(Long id, String organizationType, Long organizationId,
+      String organizationName, String subject, String text, Long fileUid,
+      String pushNotificationSendYn, String pushNotificationIds,
+      LocalDateTime insertTime, LocalDateTime updateTime) {
+    this.id = id;
+    this.organizationType = organizationType;
+    this.organizationId = organizationId;
+    this.organizationName = organizationName;
+    this.subject = subject;
+    this.text = text;
+    this.fileUid = fileUid;
+    this.fileDetailList = null; // 나중에 별도로 설정
+    this.pushNotificationSendYn = pushNotificationSendYn;
+    this.pushNotificationIds = pushNotificationIds;
+    this.insertTime = insertTime;
+    this.updateTime = updateTime;
+  }
+
+  public void changeImageAccessToken(String accessToken) {
+    this.imageAccessToken = accessToken;
+  }
+
+  public void changeFileDetail(List<FileDetailsDTO> fileList) {
+    this.fileDetailList = fileList;
   }
 }

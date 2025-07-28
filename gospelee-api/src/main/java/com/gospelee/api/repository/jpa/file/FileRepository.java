@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface FileRepository extends JpaRepository<FileEntity, Long> {
 
   Optional<FileEntity> findByAccessTokenAndDelYn(String accessToken, String delYn);
+
+  Optional<FileEntity> findByIdAndDelYn(Long id, String delYn);
 }
