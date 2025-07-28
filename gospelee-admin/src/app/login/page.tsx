@@ -28,7 +28,7 @@ export default function Login() {
 
   const handleLogin = async () => {
     if (isLoading) return; // 중복 클릭 방지
-    
+
     setMenuList([]);
 
     if (email === 'super@super.com') {
@@ -63,62 +63,63 @@ export default function Login() {
   };
 
   return (
-    <PageTransition>
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          {/* 로고 */}
-          <div className="flex justify-center mb-8">
-            <Image
-              className="h-16 w-auto"
-              src="/images/logo/logo_oog.svg"
-              alt="Gospelee"
-              width={64}
-              height={64}
-            />
-          </div>
-          
-          {/* 로그인 폼 */}
-          <div className="bg-white py-8 px-6 shadow-sm rounded-lg sm:px-10">
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  이메일 주소
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  ref={emailInputRef}
-                  value={email}
-                  onChange={handleEmailChange}
-                  onKeyPress={handleKeyPress}
-                  placeholder="이메일을 입력하세요"
-                  className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150 ease-in-out"
-                />
-              </div>
+      <PageTransition>
+        <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+          <div className="sm:mx-auto sm:w-full sm:max-w-md">
+            {/* 로고 */}
+            <div className="flex justify-center mb-8">
+              <Image
+                  className="h-16 w-auto"
+                  src="/images/logo/logo_oog.svg"
+                  alt="Gospelee"
+                  width={64}
+                  height={64}
+              />
+            </div>
 
-              <div>
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isLoading ? (
-                    <div className="flex items-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      처리 중...
-                    </div>
-                  ) : (
-                    '로그인'
-                  )}
-                </button>
-              </div>
-            </form>
+            {/* 로그인 폼 */}
+            <div className="bg-white py-8 px-6 shadow-sm rounded-lg sm:px-10">
+              <form className="space-y-6" onSubmit={handleSubmit}>
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    이메일 주소
+                  </label>
+                  <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      ref={emailInputRef}
+                      value={email}
+                      onChange={handleEmailChange}
+                      onKeyPress={handleKeyPress}
+                      placeholder="이메일을 입력하세요"
+                      className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150 ease-in-out"
+                  />
+                </div>
+
+                <div>
+                  <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-signature hover:bg-signatureHover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? (
+                        <div className="flex items-center">
+                          <div
+                              className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          처리 중...
+                        </div>
+                    ) : (
+                        '로그인'
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
-      </div>
-    </PageTransition>
+      </PageTransition>
   );
 }

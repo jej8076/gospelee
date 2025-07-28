@@ -21,6 +21,7 @@ export default function CreateNoti() {
   const [files, setFiles] = useState<File[] | []>([]);
   const [pushNotificationSendYn, setPushNotificationSendYn] = useState("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isGoBackModalOpen, setIsGoBackModalOpen] = useState<boolean>(false);
   const [announcement, setAnnouncement] = useState<Announcement>();
   const [announcementText, setAnnouncementText] = useState<string>(''); // 마크다운 내용 저장
   const [blobFileMapping, setBlobFileMapping] = useState<{ [key: string]: string }>({}); // blob URL과 파일명 매핑
@@ -46,6 +47,19 @@ export default function CreateNoti() {
   const closeModal = () => {
     setIsModalOpen(false);
   };
+
+  const openGoBackModal = () => {
+    setIsGoBackModalOpen(true);
+  };
+
+  const closeGoBackModal = () => {
+    setIsGoBackModalOpen(false);
+  };
+
+  const goBack = () => {
+    router.push("/manage/noti");
+    return;
+  }
 
   const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPushNotificationSendYn(event.target.value);
@@ -339,10 +353,11 @@ export default function CreateNoti() {
         </div>
 
         <div className="mt-6 mr-6 flex items-center justify-end gap-x-6">
-          <input type="button" value="Cancel" className="text-sm/6 font-semibold text-gray-900"/>
+          <input type="button" value="뒤로가기" className="text-sm/6 font-semibold text-gray-900"
+                 onClick={() => openGoBackModal()}/>
           <input
               type="button"
-              value="Save"
+              value="저장"
               className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
               onClick={() => openModal()}
           />
@@ -355,6 +370,21 @@ export default function CreateNoti() {
               <>
                 {grayButton("취소", closeModal)}
                 {blueButton("확인", insertAnnouncement)}
+              </>
+            }
+        >
+          {
+            <div></div>
+          }
+        </Modal>
+        <Modal
+            isOpen={isGoBackModalOpen}
+            onClose={() => closeGoBackModal()}
+            title={"공지사항 작성을 그만합니다."}
+            footer={
+              <>
+                {grayButton("취소", closeGoBackModal)}
+                {blueButton("확인", goBack)}
               </>
             }
         >

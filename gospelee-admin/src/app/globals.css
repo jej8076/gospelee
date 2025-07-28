@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --signature-color: rgb(49, 96, 73);
+}
+
 .custom-md-editor .w-md-editor-toolbar svg {
   width: 20px !important; /* 원하는 너비 */
   height: 20px !important; /* 원하는 높이 */
