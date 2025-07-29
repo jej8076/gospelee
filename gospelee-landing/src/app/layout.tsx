@@ -28,6 +28,30 @@ export default function RootLayout({
 }) {
   return (
       <html lang="ko">
+      <head>
+        {/* 폰트 프리로드 */}
+        <link
+          rel="preload"
+          href="/fonts/pretendard/Pretendard-Regular.otf"
+          as="font"
+          type="font/otf"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/pretendard/Pretendard-SemiBold.otf"
+          as="font"
+          type="font/otf"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/pretendard/Pretendard-Bold.otf"
+          as="font"
+          type="font/otf"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body>{children}</body>
       </html>
   )

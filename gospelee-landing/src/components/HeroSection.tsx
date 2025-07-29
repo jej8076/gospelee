@@ -3,9 +3,11 @@
 import {useState, useEffect} from 'react';
 import Image from 'next/image';
 import styles from './HeroSection.module.css';
+import Link from "next/link";
 
 const HeroSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [fontLoaded, setFontLoaded] = useState(false);
   const words = ['our', 'my'];
 
   const getDelay = (index: number) => {
@@ -13,6 +15,23 @@ const HeroSection = () => {
     if (index === 1) return 1000;
     return 2000;
   };
+
+  useEffect(() => {
+    // 폰트 로딩 확인
+    const checkFontLoaded = async () => {
+      try {
+        await document.fonts.load('400 16px Pretendard');
+        await document.fonts.load('600 16px Pretendard');
+        await document.fonts.load('700 16px Pretendard');
+        setFontLoaded(true);
+      } catch (error) {
+        // 폰트 로딩 실패시에도 3초 후 표시
+        setTimeout(() => setFontLoaded(true), 3000);
+      }
+    };
+
+    checkFontLoaded();
+  }, []);
 
   useEffect(() => {
     const delay = getDelay(currentIndex);
@@ -25,7 +44,7 @@ const HeroSection = () => {
   }, [currentIndex]);
 
   return (
-      <section className={styles.hero}>
+      <section className={`${styles.hero} ${fontLoaded ? styles.fontLoaded : styles.fontLoading}`}>
         <div className="container">
           <div className={styles.heroContent}>
             <div className={styles.textContent}>
@@ -52,9 +71,11 @@ const HeroSection = () => {
                 우리는 교회, 교회는 우리<br/>
               </p>
               <div className={styles.buttonGroup}>
-                <button className={styles.primaryButton}>
-                  앱 다운로드
-                </button>
+                <Link href="/#download">
+                  <button className={styles.primaryButton}>
+                    앱 다운로드
+                  </button>
+                </Link>
                 <button className={styles.secondaryButton}>
                   더 알아보기
                 </button>
