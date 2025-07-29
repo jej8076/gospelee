@@ -45,6 +45,21 @@ public class Journal extends EditInfomation {
   }
 
   public void changeJournalBibleList(List<JournalBible> journalBibleList) {
-    this.JournalBibleList = journalBibleList;
+    // 기존 리스트를 클리어하고 새로운 리스트로 교체
+    if (this.JournalBibleList != null) {
+      this.JournalBibleList.clear();
+      this.JournalBibleList.addAll(journalBibleList);
+    } else {
+      this.JournalBibleList = journalBibleList;
+    }
+
+    // 양방향 연관관계 설정
+    for (JournalBible journalBible : journalBibleList) {
+      journalBible.setJournal(this);
+    }
+  }
+
+  public void changeContent(String content) {
+    this.content = content;
   }
 }

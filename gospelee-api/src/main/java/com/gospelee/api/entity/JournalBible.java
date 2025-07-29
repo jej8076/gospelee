@@ -46,4 +46,9 @@ public class JournalBible {
     this.verse = verse;
     this.journal = journal;
   }
+  
+  // 연관관계 편의 메서드
+  public void setJournal(Journal journal) {
+    this.journal = journal;
+  }
 }

@@ -44,10 +44,8 @@ public class JournalController {
    * @return
    */
   @PutMapping
-  public ResponseEntity<Object> insertJournal(
-      @AuthenticationPrincipal AccountAuthDTO account,
-      @RequestBody JournalDTO journalDTO) {
-    JournalDTO insertJournal = journalService.insertJournal(account, journalDTO);
+  public ResponseEntity<Object> insertJournal(@RequestBody JournalDTO journalDTO) {
+    JournalDTO insertJournal = journalService.insertJournal(journalDTO);
     return new ResponseEntity<>(insertJournal, HttpStatus.OK);
   }
 
