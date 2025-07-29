@@ -24,7 +24,7 @@
   line-height: 1.2;
   color: #212529;
   margin-bottom: 6px;
-  word-spacing: 0.6rem;
+  word-spacing: 0.3rem;
   font-family: "Pretendard", sans-serif;
 }
 
@@ -247,8 +247,8 @@
 
   .title {
     font-size: 4.5rem;
-    letter-spacing: 0.02em;
-    word-spacing: 0.1em; /* 모바일에서 단어 간격 줄임 */
+    letter-spacing: -0.0em;
+    word-spacing: -0.1em; /* 모바일에서 단어 간격 줄임 */
   }
 
   .subtitle {
@@ -280,7 +280,18 @@
 @media (max-width: 480px) {
   .title {
     font-size: 3rem;
-    word-spacing: -0.5rem;
+    letter-spacing: -0.0em;
+    word-spacing: -2.5rem;
+  }
+
+  .wordContainer {
+    display: inline-block;
+    position: relative;
+    height: 1.2em; /* 한 줄 높이 */
+    width: 100px;
+    overflow: hidden;
+    vertical-align: baseline;
+    transform: translateY(0.2em); /* 약간 아래로 이동 */
   }
 
   .buttonGroup {

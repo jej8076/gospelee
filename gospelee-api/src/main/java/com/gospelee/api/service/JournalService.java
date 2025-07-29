@@ -9,6 +9,6 @@ public interface JournalService {
 
   List<JournalDTO> getJournalList(long accountUid);
 
-  JournalDTO insertJournal(AccountAuthDTO account, JournalDTO journalDTO);
+  JournalDTO insertJournal(JournalDTO journalDTO);
 
 }
