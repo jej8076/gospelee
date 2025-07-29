@@ -1,3 +1,22 @@
+/* 폰트 로딩 상태 관리 */
+.fontLoading {
+  visibility: hidden;
+}
+
+.fontLoaded {
+  visibility: visible;
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .hero {
   min-height: 100vh;
   display: flex;

@@ -3,7 +3,7 @@
   src: url('/fonts/pretendard/Pretendard-Regular.otf') format('opentype');
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: fallback; /* swap에서 fallback으로 변경 */
 }
 
 @font-face {
@@ -11,7 +11,7 @@
   src: url('/fonts/pretendard/Pretendard-SemiBold.otf') format('opentype');
   font-weight: 600;
   font-style: normal;
-  font-display: swap;
+  font-display: fallback; /* swap에서 fallback으로 변경 */
 }
 
 @font-face {
@@ -19,7 +19,7 @@
   src: url('/fonts/pretendard/Pretendard-Bold.otf') format('opentype');
   font-weight: 700;
   font-style: normal;
-  font-display: swap;
+  font-display: fallback; /* swap에서 fallback으로 변경 */
 }
 
 * {
