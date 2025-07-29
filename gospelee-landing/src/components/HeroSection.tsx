@@ -8,13 +8,21 @@ const HeroSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const words = ['our', 'my'];
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % words.length);
-    }, 2000);
+  const getDelay = (index: number) => {
+    if (index === 0) return 2000;
+    if (index === 1) return 1000;
+    return 2000;
+  };
 
-    return () => clearInterval(interval);
-  }, []);
+  useEffect(() => {
+    const delay = getDelay(currentIndex);
+
+    const timer = setTimeout(() => {
+      setCurrentIndex(prev => (prev + 1) % words.length);
+    }, delay);
+
+    return () => clearTimeout(timer);
+  }, [currentIndex]);
 
   return (
       <section className={styles.hero}>
