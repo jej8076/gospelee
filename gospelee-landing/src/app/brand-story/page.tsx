@@ -87,8 +87,8 @@ export default function BrandStoryPage() {
                   "세상을 살아가는 실력"
                 </h2>
                 <p className={styles.description}>
-                  낙후되거나 부족한 기술이 아닌<br/>
-                  실력있는 그리스도인이 되는 걸 목표합니다
+                  세상 속에서도 경쟁력있고 인정받는<br/>
+                  그리스도인이 되는 걸 목표합니다
                 </p>
               </div>
             </div>

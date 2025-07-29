@@ -27,37 +27,36 @@ const FeaturesSection = () => {
   ];
 
   return (
-    <section className={styles.features}>
-      <div className="container">
-        <div className={styles.featuresContent}>
-          <div className={styles.header}>
-            <h2 className={styles.title}>
-              Gospelee와 함께하는<br />
-              <span className={styles.highlight}>특별한 기능들</span>
-            </h2>
-            <p className={styles.subtitle}>
-              성경과 더 가까워질 수 있는 다양한 기능을 제공합니다
-            </p>
-          </div>
-          
-          <div className={styles.grid}>
-            {features.map((feature, index) => (
-              <div key={index} className={styles.card}>
-                <div className={styles.cardIcon}>
-                  {feature.icon}
-                </div>
-                <h3 className={styles.cardTitle}>
-                  {feature.title}
-                </h3>
-                <p className={styles.cardDescription}>
-                  {feature.description}
-                </p>
-              </div>
-            ))}
+      <section className={styles.features}>
+        <div className="container">
+          <div className={styles.featuresContent}>
+            <div className={styles.header}>
+              <h2 className={styles.title}>
+                <span className={styles.highlight}>OOG에서는</span>
+              </h2>
+              <p className={styles.subtitle}>
+                
+              </p>
+            </div>
+
+            <div className={styles.grid}>
+              {features.map((feature, index) => (
+                  <div key={index} className={styles.card}>
+                    <div className={styles.cardIcon}>
+                      {feature.icon}
+                    </div>
+                    <h3 className={styles.cardTitle}>
+                      {feature.title}
+                    </h3>
+                    <p className={styles.cardDescription}>
+                      {feature.description}
+                    </p>
+                  </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
   );
 };
 

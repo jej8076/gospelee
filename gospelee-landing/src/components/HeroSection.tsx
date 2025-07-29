@@ -79,9 +79,9 @@ const HeroSection = () => {
                       <div className={styles.previewContent}>
                         <div className={styles.verseCard}>
                           <p className={styles.verseText}>
-                            "하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니"
+                            "그의 안에서 건물마다<br/> 서로 연결되어 주 안에서 성전이 되어 가고"
                           </p>
-                          <span className={styles.verseRef}>요한복음 3:16</span>
+                          <span className={styles.verseRef}>에베소서 2:21</span>
                         </div>
                       </div>
                     </div>

@@ -50,7 +50,7 @@
 }
 
 .section:nth-child(even) {
-  background: #fafafa;
+  background: #ffffff;
 }
 
 .section:nth-child(odd) {
