@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface JournalRepository extends JpaRepository<Journal, Long> {
 
-  @Query("SELECT DISTINCT j FROM Journal j LEFT JOIN FETCH j.JournalBibleList WHERE j.accountUid = :accountUid")
+  @Query("SELECT DISTINCT j FROM Journal j LEFT JOIN FETCH j.JournalBibleList WHERE j.accountUid = :accountUid ORDER BY j.insertTime DESC")
   List<Journal> findByAccountUidWithJournalBibles(@Param("accountUid") long accountUid);
 
 }
