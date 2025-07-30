@@ -43,8 +43,17 @@
   line-height: 1.2;
   color: #212529;
   margin-bottom: 6px;
-  word-spacing: 0.3rem;
+  word-spacing: 0.2rem;
   font-family: "Pretendard", sans-serif;
+}
+
+.signature {
+  font-size: 4.0rem;
+  color: #316049;
+}
+
+.black {
+  color: #212529;
 }
 
 .highlight {
@@ -58,21 +67,14 @@
 .wordContainer {
   display: inline-block;
   position: relative;
-  height: 1.2em; /* 한 줄 높이 */
-  width: 120px; /* Our이 짤리지 않도록 너비 증가 */
+  height: 1.15em; /* 한 줄 높이 */
+  width: 140px; /* Our이 짤리지 않도록 너비 증가 */
   overflow: hidden;
   vertical-align: baseline;
   transform: translateY(0.2em); /* 약간 아래로 이동 */
 }
 
 .animatedWord {
-  /*color: #007bff;*/
-  /*background: linear-gradient(135deg, #007bff, #0056b3);*/
-  color: #316049;
-  background: #316049;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
   display: block;
   position: absolute;
   width: 100%;

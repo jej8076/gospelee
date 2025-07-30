@@ -8,7 +8,7 @@ import Link from "next/link";
 const HeroSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [fontLoaded, setFontLoaded] = useState(false);
-  const words = ['our', 'my'];
+  const words = ['OUR', 'MY'];
 
   const getDelay = (index: number) => {
     if (index === 0) return 2000;
@@ -49,23 +49,30 @@ const HeroSection = () => {
           <div className={styles.heroContent}>
             <div className={styles.textContent}>
               <h1 className={styles.title}>
-                Oh{' '}
+                <span className={styles.black}>O</span>
+                <span className={styles.signature}>H</span>
+                {' '}
                 <span className={styles.wordContainer}>
-                  {words.map((word, index) => (
+                  {words.map((word, wordIndex) => (
                       <span
                           key={word}
-                          className={`${styles.animatedWord} ${
-                              index === currentIndex ? styles.active : ''
-                          }`}
+                          className={`${styles.animatedWord} ${wordIndex === currentIndex ? styles.active : ''}`}
                           style={{
-                            transform: `translateY(${(index - currentIndex) * 100}%)`
+                            transform: `translateY(${(wordIndex - currentIndex) * 100}%)`
                           }}
                       >
-                      {word}
+                      {word.split('').map((char, charIndex) => (
+                          <span key={charIndex}
+                                className={charIndex === 0 ? styles.black : styles.signature}>
+                            {char}
+                          </span>
+                      ))}
                     </span>
                   ))}
                 </span>{' '}
-                God
+                <span className={styles.black}>G</span>
+                <span className={styles.signature}>O</span>
+                <span className={styles.signature}>D</span>
               </h1>
               <p className={styles.subtitle}>
                 우리는 교회, 교회는 우리<br/>
