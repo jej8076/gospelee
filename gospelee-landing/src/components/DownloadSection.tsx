@@ -9,11 +9,11 @@ const DownloadSection = () => {
           <div className={styles.downloadContent}>
             <div className={styles.textContent}>
               <h2 className={styles.title}>
-                지금 바로 시작하세요
+                시작하기
               </h2>
               <p className={styles.subtitle}>
-                Gospelee 앱을 다운로드하고<br/>
-                새로운 성경 읽기 경험을 시작해보세요.
+                OOG 앱을 다운로드하고<br/>
+                말씀을 다양하게 묵상해 보세요
               </p>
               <a href="https://landing.oog.kr/download/app-release.apk" download>
                 <div className={styles.storeButtons}>

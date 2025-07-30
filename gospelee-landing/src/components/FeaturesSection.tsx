@@ -7,17 +7,12 @@ const FeaturesSection = () => {
     {
       icon: '📖',
       title: '성경 읽기',
-      description: '다양한 번역본으로 성경을 읽고 개인적인 묵상을 기록해보세요.'
-    },
-    {
-      icon: '💭',
-      title: '말씀 묵상',
-      description: '일일 말씀과 함께 깊이 있는 묵상의 시간을 가져보세요.'
+      description: '직접 타이핑하여 지루하지 않게 성경을 읽을 수 있어요'
     },
     {
       icon: '📝',
-      title: '기도 노트',
-      description: '기도 제목과 응답을 기록하며 하나님과의 관계를 깊게 해보세요.'
+      title: '말씀 묵상',
+      description: '선택한 말씀으로 묵상을 기록할 수 있어요'
     },
     {
       icon: '👥',
@@ -35,7 +30,7 @@ const FeaturesSection = () => {
                 <span className={styles.highlight}>OOG에서는</span>
               </h2>
               <p className={styles.subtitle}>
-                
+
               </p>
             </div>
 
