@@ -9,8 +9,10 @@ import com.gospelee.api.dto.common.ResponseDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaRequestDTO;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.QrLogin;
+import com.gospelee.api.enums.DeepLinkRouterPath;
 import com.gospelee.api.enums.EcclesiaStatusType;
 import com.gospelee.api.enums.ErrorResponseType;
+import com.gospelee.api.enums.PushNotificationDataType;
 import com.gospelee.api.enums.RoleType;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.FirebaseService;
@@ -279,7 +281,7 @@ public class AccountController {
    */
   private void sendQrLoginNotification(Account account, String code) {
     Map<String, String> pushData = new HashMap<>();
-    pushData.put("code", code);
+    pushData.put(PushNotificationDataType.ROUTE.lower(), DeepLinkRouterPath.QR_SCANNER.path());
 
     firebaseService.sendNotification(
         account.getPushToken(),

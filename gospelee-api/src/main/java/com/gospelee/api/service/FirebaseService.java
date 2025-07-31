@@ -1,7 +1,10 @@
 package com.gospelee.api.service;
 
+import com.google.firebase.messaging.AndroidConfig;
 import com.google.firebase.messaging.ApnsConfig;
+import com.google.firebase.messaging.ApnsFcmOptions;
 import com.google.firebase.messaging.Aps;
+import com.google.firebase.messaging.ApsAlert;
 import com.google.firebase.messaging.BatchResponse;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
@@ -61,6 +64,23 @@ public class FirebaseService {
 
     String result = "";
 
+    // IOS 설정
+    ApnsConfig apnsConfig = ApnsConfig.builder()
+        .putHeader("apns-priority", "10")
+        .setAps(
+            Aps.builder()
+                .setContentAvailable(false)
+                .setMutableContent(false)
+                .setSound("default")
+                .setBadge(1)
+                .build()
+        ).build();
+
+    // Android 설정
+    AndroidConfig androidConfig = AndroidConfig.builder()
+        .setPriority(AndroidConfig.Priority.HIGH)
+        .build();
+
     Notification notification = Notification.builder()
         .setTitle(title)
         .setBody(body)
@@ -70,6 +90,8 @@ public class FirebaseService {
         .setToken(token)
         .setNotification(notification)
         .putAllData(data)
+        .setApnsConfig(apnsConfig)
+        .setAndroidConfig(androidConfig)
         .build();
 
     try {
