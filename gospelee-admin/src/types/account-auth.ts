@@ -10,7 +10,7 @@ interface AuthInfoType {
   phone: string | null;
   email: string;
   role: string;
-  id_token: string | null;
+  idToken: string | null;
   pushToken: string | null;
   ecclesiaStatus: string;
   enabled: boolean;

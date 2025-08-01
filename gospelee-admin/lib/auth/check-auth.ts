@@ -27,7 +27,7 @@ const useAuth = () => {
 
     const auth = async (token: string): Promise<Users> => {
       try {
-        const response = await apiFetch(`/api/account/auth`, {
+        const response = await apiFetch(`/api/account/auth/validate`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -39,7 +39,7 @@ const useAuth = () => {
         const responseBody = await response.json();
 
         const responseBodyString = JSON.stringify(responseBody.data);
-        
+
         // 클라이언트에서만 localStorage 사용
         if (typeof window !== 'undefined') {
           localStorage.setItem(AuthItems.LastAuthInfo, responseBodyString);
@@ -73,12 +73,12 @@ const useAuth = () => {
           console.log('Auth request was aborted');
           return {} as Users; // 빈 객체 반환
         }
-        
+
         console.error('Auth API call failed:', error);
-        
+
         // 토큰 만료 처리
         await expireCookie(AuthItems.Authorization);
-        
+
         // 에러를 다시 throw하여 상위에서 처리하도록 함
         throw error;
       }
@@ -103,9 +103,9 @@ const useAuth = () => {
           console.log('Auth initialization was aborted');
           return;
         }
-        
+
         console.error('Auth initialization failed:', error);
-        
+
         // 토큰 만료 처리
         await expireCookie(AuthItems.Authorization);
         router.push('/login');

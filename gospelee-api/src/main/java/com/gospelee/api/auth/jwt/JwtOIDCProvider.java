@@ -189,7 +189,7 @@ public class JwtOIDCProvider {
           .email(account.getEmail())
           .name(account.getName())
           .role(account.getRole())
-          .id_token(account.getId_token())
+          .idToken(account.getIdToken())
           .ecclesiaUid(account.getEcclesiaUid())
           .pushToken(account.getPushToken())
           .ecclesiaStatus(account.getEcclesiaStatus())
