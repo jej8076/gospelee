@@ -62,8 +62,6 @@ public class FirebaseService {
   public String sendNotification(String token, String title, String body,
       Map<String, String> data) {
 
-    String result = "";
-
     // IOS 설정
     ApnsConfig apnsConfig = ApnsConfig.builder()
         .putHeader("apns-priority", "10")
@@ -93,7 +91,8 @@ public class FirebaseService {
         .setApnsConfig(apnsConfig)
         .setAndroidConfig(androidConfig)
         .build();
-
+    
+    String result = "";
     try {
       result = firebaseMessaging.send(message);
     } catch (FirebaseMessagingException e) {
