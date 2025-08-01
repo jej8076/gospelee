@@ -20,7 +20,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
   @Modifying
   @Transactional
-  @Query("UPDATE Account a SET a.id_token = :idToken, a.updateTime = :updateTime WHERE a.uid = :uid")
+  @Query("UPDATE Account a SET a.idToken = :idToken, a.updateTime = :updateTime WHERE a.uid = :uid")
   void updateAccountIdTokenByUid(@Param("uid") Long uid, @Param("idToken") String idToken,
       @Param("updateTime") LocalDateTime updateTime);
 

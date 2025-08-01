@@ -171,7 +171,7 @@ public class AccountServiceImpl implements AccountService {
         .name(jwtPayload.getNickname())
         .email(jwtPayload.getEmail())
         .role(RoleType.LAYMAN)
-        .id_token(idToken)
+        .idToken(idToken)
         .build();
 
     Account savedAccount = accountRepository.save(newAccount);
@@ -199,7 +199,7 @@ public class AccountServiceImpl implements AccountService {
         .phone(account.getPhone())
         .rrn(account.getRrn())
         .role(account.getRole())
-        .id_token(account.getId_token())
+        .idToken(account.getIdToken())
         .pushToken(account.getPushToken())
         .ecclesiaUid(ecclesia.map(Ecclesia::getUid).orElse(null))
         .ecclesiaStatus(ecclesia.map(Ecclesia::getStatus).orElse(null))

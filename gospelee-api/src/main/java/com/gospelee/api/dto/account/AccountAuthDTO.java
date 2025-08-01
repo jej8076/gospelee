@@ -28,7 +28,7 @@ public class AccountAuthDTO implements UserDetails {
 
   private RoleType role;
 
-  private String id_token;
+  private String idToken;
 
   private String pushToken;
 

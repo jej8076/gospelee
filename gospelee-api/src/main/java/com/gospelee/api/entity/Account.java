@@ -46,14 +46,14 @@ public class Account extends EditInfomation {
   private RoleType role;
 
   @Column(length = 1000)
-  private String id_token;
+  private String idToken;
 
   @Column(length = 1000)
   private String pushToken;
 
   @Builder
   public Account(long uid, String name, Long ecclesiaUid, String rrn, String phone, String email,
-      RoleType role, String id_token, String pushToken) {
+      RoleType role, String idToken, String pushToken) {
     this.uid = uid;
     this.name = name;
     this.ecclesiaUid = ecclesiaUid;
@@ -61,7 +61,7 @@ public class Account extends EditInfomation {
     this.phone = phone;
     this.email = email;
     this.role = role;
-    this.id_token = id_token;
+    this.idToken = idToken;
     this.pushToken = pushToken;
   }
 

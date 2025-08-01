@@ -99,7 +99,7 @@ public class AccountController {
    * @param account 인증된 사용자 정보
    * @return 인증 결과
    */
-  @PostMapping("/auth")
+  @PostMapping("/auth/validate")
   public ResponseEntity<ResponseDTO> validateAccount(
       @AuthenticationPrincipal AccountAuthDTO account) {
     ErrorResponseType errorResponse = validateAccountStatus(account);
@@ -130,6 +130,8 @@ public class AccountController {
       @RequestBody PushTokenDTO pushTokenDTO) {
 
     accountService.savePushToken(account.getUid(), pushTokenDTO.getPushToken());
+    log.info("[PUSHTOKEN ] update_success accountUid:{} pushToken:{}", account.getUid(),
+        pushTokenDTO.getPushToken());
 
     return ResponseEntity.ok(
         DataResponseDTO.of("100", "성공", account)
