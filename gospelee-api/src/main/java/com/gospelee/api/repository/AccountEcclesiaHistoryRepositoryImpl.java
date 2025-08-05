@@ -1,6 +1,7 @@
 package com.gospelee.api.repository;
 
 import com.gospelee.api.dto.ecclesia.AccountEcclesiaHistoryDTO;
+import com.gospelee.api.dto.ecclesia.AccountEcclesiaHistoryDetailDTO;
 import com.gospelee.api.entity.AccountEcclesiaHistory;
 import com.gospelee.api.repository.jdbc.ecclesia.AccountEcclesiaHistoryJdbcRepository;
 import com.gospelee.api.repository.jpa.ecclesia.AccountEcclesiaHistoryJpaRepository;
@@ -23,5 +24,12 @@ public class AccountEcclesiaHistoryRepositoryImpl implements AccountEcclesiaHist
   @Override
   public List<AccountEcclesiaHistoryDTO> findByStatusAndEcclesiaId(Long ecclesiaUid) {
     return accountEcclesiaHistoryJdbcRepository.findByStatusAndEcclesiaId(ecclesiaUid);
+  }
+
+  @Override
+  public List<AccountEcclesiaHistoryDetailDTO> findByAccountEcclesiaRequestByEcclesiaUid(
+      Long ecclesiaUid) {
+    return accountEcclesiaHistoryJdbcRepository.findByAccountEcclesiaRequestByEcclesiaUid(
+        ecclesiaUid);
   }
 }

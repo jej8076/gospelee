@@ -1,12 +1,16 @@
 package com.gospelee.api.service;
 
 import com.gospelee.api.dto.account.AccountAuthDTO;
+import com.gospelee.api.dto.ecclesia.AccountEcclesiaHistoryDetailDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.Ecclesia;
 import com.gospelee.api.enums.RoleType;
+import com.gospelee.api.exception.EcclesiaException;
+import com.gospelee.api.repository.AccountEcclesiaHistoryRepository;
 import com.gospelee.api.repository.jpa.account.AccountRepository;
 import com.gospelee.api.repository.jpa.ecclesia.EcclesiaJpaRepository;
+import com.gospelee.api.utils.AuthenticatedUserUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +31,7 @@ public class AccountServiceImpl implements AccountService {
   private static final String SUPER_EMAIL = "super@super.com";
 
   private final AccountRepository accountRepository;
+  private final AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository;
   private final EcclesiaJpaRepository ecclesiaJpaRepository;
 
   /**
@@ -50,6 +55,18 @@ public class AccountServiceImpl implements AccountService {
   public Optional<List<Account>> getAccountByEcclesiaUid(Long ecclesiaUid) {
     log.debug("교회별 계정 목록 조회 요청. ecclesiaUid: {}", ecclesiaUid);
     return accountRepository.findByEcclesiaUid(ecclesiaUid);
+  }
+
+  @Override
+  public List<AccountEcclesiaHistoryDetailDTO> getAccountEcclesiaRequestList() {
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+    if (account.getEcclesiaUid() == null) {
+      throw new EcclesiaException("[ACCOUNT   ] not_affiliated_with_church accountUid:{}",
+          account.getUid());
+    }
+
+    return accountEcclesiaHistoryRepository.findByAccountEcclesiaRequestByEcclesiaUid(
+        account.getEcclesiaUid());
   }
 
   /**
