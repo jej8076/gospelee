@@ -1,7 +1,7 @@
 package com.gospelee.api.repository.jdbc.ecclesia;
 
-import com.gospelee.api.dto.ecclesia.AccountEcclesiaHistoryDTO;
-import com.gospelee.api.dto.ecclesia.AccountEcclesiaHistoryDetailDTO;
+import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
+import com.gospelee.api.dto.account.AccountEcclesiaHistoryDetailDTO;
 import com.gospelee.api.enums.AccountEcclesiaHistoryStatusType;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

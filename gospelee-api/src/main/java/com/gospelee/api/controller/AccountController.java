@@ -3,10 +3,12 @@ package com.gospelee.api.controller;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.account.AccountDTO;
+import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
+import com.gospelee.api.dto.account.AccountEcclesiaHistoryDecideDTO;
+import com.gospelee.api.dto.account.AccountEcclesiaHistoryDetailDTO;
 import com.gospelee.api.dto.account.PushTokenDTO;
 import com.gospelee.api.dto.common.DataResponseDTO;
 import com.gospelee.api.dto.common.ResponseDTO;
-import com.gospelee.api.dto.ecclesia.AccountEcclesiaHistoryDetailDTO;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.QrLogin;
 import com.gospelee.api.enums.DeepLinkRouterPath;
@@ -91,11 +93,31 @@ public class AccountController {
     return handleUserAccountRequest(account);
   }
 
-  @PostMapping("/ecclesia/request/list")
+  /**
+   * 로그인된 계정의 교회 정보로 교회 참여 요청된 목록 조회
+   *
+   * @return
+   */
+  @PostMapping("/ecclesia/join/request/list")
   public ResponseEntity<Object> getAccountEcclesiaRequestList() {
     List<AccountEcclesiaHistoryDetailDTO> accountEcclesiaHistoryDetailList = accountService.getAccountEcclesiaRequestList();
     return ResponseEntity.ok(
         DataResponseDTO.of("100", "성공", accountEcclesiaHistoryDetailList)
+    );
+  }
+
+  /**
+   * 교회에 참여 요청된 데이터를 변경한다
+   *
+   * @return
+   */
+  @PostMapping("/ecclesia/join/decide")
+  public ResponseEntity<Object> dicideJoinRequest(
+      @RequestBody AccountEcclesiaHistoryDecideDTO accountEcclesiaHistoryDecideDTO) {
+    AccountEcclesiaHistoryDTO accountEcclesiaHistory = accountService.decideJoinRequest(
+        accountEcclesiaHistoryDecideDTO);
+    return ResponseEntity.ok(
+        DataResponseDTO.of("100", "성공", accountEcclesiaHistory)
     );
   }
 

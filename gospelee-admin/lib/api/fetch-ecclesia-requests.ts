@@ -3,7 +3,7 @@ import {AuthItems} from "~/constants/auth-items";
 import {apiFetch} from "~/lib/api-client";
 
 export const fetchEcclesiaRequests = async (): Promise<AccountEcclesiaRequest[]> => {
-  const response = await apiFetch("/api/account/ecclesia/request/list", {
+  const response = await apiFetch("/api/account/ecclesia/join/request/list", {
     method: "POST",
     headers: {
       "X-App-Identifier": "OOG_WEB",
@@ -11,7 +11,7 @@ export const fetchEcclesiaRequests = async (): Promise<AccountEcclesiaRequest[]>
       Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
     }
   });
-  
+
   if (!response.ok) {
     await expireCookie(AuthItems.Authorization);
     const errorData = await response.json();
@@ -21,4 +21,26 @@ export const fetchEcclesiaRequests = async (): Promise<AccountEcclesiaRequest[]>
 
   const result = await response.json();
   return result.data || [];
+};
+
+export const decideEcclesiaRequest = async (accountEcclesiaDecide: AccountEcclesiaDecide): Promise<AccountEcclesiaRequest> => {
+  const response = await apiFetch("/api/account/ecclesia/join/request/decide", {
+    method: "POST",
+    headers: {
+      "X-App-Identifier": "OOG_WEB",
+      "Content-Type": "application/json",
+      Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
+      body: JSON.stringify(accountEcclesiaDecide),
+    }
+  });
+
+  if (!response.ok) {
+    await expireCookie(AuthItems.Authorization);
+    const errorData = await response.json();
+    console.error("Error response from server:", errorData.message);
+    throw {status: response.status, message: errorData.message};
+  }
+
+  const result = await response.json();
+  return result.data || null;
 };

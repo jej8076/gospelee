@@ -1,6 +1,6 @@
 package com.gospelee.api.service;
 
-import com.gospelee.api.dto.ecclesia.AccountEcclesiaHistoryDTO;
+import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaInsertDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaUpdateDTO;

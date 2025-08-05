@@ -8,6 +8,8 @@ public enum AccountEcclesiaHistoryStatusType {
   INVITE_REQUEST,    // 초대요청
   JOIN_APPROVAL,     // 참여승인
   INVITE_APPROVAL,   // 초대승인
+  JOIN_REJECT,     // 참여거절
+  INVITE_REJECT,   // 초대거절
   LEAVE,
   ;
 

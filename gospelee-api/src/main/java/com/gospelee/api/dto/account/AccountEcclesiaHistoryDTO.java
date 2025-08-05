@@ -1,4 +1,4 @@
-package com.gospelee.api.dto.ecclesia;
+package com.gospelee.api.dto.account;
 
 import com.gospelee.api.entity.AccountEcclesiaHistory;
 import com.gospelee.api.enums.AccountEcclesiaHistoryStatusType;

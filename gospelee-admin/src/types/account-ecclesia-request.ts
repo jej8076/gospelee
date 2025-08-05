@@ -1,4 +1,5 @@
 type AccountEcclesiaRequest = {
+  id: number;
   accountUid: string;
   name: string;
   email: string;

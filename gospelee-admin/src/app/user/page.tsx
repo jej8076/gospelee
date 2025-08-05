@@ -4,7 +4,7 @@ import Image from 'next/image';
 import useAuth from "~/lib/auth/check-auth";
 import {useApiClient} from "@/hooks/useApiClient";
 import {fetchUsers} from "~/lib/api/fetch-users";
-import {fetchEcclesiaRequests} from "~/lib/api/fetch-ecclesia-requests";
+import {decideEcclesiaRequest, fetchEcclesiaRequests} from "~/lib/api/fetch-ecclesia-requests";
 import InviteModal from "@/components/modal/invite-modal";
 
 type Users = {
@@ -35,14 +35,22 @@ export default function User() {
     setIsInviteModalOpen(false);
   };
 
-  const handleApproveRequest = async (requestId: string) => {
+  const handleApproveRequest = async (id: number) => {
     // TODO: API 호출로 가입 요청 승인
-    console.log('승인:', requestId);
+    console.log('승인:', id);
+
+    const accountEcclesiaDecide: AccountEcclesiaDecide = {
+      id: id,
+      // TODO 상태 정해야함
+      status: ''
+    }
+
+    await decideEcclesiaRequest(accountEcclesiaDecide);
   };
 
-  const handleRejectRequest = async (requestId: string) => {
+  const handleRejectRequest = async (id: number) => {
     // TODO: API 호출로 가입 요청 거절
-    console.log('거절:', requestId);
+    console.log('거절:', id);
   };
 
   useEffect(() => {
@@ -253,13 +261,13 @@ export default function User() {
                               <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                 <div className="flex justify-start space-x-2">
                                   <button
-                                      onClick={() => handleApproveRequest(request.accountUid)}
+                                      onClick={() => handleApproveRequest(request.id)}
                                       className="inline-flex items-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
                                   >
                                     승인
                                   </button>
                                   <button
-                                      onClick={() => handleRejectRequest(request.accountUid)}
+                                      onClick={() => handleRejectRequest(request.id)}
                                       className="inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
                                   >
                                     거절
