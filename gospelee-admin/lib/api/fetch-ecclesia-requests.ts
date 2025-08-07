@@ -30,8 +30,8 @@ export const decideEcclesiaRequest = async (accountEcclesiaDecide: AccountEccles
       "X-App-Identifier": "OOG_WEB",
       "Content-Type": "application/json",
       Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
-      body: JSON.stringify(accountEcclesiaDecide),
-    }
+    },
+    body: JSON.stringify(accountEcclesiaDecide),
   });
 
   if (!response.ok) {
@@ -42,5 +42,6 @@ export const decideEcclesiaRequest = async (accountEcclesiaDecide: AccountEccles
   }
 
   const result = await response.json();
+  debugger;
   return result.data || null;
 };

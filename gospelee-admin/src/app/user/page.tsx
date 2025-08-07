@@ -6,6 +6,7 @@ import {useApiClient} from "@/hooks/useApiClient";
 import {fetchUsers} from "~/lib/api/fetch-users";
 import {decideEcclesiaRequest, fetchEcclesiaRequests} from "~/lib/api/fetch-ecclesia-requests";
 import InviteModal from "@/components/modal/invite-modal";
+import {AccountEcclesiaHistoryStatusType} from "@/enums/account/AccountEcclesiaHistoryStatusType";
 
 type Users = {
   name: string,
@@ -17,15 +18,18 @@ type Users = {
 };
 
 type TabType = 'users' | 'requests';
+type StatusFilterType = 'ALL' | AccountEcclesiaHistoryStatusType;
 
 export default function User() {
   useAuth();
   const {callApi} = useApiClient();
   const [user, setUsers] = useState<Users[]>([]);
   const [joinRequests, setJoinRequests] = useState<AccountEcclesiaRequest[]>([]);
+  const [filteredJoinRequests, setFilteredJoinRequests] = useState<AccountEcclesiaRequest[]>([]);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<TabType>('users');
+  const [statusFilter, setStatusFilter] = useState<StatusFilterType>('ALL');
 
   const openInviteModal = () => {
     setIsInviteModalOpen(true);
@@ -36,21 +40,65 @@ export default function User() {
   };
 
   const handleApproveRequest = async (id: number) => {
-    // TODO: API 호출로 가입 요청 승인
-    console.log('승인:', id);
-
     const accountEcclesiaDecide: AccountEcclesiaDecide = {
       id: id,
-      // TODO 상태 정해야함
-      status: ''
+      status: AccountEcclesiaHistoryStatusType.JOIN_APPROVAL
     }
 
     await decideEcclesiaRequest(accountEcclesiaDecide);
+    // 요청 처리 후 데이터 다시 로드
+    await callApi(() => fetchEcclesiaRequests(), setJoinRequests);
   };
 
   const handleRejectRequest = async (id: number) => {
-    // TODO: API 호출로 가입 요청 거절
-    console.log('거절:', id);
+    const accountEcclesiaDecide: AccountEcclesiaDecide = {
+      id: id,
+      status: AccountEcclesiaHistoryStatusType.JOIN_REJECT
+    }
+
+    await decideEcclesiaRequest(accountEcclesiaDecide);
+    // 요청 처리 후 데이터 다시 로드
+    await callApi(() => fetchEcclesiaRequests(), setJoinRequests);
+  };
+
+  // 상태별 필터링 함수
+  const filterRequestsByStatus = (requests: AccountEcclesiaRequest[], filter: StatusFilterType) => {
+    if (filter === 'ALL') {
+      return requests;
+    }
+    return requests.filter(request => request.status === filter);
+  };
+
+  // 상태별 개수 계산 함수
+  const getStatusCount = (status: StatusFilterType) => {
+    if (status === 'ALL') {
+      return joinRequests.length;
+    }
+    return joinRequests.filter(request => request.status === status).length;
+  };
+
+  // 상태별 한글 라벨 매핑
+  const getStatusLabel = (status: StatusFilterType) => {
+    switch (status) {
+      case 'ALL':
+        return '전체';
+      case AccountEcclesiaHistoryStatusType.JOIN_REQUEST:
+        return '참여요청';
+      case AccountEcclesiaHistoryStatusType.INVITE_REQUEST:
+        return '초대요청';
+      case AccountEcclesiaHistoryStatusType.JOIN_APPROVAL:
+        return '참여승인';
+      case AccountEcclesiaHistoryStatusType.INVITE_APPROVAL:
+        return '초대승인';
+      case AccountEcclesiaHistoryStatusType.JOIN_REJECT:
+        return '참여거절';
+      case AccountEcclesiaHistoryStatusType.INVITE_REJECT:
+        return '초대거절';
+      case AccountEcclesiaHistoryStatusType.LEAVE:
+        return '탈퇴';
+      default:
+        return status;
+    }
   };
 
   useEffect(() => {
@@ -71,9 +119,26 @@ export default function User() {
     loadData();
   }, []);
 
+  // joinRequests가 변경될 때마다 필터링된 데이터 업데이트
+  useEffect(() => {
+    setFilteredJoinRequests(filterRequestsByStatus(joinRequests, statusFilter));
+  }, [joinRequests, statusFilter]);
+
   const tabs = [
     {id: 'users', name: '사용자 목록', count: user.length},
     {id: 'requests', name: '가입 요청', count: joinRequests.length}
+  ];
+
+  // 상태 필터 버튼 목록
+  const statusFilters: StatusFilterType[] = [
+    'ALL',
+    AccountEcclesiaHistoryStatusType.JOIN_REQUEST,
+    AccountEcclesiaHistoryStatusType.INVITE_REQUEST,
+    AccountEcclesiaHistoryStatusType.JOIN_APPROVAL,
+    AccountEcclesiaHistoryStatusType.INVITE_APPROVAL,
+    AccountEcclesiaHistoryStatusType.JOIN_REJECT,
+    AccountEcclesiaHistoryStatusType.INVITE_REJECT,
+    AccountEcclesiaHistoryStatusType.LEAVE
   ];
 
   return (
@@ -204,81 +269,141 @@ export default function User() {
 
         {/* 가입 요청 탭 */}
         {activeTab === 'requests' && (
-            <div className="mt-8 flow-root">
-              <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                  <table className="min-w-full divide-y divide-gray-300">
-                    <thead>
-                    <tr>
-                      <th scope="col"
-                          className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
-                        신청자
-                      </th>
-                      <th scope="col"
-                          className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        신청일
-                      </th>
-                      <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
+            <div className="mt-8">
+              {/* 상태 필터 버튼들 */}
+              <div className="mb-6">
+                <div className="flex flex-wrap gap-2">
+                  {statusFilters.map((filter) => (
+                      <button
+                          key={filter}
+                          onClick={() => setStatusFilter(filter)}
+                          className={`inline-flex items-center rounded-md px-3 py-2 text-sm font-medium ${
+                              statusFilter === filter
+                                  ? 'bg-indigo-600 text-white'
+                                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                          }`}
+                      >
+                        {getStatusLabel(filter)}
+                        <span className={`ml-2 rounded-full px-2 py-0.5 text-xs ${
+                            statusFilter === filter
+                                ? 'bg-indigo-500 text-white'
+                                : 'bg-gray-100 text-gray-600'
+                        }`}>
+                        {getStatusCount(filter)}
+                      </span>
+                      </button>
+                  ))}
+                </div>
+              </div>
 
-                      </th>
-                    </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200 bg-white">
-                    {isLoading ? (
-                        <tr>
-                          <td colSpan={4} className="text-center py-4">
-                            로딩 중...
-                          </td>
-                        </tr>
-                    ) : joinRequests.length === 0 ? (
-                        <tr>
-                          <td colSpan={4} className="text-center py-4">
-                            가입 요청이 없습니다.
-                          </td>
-                        </tr>
-                    ) : (
-                        joinRequests.map((request) => (
-                            <tr key={request.accountUid}>
-                              <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
-                                <div className="flex items-center">
-                                  <div className="h-11 w-11 flex-shrink-0">
-                                    <div
-                                        className="h-11 w-11 rounded-full bg-gray-300 flex items-center justify-center">
-                                    <span className="text-sm font-medium text-gray-700">
-                                      {request.name.charAt(0)}
-                                    </span>
+              <div className="flow-root">
+                <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                  <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                    <table className="min-w-full divide-y divide-gray-300">
+                      <thead>
+                      <tr>
+                        <th scope="col"
+                            className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
+                          신청자
+                        </th>
+                        <th scope="col"
+                            className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                          휴대폰번호
+                        </th>
+                        <th scope="col"
+                            className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                          상태
+                        </th>
+                        <th scope="col"
+                            className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                          신청일
+                        </th>
+                        <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
+
+                        </th>
+                      </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200 bg-white">
+                      {isLoading ? (
+                          <tr>
+                            <td colSpan={5} className="text-center py-4">
+                              로딩 중...
+                            </td>
+                          </tr>
+                      ) : filteredJoinRequests.length === 0 ? (
+                          <tr>
+                            <td colSpan={5} className="text-center py-4">
+                              {statusFilter === 'ALL' ? '가입 요청이 없습니다.' : `${getStatusLabel(statusFilter)} 상태의 요청이 없습니다.`}
+                            </td>
+                          </tr>
+                      ) : (
+                          filteredJoinRequests.map((request) => (
+                              <tr key={request.accountUid}>
+                                <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
+                                  <div className="flex items-center">
+                                    <div className="h-11 w-11 flex-shrink-0">
+                                      <div
+                                          className="h-11 w-11 rounded-full bg-gray-300 flex items-center justify-center">
+                                      <span className="text-sm font-medium text-gray-700">
+                                        {request.name.charAt(0)}
+                                      </span>
+                                      </div>
+                                    </div>
+                                    <div className="ml-4">
+                                      <div className="font-medium text-gray-900">{request.name}</div>
+                                      <div className="mt-1 text-gray-500">{request.email}</div>
                                     </div>
                                   </div>
-                                  <div className="ml-4">
-                                    <div className="font-medium text-gray-900">{request.name}</div>
-                                    <div className="mt-1 text-gray-500">{request.email}</div>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                                {request.insertTime}
-                              </td>
-                              <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                                <div className="flex justify-start space-x-2">
-                                  <button
-                                      onClick={() => handleApproveRequest(request.id)}
-                                      className="inline-flex items-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
-                                  >
-                                    승인
-                                  </button>
-                                  <button
-                                      onClick={() => handleRejectRequest(request.id)}
-                                      className="inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-                                  >
-                                    거절
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                        ))
-                    )}
-                    </tbody>
-                  </table>
+                                </td>
+                                <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                                  {request.phone}
+                                </td>
+                                <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                                  <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
+                                      request.status === AccountEcclesiaHistoryStatusType.JOIN_REQUEST
+                                          ? 'bg-yellow-50 text-yellow-700 ring-yellow-600/20'
+                                          : request.status === AccountEcclesiaHistoryStatusType.JOIN_APPROVAL
+                                              ? 'bg-green-50 text-green-700 ring-green-600/20'
+                                              : request.status === AccountEcclesiaHistoryStatusType.JOIN_REJECT
+                                                  ? 'bg-red-50 text-red-700 ring-red-600/20'
+                                                  : request.status === AccountEcclesiaHistoryStatusType.INVITE_REQUEST
+                                                      ? 'bg-blue-50 text-blue-700 ring-blue-600/20'
+                                                      : request.status === AccountEcclesiaHistoryStatusType.INVITE_APPROVAL
+                                                          ? 'bg-green-50 text-green-700 ring-green-600/20'
+                                                          : request.status === AccountEcclesiaHistoryStatusType.INVITE_REJECT
+                                                              ? 'bg-red-50 text-red-700 ring-red-600/20'
+                                                              : 'bg-gray-50 text-gray-700 ring-gray-600/20'
+                                  }`}>
+                                    {getStatusLabel(request.status as StatusFilterType)}
+                                  </span>
+                                </td>
+                                <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                                  {request.insertTime}
+                                </td>
+                                <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
+                                  {request.status === AccountEcclesiaHistoryStatusType.JOIN_REQUEST && (
+                                      <div className="flex justify-start space-x-2">
+                                        <button
+                                            onClick={() => handleApproveRequest(request.id)}
+                                            className="inline-flex items-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
+                                        >
+                                          승인
+                                        </button>
+                                        <button
+                                            onClick={() => handleRejectRequest(request.id)}
+                                            className="inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                                        >
+                                          거절
+                                        </button>
+                                      </div>
+                                  )}
+                                </td>
+                              </tr>
+                          ))
+                      )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>

@@ -85,7 +85,7 @@ public class AccountServiceImpl implements AccountService {
 
     AccountEcclesiaHistory findAccountEcclesiaHistory = accountEcclesiaHistoryRepository.findById(
         accountEcclesiaHistoryDecideDTO.getId());
-    if (findAccountEcclesiaHistory.getEcclesiaUid() == account.getEcclesiaUid()) {
+    if (findAccountEcclesiaHistory.getEcclesiaUid() != account.getEcclesiaUid()) {
       // 요청에 대한 교회 정보가 현재 로그인 계정의 교회 정보와 다를 경우
       throw new EcclesiaException(
           "[ACCOUNT   ] church_information_mismatch accountUid:{} ecclesiaUid:{} requestEcclesiaUid:{}",

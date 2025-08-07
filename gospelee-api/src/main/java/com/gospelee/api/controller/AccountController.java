@@ -111,7 +111,7 @@ public class AccountController {
    *
    * @return
    */
-  @PostMapping("/ecclesia/join/decide")
+  @PostMapping("/ecclesia/join/request/decide")
   public ResponseEntity<Object> dicideJoinRequest(
       @RequestBody AccountEcclesiaHistoryDecideDTO accountEcclesiaHistoryDecideDTO) {
     AccountEcclesiaHistoryDTO accountEcclesiaHistory = accountService.decideJoinRequest(
