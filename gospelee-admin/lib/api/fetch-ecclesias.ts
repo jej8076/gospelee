@@ -50,11 +50,9 @@ export const fetchInsertEcclesia = async (inputData: {
   return response.json();
 };
 
-export const fetchUpdateEcclesiaStatus = async (inputData: {
+export const fetchUpdateEcclesia = async (inputData: {
   [key: string]: any
 }): Promise<EcclesiaStatusType> => {
-
-  const typedData = inputData as EcclesiaStatusSelectorProps;
 
   const response = await apiFetch(`/api/ecclesia/status`, {
     method: "PATCH",

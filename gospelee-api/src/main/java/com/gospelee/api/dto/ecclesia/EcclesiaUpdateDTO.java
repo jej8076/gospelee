@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 public class EcclesiaUpdateDTO {
 
   private Long ecclesiaUid;
-
   private String status;
-
+  private String seniorPastorName;
+  private String churchAddress;
 }
 
 

@@ -11,6 +11,8 @@ import {ecclesiaStatusStyle} from "@/app/style/ecclesia/ecclesia-status";
 import Modal from "@/components/modal/modal";
 import {blueButton} from "@/components/modal/modal-buttons";
 import StatusSelector from "@/components/ecclesia/status-selector";
+import SeniorPastorNameSelector from "@/components/ecclesia/senior-pastor-name-selector";
+import ChurchAddressSelector from "@/components/ecclesia/church-address-selector";
 
 export default function Ecclesia() {
   useAuth();
@@ -57,6 +59,40 @@ export default function Ecclesia() {
     // 모달의 선택된 교회 정보도 업데이트
     if (selectedEcclesia && selectedEcclesia.uid === ecclesiaUid) {
       setSelectedEcclesia({...selectedEcclesia, status: newStatus});
+    }
+  };
+
+  const updateEcclesiaSeniorPastorName = (ecclesiaUid: bigint, newSeniorPastorName: string) => {
+    // 기존 목록에서 해당 교회를 찾아 담임목사이름만 업데이트
+    const updatedList = eccList.map(ecc =>
+        ecc.uid === ecclesiaUid
+            ? {...ecc, seniorPastorName: newSeniorPastorName}
+            : ecc
+    );
+
+    // 업데이트된 목록으로 상태 갱신
+    setEccList(updatedList);
+
+    // 모달의 선택된 교회 정보도 업데이트
+    if (selectedEcclesia && selectedEcclesia.uid === ecclesiaUid) {
+      setSelectedEcclesia({...selectedEcclesia, seniorPastorName: newSeniorPastorName});
+    }
+  };
+
+  const updateEcclesiaChurchAddress = (ecclesiaUid: bigint, newChurchAddress: string) => {
+    // 기존 목록에서 해당 교회를 찾아 교회 주소만 업데이트
+    const updatedList = eccList.map(ecc =>
+        ecc.uid === ecclesiaUid
+            ? {...ecc, churchAddress: newChurchAddress}
+            : ecc
+    );
+
+    // 업데이트된 목록으로 상태 갱신
+    setEccList(updatedList);
+
+    // 모달의 선택된 교회 정보도 업데이트
+    if (selectedEcclesia && selectedEcclesia.uid === ecclesiaUid) {
+      setSelectedEcclesia({...selectedEcclesia, churchAddress: newChurchAddress});
     }
   };
 
@@ -110,10 +146,18 @@ export default function Ecclesia() {
                   </th>
                   <th scope="col"
                       className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    담임목사
+                  </th>
+                  <th scope="col"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    교회 주소
+                  </th>
+                  <th scope="col"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                     상태
                   </th>
                   <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
-                    <span className="sr-only">Edit</span>
+                    <span className="sr-only"></span>
                   </th>
                 </tr>
                 </thead>
@@ -138,22 +182,20 @@ export default function Ecclesia() {
                           </div>
                         </div>
                       </td>
-                      {/*<td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">*/}
-                      {/*  <div className="text-gray-900">{u.churchIdentificationNumber}</div>*/}
-                      {/*  <div className="mt-1 text-gray-500">{u.name}</div>*/}
-                      {/*</td>*/}
                       <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{ecc.masterAccountName}</td>
+                      <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{ecc.seniorPastorName || '-'}</td>
+                      <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{ecc.churchAddress || '-'}</td>
                       <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
                         <span
                             className={ecclesiaStatusStyle(ecc.status)}>
                           {ecclesiaStatusKor(ecc.status)}
                         </span>
                       </td>
-                      <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
+                      <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-left text-sm font-medium sm:pr-0">
                         <button
                             className="text-indigo-600 hover:text-indigo-900 cursor-pointer"
                             onClick={() => openModal(ecc)}
-                        >Edit
+                        >수정
                         </button>
                       </td>
                     </tr>
@@ -171,7 +213,7 @@ export default function Ecclesia() {
             footer={
               <>
                 {/*{grayButton("취소", closeModal)}*/}
-                {blueButton("확인", closeModal)}
+                {blueButton("닫기", closeModal)}
               </>
             }
         >
@@ -187,6 +229,26 @@ export default function Ecclesia() {
                       onStatusChange={(newStatus) => {
                         // 상태가 변경됐을 때 전체 목록 업데이트
                         updateEcclesiaStatus(selectedEcclesia.uid, newStatus);
+                      }}
+                  />
+
+                  {/* 담임목사이름 선택기 */}
+                  <SeniorPastorNameSelector
+                      ecclesiaUid={selectedEcclesia.uid}
+                      seniorPastorName={selectedEcclesia.seniorPastorName || ''}
+                      onSeniorPastorNameChange={(newSeniorPastorName) => {
+                        // 담임목사이름이 변경됐을 때 전체 목록 업데이트
+                        updateEcclesiaSeniorPastorName(selectedEcclesia.uid, newSeniorPastorName);
+                      }}
+                  />
+
+                  {/* 교회 주소 선택기 */}
+                  <ChurchAddressSelector
+                      ecclesiaUid={selectedEcclesia.uid}
+                      churchAddress={selectedEcclesia.churchAddress || ''}
+                      onChurchAddressChange={(newChurchAddress) => {
+                        // 교회 주소가 변경됐을 때 전체 목록 업데이트
+                        updateEcclesiaChurchAddress(selectedEcclesia.uid, newChurchAddress);
                       }}
                   />
                 </div>

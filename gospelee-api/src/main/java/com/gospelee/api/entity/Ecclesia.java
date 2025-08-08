@@ -62,4 +62,12 @@ public class Ecclesia extends EditInfomation {
   public void changeStatus(EcclesiaStatusType status) {
     this.status = status.getName();
   }
+
+  public void changeSeniorPastorName(String name) {
+    this.seniorPastorName = name;
+  }
+
+  public void changeChurchAddress(String address) {
+    this.churchAddress = address;
+  }
 }

@@ -120,8 +120,19 @@ public class EcclesiaServiceImpl implements EcclesiaService {
       throw new AccessDeniedException("접근할 권한이 없습니다.");
     }
 
-    EcclesiaStatusType requestType = EcclesiaStatusType.fromName(ecclesiaUpdateDTO.getStatus());
-    ecclesia.changeStatus(requestType);
+    EcclesiaStatusType requestType = null;
+    if (ecclesiaUpdateDTO.getStatus() != null) {
+      requestType = EcclesiaStatusType.fromName(ecclesiaUpdateDTO.getStatus());
+      ecclesia.changeStatus(requestType);
+    }
+
+    if (ecclesiaUpdateDTO.getSeniorPastorName() != null) {
+      ecclesia.changeSeniorPastorName(ecclesiaUpdateDTO.getSeniorPastorName());
+    }
+
+    if (ecclesiaUpdateDTO.getChurchAddress() != null) {
+      ecclesia.changeChurchAddress(ecclesiaUpdateDTO.getChurchAddress());
+    }
 
     Ecclesia ecc = ecclesiaRepository.save(ecclesia);
 
