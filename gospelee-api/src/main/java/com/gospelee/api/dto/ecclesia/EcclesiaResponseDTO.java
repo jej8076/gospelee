@@ -16,17 +16,22 @@ public class EcclesiaResponseDTO {
   private String status;
   private String name;
   private String masterAccountName;
+  private String seniorPastorName;
+  private String churchAddress;
   private LocalDateTime insertTime;
 
   @Builder
   public EcclesiaResponseDTO(Long uid, String churchIdentificationNumber, String status,
       String name,
-      String masterAccountName, LocalDateTime insertTime) {
+      String masterAccountName, String seniorPastorName, String churchAddress,
+      LocalDateTime insertTime) {
     this.uid = uid;
     this.churchIdentificationNumber = churchIdentificationNumber;
     this.status = status;
     this.name = name;
     this.masterAccountName = masterAccountName;
+    this.seniorPastorName = seniorPastorName;
+    this.churchAddress = churchAddress;
     this.insertTime = insertTime;
   }
 
@@ -35,6 +40,8 @@ public class EcclesiaResponseDTO {
         .uid(ecclesia.getUid())
         .name(ecclesia.getName())
         .status(ecclesia.getStatus())
+        .seniorPastorName(ecclesia.getSeniorPastorName())
+        .churchAddress(ecclesia.getChurchAddress())
         .insertTime(ecclesia.getInsertTime())
         .build();
   }
