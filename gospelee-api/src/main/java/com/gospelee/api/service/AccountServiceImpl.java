@@ -280,7 +280,7 @@ public class AccountServiceImpl implements AccountService {
     } else {
       authDTOBuilder
           .ecclesiaUid(account.getEcclesiaUid())
-          .ecclesiaStatus(EcclesiaStatusType.NONE.getName());
+          .ecclesiaStatus(ecclesia.map(Ecclesia::getStatus).orElse(EcclesiaStatusType.NONE.name()));
     }
 
     return Optional.of(authDTOBuilder.build());
