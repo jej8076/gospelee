@@ -1,7 +1,7 @@
 package com.gospelee.api.enums;
 
 public enum EcclesiaStatusType {
-  REQUEST("REQ"), REJECT("REJ"), APPROVAL("APL");
+  REQUEST("REQ"), REJECT("REJ"), APPROVAL("APL"), NONE("NONE");
 
   final private String name;
 

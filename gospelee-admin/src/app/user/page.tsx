@@ -46,7 +46,9 @@ export default function User() {
     }
 
     await decideEcclesiaRequest(accountEcclesiaDecide);
+
     // 요청 처리 후 데이터 다시 로드
+    await callApi(() => fetchUsers(), setUsers);
     await callApi(() => fetchEcclesiaRequests(), setJoinRequests);
   };
 
@@ -57,7 +59,9 @@ export default function User() {
     }
 
     await decideEcclesiaRequest(accountEcclesiaDecide);
+
     // 요청 처리 후 데이터 다시 로드
+    await callApi(() => fetchUsers(), setUsers);
     await callApi(() => fetchEcclesiaRequests(), setJoinRequests);
   };
 
@@ -350,7 +354,8 @@ export default function User() {
                                       </div>
                                     </div>
                                     <div className="ml-4">
-                                      <div className="font-medium text-gray-900">{request.name}</div>
+                                      <div
+                                          className="font-medium text-gray-900">{request.name}</div>
                                       <div className="mt-1 text-gray-500">{request.email}</div>
                                     </div>
                                   </div>
@@ -359,21 +364,22 @@ export default function User() {
                                   {request.phone}
                                 </td>
                                 <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                                  <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
-                                      request.status === AccountEcclesiaHistoryStatusType.JOIN_REQUEST
-                                          ? 'bg-yellow-50 text-yellow-700 ring-yellow-600/20'
-                                          : request.status === AccountEcclesiaHistoryStatusType.JOIN_APPROVAL
-                                              ? 'bg-green-50 text-green-700 ring-green-600/20'
-                                              : request.status === AccountEcclesiaHistoryStatusType.JOIN_REJECT
-                                                  ? 'bg-red-50 text-red-700 ring-red-600/20'
-                                                  : request.status === AccountEcclesiaHistoryStatusType.INVITE_REQUEST
-                                                      ? 'bg-blue-50 text-blue-700 ring-blue-600/20'
-                                                      : request.status === AccountEcclesiaHistoryStatusType.INVITE_APPROVAL
-                                                          ? 'bg-green-50 text-green-700 ring-green-600/20'
-                                                          : request.status === AccountEcclesiaHistoryStatusType.INVITE_REJECT
-                                                              ? 'bg-red-50 text-red-700 ring-red-600/20'
-                                                              : 'bg-gray-50 text-gray-700 ring-gray-600/20'
-                                  }`}>
+                                  <span
+                                      className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
+                                          request.status === AccountEcclesiaHistoryStatusType.JOIN_REQUEST
+                                              ? 'bg-yellow-50 text-yellow-700 ring-yellow-600/20'
+                                              : request.status === AccountEcclesiaHistoryStatusType.JOIN_APPROVAL
+                                                  ? 'bg-green-50 text-green-700 ring-green-600/20'
+                                                  : request.status === AccountEcclesiaHistoryStatusType.JOIN_REJECT
+                                                      ? 'bg-red-50 text-red-700 ring-red-600/20'
+                                                      : request.status === AccountEcclesiaHistoryStatusType.INVITE_REQUEST
+                                                          ? 'bg-blue-50 text-blue-700 ring-blue-600/20'
+                                                          : request.status === AccountEcclesiaHistoryStatusType.INVITE_APPROVAL
+                                                              ? 'bg-green-50 text-green-700 ring-green-600/20'
+                                                              : request.status === AccountEcclesiaHistoryStatusType.INVITE_REJECT
+                                                                  ? 'bg-red-50 text-red-700 ring-red-600/20'
+                                                                  : 'bg-gray-50 text-gray-700 ring-gray-600/20'
+                                      }`}>
                                     {getStatusLabel(request.status as StatusFilterType)}
                                   </span>
                                 </td>

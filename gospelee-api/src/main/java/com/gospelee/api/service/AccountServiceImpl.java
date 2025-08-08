@@ -9,6 +9,7 @@ import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.AccountEcclesiaHistory;
 import com.gospelee.api.entity.Ecclesia;
 import com.gospelee.api.enums.AccountEcclesiaHistoryStatusType;
+import com.gospelee.api.enums.EcclesiaStatusType;
 import com.gospelee.api.enums.RoleType;
 import com.gospelee.api.exception.AccountNotFoundException;
 import com.gospelee.api.exception.EcclesiaException;
@@ -262,7 +263,7 @@ public class AccountServiceImpl implements AccountService {
     Optional<Ecclesia> ecclesia = ecclesiaJpaRepository.findEcclesiasByMasterAccountUid(
         account.getUid());
 
-    AccountAuthDTO authDTO = AccountAuthDTO.builder()
+    AccountAuthDTO.AccountAuthDTOBuilder authDTOBuilder = AccountAuthDTO.builder()
         .uid(account.getUid())
         .email(account.getEmail())
         .name(account.getName())
@@ -270,12 +271,19 @@ public class AccountServiceImpl implements AccountService {
         .rrn(account.getRrn())
         .role(account.getRole())
         .idToken(account.getIdToken())
-        .pushToken(account.getPushToken())
-        .ecclesiaUid(ecclesia.map(Ecclesia::getUid).orElse(null))
-        .ecclesiaStatus(ecclesia.map(Ecclesia::getStatus).orElse(null))
-        .build();
+        .pushToken(account.getPushToken());
 
-    return Optional.of(authDTO);
+    if (account.getEcclesiaUid() == null) {
+      authDTOBuilder
+          .ecclesiaUid(ecclesia.map(Ecclesia::getUid).orElse(null))
+          .ecclesiaStatus(ecclesia.map(Ecclesia::getStatus).orElse(null));
+    } else {
+      authDTOBuilder
+          .ecclesiaUid(account.getEcclesiaUid())
+          .ecclesiaStatus(EcclesiaStatusType.NONE.getName());
+    }
+
+    return Optional.of(authDTOBuilder.build());
   }
 }
 
