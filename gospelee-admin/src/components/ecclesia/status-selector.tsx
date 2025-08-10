@@ -6,7 +6,7 @@ import {
   getEcclesiaStatusOptions
 } from '@/enums/ecclesia/status';
 import {useApiClient} from "@/hooks/useApiClient";
-import {fetchUpdateEcclesiaStatus} from "~/lib/api/fetch-ecclesias";
+import {fetchUpdateEcclesia} from "~/lib/api/fetch-ecclesias";
 
 export default function StatusSelector({
                                          ecclesiaUid,
@@ -47,7 +47,7 @@ export default function StatusSelector({
   };
 
   const saveEcclesiaStatus = async (ecclesiaStatusSelectorProps: EcclesiaStatusSelectorProps) => {
-    await callApi(() => fetchUpdateEcclesiaStatus(ecclesiaStatusSelectorProps), setEcclesiaStatus);
+    await callApi(() => fetchUpdateEcclesia(ecclesiaStatusSelectorProps), setEcclesiaStatus);
   }
 
   const changeHandler = (status: string) => {
@@ -65,7 +65,7 @@ export default function StatusSelector({
 
   return (
       <div className="status-selector mt-4">
-        <div className="text-sm font-medium text-gray-700 mb-2">상태:</div>
+        <div className="text-sm font-medium text-gray-700 mb-2">상태</div>
         <div className="flex space-x-3">
           {statusOptions.map(option => (
               <button

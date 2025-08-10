@@ -39,18 +39,35 @@ public class Ecclesia extends EditInfomation {
   @Column(name = "telephone")
   private String telephone;
 
+  @Column(name = "senior_paster_name")
+  private String seniorPastorName;
+
+  @Column(name = "church_address")
+  private String churchAddress;
+
   @Builder
   public Ecclesia(long uid, String name, String status, Long masterAccountUid,
-      String churchIdentificationNumber, String telephone) {
+      String churchIdentificationNumber, String telephone, String seniorPastorName,
+      String churchAddress) {
     this.uid = uid;
     this.name = name;
     this.status = status;
     this.masterAccountUid = masterAccountUid;
     this.churchIdentificationNumber = churchIdentificationNumber;
     this.telephone = telephone;
+    this.seniorPastorName = seniorPastorName;
+    this.churchAddress = churchAddress;
   }
 
   public void changeStatus(EcclesiaStatusType status) {
     this.status = status.getName();
+  }
+
+  public void changeSeniorPastorName(String name) {
+    this.seniorPastorName = name;
+  }
+
+  public void changeChurchAddress(String address) {
+    this.churchAddress = address;
   }
 }

@@ -18,8 +18,10 @@ public class EcclesiaJdbcRepositoryImpl implements EcclesiaJdbcRepository {
         SELECT e.uid AS uid,
                e.church_identification_number,
                e.status,
-               e.name AS name,
+               e.name AS `name`,
                a.name AS master_account_name,
+               e.senior_paster_name,
+               e.church_address,
                e.insert_time
         FROM ecclesia e
         LEFT JOIN account a ON e.master_account_uid = a.uid
@@ -32,6 +34,8 @@ public class EcclesiaJdbcRepositoryImpl implements EcclesiaJdbcRepository {
             rs.getString("status"),
             rs.getString("name"),
             rs.getString("master_account_name"),
+            rs.getString("senior_paster_name"),
+            rs.getString("church_address"),
             rs.getTimestamp("insert_time").toLocalDateTime()
         ))
         .list();
@@ -43,7 +47,9 @@ public class EcclesiaJdbcRepositoryImpl implements EcclesiaJdbcRepository {
         SELECT e.uid AS uid,
                e.church_identification_number,
                e.status,
-               e.name AS name,
+               e.name AS `name`,
+               e.senior_paster_name,
+               e.church_address,
                e.insert_time
         FROM ecclesia e
         WHERE e.name LIKE :keyword
@@ -57,6 +63,8 @@ public class EcclesiaJdbcRepositoryImpl implements EcclesiaJdbcRepository {
             rs.getString("status"),
             rs.getString("name"),
             null,
+            rs.getString("senior_paster_name"),
+            rs.getString("church_address"),
             rs.getTimestamp("insert_time").toLocalDateTime()
         ))
         .list();

@@ -1,7 +1,7 @@
 package com.gospelee.api.service;
 
 import com.gospelee.api.dto.account.AccountAuthDTO;
-import com.gospelee.api.dto.ecclesia.AccountEcclesiaHistoryDTO;
+import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaInsertDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaUpdateDTO;
@@ -120,8 +120,19 @@ public class EcclesiaServiceImpl implements EcclesiaService {
       throw new AccessDeniedException("접근할 권한이 없습니다.");
     }
 
-    EcclesiaStatusType requestType = EcclesiaStatusType.fromName(ecclesiaUpdateDTO.getStatus());
-    ecclesia.changeStatus(requestType);
+    EcclesiaStatusType requestType = null;
+    if (ecclesiaUpdateDTO.getStatus() != null) {
+      requestType = EcclesiaStatusType.fromName(ecclesiaUpdateDTO.getStatus());
+      ecclesia.changeStatus(requestType);
+    }
+
+    if (ecclesiaUpdateDTO.getSeniorPastorName() != null) {
+      ecclesia.changeSeniorPastorName(ecclesiaUpdateDTO.getSeniorPastorName());
+    }
+
+    if (ecclesiaUpdateDTO.getChurchAddress() != null) {
+      ecclesia.changeChurchAddress(ecclesiaUpdateDTO.getChurchAddress());
+    }
 
     Ecclesia ecc = ecclesiaRepository.save(ecclesia);
 

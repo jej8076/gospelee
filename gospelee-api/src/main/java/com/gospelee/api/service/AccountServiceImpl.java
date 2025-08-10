@@ -1,12 +1,22 @@
 package com.gospelee.api.service;
 
 import com.gospelee.api.dto.account.AccountAuthDTO;
+import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
+import com.gospelee.api.dto.account.AccountEcclesiaHistoryDecideDTO;
+import com.gospelee.api.dto.account.AccountEcclesiaHistoryDetailDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
 import com.gospelee.api.entity.Account;
+import com.gospelee.api.entity.AccountEcclesiaHistory;
 import com.gospelee.api.entity.Ecclesia;
+import com.gospelee.api.enums.AccountEcclesiaHistoryStatusType;
+import com.gospelee.api.enums.EcclesiaStatusType;
 import com.gospelee.api.enums.RoleType;
+import com.gospelee.api.exception.AccountNotFoundException;
+import com.gospelee.api.exception.EcclesiaException;
+import com.gospelee.api.repository.AccountEcclesiaHistoryRepository;
 import com.gospelee.api.repository.jpa.account.AccountRepository;
 import com.gospelee.api.repository.jpa.ecclesia.EcclesiaJpaRepository;
+import com.gospelee.api.utils.AuthenticatedUserUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +37,7 @@ public class AccountServiceImpl implements AccountService {
   private static final String SUPER_EMAIL = "super@super.com";
 
   private final AccountRepository accountRepository;
+  private final AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository;
   private final EcclesiaJpaRepository ecclesiaJpaRepository;
 
   /**
@@ -50,6 +61,66 @@ public class AccountServiceImpl implements AccountService {
   public Optional<List<Account>> getAccountByEcclesiaUid(Long ecclesiaUid) {
     log.debug("교회별 계정 목록 조회 요청. ecclesiaUid: {}", ecclesiaUid);
     return accountRepository.findByEcclesiaUid(ecclesiaUid);
+  }
+
+  @Override
+  public List<AccountEcclesiaHistoryDetailDTO> getAccountEcclesiaRequestList() {
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+    if (account.getEcclesiaUid() == null) {
+      throw new EcclesiaException("[ACCOUNT   ] not_affiliated_with_church accountUid:{}",
+          account.getUid());
+    }
+
+    return accountEcclesiaHistoryRepository.findByAccountEcclesiaRequestByEcclesiaUid(
+        account.getEcclesiaUid());
+  }
+
+  @Override
+  public AccountEcclesiaHistoryDTO decideJoinRequest(
+      AccountEcclesiaHistoryDecideDTO accountEcclesiaHistoryDecideDTO) {
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+    if (account.getEcclesiaUid() == null) {
+      throw new EcclesiaException("[ACCOUNT   ] not_affiliated_with_church accountUid:{}",
+          account.getUid());
+    }
+
+    AccountEcclesiaHistory findAccountEcclesiaHistory = accountEcclesiaHistoryRepository.findById(
+        accountEcclesiaHistoryDecideDTO.getId());
+    if (findAccountEcclesiaHistory.getEcclesiaUid() != account.getEcclesiaUid()) {
+      // 요청에 대한 교회 정보가 현재 로그인 계정의 교회 정보와 다를 경우
+      throw new EcclesiaException(
+          "[ACCOUNT   ] church_information_mismatch accountUid:{} ecclesiaUid:{} requestEcclesiaUid:{}",
+          account.getUid(), account.getEcclesiaUid(), findAccountEcclesiaHistory.getEcclesiaUid());
+    }
+
+    // 요청된 상태
+    AccountEcclesiaHistoryStatusType requestedStatus = AccountEcclesiaHistoryStatusType.of(
+        accountEcclesiaHistoryDecideDTO.getStatus());
+
+    Optional<Account> requestedAccountOptional = accountRepository.findById(
+        findAccountEcclesiaHistory.getAccountUid());
+    if (requestedAccountOptional.isEmpty()) {
+      throw new AccountNotFoundException("[ACCOUNT   ] not_found accountUid:{}", account.getUid());
+    }
+
+    // 승인의 경우에만 요청된 사용자의 ecclesiaUid를 부여함
+    if (requestedStatus.name().equals(AccountEcclesiaHistoryStatusType.JOIN_APPROVAL.name())) {
+      Account requestedAccount = requestedAccountOptional.get();
+      requestedAccount.changeEcclesiaUid(findAccountEcclesiaHistory.getEcclesiaUid());
+      accountRepository.save(requestedAccount);
+    }
+
+    AccountEcclesiaHistory accountEcclesiaHistory = AccountEcclesiaHistory.builder()
+        // 요청한 사람의 계정
+        .accountUid(findAccountEcclesiaHistory.getAccountUid())
+        // 요청받은 교회
+        .ecclesiaUid(findAccountEcclesiaHistory.getEcclesiaUid())
+        // 요청된 상태
+        .status(requestedStatus)
+        .build();
+
+    return AccountEcclesiaHistoryDTO.fromEntity(
+        accountEcclesiaHistoryRepository.save(accountEcclesiaHistory));
   }
 
   /**
@@ -192,7 +263,7 @@ public class AccountServiceImpl implements AccountService {
     Optional<Ecclesia> ecclesia = ecclesiaJpaRepository.findEcclesiasByMasterAccountUid(
         account.getUid());
 
-    AccountAuthDTO authDTO = AccountAuthDTO.builder()
+    AccountAuthDTO.AccountAuthDTOBuilder authDTOBuilder = AccountAuthDTO.builder()
         .uid(account.getUid())
         .email(account.getEmail())
         .name(account.getName())
@@ -200,12 +271,19 @@ public class AccountServiceImpl implements AccountService {
         .rrn(account.getRrn())
         .role(account.getRole())
         .idToken(account.getIdToken())
-        .pushToken(account.getPushToken())
-        .ecclesiaUid(ecclesia.map(Ecclesia::getUid).orElse(null))
-        .ecclesiaStatus(ecclesia.map(Ecclesia::getStatus).orElse(null))
-        .build();
+        .pushToken(account.getPushToken());
 
-    return Optional.of(authDTO);
+    if (account.getEcclesiaUid() == null) {
+      authDTOBuilder
+          .ecclesiaUid(ecclesia.map(Ecclesia::getUid).orElse(null))
+          .ecclesiaStatus(ecclesia.map(Ecclesia::getStatus).orElse(null));
+    } else {
+      authDTOBuilder
+          .ecclesiaUid(account.getEcclesiaUid())
+          .ecclesiaStatus(ecclesia.map(Ecclesia::getStatus).orElse(EcclesiaStatusType.NONE.name()));
+    }
+
+    return Optional.of(authDTOBuilder.build());
   }
 }
 

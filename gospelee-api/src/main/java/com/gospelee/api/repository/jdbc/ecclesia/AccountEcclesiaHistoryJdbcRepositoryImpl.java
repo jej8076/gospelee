@@ -1,6 +1,7 @@
 package com.gospelee.api.repository.jdbc.ecclesia;
 
-import com.gospelee.api.dto.ecclesia.AccountEcclesiaHistoryDTO;
+import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
+import com.gospelee.api.dto.account.AccountEcclesiaHistoryDetailDTO;
 import com.gospelee.api.enums.AccountEcclesiaHistoryStatusType;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,45 @@ public class AccountEcclesiaHistoryJdbcRepositoryImpl implements
             rs.getLong("ecclesia_uid"),
             AccountEcclesiaHistoryStatusType.of(rs.getString("status")),
             rs.getTimestamp("insert_time").toLocalDateTime()
+        ))
+        .list();
+  }
+
+  @Override
+  public List<AccountEcclesiaHistoryDetailDTO> findByAccountEcclesiaRequestByEcclesiaUid(
+      Long ecclesiaUid) {
+    String sql = """
+        WITH ranked AS (
+            SELECT id, account_uid, ecclesia_uid, insert_time, `status`,
+                   ROW_NUMBER() OVER (PARTITION BY account_uid ORDER BY insert_time DESC) AS row_num
+            FROM account_ecclesia_history
+            WHERE ecclesia_uid = :ecclesiaUid
+        )
+        SELECT
+            r.id AS id,
+            r.account_uid AS accountUid,
+            r.ecclesia_uid AS ecclesiaUid,
+            a.name AS `name`,
+            a.email AS email,
+            a.phone AS phone,
+            r.status AS `status`,
+            r.insert_time AS insertTime
+        FROM ranked r
+        JOIN account a ON r.account_uid = a.uid
+        WHERE r.row_num = 1
+        """;
+
+    return jdbcClient.sql(sql)
+        .param("ecclesiaUid", ecclesiaUid)
+        .query((rs, rowNum) -> new AccountEcclesiaHistoryDetailDTO(
+            rs.getLong("id"),
+            rs.getLong("accountUid"),
+            rs.getLong("ecclesiaUid"),
+            rs.getString("name"),
+            rs.getString("email"),
+            rs.getString("phone"),
+            AccountEcclesiaHistoryStatusType.of(rs.getString("status")),
+            rs.getTimestamp("insertTime").toLocalDateTime()
         ))
         .list();
   }
