@@ -130,7 +130,11 @@ export default function User() {
 
   const tabs = [
     {id: 'users', name: '사용자 목록', count: user.length},
-    {id: 'requests', name: '가입 요청', count: joinRequests.length}
+    {
+      id: 'requests',
+      name: '요청',
+      count: getStatusCount(AccountEcclesiaHistoryStatusType.JOIN_REQUEST)
+    }
   ];
 
   // 상태 필터 버튼 목록
