@@ -1,14 +1,14 @@
 'use client'
 
 import {useRouter, useSearchParams} from 'next/navigation';
-import {ChangeEvent, FormEvent, KeyboardEvent, useEffect, useRef, useState} from 'react';
+import {ChangeEvent, FormEvent, KeyboardEvent, useEffect, useRef, useState, Suspense} from 'react';
 import Image from 'next/image';
 import {setCookie} from "~/lib/cookie/cookie-utils";
 import {AuthItems} from "~/constants/auth-items";
 import {useMenuListStore} from "@/hooks/useMenuList";
 import PageTransition from '@/components/PageTransition';
 
-export default function PasswordLogin() {
+function PasswordLoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [password, setPassword] = useState<string>('');
@@ -156,5 +156,36 @@ export default function PasswordLogin() {
           </div>
         </div>
       </PageTransition>
+  );
+}
+
+export default function PasswordLogin() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="flex justify-center mb-8">
+            <Image
+              className="h-16 w-auto"
+              src="/images/logo/logo_oog.svg"
+              alt="Gospelee"
+              width={64}
+              height={64}
+            />
+          </div>
+          <div className="bg-white py-8 px-6 shadow-sm rounded-lg sm:px-10">
+            <div className="animate-pulse">
+              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2 mb-6"></div>
+              <div className="h-32 bg-gray-200 rounded mb-4"></div>
+              <div className="h-10 bg-gray-200 rounded mb-3"></div>
+              <div className="h-10 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }>
+      <PasswordLoginContent />
+    </Suspense>
   );
 }
