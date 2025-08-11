@@ -7,7 +7,6 @@ export const fetchAnnouncements = async (): Promise<Announcement[]> => {
   const response = await apiFetch("/api/announcement/ECCLESIA", {
     method: "POST",
     headers: {
-      "X-App-Identifier": "OOG_WEB",
       "Content-Type": "application/json",
       Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
     }

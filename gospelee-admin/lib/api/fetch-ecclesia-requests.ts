@@ -6,7 +6,6 @@ export const fetchEcclesiaRequests = async (): Promise<AccountEcclesiaRequest[]>
   const response = await apiFetch("/api/account/ecclesia/join/request/list", {
     method: "POST",
     headers: {
-      "X-App-Identifier": "OOG_WEB",
       "Content-Type": "application/json",
       Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
     }
@@ -27,7 +26,6 @@ export const decideEcclesiaRequest = async (accountEcclesiaDecide: AccountEccles
   const response = await apiFetch("/api/account/ecclesia/join/request/decide", {
     method: "POST",
     headers: {
-      "X-App-Identifier": "OOG_WEB",
       "Content-Type": "application/json",
       Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
     },
