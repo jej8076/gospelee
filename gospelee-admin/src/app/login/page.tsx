@@ -31,21 +31,20 @@ export default function Login() {
 
     setMenuList([]);
 
-    if (email === 'super@super.com') {
-      setIsLoading(true);
-      setCookie(AuthItems.Authorization, "SUPER").then(r => {
-        router.push(`/main`);
-        setIsLoading(false);
-      });
-      return;
-    }
-
     if (email) {
       setIsLoading(true);
-      // 부드러운 전환을 위한 약간의 지연
-      setTimeout(() => {
-        router.push(`/login/qr?email=${encodeURIComponent(email)}`);
-      }, 300);
+      
+      // super@super.com인 경우 비밀번호 입력 페이지로 이동
+      if (email === 'super@super.com') {
+        setTimeout(() => {
+          router.push(`/login/password?email=${encodeURIComponent(email)}`);
+        }, 300);
+      } else {
+        // 일반 사용자는 QR 페이지로 이동
+        setTimeout(() => {
+          router.push(`/login/qr?email=${encodeURIComponent(email)}`);
+        }, 300);
+      }
     } else {
       alert('이메일 주소를 입력하세요.');
     }

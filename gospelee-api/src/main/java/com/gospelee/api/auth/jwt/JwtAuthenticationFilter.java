@@ -4,6 +4,7 @@ import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.common.ResponseDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
 import com.gospelee.api.enums.ErrorResponseType;
+import com.gospelee.api.properties.AuthProperties;
 import com.gospelee.api.utils.IpUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -26,32 +27,15 @@ import util.JsonUtils;
 @Log4j2
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-  // TODO class 변수는 enum 파일이나 설정파일에서 관리할 수 있도록 수정되어야 함
-
-  // SUPER ADMIN 허용 IP
-  private static final String[] superAdminIp = {"localhost", "192.168.1.43"};
-
-  // 인증에서 제외할 url
-  private static final List<String> EXCLUDE_SERVLET_PATH_LIST =
-      List.of(
-          "/bible/view/*",
-          "/account/qr/enter",
-          "/account/qr/check",
-          "/file/*",
-          "/app-link/*"
-      );
-  private static final List<String> ALLOW_AND_PENDING_PATH_LIST =
-      List.of(
-          "/api/account/qr/req/*"
-      );
-
   private final String AUTH_HEADER = "Authorization";
   private final String BEARER = "Bearer ";
   private final String APP_ID = "X-App-Identifier";
   private final JwtOIDCProvider jwtOIDCProvider;
+  private final AuthProperties authProperties;
 
-  public JwtAuthenticationFilter(JwtOIDCProvider jwtOIDCProvider) {
+  public JwtAuthenticationFilter(JwtOIDCProvider jwtOIDCProvider, AuthProperties authProperties) {
     this.jwtOIDCProvider = jwtOIDCProvider;
+    this.authProperties = authProperties;
   }
 
   @Override
@@ -61,6 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     String appId = request.getHeader(APP_ID);
 
     boolean isWeb = false;
+
     if ("OOG_WEB".equals(appId)) {
       isWeb = true;
     }
@@ -73,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     idToken = idToken.replace(BEARER, "");
     String clientIp = IpUtils.getClientIp(request);
 
-    if (isSuper(idToken, clientIp)) {
+    if (isWeb && idToken.equals(authProperties.getSuperPass())) {
       log.info("[SUPERLOGIN] clientIp:{}", clientIp);
       JwtPayload emptyPayload = JwtPayload.builder().build();
       setAuthenticationToContext(emptyPayload, idToken);
@@ -101,25 +86,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {
-    return EXCLUDE_SERVLET_PATH_LIST.stream()
+    return authProperties.getExcludePaths().stream()
         .anyMatch(path -> path.contains("*") ? request.getServletPath()
             .startsWith(path.split("\\/\\*")[0]) : path.equals(request.getServletPath()));
   }
 
   private boolean isAllowAndPendingPath(String requestURI) {
-    return ALLOW_AND_PENDING_PATH_LIST.stream()
+    return authProperties.getAllowPendingPaths().stream()
         .anyMatch(path -> path.contains("*") ? requestURI
             .startsWith(path.split("\\/\\*")[0]) : path.equals(requestURI));
   }
 
   private Authentication setAuthenticationToContext(JwtPayload jwtPayload, String idToken) {
+
     Authentication authentication = jwtOIDCProvider.getAuthentication(jwtPayload, idToken);
     SecurityContextHolder.getContext().setAuthentication(authentication);
     return authentication;
-  }
-
-  private boolean isSuper(String idToken, String clientIp) {
-    return idToken.equals("SUPER") && Arrays.asList(superAdminIp).contains(clientIp);
   }
 
   /**

@@ -13,6 +13,7 @@ import com.gospelee.api.enums.EcclesiaStatusType;
 import com.gospelee.api.enums.RoleType;
 import com.gospelee.api.exception.AccountNotFoundException;
 import com.gospelee.api.exception.EcclesiaException;
+import com.gospelee.api.properties.AuthProperties;
 import com.gospelee.api.repository.AccountEcclesiaHistoryRepository;
 import com.gospelee.api.repository.jpa.account.AccountRepository;
 import com.gospelee.api.repository.jpa.ecclesia.EcclesiaJpaRepository;
@@ -33,9 +34,7 @@ import org.springframework.util.ObjectUtils;
 @RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
 
-  private static final String SUPER_TOKEN = "SUPER";
-  private static final String SUPER_EMAIL = "super@super.com";
-
+  private final AuthProperties authProperties;
   private final AccountRepository accountRepository;
   private final AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository;
   private final EcclesiaJpaRepository ecclesiaJpaRepository;
@@ -186,7 +185,7 @@ public class AccountServiceImpl implements AccountService {
    * 슈퍼 유저 토큰인지 확인합니다.
    */
   private boolean isSuperUserToken(String idToken) {
-    return SUPER_TOKEN.equals(idToken);
+    return authProperties.getSuperPass().equals(idToken);
   }
 
   /**
@@ -195,7 +194,7 @@ public class AccountServiceImpl implements AccountService {
   private Optional<AccountAuthDTO> handleSuperUserAuthentication() {
     log.debug("슈퍼 유저 인증 처리");
 
-    Account superAccount = accountRepository.findByEmail(SUPER_EMAIL)
+    Account superAccount = accountRepository.findByEmail(authProperties.getSuperId())
         .orElseThrow(() -> new RuntimeException("슈퍼 계정을 찾을 수 없습니다."));
 
     Optional<Ecclesia> ecclesia = ecclesiaJpaRepository.findEcclesiasByMasterAccountUid(
