@@ -7,7 +7,7 @@ import {
   UsersIcon,
 } from '@heroicons/react/24/outline'
 
-import {FC} from 'react'
+import { FC, type JSX } from 'react';
 import Link from 'next/link'
 
 type Action = {

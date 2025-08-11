@@ -3,7 +3,7 @@ import {useCallback, useEffect, useRef} from 'react';
 // 마운트 후 의존성 변경 시에만 실행 (기존 동작 유지)
 const useDidMountEffect = (func: () => void, deps: React.DependencyList) => {
   const didMount = useRef(false);
-  const prevDeps = useRef<React.DependencyList>();
+  const prevDeps = useRef<React.DependencyList>(undefined);
 
   useEffect(() => {
     // 첫 번째 마운트인지 확인
