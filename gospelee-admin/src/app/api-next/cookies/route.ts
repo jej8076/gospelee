@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
   const {searchParams} = new URL(request.url);
   const paramValue: string | null = searchParams.get('name');
 
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const cookieValue = cookieStore.get(paramValue ?? '');
 
   return NextResponse.json({cookieValue: cookieValue ?? null});
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const {name, value} = await request.json();
-  cookies().set({
+  (await cookies()).set({
     name,
     value,
     httpOnly: true,
@@ -29,7 +29,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({code: 400, message: 'Cookie name is required'}, {status: 400});
   }
 
-  cookies().set({
+  (await cookies()).set({
     name,
     value: '',
     httpOnly: true,
