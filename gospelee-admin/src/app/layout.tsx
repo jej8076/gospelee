@@ -118,6 +118,7 @@ export default function MainLayout({children}: Readonly<{
 
   const isSpecialPage = currentPath === '/login' ||
       currentPath.indexOf('/login/qr') > -1 ||
+      currentPath.indexOf('/login/password') > -1 ||
       currentPath.includes('/apply') ||
       currentPath.includes('/wait');
 
@@ -175,38 +176,6 @@ export default function MainLayout({children}: Readonly<{
                           </ul>
                       )}
                     </li>
-                    {/*<li>*/}
-                    {/*  <div className="text-xs font-semibold leading-6 text-gray-400">Your teams*/}
-                    {/*  </div>*/}
-                    {/*  <ul role="list" className="-mx-2 mt-2 space-y-1">*/}
-                    {/*    {teams.map((team) => (*/}
-                    {/*        <li key={team.name}>*/}
-                    {/*          <a*/}
-                    {/*              href={team.href}*/}
-                    {/*              onClick={(e) => handleLinkClick(e, team.href)}*/}
-                    {/*              className={classNames(*/}
-                    {/*                  team.current*/}
-                    {/*                      ? 'bg-gray-50 text-indigo-600'*/}
-                    {/*                      : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50',*/}
-                    {/*                  'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'*/}
-                    {/*              )}*/}
-                    {/*          >*/}
-                    {/*          <span*/}
-                    {/*              className={classNames(*/}
-                    {/*                  team.current*/}
-                    {/*                      ? 'text-indigo-600 border-indigo-600'*/}
-                    {/*                      : 'text-gray-400 border-gray-200 group-hover:border-indigo-600 group-hover:text-indigo-600',*/}
-                    {/*                  'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white'*/}
-                    {/*              )}*/}
-                    {/*          >*/}
-                    {/*            {team.initial}*/}
-                    {/*          </span>*/}
-                    {/*            <span className="truncate">{team.name}</span>*/}
-                    {/*          </a>*/}
-                    {/*        </li>*/}
-                    {/*    ))}*/}
-                    {/*  </ul>*/}
-                    {/*</li>*/}
                     <li className="mt-auto">
                       <a
                           href="#"
@@ -240,17 +209,6 @@ export default function MainLayout({children}: Readonly<{
                     <label htmlFor="search-field" className="sr-only">
                       Search
                     </label>
-                    {/*<MagnifyingGlassIcon*/}
-                    {/*    className="pointer-events-none absolute inset-y-0 left-0 h-full w-5 text-gray-400"*/}
-                    {/*    aria-hidden="true"*/}
-                    {/*/>*/}
-                    {/*<input*/}
-                    {/*    id="search-field"*/}
-                    {/*    className="block h-full w-full border-0 py-0 pl-8 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"*/}
-                    {/*    placeholder="검색 기능은 조금만 기다려 주세요..!"*/}
-                    {/*    type="search"*/}
-                    {/*    name="search"*/}
-                    {/*/>*/}
                   </form>
                   <div className="flex items-center gap-x-4 lg:gap-x-6">
                     <button type="button"

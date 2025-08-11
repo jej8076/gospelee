@@ -51,12 +51,16 @@ redis:
   port: 6377
 
 auth:
-  max-age: 60 * 60 * 24 # 1일
-  cookie:
-    path: /
-    domains:
-      localhost,
-      127.0.0.1
+  super-id: admin
+  super-pass: admin
+  exclude-paths:
+    - /bible/view/*
+    - /account/qr/enter
+    - /account/qr/check
+    - /file/*
+    - /app-link/*
+  allow-pending-paths:
+    - /api/account/qr/req/*
 
 file:
   base-path: /Users/ej/dev/testFiles/gospelee/api

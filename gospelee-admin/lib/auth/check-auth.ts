@@ -30,6 +30,7 @@ const useAuth = () => {
         const response = await apiFetch(`/api/account/auth/validate`, {
           method: "POST",
           headers: {
+            "X-App-Identifier": "OOG_WEB",
             "Content-Type": "application/json",
             Authorization: `${AuthItems.Bearer}${token}`,
           },
