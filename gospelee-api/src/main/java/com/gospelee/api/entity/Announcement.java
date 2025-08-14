@@ -1,5 +1,6 @@
 package com.gospelee.api.entity;
 
+import com.gospelee.api.dto.announcement.AnnouncementResponseDTO;
 import com.gospelee.api.entity.common.EditInfomation;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -57,4 +58,6 @@ public class Announcement extends EditInfomation {
   public void changePushNotificationIds(String pushNotificationIds) {
     this.pushNotificationIds = pushNotificationIds;
   }
+
+
 }

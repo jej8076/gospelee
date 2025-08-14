@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,8 +35,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-@Slf4j
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AnnouncementServiceImpl implements AnnouncementService {
 
@@ -48,15 +49,24 @@ public class AnnouncementServiceImpl implements AnnouncementService {
   private final FileDetailsRepository fileDetailsRepository;
   private final FileRepository fileRepository;
 
-  @Value("${server.domain:http://localhost:8008}")
-  private String serverDomain;
+  @Value("${auth.super-id:admin}")
+  private String superId;
 
   @Override
   public List<AnnouncementResponseDTO> getAnnouncementList(String announcementType) {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
 
-    List<AnnouncementResponseDTO> responseList = announcementRepository.findByOrganizationTypeAndOrganizationId(
-        OrganizationType.fromName(announcementType).name(), account.getEcclesiaUid());
+    List<AnnouncementResponseDTO> responseList;
+
+    if (account.getEmail().equals(superId)) {
+      responseList = announcementRepository.findAll().stream()
+          .map(AnnouncementResponseDTO::fromEntity).collect(
+              Collectors.toList());
+    } else {
+      responseList = announcementRepository.findByOrganizationTypeAndOrganizationId(
+          OrganizationType.fromName(announcementType).name(), account.getEcclesiaUid());
+
+    }
 
     for (AnnouncementResponseDTO ann : responseList) {
       if (ann.getFileUid() == null) {

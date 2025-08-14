@@ -1,6 +1,7 @@
 package com.gospelee.api.dto.announcement;
 
 import com.gospelee.api.dto.file.FileDetailsDTO;
+import com.gospelee.api.entity.Announcement;
 import com.querydsl.core.annotations.QueryProjection;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
@@ -70,6 +71,35 @@ public class AnnouncementResponseDTO {
     this.pushNotificationIds = pushNotificationIds;
     this.insertTime = insertTime;
     this.updateTime = updateTime;
+  }
+
+  public static AnnouncementResponseDTO fromEntity(Announcement entity) {
+    return AnnouncementResponseDTO.builder()
+        .id(entity.getId())
+        .organizationType(entity.getOrganizationType())
+        .organizationId(entity.getOrganizationId())
+        .subject(entity.getSubject())
+        .text(entity.getText())
+        .fileUid(entity.getFileUid())
+        .pushNotificationSendYn(
+            (entity.getPushNotificationIds() != null && !entity.getPushNotificationIds().isEmpty())
+                ? "Y" : "N")
+        .pushNotificationIds(entity.getPushNotificationIds())
+        .insertTime(entity.getInsertTime())
+        .updateTime(entity.getUpdateTime())
+        .build();
+  }
+
+  public static Announcement toEntity(AnnouncementResponseDTO dto) {
+    return Announcement.builder()
+        .id(dto.getId())
+        .organizationType(dto.getOrganizationType())
+        .organizationId(dto.getOrganizationId())
+        .subject(dto.getSubject())
+        .text(dto.getText())
+        .fileUid(dto.getFileUid())
+        .pushNotificationIds(dto.getPushNotificationIds())
+        .build();
   }
 
   public void changeImageAccessToken(String accessToken) {
