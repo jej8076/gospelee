@@ -50,7 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       isWeb = true;
     }
 
-    if (!idToken.startsWith(BEARER)) {
+    if (idToken == null || !idToken.startsWith(BEARER)) {
       failResponse(response, ErrorResponseType.AUTH_103);
       return;
     }
