@@ -5,17 +5,20 @@ import {useEffect, useState} from "react";
 import NextImage from 'next/image';
 import useAuth from "~/lib/auth/check-auth";
 import {getLastLoginOrElseNull} from "@/utils/user-utils";
-import {fetchInsertAnnouncement} from "~/lib/api/fetch-announcement";
+import {fetchUpdateAnnouncement, fetchAnnouncementById} from "~/lib/api/fetch-announcement";
 import {useApiClient} from "@/hooks/useApiClient";
 import useDidMountEffect from "@/hooks/useDidMountEffect";
 import {isEmpty} from "@/utils/validators";
-import {useRouter} from "next/navigation";
+import {useRouter, useParams} from "next/navigation";
 import Modal from "@/components/modal/modal";
 import {blueButton, grayButton} from "@/components/modal/modal-buttons";
 import MarkdownEditorField from '@/components/markdown/MarkdownEditorField';
 
-export default function CreateNoti() {
+export default function EditStory() {
   useAuth();
+
+  const params = useParams();
+  const announcementId = params.id as string;
 
   const [userName, setUserName] = useState("");
   const [subject, setSubject] = useState("");
@@ -23,10 +26,14 @@ export default function CreateNoti() {
   const [pushNotificationSendYn, setPushNotificationSendYn] = useState("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [announcement, setAnnouncement] = useState<Announcement>();
+  const [originalAnnouncement, setOriginalAnnouncement] = useState<Announcement>();
   const [announcementText, setAnnouncementText] = useState<string>(''); // 마크다운 내용 저장
   const [blobFileMapping, setBlobFileMapping] = useState<{ [key: string]: string }>({}); // blob URL과 파일명 매핑
+  const [isLoading, setIsLoading] = useState(true);
 
   const LINE = "  \n";
+
+  const TYPE = "BRAND_STORY";
 
   interface ImageSize {
     width: number;
@@ -35,6 +42,34 @@ export default function CreateNoti() {
 
   const {callApi} = useApiClient();
   const router = useRouter();
+
+  // 기존 공지사항 데이터 로드
+  useEffect(() => {
+    if (announcementId) {
+      loadAnnouncementData();
+    }
+  }, [announcementId]);
+
+  const loadAnnouncementData = async () => {
+    try {
+      setIsLoading(true);
+      await callApi(
+          () => fetchAnnouncementById(TYPE, announcementId),
+          (data: Announcement) => {
+            setOriginalAnnouncement(data);
+            setSubject(data.subject || "");
+            setAnnouncementText(data.text || "");
+            setPushNotificationSendYn(data.pushNotificationSendYn || "N");
+          }
+      );
+    } catch (error) {
+      console.error("공지사항 로드 실패:", error);
+      alert("공지사항을 불러오는데 실패했습니다.");
+      router.push("/manage/story");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const openModal = () => {
     if (pushNotificationSendYn === "") {
@@ -104,13 +139,15 @@ export default function CreateNoti() {
       return;
     }
 
-    alert("실패");
+    if (announcement === null) {
+      alert("수정 실패");
+    }
   }, [announcement]);
 
-  const insertAnnouncement = async () => {
-
+  const updateAnnouncement = async () => {
     // 여러 파일 업로드 지원
     const inputData: any = {
+      id: announcementId,
       organizationType: "BRAND_STORY",
       subject: subject || "브랜드 스토리 제목", // subject가 비어있으면 기본값 설정
       text: announcementText,
@@ -127,9 +164,9 @@ export default function CreateNoti() {
       inputData.blobFileMapping = blobFileMapping;
     }
 
-    console.log('전송할 데이터:', inputData);
+    console.log('수정할 데이터:', inputData);
 
-    await callApi(() => fetchInsertAnnouncement(inputData), setAnnouncement);
+    await callApi(() => fetchUpdateAnnouncement(inputData), setAnnouncement);
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -158,13 +195,25 @@ export default function CreateNoti() {
     }
   };
 
+  const handleCancel = () => {
+    router.push("/manage/story");
+  };
+
+  if (isLoading) {
+    return (
+        <div className="flex justify-center items-center h-64">
+          <div className="text-lg">로딩 중...</div>
+        </div>
+    );
+  }
+
   return (
       <div>
         <div className="space-y-12 px-8">
           <div className="border-b border-gray-900/10 pb-12">
-            <h2 className="text-base/7 font-semibold text-gray-900">공지사항 새로만들기</h2>
+            <h2 className="text-base/7 font-semibold text-gray-900">공지사항 수정하기</h2>
             <p className="mt-1 text-sm/6 text-gray-600">
-              스토리를 새로 만드는 공간입니다.
+              스토리를 수정하는 공간입니다.
             </p>
 
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
@@ -187,21 +236,6 @@ export default function CreateNoti() {
                   </div>
                 </div>
               </div>
-
-              {/*<div className="col-span-full">*/}
-              {/*  <label htmlFor="subject" className="block text-sm/6 font-medium text-gray-900">*/}
-              {/*    제목*/}
-              {/*  </label>*/}
-              {/*  <div className="mt-2">*/}
-              {/*    <input*/}
-              {/*        type="text"*/}
-              {/*        id="subject"*/}
-              {/*        onChange={(e) => setSubject(e.target.value)}*/}
-              {/*        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border border-gray-300"*/}
-              {/*        defaultValue={''}*/}
-              {/*    />*/}
-              {/*  </div>*/}
-              {/*</div>*/}
 
               <div className="col-span-full">
                 <label htmlFor="cover-photo" className="block text-sm font-medium text-gray-900">
@@ -275,17 +309,7 @@ export default function CreateNoti() {
                       value={announcementText} // 기존에 저장된 내용이 있다면 전달
                       onMarkdownChange={setAnnouncementText} // 에디터 내용 변경 시 상태 업데이트
                   />
-                  {/*<textarea*/}
-                  {/*    id="about"*/}
-                  {/*    name="about"*/}
-                  {/*    onChange={(e) => setText(e.target.value)}*/}
-                  {/*    rows={3}*/}
-                  {/*    className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border border-gray-300"*/}
-                  {/*    defaultValue={''}*/}
-                  {/*/>*/}
                 </div>
-                {/*<p className="mt-3 text-sm/6 text-gray-600">Write a few sentences about*/}
-                {/*  yourself.</p>*/}
               </div>
 
             </div>
@@ -341,10 +365,15 @@ export default function CreateNoti() {
         </div>
 
         <div className="mt-6 mr-6 flex items-center justify-end gap-x-6">
-          <input type="button" value="Cancel" className="text-sm/6 font-semibold text-gray-900"/>
           <input
               type="button"
-              value="Save"
+              value="Cancel"
+              className="text-sm/6 font-semibold text-gray-900 cursor-pointer hover:text-gray-700"
+              onClick={handleCancel}
+          />
+          <input
+              type="button"
+              value="Update"
               className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
               onClick={() => openModal()}
           />
@@ -352,11 +381,11 @@ export default function CreateNoti() {
         <Modal
             isOpen={isModalOpen}
             onClose={() => closeModal()}
-            title={"공지사항을 등록합니다."}
+            title={"공지사항을 수정합니다."}
             footer={
               <>
                 {grayButton("취소", closeModal)}
-                {blueButton("확인", insertAnnouncement)}
+                {blueButton("확인", updateAnnouncement)}
               </>
             }
         >

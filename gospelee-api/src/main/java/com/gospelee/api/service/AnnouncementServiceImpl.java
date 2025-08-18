@@ -211,6 +211,44 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     return announcement;
   }
 
+  @Override
+  public AnnouncementDTO updateAnnouncement(List<MultipartFile> files,
+      AnnouncementDTO announcementDTO) {
+
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+
+    // 공지사항 데이터 저장 (임시)
+    AnnouncementDTO announcement = AnnouncementDTO.fromEntity(
+        announcementRepository.save(announcementDTO.toEntity(account)), null);
+
+    if (files != null && !files.isEmpty()) {
+      return announcement;
+    }
+
+    Optional<FileEntity> fileEntity = fileService.getFileEntity(announcement.getFileUid());
+
+    if (fileEntity.isEmpty()) {
+      // insert
+      FileUploadWrapperDTO fileUploadWrapper = FileUploadWrapperDTO.builder()
+          .categoryType(CategoryType.ANNOUNCEMENT)
+          .files(files)
+          .accountAuth(account)
+          .parentId(announcement.getId())
+          .build();
+
+      FileUploadResponseDTO fileUploadResponse = fileService.uploadFileWithResponse(
+          fileUploadWrapper);
+
+      // 업로드한 fileId announcement 에 입력
+      announcementRepository.updateFileId(announcement.getId(), fileUploadResponse.getFileId());
+    } else {
+      // update
+      fileService.replaceFileWithResponse(fileEntity.get(), files);
+    }
+
+    return null;
+  }
+
   /**
    * text 내용의 blob URL을 실제 파일 URL로 치환
    *

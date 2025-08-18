@@ -27,7 +27,7 @@ function classNames(...classes: (string | boolean | null | undefined)[]): string
   return classes.filter(Boolean).join(' ')
 }
 
-export default function ManageNoti(): JSX.Element {
+export default function ManageStory(): JSX.Element {
   useAuth();
 
   const router = useRouter();
@@ -35,7 +35,13 @@ export default function ManageNoti(): JSX.Element {
   const [announcement, setAnnouncement] = useState<Announcement[]>([]);
 
   const routeCreate = () => {
-    router.push(`/manage/noti/create`)
+    router.push(`/manage/story/create`)
+  };
+
+  const routeEdit = (id: bigint | undefined) => {
+    if (id) {
+      router.push(`/manage/story/edit/${id}`);
+    }
   };
 
   useEffect(() => {
@@ -117,7 +123,10 @@ export default function ManageNoti(): JSX.Element {
                       </td>
                       <td className='w-1/12 border-b border-gray-200 py-4 pr-3 pl-4 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'>
                         {a.pushNotificationIds == null && (
-                            <a className="text-indigo-600 hover:text-indigo-900 cursor-pointer">
+                            <a 
+                              className="text-indigo-600 hover:text-indigo-900 cursor-pointer"
+                              onClick={() => routeEdit(a.id)}
+                            >
                               Edit
                             </a>
                         )}

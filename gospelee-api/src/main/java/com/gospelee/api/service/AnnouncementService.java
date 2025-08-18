@@ -12,4 +12,6 @@ public interface AnnouncementService {
   AnnouncementDTO getAnnouncement(String announcementType, Long id);
 
   AnnouncementDTO insertAnnouncement(List<MultipartFile> files, AnnouncementDTO announcementDTO);
+
+  AnnouncementDTO updateAnnouncement(List<MultipartFile> files, AnnouncementDTO announcementDTO);
 }

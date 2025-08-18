@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -88,6 +89,62 @@ public class FileServiceImpl implements FileService {
         .fileDetailList(fileDetailList)
         .accessToken(fileEntity.getAccessToken())
         .build();
+  }
+
+  @Override
+  @Transactional
+  public FileUploadResponseDTO replaceFileWithResponse(FileEntity fileEntity,
+      List<MultipartFile> multipartFileList) {
+
+    AccountAuthDTO accountAuthDTO = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+
+    List<FileUploadDetailResponseDTO> fileDetailList = new ArrayList<>();
+    for (MultipartFile file : multipartFileList) {
+      FileUploadRequestDTO request = fileToDTO(CategoryType.fromName(fileEntity.getCategory()),
+          file, accountAuthDTO);
+
+      FileDetails fileDetails = FileDetails.builder()
+          .fileId(fileEntity.getId())
+          .fileSize(request.getFileSize())
+          .fileType(request.getFileType())
+          .fileOriginalName(request.getFileOriginalName())
+          .filePath(request.getFilePath() + File.separator + request.getFileSaveName())
+          .extension(request.getExtension())
+          .build();
+
+      // 파일 물리 저장
+      saveFile(request, file);
+
+      // detail 영속성 데이터 저장
+      fileDetails = fileDetailsRepository.save(fileDetails);
+      fileDetailList.add(FileUploadDetailResponseDTO.builder()
+          .fileDetailId(fileDetails.getId())
+          .fileOriginalName(file.getOriginalFilename())
+          .build());
+
+      // 기존 파일 삭제
+      List<FileDetails> orgFileDetailsList = fileDetailsRepository.findAllByFileId(
+          fileEntity.getId());
+      for (FileDetails orgFileDetails : orgFileDetailsList) {
+        fileDetailsRepository.deleteById(orgFileDetails.getId());
+        deleteFile(orgFileDetails.getFilePath());
+      }
+    }
+
+    return FileUploadResponseDTO.builder()
+        .fileId(fileEntity.getId())
+        .fileDetailList(fileDetailList)
+        .accessToken(fileEntity.getAccessToken())
+        .build();
+
+  }
+
+  @Override
+  public Optional<FileEntity> getFileEntity(Long fileId) {
+    if (fileId == null) {
+      return Optional.empty();
+    }
+    return fileRepository.findById(fileId);
   }
 
   @Override
@@ -220,6 +277,22 @@ public class FileServiceImpl implements FileService {
       file.transferTo(fileDestination);  // 실제 파일 저장
     } catch (IOException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * 저장된 파일을 제거하는 메서드
+   *
+   * @return 삭제 성공 여부 (true: 삭제됨, false: 파일 없음 또는 실패)
+   */
+  private boolean deleteFile(String filePath) {
+    File fileDestination = new File(fileBasePath + File.separator + filePath);
+
+    // 파일이 존재하면 삭제
+    if (fileDestination.exists()) {
+      return fileDestination.delete();
+    } else {
+      return false; // 파일 없음
     }
   }
 }
