@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState, type JSX } from 'react';
+import React, {useEffect, useState, type JSX} from 'react';
 import useAuth from "~/lib/auth/check-auth";
 import {useRouter} from "next/navigation";
 import {useApiClient} from "@/hooks/useApiClient";
@@ -39,7 +39,7 @@ export default function ManageNoti(): JSX.Element {
   };
 
   useEffect(() => {
-    callApi(fetchAnnouncements, setAnnouncement);
+    callApi(fetchAnnouncements, setAnnouncement, 'BRAND_STORY');
   }, []);
 
   console.log(announcement);

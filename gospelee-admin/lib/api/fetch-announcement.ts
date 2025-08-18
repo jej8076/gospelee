@@ -2,14 +2,16 @@ import {expireCookie, getCookie} from "~/lib/cookie/cookie-utils";
 import {AuthItems} from "~/constants/auth-items";
 import {apiFetch} from "~/lib/api-client";
 
-export const fetchAnnouncements = async (): Promise<Announcement[]> => {
+export const fetchAnnouncements = async (type?: string): Promise<Announcement[]> => {
 
-  const response = await apiFetch("/api/announcement/ECCLESIA", {
+  type = type === null ? 'ECCLESIA' : type;
+  debugger;
+  const response = await apiFetch(`/api/announcement/${type}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
-    }
+    },
   });
 
   if (!response.ok) {

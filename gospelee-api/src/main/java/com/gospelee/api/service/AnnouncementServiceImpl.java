@@ -59,7 +59,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     List<AnnouncementResponseDTO> responseList;
 
     if (account.getEmail().equals(superId)) {
-      responseList = announcementRepository.findAll().stream()
+      responseList = announcementRepository.findByOrganizationType(announcementType).stream()
           .map(AnnouncementResponseDTO::fromEntity).collect(
               Collectors.toList());
     } else {

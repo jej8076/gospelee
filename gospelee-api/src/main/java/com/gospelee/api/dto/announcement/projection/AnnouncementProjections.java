@@ -4,7 +4,7 @@ import com.gospelee.api.dto.announcement.QAnnouncementResponseDTO;
 import com.gospelee.api.entity.QAnnouncement;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.core.types.dsl.StringPath;
+import com.querydsl.core.types.dsl.StringExpression;
 
 public class AnnouncementProjections {
 
@@ -16,8 +16,8 @@ public class AnnouncementProjections {
           .then("Y")
           .otherwise("N");
 
-  // DTO 생성용 프로젝션 (fileDetailList 제외)
-  public static QAnnouncementResponseDTO toColumn(StringPath orgName) {
+  // DTO 생성용 프로젝션 (StringExpression으로 변경하여 더 유연하게)
+  public static QAnnouncementResponseDTO toColumn(StringExpression orgName) {
     return new QAnnouncementResponseDTO(
         announcement.id,
         announcement.organizationType,
