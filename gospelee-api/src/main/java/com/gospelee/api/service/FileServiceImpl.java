@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -121,14 +122,6 @@ public class FileServiceImpl implements FileService {
           .fileDetailId(fileDetails.getId())
           .fileOriginalName(file.getOriginalFilename())
           .build());
-
-      // 기존 파일 삭제
-      List<FileDetails> orgFileDetailsList = fileDetailsRepository.findAllByFileId(
-          fileEntity.getId());
-      for (FileDetails orgFileDetails : orgFileDetailsList) {
-        fileDetailsRepository.deleteById(orgFileDetails.getId());
-        deleteFile(orgFileDetails.getFilePath());
-      }
     }
 
     return FileUploadResponseDTO.builder()

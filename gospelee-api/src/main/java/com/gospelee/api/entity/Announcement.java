@@ -1,5 +1,6 @@
 package com.gospelee.api.entity;
 
+import com.gospelee.api.dto.announcement.AnnouncementDTO;
 import com.gospelee.api.dto.announcement.AnnouncementResponseDTO;
 import com.gospelee.api.entity.common.EditInfomation;
 import jakarta.persistence.Column;
@@ -7,6 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -59,5 +61,13 @@ public class Announcement extends EditInfomation {
     this.pushNotificationIds = pushNotificationIds;
   }
 
+
+  public void changeSubject(String subject) {
+    this.subject = subject;
+  }
+
+  public void changeText(String text) {
+    this.text = text;
+  }
 
 }

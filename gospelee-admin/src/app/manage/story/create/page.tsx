@@ -20,7 +20,6 @@ export default function CreateNoti() {
   const [userName, setUserName] = useState("");
   const [subject, setSubject] = useState("");
   const [files, setFiles] = useState<File[] | []>([]);
-  const [pushNotificationSendYn, setPushNotificationSendYn] = useState("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [announcement, setAnnouncement] = useState<Announcement>();
   const [announcementText, setAnnouncementText] = useState<string>(''); // 마크다운 내용 저장
@@ -37,10 +36,6 @@ export default function CreateNoti() {
   const router = useRouter();
 
   const openModal = () => {
-    if (pushNotificationSendYn === "") {
-      alert("푸시 알림 발송 여부를 선택해주세요");
-      return;
-    }
     setIsModalOpen(true);
   };
 
@@ -114,7 +109,7 @@ export default function CreateNoti() {
       organizationType: "BRAND_STORY",
       subject: subject || "브랜드 스토리 제목", // subject가 비어있으면 기본값 설정
       text: announcementText,
-      pushNotificationSendYn: pushNotificationSendYn,
+      pushNotificationSendYn: "N",
     };
 
     // 파일이 있을 때만 추가
@@ -131,6 +126,10 @@ export default function CreateNoti() {
 
     await callApi(() => fetchInsertAnnouncement(inputData), setAnnouncement);
   }
+
+  const handleCancel = () => {
+    router.push("/manage/story");
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
@@ -290,58 +289,15 @@ export default function CreateNoti() {
 
             </div>
           </div>
-
-          <div className="border-b border-gray-900/10 pb-12">
-            <h2 className="text-base/7 font-semibold text-gray-900">설정</h2>
-            <p className="mt-1 text-sm/6 text-gray-600">
-
-            </p>
-
-            <div className="mt-10 space-y-10">
-
-              <fieldset>
-                <legend className="text-sm/6 font-semibold text-gray-900">푸시 알림
-                </legend>
-                <p className="mt-1 text-sm/6 text-gray-600">앱 푸시 알림을 발송할 지 선택해 주세요</p>
-                <div className="mt-6 space-y-6">
-                  <div className="flex items-center gap-x-3">
-                    <input
-                        id="push-everyone"
-                        name="push-notifications"
-                        type="radio"
-                        value="Y" // 이 라디오 버튼이 선택될 때의 값
-                        checked={pushNotificationSendYn === "Y"} // 현재 상태에 따라 체크 여부 결정
-                        onChange={handleRadioChange} // 변경 이벤트 핸들러
-                        className="relative size-4 appearance-none rounded-full border border-gray-300 bg-white before:absolute before:inset-1 before:rounded-full before:bg-white not-checked:before:hidden checked:border-indigo-600 checked:bg-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:before:bg-gray-400 forced-colors:appearance-auto forced-colors:before:hidden"
-                    />
-                    <label htmlFor="push-everyone"
-                           className="block text-sm/6 font-medium text-gray-900">
-                      등록 교인 전체발송
-                    </label>
-                  </div>
-                  <div className="flex items-center gap-x-3">
-                    <input
-                        id="push-nothing"
-                        name="push-notifications"
-                        type="radio"
-                        value="N" // 이 라디오 버튼이 선택될 때의 값
-                        checked={pushNotificationSendYn === "N"} // 현재 상태에 따라 체크 여부 결정
-                        onChange={handleRadioChange} // 변경 이벤트 핸들러
-                        className="relative size-4 appearance-none rounded-full border border-gray-300 bg-white before:absolute before:inset-1 before:rounded-full before:bg-white not-checked:before:hidden checked:border-indigo-600 checked:bg-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:before:bg-gray-400 forced-colors:appearance-auto forced-colors:before:hidden"
-                    />
-                    <label htmlFor="push-nothing"
-                           className="block text-sm/6 font-medium text-gray-900">
-                      발송안함
-                    </label>
-                  </div>
-                </div>
-              </fieldset>
-            </div>
-          </div>
         </div>
 
         <div className="mt-6 mr-6 flex items-center justify-end gap-x-6">
-          <input type="button" value="Cancel" className="text-sm/6 font-semibold text-gray-900"/>
+          <input
+              type="button"
+              value="Cancel"
+              className="text-sm/6 font-semibold text-gray-900 cursor-pointer hover:text-gray-700"
+              onClick={handleCancel}
+          />
           <input
               type="button"
               value="Save"

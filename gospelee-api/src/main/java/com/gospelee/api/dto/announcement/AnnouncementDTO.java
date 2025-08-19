@@ -69,6 +69,10 @@ public class AnnouncementDTO {
         .build();
   }
 
+  public static AnnouncementDTO fromEntity(Announcement announcement) {
+    return AnnouncementDTO.fromEntity(announcement, null);
+  }
+
   public Announcement toEntity(AccountAuthDTO accountAuthDTO) {
     return Announcement.builder()
         .id(this.id)
@@ -78,5 +82,9 @@ public class AnnouncementDTO {
         .text(this.text)
         .fileUid(this.fileUid)
         .build();
+  }
+
+  public void changeText(String text) {
+    this.text = text;
   }
 }

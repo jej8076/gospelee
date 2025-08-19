@@ -14,7 +14,16 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
   List<Announcement> findByOrganizationType(String organizationType);
 
   @Modifying
-  @Query("UPDATE Announcement a SET a.pushNotificationIds = :pushNotificationIds WHERE a.id = :id")
+  @Query("""
+          UPDATE Announcement a
+          SET a.pushNotificationIds =
+              CASE
+                  WHEN a.pushNotificationIds IS NULL OR a.pushNotificationIds = ''
+                      THEN :pushNotificationIds
+                  ELSE CONCAT(a.pushNotificationIds, ',', :pushNotificationIds)
+              END
+          WHERE a.id = :id
+      """)
   void updatePushNotificationIdsById(
       @Param("id") Long id,
       @Param("pushNotificationIds") String pushNotificationIds);

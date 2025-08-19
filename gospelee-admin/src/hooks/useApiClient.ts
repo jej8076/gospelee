@@ -19,7 +19,7 @@ export const useApiClient = () => {
       if (error.status === 401) {
         router.push("/login");
       } else {
-        console.error("Unhandled error:", error.message || error);
+        console.log("Unhandled error:", error.message || error);
       }
     }
   };

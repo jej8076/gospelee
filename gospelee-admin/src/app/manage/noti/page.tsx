@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState, type JSX } from 'react';
+import React, {useEffect, useState, type JSX} from 'react';
 import useAuth from "~/lib/auth/check-auth";
 import {useRouter} from "next/navigation";
 import {useApiClient} from "@/hooks/useApiClient";
@@ -110,7 +110,7 @@ export default function ManageNoti(): JSX.Element {
                         {a.text}
                       </td>
                       <td className='w-1/6 border-b border-gray-200 py-4 pr-3 pl-4 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'>
-                        {a.pushNotificationIds == null ? "발송안함" : "발송"}
+                        {a.pushNotificationIds == null ? "발송이력없음" : "발송조회"}
                       </td>
                       <td className='w-1/6 border-b border-gray-200 py-4 pr-3 pl-4 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'>
                         {a.insertTime}
@@ -118,7 +118,7 @@ export default function ManageNoti(): JSX.Element {
                       <td className='w-1/12 border-b border-gray-200 py-4 pr-3 pl-4 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'>
                         {a.pushNotificationIds == null && (
                             <a className="text-indigo-600 hover:text-indigo-900 cursor-pointer">
-                              Edit
+                              수정
                             </a>
                         )}
                       </td>
