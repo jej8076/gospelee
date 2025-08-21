@@ -73,7 +73,6 @@ export const fetchInsertAnnouncement = async (inputData: {
   const response = await apiFetch("/api/announcement", {
     method: "POST",
     headers: {
-      // "Content-Type": "application/json",
       Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
     },
     body: formData,

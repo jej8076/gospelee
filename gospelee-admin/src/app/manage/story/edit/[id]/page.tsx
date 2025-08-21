@@ -140,7 +140,7 @@ export default function EditStory() {
     // 여러 파일 업로드 지원
     const inputData: any = {
       id: announcementId,
-      organizationType: "BRAND_STORY",
+      organizationType: TYPE,
       subject: subject || "브랜드 스토리 제목", // subject가 비어있으면 기본값 설정
       text: announcementText,
       pushNotificationSendYn: pushNotificationSendYn,

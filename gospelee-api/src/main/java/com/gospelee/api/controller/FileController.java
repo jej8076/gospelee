@@ -24,6 +24,47 @@ public class FileController {
   private final FileDetailsRepository fileDetailsRepository;
 
   /**
+   * 파일 조회 API
+   *
+   * @param fileId       파일 ID
+   * @param fileDetailId file_details 테이블의 ID
+   * @return 파일 리소스
+   */
+//  @GetMapping("/{fileId}/{fileDetailId}")
+//  public ResponseEntity<Resource> getFileById(
+//      @PathVariable Long fileId,
+//      @PathVariable Long fileDetailId) {
+//
+//    try {
+//      Resource resource = fileService.getFile(fileId, fileDetailId);
+//
+//      // 파일 상세 정보 조회하여 원본 파일명과 Content-Type 설정
+//      FileDetails fileDetails = fileDetailsRepository.findById(fileDetailId)
+//          .orElseThrow(() -> new IllegalArgumentException("파일 상세 정보를 찾을 수 없습니다."));
+//
+//      // Content-Type 설정 (저장된 fileType 사용, 없으면 기본값)
+//      String contentType = fileDetails.getFileType();
+//      if (contentType == null || contentType.isEmpty()) {
+//        contentType = "application/octet-stream";
+//      }
+//
+//      return ResponseEntity.ok()
+//          .contentType(MediaType.parseMediaType(contentType))
+//          .header(HttpHeaders.CONTENT_DISPOSITION,
+//              "inline; filename=\"" + fileDetails.getFileOriginalName() + "\"")
+//          .body(resource);
+//
+//    } catch (IllegalArgumentException e) {
+//      log.error("파일 조회 실패: {}", e.getMessage());
+//      return ResponseEntity.notFound().build();
+//    } catch (Exception e) {
+//      log.error("파일 조회 중 오류 발생", e);
+//      return ResponseEntity.internalServerError().build();
+//    }
+//  }
+
+
+  /**
    * 보안 파일 조회 API (accessToken 기반) accessToken과 file_details ID를 조합하여 안전하게 파일을 조회합니다.
    *
    * @param accessToken  파일 접근 토큰 (UUID)
@@ -35,8 +76,18 @@ public class FileController {
       @PathVariable String accessToken,
       @PathVariable Long fileDetailId) {
 
+    Resource resource;
+
     try {
-      Resource resource = fileService.getFileByToken(accessToken, fileDetailId);
+
+      // 숫자로 파싱될 수 있다면 fileId인 것으로 간주한다
+      if (isNumeric(accessToken)) {
+        Long fileId = Long.parseLong(accessToken);
+        resource = fileService.getFile(fileId, fileDetailId);
+
+      } else {
+        resource = fileService.getFileByToken(accessToken, fileDetailId);
+      }
 
       // 파일 상세 정보 조회하여 원본 파일명과 Content-Type 설정
       FileDetails fileDetails = fileDetailsRepository.findById(fileDetailId)
@@ -94,6 +145,21 @@ public class FileController {
     } catch (Exception e) {
       log.error("파일 다운로드 중 오류 발생", e);
       return ResponseEntity.internalServerError().build();
+    }
+  }
+
+  /**
+   * 숫자인지 확인하는 유틸 메서드
+   */
+  private boolean isNumeric(String str) {
+    if (str == null) {
+      return false;
+    }
+    try {
+      Long.parseLong(str);
+      return true;
+    } catch (NumberFormatException e) {
+      return false;
     }
   }
 }

@@ -94,8 +94,11 @@ public class FileServiceImpl implements FileService {
 
   @Override
   public Resource getFile(Long fileId, Long fileDetailId) {
+
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+
     // file 테이블에서 파일 정보 조회
-    FileEntity fileEntity = fileRepository.findById(fileId)
+    FileEntity fileEntity = fileRepository.findByIdAndAccountUid(fileId, account.getUid())
         .orElseThrow(() -> new IllegalArgumentException("파일을 찾을 수 없습니다. fileId: " + fileId));
 
     // 삭제된 파일인지 확인

@@ -38,6 +38,12 @@ export default function ManageNoti(): JSX.Element {
     router.push(`/manage/noti/create`)
   };
 
+  const routeEdit = (id: bigint | undefined) => {
+    if (id) {
+      router.push(`/manage/noti/edit/${id}`);
+    }
+  };
+
   useEffect(() => {
     callApi(fetchAnnouncements, setAnnouncement);
   }, []);
@@ -116,11 +122,13 @@ export default function ManageNoti(): JSX.Element {
                         {a.insertTime}
                       </td>
                       <td className='w-1/12 border-b border-gray-200 py-4 pr-3 pl-4 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'>
-                        {a.pushNotificationIds == null && (
-                            <a className="text-indigo-600 hover:text-indigo-900 cursor-pointer">
-                              수정
-                            </a>
-                        )}
+                        <a
+                            className="text-indigo-600 hover:text-indigo-900 cursor-pointer"
+                            onClick={() => routeEdit(a.id)}
+                        >
+                          수정
+                        </a>
+
                       </td>
                     </tr>
                 ))}

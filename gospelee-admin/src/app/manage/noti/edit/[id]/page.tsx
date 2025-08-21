@@ -5,28 +5,65 @@ import {useEffect, useState} from "react";
 import NextImage from 'next/image';
 import useAuth from "~/lib/auth/check-auth";
 import {getLastLoginOrElseNull} from "@/utils/user-utils";
-import {fetchInsertAnnouncement} from "~/lib/api/fetch-announcement";
+import {fetchUpdateAnnouncement, fetchAnnouncementById} from "~/lib/api/fetch-announcement";
+import {fetchFileById} from "~/lib/api/fetch-file";
 import {useApiClient} from "@/hooks/useApiClient";
 import useDidMountEffect from "@/hooks/useDidMountEffect";
 import {isEmpty} from "@/utils/validators";
-import {useRouter} from "next/navigation";
+import {useRouter, useParams} from "next/navigation";
 import Modal from "@/components/modal/modal";
 import {blueButton, grayButton} from "@/components/modal/modal-buttons";
+import MarkdownEditorField from '@/components/markdown/MarkdownEditorField';
 
-export default function CreateNoti() {
+// 타입 import 추가
+type Announcement = {
+  id?: bigint;
+  organizationType: string;
+  subject: string;
+  text: string;
+  fileUid?: bigint | null;
+  fileDetailList?: {
+    id: number;
+    fileId: number;
+    filePath: string;
+    fileOriginalName: string;
+    fileSize: number;
+    fileType: string;
+    extension: string;
+    delYn: string;
+  }[];
+  pushNotificationSendYn: 'Y' | 'N';
+  pushNotificationIds: string;
+  insertTime: string;
+  updateTime: string;
+};
+
+type AuthInfoType = {
+  name: string;
+  // 다른 필드들...
+};
+
+export default function EditNoti() {
   useAuth();
+
+  const params = useParams();
+  const announcementId = params.id as string;
 
   const [userName, setUserName] = useState("");
   const [subject, setSubject] = useState("");
   const [files, setFiles] = useState<File[] | []>([]);
+  const [existingFiles, setExistingFiles] = useState<{url: string, name: string, id: number}[]>([]); // 기존 파일들
   const [pushNotificationSendYn, setPushNotificationSendYn] = useState("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [isGoBackModalOpen, setIsGoBackModalOpen] = useState<boolean>(false);
   const [announcement, setAnnouncement] = useState<Announcement>();
+  const [originalAnnouncement, setOriginalAnnouncement] = useState<Announcement>();
   const [announcementText, setAnnouncementText] = useState<string>(''); // 마크다운 내용 저장
   const [blobFileMapping, setBlobFileMapping] = useState<{ [key: string]: string }>({}); // blob URL과 파일명 매핑
+  const [isLoading, setIsLoading] = useState(true);
 
   const LINE = "  \n";
+
+  const TYPE = "ECCLESIA";
 
   interface ImageSize {
     width: number;
@@ -36,11 +73,105 @@ export default function CreateNoti() {
   const {callApi} = useApiClient();
   const router = useRouter();
 
-  const openModal = () => {
-    if (pushNotificationSendYn === "") {
-      alert("푸시 알림 발송 여부를 선택해주세요");
+  const [formData, setFormData] = useState({
+    subject: "",
+    text: "",
+    pushNotificationSendYn: "N"
+  });
+
+  useEffect(() => {
+    const lastLoginInfo: AuthInfoType | null = getLastLoginOrElseNull();
+    setUserName(lastLoginInfo?.name ?? "");
+  }, []);
+
+  // 기존 공지사항 데이터 로드
+  useEffect(() => {
+    if (announcementId) {
+      loadAnnouncementData();
+    }
+
+  }, [announcementId]);
+
+  useEffect(() => {
+    if (originalAnnouncement) {
+      setFormData({
+        subject: originalAnnouncement.subject || "",
+        text: originalAnnouncement.text || "",
+        pushNotificationSendYn: originalAnnouncement.pushNotificationSendYn || "N"
+      });
+      
+      // 기존 파일들 로드
+      loadExistingFiles();
+    }
+  }, [originalAnnouncement]);
+
+
+  useDidMountEffect(() => {
+    if (!isEmpty(announcement?.id)) {
+      router.push("/manage/story");
       return;
     }
+
+    if (announcement === null) {
+      alert("수정 실패");
+    }
+  }, [announcement]);
+
+
+  const loadAnnouncementData = async () => {
+    try {
+      setIsLoading(true);
+      await callApi(
+          () => fetchAnnouncementById(TYPE, announcementId),
+          (data: Announcement) => {
+            setOriginalAnnouncement(data);
+            // 한 번에 모든 필드 업데이트
+            setFormData({
+              subject: data.subject || "",
+              text: data.text || "",
+              pushNotificationSendYn: data.pushNotificationSendYn || "N"
+            });
+          }
+      );
+    } catch (error) {
+      console.error("공지사항 로드 실패:", error);
+      alert("공지사항을 불러오는데 실패했습니다.");
+      router.push("/manage/story");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 기존 파일들 로드
+  const loadExistingFiles = async () => {
+    if (!originalAnnouncement?.fileUid || !originalAnnouncement?.fileDetailList) {
+      return;
+    }
+
+    try {
+      const filePromises = originalAnnouncement.fileDetailList.map(async (fileDetail) => {
+        try {
+          const fileUrl = await fetchFileById(Number(originalAnnouncement.fileUid), fileDetail.id);
+          return {
+            url: fileUrl,
+            name: fileDetail.fileOriginalName,
+            id: fileDetail.id
+          };
+        } catch (error) {
+          console.error(`파일 로드 실패 (ID: ${fileDetail.id}):`, error);
+          return null;
+        }
+      });
+
+      const loadedFiles = await Promise.all(filePromises);
+      const validFiles = loadedFiles.filter(file => file !== null) as {url: string, name: string, id: number}[];
+      setExistingFiles(validFiles);
+    } catch (error) {
+      console.error("기존 파일 로드 실패:", error);
+    }
+  };
+
+  const openModal = () => {
     setIsModalOpen(true);
   };
 
@@ -48,43 +179,12 @@ export default function CreateNoti() {
     setIsModalOpen(false);
   };
 
-  const openGoBackModal = () => {
-    setIsGoBackModalOpen(true);
-  };
-
-  const closeGoBackModal = () => {
-    setIsGoBackModalOpen(false);
-  };
-
-  const goBack = () => {
-    router.push("/manage/noti");
-    return;
-  }
-
-  const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPushNotificationSendYn(event.target.value);
-  };
-
-  useEffect(() => {
-    const lastLoginInfo: AuthInfoType | null = getLastLoginOrElseNull();
-    setUserName(lastLoginInfo?.name ?? "");
-  }, []);
-
-  useDidMountEffect(() => {
-    if (!isEmpty(announcement?.id)) {
-      router.push("/manage/noti");
-      return;
-    }
-
-    alert("실패");
-  }, [announcement]);
-
-  const insertAnnouncement = async () => {
-
+  const updateAnnouncement = async () => {
     // 여러 파일 업로드 지원
     const inputData: any = {
-      organizationType: "ECCLESIA",
-      subject: subject || "공지사항", // subject가 비어있으면 기본값 설정
+      id: announcementId,
+      organizationType: TYPE,
+      subject: subject || "", // subject가 비어있으면 기본값 설정
       text: announcementText,
       pushNotificationSendYn: pushNotificationSendYn,
     };
@@ -99,9 +199,9 @@ export default function CreateNoti() {
       inputData.blobFileMapping = blobFileMapping;
     }
 
-    console.log('전송할 데이터:', inputData);
+    console.log('수정할 데이터:', inputData);
 
-    await callApi(() => fetchInsertAnnouncement(inputData), setAnnouncement);
+    await callApi(() => fetchUpdateAnnouncement(inputData), setAnnouncement);
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,6 +210,15 @@ export default function CreateNoti() {
       const fileArray = Array.from(selectedFiles);
       setFiles((prevFiles) => [...prevFiles, ...fileArray]);
     }
+  };
+
+  const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPushNotificationSendYn(event.target.value);
+  };
+
+  // 개별 필드 업데이트 시
+  const handleTextChange = (value: string) => {
+    setFormData(prev => ({...prev, text: value}));
   };
 
   const removeFile = (index: number) => {
@@ -130,13 +239,48 @@ export default function CreateNoti() {
     }
   };
 
+  // 기존 파일 제거
+  const removeExistingFile = (index: number) => {
+    const fileToRemove = existingFiles[index];
+    if (fileToRemove) {
+      // blob URL 해제
+      URL.revokeObjectURL(fileToRemove.url);
+    }
+    setExistingFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+  };
+
+  const handleCancel = () => {
+    // 메모리 누수 방지를 위해 blob URL 해제
+    existingFiles.forEach(file => {
+      URL.revokeObjectURL(file.url);
+    });
+    router.push("/manage/noti");
+  };
+
+  // 컴포넌트 언마운트 시 blob URL 정리
+  useEffect(() => {
+    return () => {
+      existingFiles.forEach(file => {
+        URL.revokeObjectURL(file.url);
+      });
+    };
+  }, [existingFiles]);
+
+  if (isLoading) {
+    return (
+        <div className="flex justify-center items-center h-64">
+          <div className="text-lg">로딩 중...</div>
+        </div>
+    );
+  }
+
   return (
       <div>
         <div className="space-y-12 px-8">
           <div className="border-b border-gray-900/10 pb-12">
-            <h2 className="text-base/7 font-semibold text-gray-900">공지사항 새로만들기</h2>
+            <h2 className="text-base/7 font-semibold text-gray-900">공지사항 수정하기</h2>
             <p className="mt-1 text-sm/6 text-gray-600">
-              공지사항을 새로 만드는 공간입니다.
+              스토리를 수정하는 공간입니다.
             </p>
 
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
@@ -187,10 +331,39 @@ export default function CreateNoti() {
                     />
                   </label>
 
-                  {/* 업로드된 이미지들 */}
+                  {/* 기존 업로드된 이미지들 */}
+                  {existingFiles.map((file, index) => (
+                      <div
+                          key={`existing-${index}`}
+                          className="flex flex-col items-center justify-center space-y-2 relative">
+                        <div
+                            className="w-36 h-36 border rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center relative">
+                          <NextImage
+                              src={file.url}
+                              alt={file.name}
+                              className="object-cover w-full h-full"
+                              width={144}
+                              height={144}
+                          />
+                          {/* 삭제 버튼 */}
+                          <button
+                              type="button"
+                              onClick={() => removeExistingFile(index)}
+                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                          >
+                            ×
+                          </button>
+                        </div>
+                        <span className="text-xs text-gray-500 text-center max-w-36 truncate">
+                          {file.name}
+                        </span>
+                      </div>
+                  ))}
+
+                  {/* 새로 업로드된 이미지들 */}
                   {files.map((file, index) => (
                       <div
-                          key={index}
+                          key={`new-${index}`}
                           className="flex flex-col items-center justify-center space-y-2 relative">
                         <div
                             className="w-36 h-36 border rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center relative">
@@ -210,6 +383,9 @@ export default function CreateNoti() {
                             ×
                           </button>
                         </div>
+                        <span className="text-xs text-gray-500 text-center max-w-36 truncate">
+                          {file.name}
+                        </span>
                       </div>
                   ))}
                 </div>
@@ -223,10 +399,10 @@ export default function CreateNoti() {
                   <textarea
                       id="about"
                       name="about"
-                      onChange={(e) => setAnnouncementText(e.target.value)}
+                      value={originalAnnouncement?.text}
+                      onChange={(e) => handleTextChange(e.target.value)}
                       rows={3}
                       className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border border-gray-300"
-                      defaultValue={''}
                   />
                 </div>
               </div>
@@ -284,11 +460,15 @@ export default function CreateNoti() {
         </div>
 
         <div className="mt-6 mr-6 flex items-center justify-end gap-x-6">
-          <input type="button" value="뒤로가기" className="text-sm/6 font-semibold text-gray-900"
-                 onClick={() => openGoBackModal()}/>
           <input
               type="button"
-              value="저장"
+              value="Cancel"
+              className="text-sm/6 font-semibold text-gray-900 cursor-pointer hover:text-gray-700"
+              onClick={handleCancel}
+          />
+          <input
+              type="button"
+              value="Update"
               className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
               onClick={() => openModal()}
           />
@@ -296,26 +476,11 @@ export default function CreateNoti() {
         <Modal
             isOpen={isModalOpen}
             onClose={() => closeModal()}
-            title={"공지사항을 등록합니다."}
+            title={"공지사항을 수정합니다."}
             footer={
               <>
                 {grayButton("취소", closeModal)}
-                {blueButton("확인", insertAnnouncement)}
-              </>
-            }
-        >
-          {
-            <div></div>
-          }
-        </Modal>
-        <Modal
-            isOpen={isGoBackModalOpen}
-            onClose={() => closeGoBackModal()}
-            title={"공지사항 작성을 그만합니다."}
-            footer={
-              <>
-                {grayButton("취소", closeGoBackModal)}
-                {blueButton("확인", goBack)}
+                {blueButton("확인", updateAnnouncement)}
               </>
             }
         >
