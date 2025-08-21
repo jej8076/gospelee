@@ -12,11 +12,6 @@ public interface FileService {
 
   FileUploadResponseDTO uploadFileWithResponse(FileUploadWrapperDTO fileUploadWrapperDTO);
 
-  FileUploadResponseDTO replaceFileWithResponse(FileEntity fileEntity,
-      List<MultipartFile> multipartFileList);
-
-  Optional<FileEntity> getFileEntity(Long fileId);
-
   Resource getFile(Long fileId, Long fileDetailId);
 
   Resource getFileByToken(String accessToken, Long fileDetailId);

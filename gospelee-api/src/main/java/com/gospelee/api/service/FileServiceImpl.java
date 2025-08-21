@@ -93,54 +93,6 @@ public class FileServiceImpl implements FileService {
   }
 
   @Override
-  @Transactional
-  public FileUploadResponseDTO replaceFileWithResponse(FileEntity fileEntity,
-      List<MultipartFile> multipartFileList) {
-
-    AccountAuthDTO accountAuthDTO = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
-
-    List<FileUploadDetailResponseDTO> fileDetailList = new ArrayList<>();
-    for (MultipartFile file : multipartFileList) {
-      FileUploadRequestDTO request = fileToDTO(CategoryType.fromName(fileEntity.getCategory()),
-          file, accountAuthDTO);
-
-      FileDetails fileDetails = FileDetails.builder()
-          .fileId(fileEntity.getId())
-          .fileSize(request.getFileSize())
-          .fileType(request.getFileType())
-          .fileOriginalName(request.getFileOriginalName())
-          .filePath(request.getFilePath() + File.separator + request.getFileSaveName())
-          .extension(request.getExtension())
-          .build();
-
-      // 파일 물리 저장
-      saveFile(request, file);
-
-      // detail 영속성 데이터 저장
-      fileDetails = fileDetailsRepository.save(fileDetails);
-      fileDetailList.add(FileUploadDetailResponseDTO.builder()
-          .fileDetailId(fileDetails.getId())
-          .fileOriginalName(file.getOriginalFilename())
-          .build());
-    }
-
-    return FileUploadResponseDTO.builder()
-        .fileId(fileEntity.getId())
-        .fileDetailList(fileDetailList)
-        .accessToken(fileEntity.getAccessToken())
-        .build();
-
-  }
-
-  @Override
-  public Optional<FileEntity> getFileEntity(Long fileId) {
-    if (fileId == null) {
-      return Optional.empty();
-    }
-    return fileRepository.findById(fileId);
-  }
-
-  @Override
   public Resource getFile(Long fileId, Long fileDetailId) {
     // file 테이블에서 파일 정보 조회
     FileEntity fileEntity = fileRepository.findById(fileId)
@@ -253,6 +205,13 @@ public class FileServiceImpl implements FileService {
     } else {
       return true;
     }
+  }
+
+  private Optional<FileEntity> getFileEntity(Long fileId) {
+    if (fileId == null) {
+      return Optional.empty();
+    }
+    return fileRepository.findById(fileId);
   }
 
   /**
