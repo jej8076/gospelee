@@ -41,7 +41,42 @@ export const fetchAnnouncementById = async (type: string, id: string): Promise<A
     throw {status: response.status, message: errorData.message};
   }
 
-  return response.json();
+  const announcement: Announcement = await response.json();
+
+  // fileDataList가 있는 경우 Blob URL로 변환
+  if (announcement.fileDataList && announcement.fileDetailList) {
+    const fileResources: FileResource[] = [];
+
+    for (let i = 0; i < announcement.fileDataList.length && i < announcement.fileDetailList.length; i++) {
+      try {
+        const base64Data = announcement.fileDataList[i];
+        if (base64Data) {
+          // Base64 데이터를 Blob으로 변환
+          const byteCharacters = atob(base64Data);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let j = 0; j < byteCharacters.length; j++) {
+            byteNumbers[j] = byteCharacters.charCodeAt(j);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], {type: announcement.fileDetailList[i].fileType});
+          const url = URL.createObjectURL(blob);
+
+          fileResources.push({
+            url: url,
+            name: announcement.fileDetailList[i].fileOriginalName,
+            id: announcement.fileDetailList[i].id
+          });
+        }
+      } catch (error) {
+        console.warn(`파일 리소스 처리 실패 - index: ${i}`, error);
+      }
+    }
+
+    // 변환된 파일 리소스를 announcement에 추가
+    announcement.fileResources = fileResources;
+  }
+
+  return announcement;
 };
 
 export const fetchInsertAnnouncement = async (inputData: {
@@ -117,7 +152,6 @@ export const fetchUpdateAnnouncement = async (inputData: {
   const response = await apiFetch("/api/announcement", {
     method: "PUT",
     headers: {
-      // "Content-Type": "application/json",
       Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
     },
     body: formData,

@@ -34,11 +34,18 @@ public class AnnouncementDTO {
   // blob URL과 파일명 매핑을 위한 필드 (요청 시에만 사용)
   private Map<String, String> blobFileMapping;
 
+  // 파일 데이터 리스트 (응답 시에만 사용) - Base64 인코딩된 파일 데이터
+  private List<String> fileDataList;
+
+  // 삭제할 파일 상세 ID 목록 (요청 시에만 사용)
+  private List<Long> deleteFileDetailIdList;
+
   @Builder
   public AnnouncementDTO(Long id, String organizationType, String organizationId, String subject,
-      String text, Long fileUid, List<FileDetailsDTO> fileDetailList, String pushNotificationSendYn,
-      String pushNotificationIds, LocalDateTime insertTime, LocalDateTime updateTime,
-      Map<String, String> blobFileMapping) {
+      String text, Long fileUid, List<FileDetailsDTO> fileDetailList,
+      List<Long> deleteFileDetailIdList, String pushNotificationSendYn, String pushNotificationIds,
+      LocalDateTime insertTime, LocalDateTime updateTime, Map<String, String> blobFileMapping,
+      List<String> fileDataList) {
     this.id = id;
     this.organizationType = organizationType;
     this.organizationId = organizationId;
@@ -51,6 +58,8 @@ public class AnnouncementDTO {
     this.insertTime = insertTime;
     this.updateTime = updateTime;
     this.blobFileMapping = blobFileMapping;
+    this.fileDataList = fileDataList;
+    this.deleteFileDetailIdList = deleteFileDetailIdList;
   }
 
   public static AnnouncementDTO fromEntity(Announcement announcement,
@@ -63,6 +72,23 @@ public class AnnouncementDTO {
         .text(announcement.getText())
         .fileUid(announcement.getFileUid())
         .fileDetailList(fileDetails)
+        .pushNotificationIds(announcement.getPushNotificationIds())
+        .insertTime(announcement.getInsertTime())
+        .updateTime(announcement.getUpdateTime())
+        .build();
+  }
+
+  public static AnnouncementDTO fromEntity(Announcement announcement,
+      List<FileDetailsDTO> fileDetails, List<String> fileDataList) {
+    return AnnouncementDTO.builder()
+        .id(announcement.getId())
+        .organizationType(announcement.getOrganizationType())
+        .organizationId(String.valueOf(announcement.getOrganizationId()))
+        .subject(announcement.getSubject())
+        .text(announcement.getText())
+        .fileUid(announcement.getFileUid())
+        .fileDetailList(fileDetails)
+        .fileDataList(fileDataList)
         .pushNotificationIds(announcement.getPushNotificationIds())
         .insertTime(announcement.getInsertTime())
         .updateTime(announcement.getUpdateTime())

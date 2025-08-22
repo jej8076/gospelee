@@ -1,6 +1,7 @@
 package com.gospelee.api.entity;
 
 import com.gospelee.api.entity.common.EditInfomation;
+import com.gospelee.api.enums.Yn;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -56,5 +57,9 @@ public class FileDetails extends EditInfomation {
     this.fileType = fileType;
     this.extension = extension;
     this.delYn = delYn;
+  }
+
+  public void markAsDeleted() {
+    this.delYn = Yn.Y.name();
   }
 }

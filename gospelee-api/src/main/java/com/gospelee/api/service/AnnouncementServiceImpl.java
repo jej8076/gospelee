@@ -86,8 +86,8 @@ public class AnnouncementServiceImpl implements AnnouncementService {
       }
       ann.changeImageAccessToken(file.get().getAccessToken());
 
-      List<FileDetails> fileDetailList = fileDetailsRepository.findAllByFileId(
-          ann.getFileUid());
+      List<FileDetails> fileDetailList = fileDetailsRepository.findAllByFileIdAndDelYn(
+          ann.getFileUid(), Yn.N.name());
 
       List<FileDetailsDTO> fileDetailDtoList = fileDetailList.stream()
           .map(FileDetailsDTO::fromEntity)
@@ -111,14 +111,40 @@ public class AnnouncementServiceImpl implements AnnouncementService {
       throw new RuntimeException("실패함");
     }
 
-    List<FileDetails> fileDetailList = fileDetailsRepository.findAllByFileId(
-        announcement.get().getFileUid());
+    Announcement announcementEntity = announcement.get();
+    List<FileDetailsDTO> fileDetailDtoList = new ArrayList<>();
+    List<String> fileDataList = new ArrayList<>();
 
-    List<FileDetailsDTO> fileDetailDtoList = fileDetailList.stream()
-        .map(FileDetailsDTO::fromEntity)
-        .toList();
+    // 파일이 있는 경우 파일 정보와 데이터를 함께 조회
+    if (announcementEntity.getFileUid() != null) {
+      List<FileDetails> fileDetailList = fileDetailsRepository.findAllByFileIdAndDelYn(
+          announcementEntity.getFileUid(), Yn.N.name());
 
-    return AnnouncementDTO.fromEntity(announcement.get(), fileDetailDtoList);
+      fileDetailDtoList = fileDetailList.stream()
+          .map(FileDetailsDTO::fromEntity)
+          .toList();
+
+      // 각 파일에 대해 Resource를 조회하여 Base64로 인코딩
+      for (FileDetails fileDetail : fileDetailList) {
+        try {
+          org.springframework.core.io.Resource resource = fileService.getFile(
+              announcementEntity.getFileUid(), fileDetail.getId());
+
+          // Resource를 Base64로 인코딩
+          byte[] fileBytes = resource.getInputStream().readAllBytes();
+          String base64Data = java.util.Base64.getEncoder().encodeToString(fileBytes);
+          fileDataList.add(base64Data);
+
+        } catch (Exception e) {
+          log.warn("파일 리소스 조회 실패 - fileId: {}, fileDetailId: {}, error: {}",
+              announcementEntity.getFileUid(), fileDetail.getId(), e.getMessage());
+          // 파일 조회 실패 시에도 계속 진행 (빈 문자열 추가)
+          fileDataList.add("");
+        }
+      }
+    }
+
+    return AnnouncementDTO.fromEntity(announcementEntity, fileDetailDtoList, fileDataList);
   }
 
   /**
@@ -176,13 +202,16 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     // 2. 기본 필드 업데이트
     updateBasicFields(existingAnnouncement, announcementDTO);
 
-    // 3. 공지사항 저장
+    // 3. 기존 파일 삭제 처리
+    deleteExistingFiles(announcementDTO.getDeleteFileDetailIdList());
+
+    // 4. 공지사항 저장
     Announcement savedAnnouncement = announcementRepository.save(existingAnnouncement);
 
-    // 4. 파일 업데이트 처리
+    // 5. 파일 업데이트 처리
     uploadNewFiles(savedAnnouncement, announcementDTO, files, account);
 
-    // 5. 푸시 알림 처리
+    // 6. 푸시 알림 처리
     handlePushNotificationIfNeeded(savedAnnouncement, announcementDTO, account);
 
     return AnnouncementDTO.fromEntity(savedAnnouncement);
@@ -194,6 +223,36 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     }
     if (updates.getText() != null) {
       existing.changeText(updates.getText());
+    }
+  }
+
+  private void deleteExistingFiles(List<Long> deleteFileDetailIdList) {
+    if (deleteFileDetailIdList == null || deleteFileDetailIdList.isEmpty()) {
+      return;
+    }
+
+    log.info("기존 파일 삭제 요청 - fileDetailIds: {}", deleteFileDetailIdList);
+
+    for (Long fileDetailId : deleteFileDetailIdList) {
+      try {
+        // FileDetails 조회
+        Optional<FileDetails> fileDetailOpt = fileDetailsRepository.findById(fileDetailId);
+        if (fileDetailOpt.isPresent()) {
+          FileDetails fileDetail = fileDetailOpt.get();
+          
+          // 파일 삭제 마킹 (실제 파일 삭제는 별도 배치에서 처리하거나 즉시 처리)
+          fileDetail.markAsDeleted(); // 이 메서드가 FileDetails 엔티티에 있다고 가정
+          fileDetailsRepository.save(fileDetail);
+          
+          log.info("파일 삭제 완료 - fileDetailId: {}, fileName: {}", 
+              fileDetailId, fileDetail.getFileOriginalName());
+        } else {
+          log.warn("삭제할 파일을 찾을 수 없음 - fileDetailId: {}", fileDetailId);
+        }
+      } catch (Exception e) {
+        log.error("파일 삭제 실패 - fileDetailId: {}, error: {}", fileDetailId, e.getMessage());
+        // 파일 삭제 실패해도 전체 프로세스는 계속 진행
+      }
     }
   }
 
@@ -269,8 +328,47 @@ public class AnnouncementServiceImpl implements AnnouncementService {
   }
 
   private void uploadNewFiles(Announcement announcement, AnnouncementDTO announcementDTO,
-      List<MultipartFile> files,
-      AccountAuthDTO account) {
+      List<MultipartFile> files, AccountAuthDTO account) {
+
+    if (files == null || files.isEmpty()) {
+      return;
+    }
+
+    FileUploadWrapperDTO fileUploadWrapper = FileUploadWrapperDTO.builder()
+        .fileId(announcement.getFileUid())
+        .categoryType(CategoryType.ANNOUNCEMENT)
+        .files(files)
+        .accountAuth(account)
+        .parentId(announcement.getId())
+        .build();
+
+    FileUploadResponseDTO fileUploadResponse = fileService.uploadFileWithResponse(
+        fileUploadWrapper);
+
+    // 업로드한 fileId announcement 에 입력
+    announcementRepository.updateFileId(announcement.getId(), fileUploadResponse.getFileId());
+
+    // 본문 내용에 있는 img태그의 url을 치환하기 위함
+    BlobToFileUrlMappingRequestDTO mappingRequestDTO = BlobToFileUrlMappingRequestDTO.builder()
+        .fileDetailList(fileUploadResponse.getFileDetailList())
+        .blobFileMapping(announcementDTO.getBlobFileMapping())
+        .serverDomain(serverDomain)
+        .accessToken(fileUploadResponse.getAccessToken())
+        .build();
+    Map<String, String> mappingResult = generateBlobToFileUrlMap(mappingRequestDTO);
+
+    // text 내용의 blob URL을 실제 파일 URL로 치환
+    String updatedText = replaceBlobUrls(announcementDTO.getText(), mappingResult);
+
+    // 업데이트된 text로 공지사항 다시 저장
+    if (!updatedText.equals(announcementDTO.getText())) {
+      announcementRepository.updateTextById(announcement.getId(), updatedText);
+      announcement.changeText(updatedText);
+    }
+  }
+
+  private void updateNewFiles(Announcement announcement, AnnouncementDTO announcementDTO,
+      List<MultipartFile> files, AccountAuthDTO account) {
 
     if (files == null || files.isEmpty()) {
       return;
@@ -307,6 +405,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
       announcement.changeText(updatedText);
     }
   }
+
 
   /**
    * text 내용의 blob URL을 실제 파일 URL로 치환

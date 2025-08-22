@@ -1,66 +1,98 @@
 "use client"
 
-import {PhotoIcon} from '@heroicons/react/24/solid'
-import {useEffect, useState} from "react";
-import NextImage from 'next/image';
+import { useEffect, useState } from "react";
 import useAuth from "~/lib/auth/check-auth";
-import {getLastLoginOrElseNull} from "@/utils/user-utils";
-import {fetchUpdateAnnouncement, fetchAnnouncementById} from "~/lib/api/fetch-announcement";
-import {useApiClient} from "@/hooks/useApiClient";
+import { getLastLoginOrElseNull } from "@/utils/user-utils";
+import { fetchUpdateAnnouncement, fetchAnnouncementById } from "~/lib/api/fetch-announcement";
+import { useApiClient } from "@/hooks/useApiClient";
 import useDidMountEffect from "@/hooks/useDidMountEffect";
-import {isEmpty} from "@/utils/validators";
-import {useRouter, useParams} from "next/navigation";
+import { isEmpty } from "@/utils/validators";
+import { useRouter, useParams } from "next/navigation";
 import Modal from "@/components/modal/modal";
-import {blueButton, grayButton} from "@/components/modal/modal-buttons";
+import { blueButton, grayButton } from "@/components/modal/modal-buttons";
 import MarkdownEditorField from '@/components/markdown/MarkdownEditorField';
+import FormLayout from "@/components/manage/FormLayout";
+import FormField from "@/components/manage/FormField";
+import FileUpload from "@/components/manage/FileUpload";
+
+interface ImageSize {
+  width: number;
+  height: number;
+}
 
 export default function EditStory() {
   useAuth();
 
   const params = useParams();
+  const router = useRouter();
+  const { callApi } = useApiClient();
   const announcementId = params.id as string;
 
+  // State management
   const [userName, setUserName] = useState("");
-  const [subject, setSubject] = useState("");
-  const [files, setFiles] = useState<File[] | []>([]);
-  const [pushNotificationSendYn, setPushNotificationSendYn] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [announcementText, setAnnouncementText] = useState("");
+  const [files, setFiles] = useState<File[]>([]);
+  const [existingFiles, setExistingFiles] = useState<FileResource[]>([]);
+  const [blobFileMapping, setBlobFileMapping] = useState<{ [key: string]: string }>({});
+  const [deleteFileDetailIdList, setDeleteFileDetailIdList] = useState<number[]>([]);
+  
+  // Modal and loading states
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // API responses
   const [announcement, setAnnouncement] = useState<Announcement>();
   const [originalAnnouncement, setOriginalAnnouncement] = useState<Announcement>();
-  const [announcementText, setAnnouncementText] = useState<string>(''); // 마크다운 내용 저장
-  const [blobFileMapping, setBlobFileMapping] = useState<{ [key: string]: string }>({}); // blob URL과 파일명 매핑
-  const [isLoading, setIsLoading] = useState(true);
 
   const LINE = "  \n";
-
   const TYPE = "BRAND_STORY";
 
-  interface ImageSize {
-    width: number;
-    height: number;
-  }
+  // Initialize user data
+  useEffect(() => {
+    const lastLoginInfo: AuthInfoType | null = getLastLoginOrElseNull();
+    setUserName(lastLoginInfo?.name ?? "");
+  }, []);
 
-  const {callApi} = useApiClient();
-  const router = useRouter();
-
-  // 기존 공지사항 데이터 로드
+  // Load announcement data
   useEffect(() => {
     if (announcementId) {
       loadAnnouncementData();
     }
   }, [announcementId]);
 
+  // Update form when original data is loaded
+  useEffect(() => {
+    if (originalAnnouncement) {
+      setAnnouncementText(originalAnnouncement.text || "");
+      
+      // 기존 파일 리소스 설정
+      if (originalAnnouncement.fileResources) {
+        setExistingFiles(originalAnnouncement.fileResources);
+      }
+    }
+  }, [originalAnnouncement]);
+
+  // Handle API response
+  useDidMountEffect(() => {
+    if (!isEmpty(announcement?.id)) {
+      // 메모리 정리
+      cleanupBlobUrls();
+      router.push("/manage/story");
+      return;
+    }
+    if (announcement === null) {
+      alert("수정 실패");
+    }
+  }, [announcement]);
+
   const loadAnnouncementData = async () => {
     try {
       setIsLoading(true);
       await callApi(
-          () => fetchAnnouncementById(TYPE, announcementId),
-          (data: Announcement) => {
-            setOriginalAnnouncement(data);
-            setSubject(data.subject || "");
-            setAnnouncementText(data.text || "");
-            setPushNotificationSendYn("N");
-          }
+        () => fetchAnnouncementById(TYPE, announcementId),
+        (data: Announcement) => {
+          setOriginalAnnouncement(data);
+        }
       );
     } catch (error) {
       console.error("공지사항 로드 실패:", error);
@@ -71,95 +103,15 @@ export default function EditStory() {
     }
   };
 
-  const openModal = () => {
+  // Event handlers
+  const handleSubmit = () => {
     setIsModalOpen(true);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
+  const handleCancel = () => {
+    cleanupBlobUrls();
+    router.push("/manage/story");
   };
-
-  const handleMarkdownImage = (index: number, file: File) => {
-    // ![대체 텍스트](이미지_URL_또는_경로 "선택적_제목")
-    const blobUrl = URL.createObjectURL(file);
-    const previewText = "preview-" + index;
-
-    // blob URL과 파일명 매핑 저장
-    setBlobFileMapping(prev => ({
-      ...prev,
-      [blobUrl]: file.name
-    }));
-
-    getImageDimensionsFromBlobUrl(blobUrl)
-    .then(imageSize => {
-      const markdownImage: string = `<img src="${blobUrl}" width="${imageSize.width}" height="${imageSize.height}" alt="${previewText}">`;
-      setAnnouncementText(prevContent => prevContent + LINE + markdownImage);
-    })
-    .catch(error => console.error(error));
-
-  };
-
-  const getImageDimensionsFromBlobUrl: (blobUrl: string) => Promise<ImageSize> = (blobUrl: string) => {
-    return new Promise((resolve, reject) => {
-
-      const img = new Image();
-
-      img.onload = () => {
-        const width = img.width;
-        const height = img.height;
-        const imageSize: ImageSize = {width: width, height: height};
-        resolve(imageSize);
-      };
-
-      img.onerror = (error) => {
-        URL.revokeObjectURL(blobUrl); // 오류 발생 시에도 해제
-        reject(new Error("Blob URL에서 이미지를 로드하는 중 오류가 발생했습니다."));
-      };
-
-      img.src = blobUrl; // blobUrl을 이미지 소스로 사용
-    });
-  }
-
-  useEffect(() => {
-    const lastLoginInfo: AuthInfoType | null = getLastLoginOrElseNull();
-    setUserName(lastLoginInfo?.name ?? "");
-  }, []);
-
-  useDidMountEffect(() => {
-    if (!isEmpty(announcement?.id)) {
-      router.push("/manage/story");
-      return;
-    }
-
-    if (announcement === null) {
-      alert("수정 실패");
-    }
-  }, [announcement]);
-
-  const updateAnnouncement = async () => {
-    // 여러 파일 업로드 지원
-    const inputData: any = {
-      id: announcementId,
-      organizationType: TYPE,
-      subject: subject || "브랜드 스토리 제목", // subject가 비어있으면 기본값 설정
-      text: announcementText,
-      pushNotificationSendYn: pushNotificationSendYn,
-    };
-
-    // 파일이 있을 때만 추가
-    if (files && files.length > 0) {
-      inputData.files = files;
-    }
-
-    // blob 매핑이 있을 때만 추가
-    if (Object.keys(blobFileMapping).length > 0) {
-      inputData.blobFileMapping = blobFileMapping;
-    }
-
-    console.log('수정할 데이터:', inputData);
-
-    await callApi(() => fetchUpdateAnnouncement(inputData), setAnnouncement);
-  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
@@ -169,174 +121,191 @@ export default function EditStory() {
     }
   };
 
-  const removeFile = (index: number) => {
-    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+  // 통합된 파일 제거 핸들러
+  const handleRemoveFile = (index: number, isExisting: boolean = false) => {
+    if (isExisting) {
+      // 기존 파일 제거
+      const fileToRemove = existingFiles[index];
+      if (fileToRemove) {
+        // 메모리 정리 (API에서 받은 데이터로 생성한 blob URL)
+        URL.revokeObjectURL(fileToRemove.url);
+        
+        // 삭제할 파일 ID 목록에 추가 (서버에 삭제 요청용)
+        setDeleteFileDetailIdList(prev => [...prev, fileToRemove.id]);
+        
+        console.log(`기존 파일 제거 - fileDetailId: ${fileToRemove.id}, 파일명: ${fileToRemove.name}`);
+      }
+      setExistingFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
+    } else {
+      // 새로 추가한 파일 제거
+      const fileToRemove = files[index];
+      setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
 
-    // 해당 파일과 관련된 blob URL 매핑도 제거
-    const fileToRemove = files[index];
-    if (fileToRemove) {
-      setBlobFileMapping(prev => {
-        const newMapping = {...prev};
-        Object.keys(newMapping).forEach(blobUrl => {
-          if (newMapping[blobUrl] === fileToRemove.name) {
-            delete newMapping[blobUrl];
-          }
+      // 관련 blob URL 매핑 제거
+      if (fileToRemove) {
+        setBlobFileMapping(prev => {
+          const newMapping = { ...prev };
+          Object.keys(newMapping).forEach(blobUrl => {
+            if (newMapping[blobUrl] === fileToRemove.name) {
+              delete newMapping[blobUrl];
+            }
+          });
+          return newMapping;
         });
-        return newMapping;
-      });
+        
+        console.log(`새 파일 제거 - 파일명: ${fileToRemove.name}`);
+      }
     }
   };
 
-  const handleCancel = () => {
-    router.push("/manage/story");
+  const handleApplyImageToContent = (index: number, file: File) => {
+    const blobUrl = URL.createObjectURL(file);
+    const previewText = "preview-" + index;
+
+    // Store blob URL and filename mapping
+    setBlobFileMapping(prev => ({
+      ...prev,
+      [blobUrl]: file.name
+    }));
+
+    getImageDimensionsFromBlobUrl(blobUrl)
+      .then(imageSize => {
+        const markdownImage = `<img src="${blobUrl}" width="${imageSize.width}" height="${imageSize.height}" alt="${previewText}">`;
+        setAnnouncementText(prevContent => prevContent + LINE + markdownImage);
+      })
+      .catch(error => console.error(error));
   };
+
+  const getImageDimensionsFromBlobUrl = (blobUrl: string): Promise<ImageSize> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+
+      img.onload = () => {
+        const imageSize: ImageSize = { width: img.width, height: img.height };
+        resolve(imageSize);
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(blobUrl);
+        reject(new Error("Blob URL에서 이미지를 로드하는 중 오류가 발생했습니다."));
+      };
+
+      img.src = blobUrl;
+    });
+  };
+
+  const updateAnnouncement = async () => {
+    const inputData: any = {
+      id: announcementId,
+      organizationType: TYPE,
+      subject: originalAnnouncement?.subject || "브랜드 스토리 제목",
+      text: announcementText,
+      pushNotificationSendYn: "N",
+    };
+
+    if (files && files.length > 0) {
+      inputData.files = files;
+    }
+
+    if (Object.keys(blobFileMapping).length > 0) {
+      inputData.blobFileMapping = blobFileMapping;
+    }
+
+    // 삭제할 파일 ID 목록 추가
+    if (deleteFileDetailIdList.length > 0) {
+      inputData.deleteFileDetailIdList = deleteFileDetailIdList;
+      console.log(`삭제할 파일 ID 목록:`, deleteFileDetailIdList);
+    }
+
+    console.log('수정 요청 데이터:', inputData);
+
+    await callApi(() => fetchUpdateAnnouncement(inputData), setAnnouncement);
+  };
+
+  // Cleanup blob URLs
+  const cleanupBlobUrls = () => {
+    existingFiles.forEach(file => {
+      URL.revokeObjectURL(file.url);
+    });
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      cleanupBlobUrls();
+    };
+  }, []);
 
   if (isLoading) {
     return (
-        <div className="flex justify-center items-center h-64">
-          <div className="text-lg">로딩 중...</div>
-        </div>
+      <div className="flex justify-center items-center h-64">
+        <div className="text-lg text-gray-500">로딩 중...</div>
+      </div>
     );
   }
 
   return (
-      <div>
-        <div className="space-y-12 px-8">
-          <div className="border-b border-gray-900/10 pb-12">
-            <h2 className="text-base/7 font-semibold text-gray-900">공지사항 수정하기</h2>
-            <p className="mt-1 text-sm/6 text-gray-600">
-              스토리를 수정하는 공간입니다.
-            </p>
-
-            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-              <div className="sm:col-span-4">
-                <label htmlFor="username" className="block text-sm/6 font-medium text-gray-900">
-                  작성자
-                </label>
-                <div className="mt-2">
-                  <div
-                      className="flex items-center rounded-md bg-white pl-3 outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
-                    <div
-                        className="shrink-0 text-base text-gray-500 select-none sm:text-sm/6">{userName}
-                    </div>
-                    <input
-                        id="username"
-                        name="username"
-                        type="text"
-                        className="block min-w-0 grow py-1.5 pr-3 pl-1 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm/6"
-                    />
-                  </div>
-                </div>
+    <>
+      <FormLayout
+        title="브랜드 스토리 수정하기"
+        description="브랜드 스토리를 수정하는 공간입니다."
+        onCancel={handleCancel}
+        onSubmit={handleSubmit}
+        submitText="수정"
+        cancelText="취소"
+      >
+        <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+          <FormField label="작성자" className="sm:col-span-4">
+            <div className="flex items-center rounded-md bg-white pl-3 outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
+              <div className="shrink-0 text-base text-gray-500 select-none sm:text-sm/6">
+                {userName}
               </div>
-
-              <div className="col-span-full">
-                <label htmlFor="cover-photo" className="block text-sm font-medium text-gray-900">
-                  Cover photo
-                </label>
-
-                <div className="mt-2 flex flex-wrap gap-4 px-6 py-4">
-                  {/* 업로드 버튼 */}
-                  <label
-                      htmlFor="file-upload"
-                      className="cursor-pointer text-center border border-dashed border-gray-300 rounded-lg p-6 hover:border-gray-400 w-36 h-36 flex flex-col justify-center items-center"
-                  >
-                    <PhotoIcon aria-hidden="true" className="mx-auto size-12 text-gray-300"/>
-                    <span
-                        className="mt-2 block text-sm font-semibold text-indigo-600 hover:text-indigo-500">
-                      파일 업로드
-                    </span>
-                    <input
-                        id="file-upload"
-                        name="file-upload"
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        onChange={handleFileChange}
-                        className="sr-only"
-                    />
-                  </label>
-
-                  {/* 업로드된 이미지들 */}
-                  {files.map((file, index) => (
-                      <div
-                          key={index}
-                          className="flex flex-col items-center justify-center space-y-2 relative">
-                        <div
-                            className="w-36 h-36 border rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center relative">
-                          <NextImage
-                              src={URL.createObjectURL(file)}
-                              alt={`preview-${index}`}
-                              className="object-cover w-full h-full"
-                              width={144}
-                              height={144}
-                          />
-                          {/* 삭제 버튼 */}
-                          <button
-                              type="button"
-                              onClick={() => removeFile(index)}
-                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
-                          >
-                            ×
-                          </button>
-                        </div>
-                        <div className="flex space-x-2">
-                          <input
-                              type="button"
-                              value="적용"
-                              className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
-                              onClick={() => handleMarkdownImage(index, file)}
-                          />
-                        </div>
-                      </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="col-span-full">
-                <label htmlFor="about" className="block text-sm/6 font-medium text-gray-900">
-                  본문
-                </label>
-                <div className="mt-2">
-                  <MarkdownEditorField
-                      value={announcementText} // 기존에 저장된 내용이 있다면 전달
-                      onMarkdownChange={setAnnouncementText} // 에디터 내용 변경 시 상태 업데이트
-                  />
-                </div>
-              </div>
-
+              <input
+                type="text"
+                className="block min-w-0 grow py-1.5 pr-3 pl-1 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm/6"
+                readOnly
+              />
             </div>
-          </div>
-        </div>
+          </FormField>
 
-        <div className="mt-6 mr-6 flex items-center justify-end gap-x-6">
-          <input
-              type="button"
-              value="Cancel"
-              className="text-sm/6 font-semibold text-gray-900 cursor-pointer hover:text-gray-700"
-              onClick={handleCancel}
-          />
-          <input
-              type="button"
-              value="Update"
-              className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"
-              onClick={() => openModal()}
-          />
+          <FormField label="첨부파일">
+            <FileUpload
+              files={files}
+              existingFiles={existingFiles}
+              onFileChange={handleFileChange}
+              onRemoveFile={handleRemoveFile}
+              onApplyToContent={handleApplyImageToContent}
+              showApplyButton={true}
+              multiple={true}
+              accept="image/*"
+            />
+          </FormField>
+
+          <FormField label="본문" required>
+            <MarkdownEditorField
+              value={announcementText}
+              onMarkdownChange={setAnnouncementText}
+            />
+          </FormField>
         </div>
-        <Modal
-            isOpen={isModalOpen}
-            onClose={() => closeModal()}
-            title={"공지사항을 수정합니다."}
-            footer={
-              <>
-                {grayButton("취소", closeModal)}
-                {blueButton("확인", updateAnnouncement)}
-              </>
-            }
-        >
-          {
-            <div></div>
-          }
-        </Modal>
-      </div>
-  )
+      </FormLayout>
+
+      {/* Confirmation Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="브랜드 스토리를 수정합니다."
+        footer={
+          <>
+            {grayButton("취소", () => setIsModalOpen(false))}
+            {blueButton("확인", updateAnnouncement)}
+          </>
+        }
+      >
+        <div className="text-sm text-gray-600">
+          수정한 브랜드 스토리를 저장하시겠습니까?
+        </div>
+      </Modal>
+    </>
+  );
 }

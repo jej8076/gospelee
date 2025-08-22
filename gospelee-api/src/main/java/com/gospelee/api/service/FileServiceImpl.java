@@ -1,5 +1,7 @@
 package com.gospelee.api.service;
 
+import static com.gospelee.api.utils.FileUtils.makeTodayPath;
+
 import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.file.FileUploadDetailResponseDTO;
 import com.gospelee.api.dto.file.FileUploadRequestDTO;
@@ -8,6 +10,8 @@ import com.gospelee.api.dto.file.FileUploadWrapperDTO;
 import com.gospelee.api.entity.FileDetails;
 import com.gospelee.api.entity.FileEntity;
 import com.gospelee.api.enums.CategoryType;
+import com.gospelee.api.enums.Yn;
+import com.gospelee.api.exception.FileEntityNotFoundException;
 import com.gospelee.api.repository.jpa.file.FileDetailsRepository;
 import com.gospelee.api.repository.jpa.file.FileRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
@@ -50,15 +54,22 @@ public class FileServiceImpl implements FileService {
           AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow());
     }
 
-    FileEntity fileEntity = FileEntity.builder()
-        .accountUid(fileUploadWrapperDTO.getAccountAuth().getUid())
-        .category(fileUploadWrapperDTO.getCategoryType().name())
-        .parentId(String.valueOf(fileUploadWrapperDTO.getParentId()))
-        .delYn("N")
-        .accessToken(UUID.randomUUID().toString())
-        .build();
+    FileEntity fileEntity;
 
-    fileEntity = fileRepository.save(fileEntity);
+    if (fileUploadWrapperDTO.getFileId() == null) {
+      fileEntity = FileEntity.builder()
+          .accountUid(fileUploadWrapperDTO.getAccountAuth().getUid())
+          .category(fileUploadWrapperDTO.getCategoryType().name())
+          .parentId(String.valueOf(fileUploadWrapperDTO.getParentId()))
+          .delYn(Yn.N.name())
+          .accessToken(UUID.randomUUID().toString())
+          .build();
+      fileEntity = fileRepository.save(fileEntity);
+    } else {
+      fileEntity = fileRepository.findById(fileUploadWrapperDTO.getFileId()).orElseThrow(
+          () -> new FileEntityNotFoundException("not_found_file_data fileId:{}",
+              fileUploadWrapperDTO.getFileId()));
+    }
 
     List<FileUploadDetailResponseDTO> fileDetailList = new ArrayList<>();
     for (MultipartFile file : fileUploadWrapperDTO.getFiles()) {
@@ -72,9 +83,10 @@ public class FileServiceImpl implements FileService {
           .fileOriginalName(request.getFileOriginalName())
           .filePath(request.getFilePath() + File.separator + request.getFileSaveName())
           .extension(request.getExtension())
+          .delYn(Yn.N.name())
           .build();
 
-      // 파일 물리 저장
+      // 파일 저장(물리)
       saveFile(request, file);
 
       // detail 영속성 데이터 저장
@@ -184,7 +196,8 @@ public class FileServiceImpl implements FileService {
       throw new IllegalArgumentException("파일 경로에 userUid가 존재하지 않음");
     }
 
-    String path = File.separator + userUid + File.separator + categoryType.lowerCaseName();
+    String path =
+        File.separator + userUid + File.separator + categoryType.lowerCaseName() + makeTodayPath();
     String fullPath = fileBasePath + File.separator + path;
 
     if (!createDirectoryIfNotExists(fullPath)) {
@@ -208,13 +221,6 @@ public class FileServiceImpl implements FileService {
     } else {
       return true;
     }
-  }
-
-  private Optional<FileEntity> getFileEntity(Long fileId) {
-    if (fileId == null) {
-      return Optional.empty();
-    }
-    return fileRepository.findById(fileId);
   }
 
   /**

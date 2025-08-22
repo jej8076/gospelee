@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface FileDetailsRepository extends JpaRepository<FileDetails, Long> {
 
   List<FileDetails> findAllByFileId(Long fileId);
+
+  List<FileDetails> findAllByFileIdAndDelYn(Long fileId, String Yn);
 }

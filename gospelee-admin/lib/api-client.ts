@@ -1,5 +1,13 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
+// 타임아웃 에러 클래스
+class TimeoutError extends Error {
+  constructor(timeout: number) {
+    super(`Request timeout after ${timeout}ms`);
+    this.name = 'TimeoutError';
+  }
+}
+
 export const apiFetch = async (
     endpoint: string,
     options?: RequestInit,
@@ -26,13 +34,31 @@ export const apiFetch = async (
     signal
   };
 
-  // 타임아웃
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  // 타임아웃 Promise
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    setTimeout(() => {
+      controller.abort();
+      reject(new TimeoutError(timeout));
+    }, timeout);
+  });
 
-  const url = `${API_BASE_URL}${endpoint}`;
-  const response = await fetch(url, fetchOptions);
-
-  clearTimeout(timeoutId);
-
-  return response;
+  try {
+    const url = `${API_BASE_URL}${endpoint}`;
+    
+    // fetch와 timeout을 경쟁시킴
+    const response = await Promise.race([
+      fetch(url, fetchOptions),
+      timeoutPromise
+    ]);
+    
+    return response;
+  } catch (error) {
+    // AbortError를 TimeoutError로 변환
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new TimeoutError(timeout);
+    }
+    
+    // 기타 에러는 그대로 전파
+    throw error;
+  }
 };
