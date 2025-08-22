@@ -1,19 +1,20 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import useAuth from "~/lib/auth/check-auth";
-import { getLastLoginOrElseNull } from "@/utils/user-utils";
-import { fetchUpdateAnnouncement, fetchAnnouncementById } from "~/lib/api/fetch-announcement";
-import { useApiClient } from "@/hooks/useApiClient";
+import {getLastLoginOrElseNull} from "@/utils/user-utils";
+import {fetchUpdateAnnouncement, fetchAnnouncementById} from "~/lib/api/fetch-announcement";
+import {useApiClient} from "@/hooks/useApiClient";
 import useDidMountEffect from "@/hooks/useDidMountEffect";
-import { isEmpty } from "@/utils/validators";
-import { useRouter, useParams } from "next/navigation";
+import {isEmpty} from "@/utils/validators";
+import {useRouter, useParams} from "next/navigation";
 import Modal from "@/components/modal/modal";
-import { blueButton, grayButton } from "@/components/modal/modal-buttons";
+import {blueButton, grayButton} from "@/components/modal/modal-buttons";
 import MarkdownEditorField from '@/components/markdown/MarkdownEditorField';
 import FormLayout from "@/components/manage/FormLayout";
 import FormField from "@/components/manage/FormField";
 import FileUpload from "@/components/manage/FileUpload";
+import RadioGroup from "@/components/manage/RadioGroup";
 
 interface ImageSize {
   width: number;
@@ -25,7 +26,7 @@ export default function EditStory() {
 
   const params = useParams();
   const router = useRouter();
-  const { callApi } = useApiClient();
+  const {callApi} = useApiClient();
   const announcementId = params.id as string;
 
   // State management
@@ -35,17 +36,32 @@ export default function EditStory() {
   const [existingFiles, setExistingFiles] = useState<FileResource[]>([]);
   const [blobFileMapping, setBlobFileMapping] = useState<{ [key: string]: string }>({});
   const [deleteFileDetailIdList, setDeleteFileDetailIdList] = useState<number[]>([]);
-  
+  const [openYn, setOpenYn] = useState("");
+
   // Modal and loading states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // API responses
   const [announcement, setAnnouncement] = useState<Announcement>();
   const [originalAnnouncement, setOriginalAnnouncement] = useState<Announcement>();
 
   const LINE = "  \n";
   const TYPE = "BRAND_STORY";
+
+  const openYnOptions = [
+    {
+      value: "Y",
+      label: "공개",
+      description: "해당 게시글을 공개합니다"
+    },
+    {
+      value: "N",
+      label: "비공개",
+      description: "해당 게시글을 공개하지 않습니다"
+    }
+  ];
+
 
   // Initialize user data
   useEffect(() => {
@@ -64,7 +80,9 @@ export default function EditStory() {
   useEffect(() => {
     if (originalAnnouncement) {
       setAnnouncementText(originalAnnouncement.text || "");
-      
+      setOpenYn(originalAnnouncement.openYn || "N");
+
+
       // 기존 파일 리소스 설정
       if (originalAnnouncement.fileResources) {
         setExistingFiles(originalAnnouncement.fileResources);
@@ -89,10 +107,10 @@ export default function EditStory() {
     try {
       setIsLoading(true);
       await callApi(
-        () => fetchAnnouncementById(TYPE, announcementId),
-        (data: Announcement) => {
-          setOriginalAnnouncement(data);
-        }
+          () => fetchAnnouncementById(TYPE, announcementId),
+          (data: Announcement) => {
+            setOriginalAnnouncement(data);
+          }
       );
     } catch (error) {
       console.error("공지사항 로드 실패:", error);
@@ -129,10 +147,10 @@ export default function EditStory() {
       if (fileToRemove) {
         // 메모리 정리 (API에서 받은 데이터로 생성한 blob URL)
         URL.revokeObjectURL(fileToRemove.url);
-        
+
         // 삭제할 파일 ID 목록에 추가 (서버에 삭제 요청용)
         setDeleteFileDetailIdList(prev => [...prev, fileToRemove.id]);
-        
+
         console.log(`기존 파일 제거 - fileDetailId: ${fileToRemove.id}, 파일명: ${fileToRemove.name}`);
       }
       setExistingFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
@@ -144,7 +162,7 @@ export default function EditStory() {
       // 관련 blob URL 매핑 제거
       if (fileToRemove) {
         setBlobFileMapping(prev => {
-          const newMapping = { ...prev };
+          const newMapping = {...prev};
           Object.keys(newMapping).forEach(blobUrl => {
             if (newMapping[blobUrl] === fileToRemove.name) {
               delete newMapping[blobUrl];
@@ -152,7 +170,7 @@ export default function EditStory() {
           });
           return newMapping;
         });
-        
+
         console.log(`새 파일 제거 - 파일명: ${fileToRemove.name}`);
       }
     }
@@ -169,11 +187,11 @@ export default function EditStory() {
     }));
 
     getImageDimensionsFromBlobUrl(blobUrl)
-      .then(imageSize => {
-        const markdownImage = `<img src="${blobUrl}" width="${imageSize.width}" height="${imageSize.height}" alt="${previewText}">`;
-        setAnnouncementText(prevContent => prevContent + LINE + markdownImage);
-      })
-      .catch(error => console.error(error));
+    .then(imageSize => {
+      const markdownImage = `<img src="${blobUrl}" width="${imageSize.width}" height="${imageSize.height}" alt="${previewText}">`;
+      setAnnouncementText(prevContent => prevContent + LINE + markdownImage);
+    })
+    .catch(error => console.error(error));
   };
 
   const getImageDimensionsFromBlobUrl = (blobUrl: string): Promise<ImageSize> => {
@@ -181,7 +199,7 @@ export default function EditStory() {
       const img = new Image();
 
       img.onload = () => {
-        const imageSize: ImageSize = { width: img.width, height: img.height };
+        const imageSize: ImageSize = {width: img.width, height: img.height};
         resolve(imageSize);
       };
 
@@ -201,6 +219,7 @@ export default function EditStory() {
       subject: originalAnnouncement?.subject || "브랜드 스토리 제목",
       text: announcementText,
       pushNotificationSendYn: "N",
+      openYn: openYn
     };
 
     if (files && files.length > 0) {
@@ -238,74 +257,87 @@ export default function EditStory() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-lg text-gray-500">로딩 중...</div>
-      </div>
+        <div className="flex justify-center items-center h-64">
+          <div className="text-lg text-gray-500">로딩 중...</div>
+        </div>
     );
   }
 
   return (
-    <>
-      <FormLayout
-        title="브랜드 스토리 수정하기"
-        description="브랜드 스토리를 수정하는 공간입니다."
-        onCancel={handleCancel}
-        onSubmit={handleSubmit}
-        submitText="수정"
-        cancelText="취소"
-      >
-        <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-          <FormField label="작성자" className="sm:col-span-4">
-            <div className="flex items-center rounded-md bg-white pl-3 outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
-              <div className="shrink-0 text-base text-gray-500 select-none sm:text-sm/6">
-                {userName}
+      <>
+        <FormLayout
+            title="브랜드 스토리 수정하기"
+            description="브랜드 스토리를 수정하는 공간입니다."
+            onCancel={handleCancel}
+            onSubmit={handleSubmit}
+            submitText="수정"
+            cancelText="취소"
+        >
+          <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+            <FormField label="작성자" className="sm:col-span-4">
+              <div
+                  className="flex items-center rounded-md bg-white pl-3 outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
+                <div className="shrink-0 text-base text-gray-500 select-none sm:text-sm/6">
+                  {userName}
+                </div>
+                <input
+                    type="text"
+                    className="block min-w-0 grow py-1.5 pr-3 pl-1 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm/6"
+                    readOnly
+                />
               </div>
-              <input
-                type="text"
-                className="block min-w-0 grow py-1.5 pr-3 pl-1 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm/6"
-                readOnly
+            </FormField>
+
+            <FormField label="첨부파일">
+              <FileUpload
+                  files={files}
+                  existingFiles={existingFiles}
+                  onFileChange={handleFileChange}
+                  onRemoveFile={handleRemoveFile}
+                  onApplyToContent={handleApplyImageToContent}
+                  showApplyButton={true}
+                  multiple={true}
+                  accept="image/*"
+              />
+            </FormField>
+
+            <FormField label="본문" required>
+              <MarkdownEditorField
+                  value={announcementText}
+                  onMarkdownChange={setAnnouncementText}
+              />
+            </FormField>
+
+            <div className="col-span-full border-t border-gray-900/10 pt-8">
+              <RadioGroup
+                  title="공개 여부"
+                  description="게시글을 공개할 지 선택해 주세요"
+                  options={openYnOptions}
+                  value={openYn}
+                  onChange={setOpenYn}
+                  name="open-yn"
               />
             </div>
-          </FormField>
 
-          <FormField label="첨부파일">
-            <FileUpload
-              files={files}
-              existingFiles={existingFiles}
-              onFileChange={handleFileChange}
-              onRemoveFile={handleRemoveFile}
-              onApplyToContent={handleApplyImageToContent}
-              showApplyButton={true}
-              multiple={true}
-              accept="image/*"
-            />
-          </FormField>
+          </div>
+        </FormLayout>
 
-          <FormField label="본문" required>
-            <MarkdownEditorField
-              value={announcementText}
-              onMarkdownChange={setAnnouncementText}
-            />
-          </FormField>
-        </div>
-      </FormLayout>
-
-      {/* Confirmation Modal */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="브랜드 스토리를 수정합니다."
-        footer={
-          <>
-            {grayButton("취소", () => setIsModalOpen(false))}
-            {blueButton("확인", updateAnnouncement)}
-          </>
-        }
-      >
-        <div className="text-sm text-gray-600">
-          수정한 브랜드 스토리를 저장하시겠습니까?
-        </div>
-      </Modal>
-    </>
+        {/* Confirmation Modal */}
+        <Modal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            title="브랜드 스토리를 수정합니다."
+            footer={
+              <>
+                {grayButton("취소", () => setIsModalOpen(false))}
+                {blueButton("확인", updateAnnouncement)}
+              </>
+            }
+        >
+          <div className="text-sm text-gray-600">
+            수정한 브랜드 스토리를 저장하시겠습니까?
+          </div>
+        </Modal>
+      </>
   );
 }

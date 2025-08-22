@@ -243,7 +243,6 @@ export default function EditNoti() {
     }
   ];
 
-
   if (isLoading) {
     return (
         <div className="flex justify-center items-center h-64">
