@@ -3,14 +3,17 @@ package com.gospelee.api.controller;
 import com.gospelee.api.dto.announcement.AnnouncementDTO;
 import com.gospelee.api.dto.announcement.AnnouncementResponseDTO;
 import com.gospelee.api.service.AnnouncementService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,9 +29,10 @@ public class AnnouncementController {
 
   @PostMapping("/{announcementType}")
   public ResponseEntity<Object> getAnnouncementList(
+      HttpServletRequest request,
       @PathVariable("announcementType") String announcementType) {
     List<AnnouncementResponseDTO> announcementList = announcementService.getAnnouncementList(
-        announcementType);
+        request, announcementType);
     return new ResponseEntity<>(announcementList, HttpStatus.OK);
   }
 
@@ -46,16 +50,37 @@ public class AnnouncementController {
       @RequestPart(value = "files", required = false) List<MultipartFile> files,
       @RequestPart("body") @Valid AnnouncementDTO announcementDTO
   ) {
-    log.info("공지사항 등록 요청 - 파일 개수: {}, DTO: {}", 
+    log.info("공지사항 등록 요청 - 파일 개수: {}, DTO: {}",
         files != null ? files.size() : 0, announcementDTO);
-    
+
     if (files != null) {
       for (int i = 0; i < files.size(); i++) {
-        log.info("파일 {}: 이름={}, 크기={}", i, files.get(i).getOriginalFilename(), files.get(i).getSize());
+        log.info("파일 {}: 이름={}, 크기={}", i, files.get(i).getOriginalFilename(),
+            files.get(i).getSize());
       }
     }
-    
+
     AnnouncementDTO announcement = announcementService.insertAnnouncement(files, announcementDTO);
     return new ResponseEntity<>(announcement, HttpStatus.OK);
   }
+
+  @PutMapping
+  public ResponseEntity<Object> updateAnnouncement(
+      @RequestPart(value = "files", required = false) List<MultipartFile> files,
+      @RequestPart("body") @Valid AnnouncementDTO announcementDTO
+  ) {
+    log.info("공지사항 등록 요청 - 파일 개수: {}, DTO: {}",
+        files != null ? files.size() : 0, announcementDTO);
+
+    if (files != null) {
+      for (int i = 0; i < files.size(); i++) {
+        log.info("파일 {}: 이름={}, 크기={}", i, files.get(i).getOriginalFilename(),
+            files.get(i).getSize());
+      }
+    }
+
+    AnnouncementDTO announcement = announcementService.updateAnnouncement(files, announcementDTO);
+    return new ResponseEntity<>(announcement, HttpStatus.OK);
+  }
+
 }

@@ -315,6 +315,11 @@
     transform: translateY(0.2em); /* 약간 아래로 이동 */
   }
 
+  .signature {
+    font-size: 2.3rem;
+    color: #316049;
+  }
+
   .buttonGroup {
     flex-direction: column;
     align-items: center;

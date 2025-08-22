@@ -21,7 +21,7 @@ public class AuthenticatedUserUtils {
 
     Object principal = authentication.getPrincipal();
     if (!(principal instanceof AccountAuthDTO)) {
-      throw new AuthenticationCredentialsNotFoundException("인증된 principal이 UserDetailDTO 타입이 아님");
+      throw new AuthenticationCredentialsNotFoundException("인증된 principal이 AccountAuthDTO 타입이 아님");
     }
 
     return (AccountAuthDTO) principal;

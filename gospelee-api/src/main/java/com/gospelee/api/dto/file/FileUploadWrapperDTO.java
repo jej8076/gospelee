@@ -13,14 +13,16 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FileUploadWrapperDTO {
 
+  private Long fileId;
   private CategoryType categoryType;
   private List<MultipartFile> files;
   private AccountAuthDTO accountAuth;
   private Long parentId;
 
   @Builder
-  public FileUploadWrapperDTO(CategoryType categoryType, List<MultipartFile> files,
+  public FileUploadWrapperDTO(Long fileId, CategoryType categoryType, List<MultipartFile> files,
       AccountAuthDTO accountAuth, Long parentId) {
+    this.fileId = fileId;
     this.categoryType = categoryType;
     this.files = files;
     this.accountAuth = accountAuth;

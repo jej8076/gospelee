@@ -1,16 +1,16 @@
 package com.gospelee.api.enums;
 
-import com.gospelee.api.entity.QEcclesia;
-import com.querydsl.core.types.dsl.EntityPathBase;
-import com.querydsl.core.types.dsl.NumberPath;
-import com.querydsl.core.types.dsl.StringPath;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
 
 public enum OrganizationType {
-  ECCLESIA(QEcclesia.ecclesia, QEcclesia.ecclesia.name, QEcclesia.ecclesia.uid);
-//  MINISTRY(QMinistry.ministry.name, QMinistry.ministry.uid);
+  BRAND_STORY("브랜드스토리", false),
+  ECCLESIA("교회", true),
+//  MINISTRY("사역단체", false),
+//  DEPARTMENT("부서", false),
+//  SMALL_GROUP("소그룹", false);
+  ;
 
   private static final Map<String, OrganizationType> NAME_MAP = new HashMap<>();
 
@@ -21,16 +21,13 @@ public enum OrganizationType {
   }
 
   @Getter
-  private final EntityPathBase<?> entity; // Q타입의 루트
+  private final String displayName;
   @Getter
-  private final StringPath nameField;
-  @Getter
-  private final NumberPath<Long> idField;
+  private final boolean hasEntity; // Entity 존재 여부
 
-  OrganizationType(EntityPathBase<?> entity, StringPath nameField, NumberPath<Long> idField) {
-    this.entity = entity;
-    this.nameField = nameField;
-    this.idField = idField;
+  OrganizationType(String displayName, boolean hasEntity) {
+    this.displayName = displayName;
+    this.hasEntity = hasEntity;
   }
 
   public static OrganizationType fromName(String name) {

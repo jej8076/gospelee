@@ -40,6 +40,7 @@ export default function MarkdownEditorField({
                 // 예: wrapperProps={{ className: "border border-gray-300 rounded-md" }}
                 className="custom-md-editor" // 여기에 커스텀 클래스 추가
                 commands={filteredCommands}
+                hideToolbar
             />
           </div>
         </div>

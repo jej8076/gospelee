@@ -72,7 +72,7 @@ public class StoryServiceImpl implements StoryService {
 
     // 공지사항 데이터 저장 (임시)
     AnnouncementDTO announcement = AnnouncementDTO.fromEntity(
-        announcementRepository.save(announcementDTO.toEntity(account)), null);
+        announcementRepository.save(announcementDTO.toEntity(account)));
 
     // 파일 업로드 및 blob URL 매핑 생성
     Map<String, String> blobToFileUrlMap = new HashMap<>();
@@ -105,22 +105,6 @@ public class StoryServiceImpl implements StoryService {
               blobToFileUrlMap.put(entry.getKey(), fileUrl);
               log.info("Blob URL 매핑 생성: {} -> {}", entry.getKey(), fileUrl);
               break;
-            }
-          }
-        } else {
-          // blobFileMapping이 없는 경우 기존 로직 사용 (순서대로 매핑)
-          if (originalFileName != null) {
-            // text에서 blob URL 패턴을 찾아서 순서대로 매핑
-            String blobPattern = "blob:[^\"\\s]+";
-            Pattern pattern = Pattern.compile(blobPattern);
-            Matcher matcher = pattern.matcher(announcementDTO.getText());
-
-            if (matcher.find()) {
-              String blobUrl = matcher.group();
-              if (!blobToFileUrlMap.containsKey(blobUrl)) {
-                blobToFileUrlMap.put(blobUrl, fileUrl);
-                log.info("Blob URL 매핑 생성 (자동): {} -> {}", blobUrl, fileUrl);
-              }
             }
           }
         }

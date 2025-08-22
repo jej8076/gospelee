@@ -35,32 +35,23 @@ public class FileController {
       @PathVariable String accessToken,
       @PathVariable Long fileDetailId) {
 
-    try {
-      Resource resource = fileService.getFileByToken(accessToken, fileDetailId);
+    Resource resource = fileService.getFileByToken(accessToken, fileDetailId);
 
-      // 파일 상세 정보 조회하여 원본 파일명과 Content-Type 설정
-      FileDetails fileDetails = fileDetailsRepository.findById(fileDetailId)
-          .orElseThrow(() -> new IllegalArgumentException("파일 상세 정보를 찾을 수 없습니다."));
+    // 파일 상세 정보 조회하여 원본 파일명과 Content-Type 설정
+    FileDetails fileDetails = fileDetailsRepository.findById(fileDetailId)
+        .orElseThrow(() -> new IllegalArgumentException("파일 상세 정보를 찾을 수 없습니다."));
 
-      // Content-Type 설정 (저장된 fileType 사용, 없으면 기본값)
-      String contentType = fileDetails.getFileType();
-      if (contentType == null || contentType.isEmpty()) {
-        contentType = "application/octet-stream";
-      }
-
-      return ResponseEntity.ok()
-          .contentType(MediaType.parseMediaType(contentType))
-          .header(HttpHeaders.CONTENT_DISPOSITION,
-              "inline; filename=\"" + fileDetails.getFileOriginalName() + "\"")
-          .body(resource);
-
-    } catch (IllegalArgumentException e) {
-      log.error("파일 조회 실패: {}", e.getMessage());
-      return ResponseEntity.notFound().build();
-    } catch (Exception e) {
-      log.error("파일 조회 중 오류 발생", e);
-      return ResponseEntity.internalServerError().build();
+    // Content-Type 설정 (저장된 fileType 사용, 없으면 기본값)
+    String contentType = fileDetails.getFileType();
+    if (contentType == null || contentType.isEmpty()) {
+      contentType = "application/octet-stream";
     }
+
+    return ResponseEntity.ok()
+        .contentType(MediaType.parseMediaType(contentType))
+        .header(HttpHeaders.CONTENT_DISPOSITION,
+            "inline; filename=\"" + fileDetails.getFileOriginalName() + "\"")
+        .body(resource);
   }
 
   /**
@@ -96,4 +87,5 @@ public class FileController {
       return ResponseEntity.internalServerError().build();
     }
   }
+
 }
