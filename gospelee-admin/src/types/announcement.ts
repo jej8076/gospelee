@@ -26,6 +26,7 @@ type Announcement = {
   fileResources?: FileResource[]; // 변환된 파일 리소스 리스트 (클라이언트에서 생성)
   pushNotificationSendYn: 'Y' | 'N'; // 문자열로 Y/N 제한
   pushNotificationIds: string;
+  openYn: string;
   insertTime: string;
   updateTime: string;
 };

@@ -3,6 +3,7 @@ package com.gospelee.api.controller;
 import com.gospelee.api.dto.announcement.AnnouncementDTO;
 import com.gospelee.api.dto.announcement.AnnouncementResponseDTO;
 import com.gospelee.api.service.AnnouncementService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -28,9 +29,10 @@ public class AnnouncementController {
 
   @PostMapping("/{announcementType}")
   public ResponseEntity<Object> getAnnouncementList(
+      HttpServletRequest request,
       @PathVariable("announcementType") String announcementType) {
     List<AnnouncementResponseDTO> announcementList = announcementService.getAnnouncementList(
-        announcementType);
+        request, announcementType);
     return new ResponseEntity<>(announcementList, HttpStatus.OK);
   }
 

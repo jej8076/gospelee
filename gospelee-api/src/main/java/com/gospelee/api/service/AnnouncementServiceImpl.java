@@ -15,7 +15,9 @@ import com.gospelee.api.entity.FileDetails;
 import com.gospelee.api.entity.FileEntity;
 import com.gospelee.api.entity.PushNotification;
 import com.gospelee.api.entity.PushNotificationReceivers;
+import com.gospelee.api.enums.AppType;
 import com.gospelee.api.enums.CategoryType;
+import com.gospelee.api.enums.CustomHeader;
 import com.gospelee.api.enums.OrganizationType;
 import com.gospelee.api.enums.PushNotificationSendStatusType;
 import com.gospelee.api.enums.Yn;
@@ -27,6 +29,7 @@ import com.gospelee.api.repository.jpa.file.FileRepository;
 import com.gospelee.api.repository.jpa.pushnotification.PushNotificationReceiversRepository;
 import com.gospelee.api.repository.jpa.pushnotification.PushNotificationRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,8 +63,10 @@ public class AnnouncementServiceImpl implements AnnouncementService {
   @Value("${auth.super-id:admin}")
   private String superId;
 
+
   @Override
-  public List<AnnouncementResponseDTO> getAnnouncementList(String announcementType) {
+  public List<AnnouncementResponseDTO> getAnnouncementList(HttpServletRequest request,
+      String announcementType) {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
 
     List<AnnouncementResponseDTO> responseList;
@@ -71,9 +76,12 @@ public class AnnouncementServiceImpl implements AnnouncementService {
           .map(AnnouncementResponseDTO::fromEntity).collect(
               Collectors.toList());
     } else {
-      responseList = announcementRepository.findByOrganizationTypeAndOrganizationId(
-          OrganizationType.fromName(announcementType).name(), account.getEcclesiaUid());
+      String appIdentify = request.getHeader(CustomHeader.X_APP_IDENTIFIER.getHeaderName());
 
+      // OOG_WEB 헤더가 아니면 open된 목록만 조회하도록 의도함
+      boolean isOpen = !AppType.OOG_WEB.getValue().equals(appIdentify);
+      responseList = announcementRepository.findByOrganizationTypeAndOrganizationIdAndOpenY(
+          OrganizationType.fromName(announcementType).name(), account.getEcclesiaUid(), isOpen);
     }
 
     for (AnnouncementResponseDTO ann : responseList) {
@@ -224,6 +232,10 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     if (updates.getText() != null) {
       existing.changeText(updates.getText());
     }
+    if (updates.getOpenYn() != null) {
+      existing.changeOpenYn(Yn.of(updates.getOpenYn()));
+    }
+
   }
 
   private void deleteExistingFiles(List<Long> deleteFileDetailIdList) {

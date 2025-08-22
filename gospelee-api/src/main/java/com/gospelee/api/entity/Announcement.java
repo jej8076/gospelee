@@ -3,6 +3,7 @@ package com.gospelee.api.entity;
 import com.gospelee.api.dto.announcement.AnnouncementDTO;
 import com.gospelee.api.dto.announcement.AnnouncementResponseDTO;
 import com.gospelee.api.entity.common.EditInfomation;
+import com.gospelee.api.enums.Yn;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -45,9 +46,12 @@ public class Announcement extends EditInfomation {
   @Column(name = "push_notification_ids")
   private String pushNotificationIds;
 
+  @Column
+  private String openYn;
+
   @Builder
   public Announcement(Long id, String organizationType, Long organizationId, String subject,
-      String text, Long fileUid, String pushNotificationIds) {
+      String text, Long fileUid, String pushNotificationIds, String openYn) {
     this.id = id;
     this.organizationType = organizationType;
     this.organizationId = organizationId;
@@ -55,12 +59,12 @@ public class Announcement extends EditInfomation {
     this.text = text;
     this.fileUid = fileUid;
     this.pushNotificationIds = pushNotificationIds;
+    this.openYn = openYn;
   }
 
   public void changePushNotificationIds(String pushNotificationIds) {
     this.pushNotificationIds = pushNotificationIds;
   }
-
 
   public void changeSubject(String subject) {
     this.subject = subject;
@@ -68,6 +72,10 @@ public class Announcement extends EditInfomation {
 
   public void changeText(String text) {
     this.text = text;
+  }
+
+  public void changeOpenYn(Yn yn) {
+    this.openYn = yn.name();
   }
 
 }

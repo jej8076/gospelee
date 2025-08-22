@@ -5,6 +5,7 @@ import com.gospelee.api.dto.announcement.projection.AnnouncementProjections;
 import com.gospelee.api.entity.QAnnouncement;
 import com.gospelee.api.entity.QEcclesia;
 import com.gospelee.api.enums.OrganizationType;
+import com.gospelee.api.enums.Yn;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -21,11 +22,11 @@ public class AnnouncementRepositoryCustomImpl implements AnnouncementRepositoryC
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public List<AnnouncementResponseDTO> findByOrganizationTypeAndOrganizationId(
-      String organizationType, Long organizationId) {
+  public List<AnnouncementResponseDTO> findByOrganizationTypeAndOrganizationIdAndOpenY(
+      String organizationType, Long organizationId, boolean isOpen) {
 
     OrganizationType type = OrganizationType.fromName(organizationType);
-    
+
     JPAQuery<AnnouncementResponseDTO> query = queryFactory
         .select(AnnouncementProjections.toColumn(getOrganizationNameExpression(type)))
         .from(QAnnouncement.announcement);
@@ -36,7 +37,9 @@ public class AnnouncementRepositoryCustomImpl implements AnnouncementRepositoryC
     }
 
     return query
-        .where(buildWhereCondition(organizationId, type.name()))
+        .where(isOpen
+            ? buildWhereConditionWithOpen(organizationId, type.name())
+            : buildWhereCondition(organizationId, type.name()))
         .orderBy(QAnnouncement.announcement.insertTime.desc())
         .fetch();
   }
@@ -62,7 +65,8 @@ public class AnnouncementRepositoryCustomImpl implements AnnouncementRepositoryC
   /**
    * Entity가 있는 조직 타입에 대해 JOIN을 추가합니다.
    */
-  private void addJoinForEntityType(JPAQuery<AnnouncementResponseDTO> query, OrganizationType type) {
+  private void addJoinForEntityType(JPAQuery<AnnouncementResponseDTO> query,
+      OrganizationType type) {
     switch (type) {
       case ECCLESIA:
         query.leftJoin(QEcclesia.ecclesia)
@@ -81,5 +85,12 @@ public class AnnouncementRepositoryCustomImpl implements AnnouncementRepositoryC
   private BooleanExpression buildWhereCondition(Long organizationId, String organizationType) {
     return QAnnouncement.announcement.organizationId.eq(organizationId)
         .and(QAnnouncement.announcement.organizationType.eq(organizationType));
+  }
+
+  private BooleanExpression buildWhereConditionWithOpen(Long organizationId,
+      String organizationType) {
+    return QAnnouncement.announcement.organizationId.eq(organizationId)
+        .and(QAnnouncement.announcement.organizationType.eq(organizationType)
+            .and(QAnnouncement.announcement.openYn.eq(Yn.Y.name())));
   }
 }

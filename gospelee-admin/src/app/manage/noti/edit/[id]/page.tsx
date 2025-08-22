@@ -31,6 +31,7 @@ export default function EditNoti() {
   const [files, setFiles] = useState<File[]>([]);
   const [existingFiles, setExistingFiles] = useState<FileResource[]>([]);
   const [pushNotificationSendYn, setPushNotificationSendYn] = useState("");
+  const [openYn, setOpenYn] = useState("");
   const [blobFileMapping, setBlobFileMapping] = useState<{ [key: string]: string }>({});
   const [deleteFileDetailIdList, setDeleteFileDetailIdList] = useState<number[]>([]);
 
@@ -60,6 +61,7 @@ export default function EditNoti() {
     if (originalAnnouncement) {
       setAnnouncementText(originalAnnouncement.text || "");
       setPushNotificationSendYn(originalAnnouncement.pushNotificationSendYn || "N");
+      setOpenYn(originalAnnouncement.openYn || "N");
 
       // 기존 파일 리소스 설정
       if (originalAnnouncement.fileResources) {
@@ -179,6 +181,7 @@ export default function EditNoti() {
       subject: originalAnnouncement?.subject || "",
       text: announcementText,
       pushNotificationSendYn: pushNotificationSendYn,
+      openYn: openYn,
     };
 
     if (files && files.length > 0) {
@@ -226,6 +229,20 @@ export default function EditNoti() {
       description: "푸시 알림을 발송하지 않습니다"
     }
   ];
+
+  const openYnOptions = [
+    {
+      value: "Y",
+      label: "공개",
+      description: "해당 게시글을 공개합니다"
+    },
+    {
+      value: "N",
+      label: "비공개",
+      description: "해당 게시글을 공개하지 않습니다"
+    }
+  ];
+
 
   if (isLoading) {
     return (
@@ -289,6 +306,17 @@ export default function EditNoti() {
                   value={pushNotificationSendYn}
                   onChange={setPushNotificationSendYn}
                   name="push-notifications"
+              />
+            </div>
+
+            <div className="col-span-full border-t border-gray-900/10 pt-8">
+              <RadioGroup
+                  title="공개 여부"
+                  description="게시글을 공개할 지 선택해 주세요"
+                  options={openYnOptions}
+                  value={openYn}
+                  onChange={setOpenYn}
+                  name="open-yn"
               />
             </div>
           </div>

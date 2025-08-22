@@ -28,6 +28,7 @@ public class AnnouncementDTO {
   @NotBlank
   private String pushNotificationSendYn;
   private String pushNotificationIds;
+  private String openYn;
   private LocalDateTime insertTime;
   private LocalDateTime updateTime;
 
@@ -42,10 +43,10 @@ public class AnnouncementDTO {
 
   @Builder
   public AnnouncementDTO(Long id, String organizationType, String organizationId, String subject,
-      String text, Long fileUid, List<FileDetailsDTO> fileDetailList,
-      List<Long> deleteFileDetailIdList, String pushNotificationSendYn, String pushNotificationIds,
-      LocalDateTime insertTime, LocalDateTime updateTime, Map<String, String> blobFileMapping,
-      List<String> fileDataList) {
+      String text, Long fileUid, List<FileDetailsDTO> fileDetailList, String pushNotificationSendYn,
+      String pushNotificationIds, String openYn, LocalDateTime insertTime, LocalDateTime updateTime,
+      Map<String, String> blobFileMapping, List<String> fileDataList,
+      List<Long> deleteFileDetailIdList) {
     this.id = id;
     this.organizationType = organizationType;
     this.organizationId = organizationId;
@@ -55,6 +56,7 @@ public class AnnouncementDTO {
     this.fileDetailList = fileDetailList;
     this.pushNotificationSendYn = pushNotificationSendYn;
     this.pushNotificationIds = pushNotificationIds;
+    this.openYn = openYn;
     this.insertTime = insertTime;
     this.updateTime = updateTime;
     this.blobFileMapping = blobFileMapping;
@@ -73,6 +75,7 @@ public class AnnouncementDTO {
         .fileUid(announcement.getFileUid())
         .fileDetailList(fileDetails)
         .pushNotificationIds(announcement.getPushNotificationIds())
+        .openYn(announcement.getOpenYn())
         .insertTime(announcement.getInsertTime())
         .updateTime(announcement.getUpdateTime())
         .build();
@@ -90,6 +93,7 @@ public class AnnouncementDTO {
         .fileDetailList(fileDetails)
         .fileDataList(fileDataList)
         .pushNotificationIds(announcement.getPushNotificationIds())
+        .openYn(announcement.getOpenYn())
         .insertTime(announcement.getInsertTime())
         .updateTime(announcement.getUpdateTime())
         .build();
@@ -107,6 +111,7 @@ public class AnnouncementDTO {
         .subject(this.subject)
         .text(this.text)
         .fileUid(this.fileUid)
+        .openYn(this.openYn)
         .build();
   }
 
