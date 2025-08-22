@@ -1,6 +1,6 @@
 "use client";
 
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import {useEffect, useState, Suspense, useRef, useCallback} from "react";
 import {useRouter, useSearchParams} from 'next/navigation';
 import {
@@ -61,7 +61,7 @@ const QRCodeContent = () => {
           </div>
           {code ? (
             <div className="flex justify-center p-4 bg-white rounded-lg border">
-              <QRCode 
+              <QRCodeSVG 
                 value={`${process.env.NEXT_PUBLIC_API_URL}/api/account/qr/req/${code}`}
                 size={200}
                 level="M"
