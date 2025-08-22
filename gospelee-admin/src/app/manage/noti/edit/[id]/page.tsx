@@ -14,6 +14,7 @@ import FormLayout from "@/components/manage/FormLayout";
 import FormField from "@/components/manage/FormField";
 import FileUpload from "@/components/manage/FileUpload";
 import RadioGroup from "@/components/manage/RadioGroup";
+import {useModalState} from "@/hooks/useModalState";
 
 export default function EditNoti() {
   useAuth();
@@ -22,6 +23,7 @@ export default function EditNoti() {
   const router = useRouter();
   const {callApi} = useApiClient();
   const announcementId = params.id as string;
+  const confirmModal = useModalState();
 
   // State management
   const [userName, setUserName] = useState("");
@@ -32,9 +34,6 @@ export default function EditNoti() {
   const [blobFileMapping, setBlobFileMapping] = useState<{ [key: string]: string }>({});
   const [deleteFileDetailIdList, setDeleteFileDetailIdList] = useState<number[]>([]);
 
-  // Modal and loading states
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   // API responses
@@ -103,7 +102,13 @@ export default function EditNoti() {
 
   // Event handlers
   const handleSubmit = () => {
-    setIsModalOpen(true);
+    confirmModal.openModal({
+      content: '수정하신 공지사항을 저장합니다',
+      onConfirm: () => {
+        updateAnnouncement();
+      }
+    });
+
   };
 
   const handleCancel = () => {
@@ -121,37 +126,49 @@ export default function EditNoti() {
 
   const handleRemoveFile = (index: number, isExisting: boolean = false) => {
     if (isExisting) {
-      // 기존 파일 제거
-      const fileToRemove = existingFiles[index];
-      if (fileToRemove) {
-        // 메모리 정리 (API에서 받은 데이터로 생성한 blob URL)
-        URL.revokeObjectURL(fileToRemove.url);
 
-        // 삭제할 파일 ID 목록에 추가 (서버에 삭제 요청용)
-        setDeleteFileDetailIdList(prev => [...prev, fileToRemove.id]);
+      confirmModal.openModal({
+        content: <div>기존 파일을 삭제합니다</div>,
+        onConfirm: () => {
 
-        console.log(`기존 파일 제거 - fileDetailId: ${fileToRemove.id}, 파일명: ${fileToRemove.name}`);
-      }
-      setExistingFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
+          // 기존 파일 제거
+          const fileToRemove = existingFiles[index];
+          if (fileToRemove) {
+            // 메모리 정리 (API에서 받은 데이터로 생성한 blob URL)
+            URL.revokeObjectURL(fileToRemove.url);
+
+            // 삭제할 파일 ID 목록에 추가 (서버에 삭제 요청용)
+            setDeleteFileDetailIdList(prev => [...prev, fileToRemove.id]);
+
+            console.log(`기존 파일 제거 - fileDetailId: ${fileToRemove.id}, 파일명: ${fileToRemove.name}`);
+          }
+          setExistingFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
+
+        }
+      });
+
     } else {
+
       // 새로 추가한 파일 제거
       const fileToRemove = files[index];
       setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
 
-      // 관련 blob URL 매핑 제거
-      if (fileToRemove) {
-        setBlobFileMapping(prev => {
-          const newMapping = {...prev};
-          Object.keys(newMapping).forEach(blobUrl => {
-            if (newMapping[blobUrl] === fileToRemove.name) {
-              delete newMapping[blobUrl];
-            }
-          });
-          return newMapping;
-        });
-
-        console.log(`새 파일 제거 - 파일명: ${fileToRemove.name}`);
+      if (!fileToRemove) {
+        return;
       }
+
+      // 관련 blob URL 매핑 제거
+      setBlobFileMapping(prev => {
+        const newMapping = {...prev};
+        Object.keys(newMapping).forEach(blobUrl => {
+          if (newMapping[blobUrl] === fileToRemove.name) {
+            delete newMapping[blobUrl];
+          }
+        });
+        return newMapping;
+      });
+
+      console.log(`새 파일 제거 - 파일명: ${fileToRemove.name}`);
     }
   };
 
@@ -277,22 +294,20 @@ export default function EditNoti() {
           </div>
         </FormLayout>
 
-        {/* Confirmation Modal */}
         <Modal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            title="공지사항을 수정합니다."
+            isOpen={confirmModal.isOpen}
+            onClose={confirmModal.closeModal}
+            title={confirmModal.config?.title}
             footer={
               <>
-                {grayButton("취소", () => setIsModalOpen(false))}
-                {blueButton("확인", updateAnnouncement)}
+                {grayButton("취소", confirmModal.handleCancel)}
+                {blueButton("확인", confirmModal.handleConfirm)}
               </>
             }
         >
-          <div className="text-sm text-gray-600">
-            수정한 공지사항을 저장하시겠습니까?
-          </div>
+          {confirmModal.config?.content}
         </Modal>
+
       </>
   );
 }

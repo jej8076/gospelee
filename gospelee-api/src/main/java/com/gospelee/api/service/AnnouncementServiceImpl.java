@@ -202,14 +202,14 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     // 2. 기본 필드 업데이트
     updateBasicFields(existingAnnouncement, announcementDTO);
 
-    // 3. 기존 파일 삭제 처리
-    deleteExistingFiles(announcementDTO.getDeleteFileDetailIdList());
-
-    // 4. 공지사항 저장
+    // 3. 공지사항 저장
     Announcement savedAnnouncement = announcementRepository.save(existingAnnouncement);
 
-    // 5. 파일 업데이트 처리
+    // 4. 파일 업데이트 처리
     uploadNewFiles(savedAnnouncement, announcementDTO, files, account);
+
+    // 5. 기존 파일 삭제 처리
+    deleteExistingFiles(announcementDTO.getDeleteFileDetailIdList());
 
     // 6. 푸시 알림 처리
     handlePushNotificationIfNeeded(savedAnnouncement, announcementDTO, account);
@@ -239,12 +239,12 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         Optional<FileDetails> fileDetailOpt = fileDetailsRepository.findById(fileDetailId);
         if (fileDetailOpt.isPresent()) {
           FileDetails fileDetail = fileDetailOpt.get();
-          
+
           // 파일 삭제 마킹 (실제 파일 삭제는 별도 배치에서 처리하거나 즉시 처리)
           fileDetail.markAsDeleted(); // 이 메서드가 FileDetails 엔티티에 있다고 가정
           fileDetailsRepository.save(fileDetail);
-          
-          log.info("파일 삭제 완료 - fileDetailId: {}, fileName: {}", 
+
+          log.info("파일 삭제 완료 - fileDetailId: {}, fileName: {}",
               fileDetailId, fileDetail.getFileOriginalName());
         } else {
           log.warn("삭제할 파일을 찾을 수 없음 - fileDetailId: {}", fileDetailId);
