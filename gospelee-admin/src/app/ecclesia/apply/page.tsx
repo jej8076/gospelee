@@ -7,12 +7,12 @@ import {fetchInsertEcclesia} from "~/lib/api/fetch-ecclesias";
 import {isEmpty} from "@/utils/validators";
 import {useRouter} from "next/navigation";
 import useDidMountEffect, {useOnMountEffect} from "@/hooks/useDidMountEffect";
-import {getLastLoginOrElseNull} from "@/utils/user-utils";
+import {getLastLoginOrElseNull, logout} from "@/utils/user-utils";
 import {
   BuildingOfficeIcon,
-  UserIcon,
+  DocumentCheckIcon,
   PhoneIcon,
-  DocumentCheckIcon
+  UserIcon
 } from '@heroicons/react/24/outline';
 
 export default function ApplyChurch() {
@@ -32,6 +32,10 @@ export default function ApplyChurch() {
     // 숫자와 하이픈만 허용
     const numericValue = value.replace(/[^0-9-]/g, '');
     setTelephone(numericValue);
+  };
+
+  const handleLogout = async () => {
+    await logout(router);
   };
 
   // 페이지 진입 시 동작
@@ -271,6 +275,14 @@ export default function ApplyChurch() {
               >
                 교회 신청하기
               </button>
+              <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="px-8 py-3 ml-8 bg-gray-600 text-white font-semibold rounded-lg shadow-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-200"
+              >
+                로그아웃
+              </button>
+
             </div>
 
             {/* Help Text */}

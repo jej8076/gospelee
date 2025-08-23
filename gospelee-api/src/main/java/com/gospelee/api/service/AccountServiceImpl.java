@@ -273,6 +273,7 @@ public class AccountServiceImpl implements AccountService {
         .pushToken(account.getPushToken());
 
     if (account.getEcclesiaUid() == null) {
+      // 계정의 ecclesiaUid 정보가 없어도 ecclesia의 masterAccountUid로 로그인한 계정을 조회했을 때 결과가 있으면 해당 교회에 소속된 것으로 간주한다
       authDTOBuilder
           .ecclesiaUid(ecclesia.map(Ecclesia::getUid).orElse(null))
           .ecclesiaStatus(ecclesia.map(Ecclesia::getStatus).orElse(null));
