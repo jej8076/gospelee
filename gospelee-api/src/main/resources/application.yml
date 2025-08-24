@@ -59,6 +59,8 @@ auth:
     - /account/qr/check
     - /file/*
     - /app-link/*
+    - /article
+    - /announcement/BRAND_STORY
   allow-pending-paths:
     - /api/account/qr/req/*
 

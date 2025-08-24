@@ -1,4 +1,4 @@
-package com.gospelee.api.service;
+package com.gospelee.api.service.announcement;
 
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.gospelee.api.dto.account.AccountAuthDTO;
@@ -28,6 +28,9 @@ import com.gospelee.api.repository.jpa.file.FileDetailsRepository;
 import com.gospelee.api.repository.jpa.file.FileRepository;
 import com.gospelee.api.repository.jpa.pushnotification.PushNotificationReceiversRepository;
 import com.gospelee.api.repository.jpa.pushnotification.PushNotificationRepository;
+import com.gospelee.api.service.AccountService;
+import com.gospelee.api.service.FileService;
+import com.gospelee.api.service.FirebaseService;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -43,10 +46,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-@Service
+@Service("AnnouncementAdmin")
 @Slf4j
 @RequiredArgsConstructor
-public class AnnouncementServiceImpl implements AnnouncementService {
+public class AnnouncementServiceAdminImpl implements AnnouncementService {
 
   private final AnnouncementRepository announcementRepository;
   private final PushNotificationRepository pushNotificationRepository;

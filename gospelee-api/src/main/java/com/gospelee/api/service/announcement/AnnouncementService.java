@@ -1,4 +1,4 @@
-package com.gospelee.api.service;
+package com.gospelee.api.service.announcement;
 
 import com.gospelee.api.dto.announcement.AnnouncementDTO;
 import com.gospelee.api.dto.announcement.AnnouncementResponseDTO;
