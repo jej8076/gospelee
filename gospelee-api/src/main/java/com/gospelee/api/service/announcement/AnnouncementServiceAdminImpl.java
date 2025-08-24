@@ -1,4 +1,4 @@
-package com.gospelee.api.service;
+package com.gospelee.api.service.announcement;
 
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.gospelee.api.dto.account.AccountAuthDTO;
@@ -28,6 +28,9 @@ import com.gospelee.api.repository.jpa.file.FileDetailsRepository;
 import com.gospelee.api.repository.jpa.file.FileRepository;
 import com.gospelee.api.repository.jpa.pushnotification.PushNotificationReceiversRepository;
 import com.gospelee.api.repository.jpa.pushnotification.PushNotificationRepository;
+import com.gospelee.api.service.AccountService;
+import com.gospelee.api.service.FileService;
+import com.gospelee.api.service.FirebaseService;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -43,10 +46,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-@Service
+@Service("AnnouncementAdmin")
 @Slf4j
 @RequiredArgsConstructor
-public class AnnouncementServiceImpl implements AnnouncementService {
+public class AnnouncementServiceAdminImpl implements AnnouncementService {
 
   private final AnnouncementRepository announcementRepository;
   private final PushNotificationRepository pushNotificationRepository;
@@ -77,31 +80,48 @@ public class AnnouncementServiceImpl implements AnnouncementService {
               Collectors.toList());
     } else {
       String appIdentify = request.getHeader(CustomHeader.X_APP_IDENTIFIER.getHeaderName());
+      OrganizationType organizationType = OrganizationType.fromName(announcementType);
 
       // OOG_WEB 헤더가 아니면 open된 목록만 조회하도록 의도함
       boolean isOpen = !AppType.OOG_WEB.getValue().equals(appIdentify);
-      responseList = announcementRepository.findByOrganizationTypeAndOrganizationIdAndOpenY(
-          OrganizationType.fromName(announcementType).name(), account.getEcclesiaUid(), isOpen);
+
+      if (organizationType.equals(OrganizationType.BRAND_STORY)) {
+        // BRAND_STORY는 organization_id를 1로 고정함
+        responseList = announcementRepository.findByOrganizationTypeAndOrganizationIdAndOpenY(
+            organizationType.name(), 1L, isOpen);
+
+      } else if (organizationType.equals(OrganizationType.ECCLESIA)) {
+        if (account.getEcclesiaUid() == null) {
+          return List.of();
+        }
+        responseList = announcementRepository.findByOrganizationTypeAndOrganizationIdAndOpenY(
+            organizationType.name(), account.getEcclesiaUid(), isOpen);
+
+      } else {
+        throw new AnnouncementNotFoundException("not_found_organization_type organizationType:{}",
+            organizationType.name());
+      }
     }
 
-    for (AnnouncementResponseDTO ann : responseList) {
-      if (ann.getFileUid() == null) {
+    for (AnnouncementResponseDTO response : responseList) {
+      if (response.getFileUid() == null) {
         continue;
       }
-      Optional<FileEntity> file = fileRepository.findByIdAndDelYn(ann.getFileUid(), Yn.N.name());
+      Optional<FileEntity> file = fileRepository.findByIdAndDelYn(response.getFileUid(),
+          Yn.N.name());
       if (file.isEmpty()) {
         continue;
       }
-      ann.changeImageAccessToken(file.get().getAccessToken());
+      response.changeImageAccessToken(file.get().getAccessToken());
 
       List<FileDetails> fileDetailList = fileDetailsRepository.findAllByFileIdAndDelYn(
-          ann.getFileUid(), Yn.N.name());
+          response.getFileUid(), Yn.N.name());
 
       List<FileDetailsDTO> fileDetailDtoList = fileDetailList.stream()
           .map(FileDetailsDTO::fromEntity)
           .toList();
 
-      ann.changeFileDetail(fileDetailDtoList);
+      response.changeFileDetail(fileDetailDtoList);
     }
 
     return responseList;
@@ -471,7 +491,6 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     return blobToFileUrlMap;
   }
 
-
   private boolean isOnlySuperValidation(AccountAuthDTO account, AnnouncementDTO announcementDTO) {
     if (announcementDTO.getOrganizationType().equals(OrganizationType.BRAND_STORY.name())
         && !superId.equals(account.getEmail())) {
@@ -480,7 +499,6 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     return true;
   }
-
 }
 
 

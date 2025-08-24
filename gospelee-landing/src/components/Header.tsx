@@ -31,8 +31,8 @@ const Header = () => {
             <nav className={`${styles.nav} ${isMenuOpen ? styles.navOpen : ''}`}>
               <ul className={styles.navList}>
                 <li className={styles.navItem}>
-                  <Link href="/brand-story" className={styles.navLink}>
-                    브랜드 스토리
+                  <Link href="/identity" className={styles.navLink}>
+                    정체성
                   </Link>
                 </li>
                 <li className={styles.navItem}>

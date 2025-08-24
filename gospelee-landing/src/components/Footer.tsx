@@ -38,7 +38,7 @@ const Footer = () => {
                   <ul className={styles.linkList}>
                     <li><a href="#" className={styles.link}>도움말</a></li>
                     <li><a href="#" className={styles.link}>문의하기</a></li>
-                    <li><Link href="/brand-story" className={styles.link}>브랜드 스토리</Link></li>
+                    <li><Link href="/identity" className={styles.link}>브랜드 스토리</Link></li>
                   </ul>
                 </div>
 
