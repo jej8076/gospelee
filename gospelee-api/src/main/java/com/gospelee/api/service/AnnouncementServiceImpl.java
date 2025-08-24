@@ -77,31 +77,48 @@ public class AnnouncementServiceImpl implements AnnouncementService {
               Collectors.toList());
     } else {
       String appIdentify = request.getHeader(CustomHeader.X_APP_IDENTIFIER.getHeaderName());
+      OrganizationType organizationType = OrganizationType.fromName(announcementType);
 
       // OOG_WEB 헤더가 아니면 open된 목록만 조회하도록 의도함
       boolean isOpen = !AppType.OOG_WEB.getValue().equals(appIdentify);
-      responseList = announcementRepository.findByOrganizationTypeAndOrganizationIdAndOpenY(
-          OrganizationType.fromName(announcementType).name(), account.getEcclesiaUid(), isOpen);
+
+      if (organizationType.equals(OrganizationType.BRAND_STORY)) {
+        // BRAND_STORY는 organization_id를 1로 고정함
+        responseList = announcementRepository.findByOrganizationTypeAndOrganizationIdAndOpenY(
+            organizationType.name(), 1L, isOpen);
+
+      } else if (organizationType.equals(OrganizationType.ECCLESIA)) {
+        if (account.getEcclesiaUid() == null) {
+          return List.of();
+        }
+        responseList = announcementRepository.findByOrganizationTypeAndOrganizationIdAndOpenY(
+            organizationType.name(), account.getEcclesiaUid(), isOpen);
+
+      } else {
+        throw new AnnouncementNotFoundException("not_found_organization_type organizationType:{}",
+            organizationType.name());
+      }
     }
 
-    for (AnnouncementResponseDTO ann : responseList) {
-      if (ann.getFileUid() == null) {
+    for (AnnouncementResponseDTO response : responseList) {
+      if (response.getFileUid() == null) {
         continue;
       }
-      Optional<FileEntity> file = fileRepository.findByIdAndDelYn(ann.getFileUid(), Yn.N.name());
+      Optional<FileEntity> file = fileRepository.findByIdAndDelYn(response.getFileUid(),
+          Yn.N.name());
       if (file.isEmpty()) {
         continue;
       }
-      ann.changeImageAccessToken(file.get().getAccessToken());
+      response.changeImageAccessToken(file.get().getAccessToken());
 
       List<FileDetails> fileDetailList = fileDetailsRepository.findAllByFileIdAndDelYn(
-          ann.getFileUid(), Yn.N.name());
+          response.getFileUid(), Yn.N.name());
 
       List<FileDetailsDTO> fileDetailDtoList = fileDetailList.stream()
           .map(FileDetailsDTO::fromEntity)
           .toList();
 
-      ann.changeFileDetail(fileDetailDtoList);
+      response.changeFileDetail(fileDetailDtoList);
     }
 
     return responseList;
@@ -471,7 +488,6 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     return blobToFileUrlMap;
   }
 
-
   private boolean isOnlySuperValidation(AccountAuthDTO account, AnnouncementDTO announcementDTO) {
     if (announcementDTO.getOrganizationType().equals(OrganizationType.BRAND_STORY.name())
         && !superId.equals(account.getEmail())) {
@@ -480,7 +496,6 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     return true;
   }
-
 }
 
 

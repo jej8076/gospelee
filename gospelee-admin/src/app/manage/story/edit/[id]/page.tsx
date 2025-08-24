@@ -3,11 +3,11 @@
 import {useEffect, useState} from "react";
 import useAuth from "~/lib/auth/check-auth";
 import {getLastLoginOrElseNull} from "@/utils/user-utils";
-import {fetchUpdateAnnouncement, fetchAnnouncementById} from "~/lib/api/fetch-announcement";
+import {fetchAnnouncementById, fetchUpdateAnnouncement} from "~/lib/api/fetch-announcement";
 import {useApiClient} from "@/hooks/useApiClient";
 import useDidMountEffect from "@/hooks/useDidMountEffect";
 import {isEmpty} from "@/utils/validators";
-import {useRouter, useParams} from "next/navigation";
+import {useParams, useRouter} from "next/navigation";
 import Modal from "@/components/modal/modal";
 import {blueButton, grayButton} from "@/components/modal/modal-buttons";
 import MarkdownEditorField from '@/components/markdown/MarkdownEditorField';
@@ -31,6 +31,7 @@ export default function EditStory() {
 
   // State management
   const [userName, setUserName] = useState("");
+  const [subject, setSubject] = useState("");
   const [announcementText, setAnnouncementText] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [existingFiles, setExistingFiles] = useState<FileResource[]>([]);
@@ -79,6 +80,7 @@ export default function EditStory() {
   // Update form when original data is loaded
   useEffect(() => {
     if (originalAnnouncement) {
+      setSubject(originalAnnouncement.subject || "");
       setAnnouncementText(originalAnnouncement.text || "");
       setOpenYn(originalAnnouncement.openYn || "N");
 
@@ -216,7 +218,7 @@ export default function EditStory() {
     const inputData: any = {
       id: announcementId,
       organizationType: TYPE,
-      subject: originalAnnouncement?.subject || "브랜드 스토리 제목",
+      subject: subject,
       text: announcementText,
       pushNotificationSendYn: "N",
       openYn: openYn
@@ -299,6 +301,19 @@ export default function EditStory() {
                   multiple={true}
                   accept="image/*"
               />
+            </FormField>
+
+            <FormField label="제목" required>
+              <div
+                  className="flex rounded-md bg-white shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
+                <input
+                    type="text"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    className="block flex-1 border-0 bg-transparent py-1.5 pl-3 pr-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm/6"
+                    placeholder="브랜드 스토리 제목을 입력하세요"
+                />
+              </div>
             </FormField>
 
             <FormField label="본문" required>
