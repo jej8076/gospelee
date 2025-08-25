@@ -30,28 +30,6 @@ public class FirebaseService {
       throws FirebaseMessagingException {
 
     return sendNotification(token, title, body, null);
-
-//    Notification notification = Notification.builder()
-//        .setTitle(title)
-//        .setBody(content)
-//        .build();
-//
-//    // apple APNs setting
-//    Aps aps = Aps.builder()
-//        .setSound("default")
-//        .setContentAvailable(true)
-//        .build();
-//    ApnsConfig apnsConfig = ApnsConfig.builder()
-//        .setAps(aps)
-//        .build();
-//
-//    Message message = Message.builder()
-//        .setNotification(notification)
-//        .setApnsConfig(apnsConfig)
-//        .setToken(pushToken)
-//        .build();
-//
-//    return firebaseMessaging.send(message);
   }
 
   public String sendNotification(String token, String title, String body,
