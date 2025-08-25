@@ -137,7 +137,7 @@ export default function MainLayout({children}: Readonly<{
                 <div className="flex h-16 shrink-0 items-center justify-center">
                   <Image
                       className="h-8 w-auto"
-                      src="/images/logo/logo_oog.png"
+                      src="/images/logo/logo_oog.svg"
                       alt="Your Company"
                       width={32}
                       height={32}

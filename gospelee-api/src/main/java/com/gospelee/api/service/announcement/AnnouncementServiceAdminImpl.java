@@ -66,7 +66,6 @@ public class AnnouncementServiceAdminImpl implements AnnouncementService {
   @Value("${auth.super-id:admin}")
   private String superId;
 
-
   @Override
   public List<AnnouncementResponseDTO> getAnnouncementList(HttpServletRequest request,
       String announcementType) {
