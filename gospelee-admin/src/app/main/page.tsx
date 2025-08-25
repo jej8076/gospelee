@@ -6,6 +6,6 @@ export default function Main() {
   useAuth();
 
   return (
-      <p>대시보드</p>
+      <p>준비중 입니다</p>
   );
 }

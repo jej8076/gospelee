@@ -30,6 +30,22 @@ public class AnnouncementController {
     this.announcementService = announcementService;
   }
 
+  /**
+   * 권한 없이 조회하는 용도의 endpoint
+   *
+   * @param request
+   * @param announcementType
+   * @return
+   */
+  @PostMapping("/unauthorized/{announcementType}")
+  public ResponseEntity<Object> viewAnnouncementList(
+      HttpServletRequest request,
+      @PathVariable("announcementType") String announcementType) {
+    List<AnnouncementResponseDTO> announcementList = announcementService.getAnnouncementList(
+        request, announcementType);
+    return new ResponseEntity<>(announcementList, HttpStatus.OK);
+  }
+
   @PostMapping("/{announcementType}")
   public ResponseEntity<Object> getAnnouncementList(
       HttpServletRequest request,
@@ -38,6 +54,7 @@ public class AnnouncementController {
         request, announcementType);
     return new ResponseEntity<>(announcementList, HttpStatus.OK);
   }
+
 
   @PostMapping("/{announcementType}/{id}")
   public ResponseEntity<Object> getAnnouncement(
