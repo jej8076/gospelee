@@ -2,15 +2,14 @@ package com.gospelee.api.service;
 
 import com.google.firebase.messaging.AndroidConfig;
 import com.google.firebase.messaging.ApnsConfig;
-import com.google.firebase.messaging.ApnsFcmOptions;
 import com.google.firebase.messaging.Aps;
-import com.google.firebase.messaging.ApsAlert;
 import com.google.firebase.messaging.BatchResponse;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.Notification;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
@@ -26,37 +25,11 @@ public class FirebaseService {
 
   /**
    * push 알림 단일 전송
-   *
-   * @param pushToken
-   * @param title
-   * @param content
-   * @return
-   * @throws FirebaseMessagingException
    */
-  public String sendNotification(String pushToken, String title, String content)
+  public String sendNotification(String token, String title, String body)
       throws FirebaseMessagingException {
 
-    Notification notification = Notification.builder()
-        .setTitle(title)
-        .setBody(content)
-        .build();
-
-    // apple APNs setting
-    Aps aps = Aps.builder()
-        .setSound("default")
-        .setContentAvailable(true)
-        .build();
-    ApnsConfig apnsConfig = ApnsConfig.builder()
-        .setAps(aps)
-        .build();
-
-    Message message = Message.builder()
-        .setNotification(notification)
-        .setApnsConfig(apnsConfig)
-        .setToken(pushToken)
-        .build();
-
-    return firebaseMessaging.send(message);
+    return sendNotification(token, title, body, null);
   }
 
   public String sendNotification(String token, String title, String body,
@@ -87,11 +60,11 @@ public class FirebaseService {
     Message message = Message.builder()
         .setToken(token)
         .setNotification(notification)
-        .putAllData(data)
+        .putAllData(data == null ? new HashMap<>() : data)
         .setApnsConfig(apnsConfig)
         .setAndroidConfig(androidConfig)
         .build();
-    
+
     String result = "";
     try {
       result = firebaseMessaging.send(message);
