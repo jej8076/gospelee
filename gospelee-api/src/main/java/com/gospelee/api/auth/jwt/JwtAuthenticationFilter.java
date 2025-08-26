@@ -45,6 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     String path = request.getServletPath();
 
     String anonymousId = null;
+    // TODO 매직넘버 제거 필요
     if (request.getServletPath().equals("/account/auth/success")) {
       anonymousId = request.getHeader(CustomHeader.X_ANONYMOUS_USER_ID.getHeaderName());
     }
