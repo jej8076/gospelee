@@ -38,7 +38,6 @@ public class JwtOIDCProvider {
 
   private final RedisCacheService redisCacheService;
   private final AccountService accountService;
-  private final String BEARER = "Bearer ";
   @Value("${kakao.issuer}")
   private String KAKAO_ISS;
   @Value("${kakao.app-key}")

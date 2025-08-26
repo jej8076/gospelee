@@ -47,6 +47,7 @@ springdoc:
     display-query-params-without-oauth2: true
 
 redis:
+  embedded: true
   host: localhost
   port: 6377
 
@@ -60,7 +61,7 @@ auth:
     - /file/*
     - /app-link/*
     - /article
-    - /announcement/BRAND_STORY
+    - /announcement/unauthorized/BRAND_STORY
   allow-pending-paths:
     - /api/account/qr/req/*
 
