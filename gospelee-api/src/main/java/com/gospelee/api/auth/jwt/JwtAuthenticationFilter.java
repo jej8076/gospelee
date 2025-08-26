@@ -3,6 +3,8 @@ package com.gospelee.api.auth.jwt;
 import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.common.ResponseDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
+import com.gospelee.api.enums.AppType;
+import com.gospelee.api.enums.CustomHeader;
 import com.gospelee.api.enums.ErrorResponseType;
 import com.gospelee.api.properties.AuthProperties;
 import com.gospelee.api.utils.IpUtils;
@@ -29,7 +31,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final String AUTH_HEADER = "Authorization";
   private final String BEARER = "Bearer ";
-  private final String APP_ID = "X-App-Identifier";
   private final JwtOIDCProvider jwtOIDCProvider;
   private final AuthProperties authProperties;
 
@@ -42,11 +43,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain filterChain) throws ServletException, IOException, BadCredentialsException {
     String idToken = request.getHeader(AUTH_HEADER);
-    String appId = request.getHeader(APP_ID);
+    String appId = request.getHeader(CustomHeader.X_APP_IDENTIFIER.getHeaderName());
 
     boolean isWeb = false;
 
-    if ("OOG_WEB".equals(appId)) {
+    if (AppType.OOG_WEB.getValue().equals(appId)) {
       isWeb = true;
     }
 
