@@ -13,8 +13,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -44,6 +42,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       FilterChain filterChain) throws ServletException, IOException, BadCredentialsException {
     String idToken = request.getHeader(AUTH_HEADER);
     String appId = request.getHeader(CustomHeader.X_APP_IDENTIFIER.getHeaderName());
+    String path = request.getServletPath();
+
+    String anonymousId = null;
+    if (request.getServletPath().equals("/account/auth/success")) {
+      anonymousId = request.getHeader(CustomHeader.X_ANONYMOUS_USER_ID.getHeaderName());
+    }
 
     boolean isWeb = false;
 
@@ -67,7 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       return;
     }
 
-    JwtPayload jwtPayload = jwtOIDCProvider.getOIDCPayload(idToken);
+    JwtPayload jwtPayload = jwtOIDCProvider.getOIDCPayload(idToken, anonymousId);
 
     if (ObjectUtils.isEmpty(jwtPayload)) {
       failResponse(response, ErrorResponseType.AUTH_103);

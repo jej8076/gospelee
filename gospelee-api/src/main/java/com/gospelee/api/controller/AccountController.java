@@ -85,7 +85,7 @@ public class AccountController {
   public ResponseEntity<Object> putNonce(@RequestBody NonceRequestDTO nonceRequestDTO) {
     RedisCacheDTO redisCacheDTO = RedisCacheDTO.builder()
         .redisCacheName(RedisCacheName.NONCE)
-        .key(nonceRequestDTO.getDeviceId())
+        .key(nonceRequestDTO.getAnonymousId())
         .value(nonceRequestDTO.getNonce())
         .build();
     String nonce = redisCacheService.put(redisCacheDTO);
@@ -169,7 +169,7 @@ public class AccountController {
    * @param pushTokenDTO 푸시 토큰 정보
    * @return 업데이트 결과
    */
-  @PatchMapping("/pushToken")
+  @PatchMapping("/auth/success")
   public ResponseEntity<Object> updatePushToken(
       @AuthenticationPrincipal AccountAuthDTO account,
       @RequestBody PushTokenDTO pushTokenDTO) {

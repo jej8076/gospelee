@@ -3,17 +3,11 @@ package com.gospelee.api.enums;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
-import org.checkerframework.checker.units.qual.N;
 
 public enum CustomHeader {
-  X_APP_IDENTIFIER("X-App-Identifier");
-
-  @Getter
-  final private String headerName;
-
-  CustomHeader(String headerName) {
-    this.headerName = headerName;
-  }
+  X_APP_IDENTIFIER("X-App-Identifier"),
+  X_ANONYMOUS_USER_ID("X-Anonymous-User-ID"),
+  ;
 
   private static final Map<String, CustomHeader> NAME_MAP = new HashMap<>();
 
@@ -21,6 +15,13 @@ public enum CustomHeader {
     for (CustomHeader header : values()) {
       NAME_MAP.put(header.name(), header);
     }
+  }
+
+  @Getter
+  final private String headerName;
+
+  CustomHeader(String headerName) {
+    this.headerName = headerName;
   }
 
   public static CustomHeader of(String name) {

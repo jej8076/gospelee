@@ -26,6 +26,7 @@ public class RedisCacheConfig {
   @Value("${redis.port}")
   private int port;
 
+  // TODO TTL 설정 다시해야함, nonce 값 비교하는 데이터는 짧게
   @Bean
   public CacheManager oidcCacheManager(RedisConnectionFactory cf) {
     RedisCacheConfiguration redisCacheConfiguration =

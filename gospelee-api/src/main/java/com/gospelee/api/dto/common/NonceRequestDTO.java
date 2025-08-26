@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class NonceRequestDTO {
 
-  private String deviceId;
+  private String anonymousId;
   private String nonce;
 
 }
