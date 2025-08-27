@@ -15,7 +15,7 @@
 
 ## 🎯 프로젝트 개요
 
-Gospelee는 교회 운영을 위한 종합 관리 시스템입니다. 교회 관리자와 성도들이 효율적으로 소통하고 교회 업무를 관리할 수 있는 플랫폼을 제공합니다.
+OOG 앱을 포함하여 Gospelee 브랜드 전체 시스템을 담당하는 통합 어플리케이션 프로젝트 입니다
 
 ### 주요 기능
 
@@ -30,21 +30,21 @@ Gospelee는 교회 운영을 위한 종합 관리 시스템입니다. 교회 관
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Landing Page  │    │   Admin Panel   │    │   Mobile App    │
-│   (Next.js)     │    │   (Next.js)     │    │   (React)       │
+│   Landing Page  │    │   Admin Page    │    │   Mobile App    │
+│   (Next.js)     │    │   (Next.js)     │    │   (Flutter)     │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         └───────────────────────┼───────────────────────┘
-                                 │
-                    ┌─────────────────┐
-                    │   API Server    │
-                    │ (Spring Boot)   │
-                    └─────────────────┘
-                                 │
-                    ┌─────────────────┐
-                    │   Database      │
-                    │   (H2/MySQL)    │
-                    └─────────────────┘
+         │                     │                       │
+         └─────────────────────┼───────────────────────┘
+                               │
+                      ┌─────────────────┐
+                      │   API Server    │
+                      │ (Spring Boot)   │
+                      └─────────────────┘
+                               │
+                      ┌─────────────────┐
+                      │     Database    │
+                      │     (MySQL)     │
+                      └─────────────────┘
 ```
 
 ## 📁 프로젝트 구조
@@ -86,15 +86,17 @@ gospelee/
 ## 🛠️ 기술 스택
 
 ### Backend (gospelee-api)
+
 - **Framework**: Spring Boot 3.2.3
 - **Language**: Java 17
-- **Database**: H2 (개발), MySQL (운영)
+- **Database**: MySQL (개발, 운영)
 - **ORM**: Spring Data JPA + QueryDSL
 - **Security**: Spring Security + JWT
 - **Build Tool**: Gradle
 - **Documentation**: Swagger/OpenAPI
 
 ### Frontend (gospelee-admin)
+
 - **Framework**: Next.js 15.4.6 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
@@ -104,25 +106,30 @@ gospelee/
 - **Build Tool**: npm
 
 ### DevOps
+
+- **Develop Environment**: Teleport
 - **Containerization**: Docker
-- **Database**: H2 (embedded)
+- **Database**: Mysql
 - **Version Control**: Git
 
 ## 🚀 개발 환경 설정
 
 ### 필수 요구사항
+
 - Java 17+
 - Node.js 18+
 - npm 또는 yarn
 - Docker (선택사항)
 
 ### 1. 프로젝트 클론
+
 ```bash
 git clone <repository-url>
 cd gospelee
 ```
 
 ### 2. API 서버 실행
+
 ```bash
 # Gradle을 사용한 실행
 ./gradlew :gospelee-api:bootRun
@@ -131,6 +138,7 @@ cd gospelee
 ```
 
 ### 3. 관리자 패널 실행
+
 ```bash
 cd gospelee-admin
 npm install
@@ -138,6 +146,7 @@ npm run dev
 ```
 
 ### 4. 접속 정보
+
 - **API 서버**: http://localhost:8080
 - **관리자 패널**: http://localhost:3000
 - **API 문서**: http://localhost:8080/swagger-ui.html
@@ -145,6 +154,7 @@ npm run dev
 ## 📝 코딩 규칙
 
 ### 데이터베이스 규칙
+
 1. **테이블과 컬럼명은 무조건 소문자로 작성**
    ```sql
    -- 올바른 예
@@ -161,7 +171,8 @@ npm run dev
    ```
 
 ### Entity 규칙
-1. **컬럼명에 _(언더바)가 있을 경우 Entity field는 camelCase로 작성**
+
+1. **컬럼명에 _(underbar)가 있을 경우 Entity field는 camelCase로 작성**
    ```java
    @Entity
    public class Announcement {
@@ -174,6 +185,7 @@ npm run dev
    ```
 
 ### Frontend 규칙
+
 1. **컴포넌트명은 PascalCase**
    ```typescript
    // 올바른 예
@@ -199,6 +211,7 @@ npm run dev
    ```
 
 ### API 규칙
+
 1. **REST API 엔드포인트는 kebab-case**
    ```
    GET /api/announcements
@@ -218,22 +231,26 @@ npm run dev
 ### 주요 엔드포인트
 
 #### 인증
+
 - `POST /api/account/login` - 로그인
 - `POST /api/account/qr/make` - QR 코드 생성
 - `GET /api/account/qr/check/{code}` - QR 코드 확인
 
 #### 공지사항
+
 - `GET /api/announcements` - 공지사항 목록 조회
 - `POST /api/announcements` - 공지사항 생성
 - `PUT /api/announcements/{id}` - 공지사항 수정
 - `DELETE /api/announcements/{id}` - 공지사항 삭제
 
 #### 파일 관리
+
 - `POST /api/files/upload` - 파일 업로드
 - `GET /api/files/{id}` - 파일 다운로드
 - `DELETE /api/files/{id}` - 파일 삭제
 
 ### 성경 데이터 구조
+
 ```
 cate = 1: 구약, 2: 신약
 book = 성경번호 (예: 40 = 마태복음)
@@ -248,18 +265,21 @@ verse = 절
 ### Docker를 사용한 배포
 
 #### API 서버
+
 ```bash
 docker build -f dockerfile.api -t gospelee-api .
 docker run -p 8080:8080 gospelee-api
 ```
 
 #### 관리자 패널
+
 ```bash
 docker build -f dockerfile.admin -t gospelee-admin .
 docker run -p 3000:3000 gospelee-admin
 ```
 
 #### 랜딩 페이지
+
 ```bash
 docker build -f dockerfile.landing -t gospelee-landing .
 docker run -p 3001:3000 gospelee-landing
@@ -268,6 +288,7 @@ docker run -p 3001:3000 gospelee-landing
 ### 환경 변수 설정
 
 #### API 서버 (.env)
+
 ```
 SPRING_PROFILES_ACTIVE=prod
 DATABASE_URL=jdbc:mysql://localhost:3306/gospelee
@@ -277,6 +298,7 @@ JWT_SECRET=your-jwt-secret
 ```
 
 #### 관리자 패널 (.env.local)
+
 ```
 NEXT_PUBLIC_API_URL=http://localhost:8080
 NEXT_PUBLIC_ENVIRONMENT=production
@@ -285,9 +307,9 @@ NEXT_PUBLIC_ENVIRONMENT=production
 ## 🤝 기여 가이드
 
 1. **브랜치 전략**: Git Flow 사용
-   - `main`: 운영 브랜치
-   - `develop`: 개발 브랜치
-   - `feature/*`: 기능 개발 브랜치
+    - `main`: 운영 브랜치
+    - `develop`: 개발 브랜치
+    - `feature/*`: 기능 개발 브랜치
 
 2. **커밋 메시지 규칙**:
    ```
@@ -301,14 +323,13 @@ NEXT_PUBLIC_ENVIRONMENT=production
    ```
 
 3. **Pull Request 규칙**:
-   - 기능별로 작은 단위로 PR 생성
-   - 코드 리뷰 필수
-   - 테스트 통과 확인
+    - 기능별로 작은 단위로 PR 생성
+    - 코드 리뷰 필수
+    - 테스트 통과 확인
 
 ## 📞 문의
 
-프로젝트 관련 문의사항이 있으시면 이슈를 생성해 주세요.
+jej8076@gmail.com
+프로젝트 관련 문의사항이 있으시면 연락주세요
 
 ---
-
-**Gospelee** - 교회와 성도를 잇는 디지털 플랫폼
