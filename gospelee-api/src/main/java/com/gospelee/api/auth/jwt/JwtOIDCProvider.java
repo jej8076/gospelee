@@ -9,6 +9,7 @@ import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.jwt.JwkDTO;
 import com.gospelee.api.dto.jwt.JwkSetDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
+import com.gospelee.api.enums.RedisCacheName;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.RedisCacheService;
 import io.jsonwebtoken.Claims;
@@ -38,7 +39,6 @@ public class JwtOIDCProvider {
 
   private final RedisCacheService redisCacheService;
   private final AccountService accountService;
-  private final String BEARER = "Bearer ";
   @Value("${kakao.issuer}")
   private String KAKAO_ISS;
   @Value("${kakao.app-key}")
@@ -49,10 +49,10 @@ public class JwtOIDCProvider {
     this.accountService = accountService;
   }
 
-  public JwtPayload getOIDCPayload(String token)
+  public JwtPayload getOIDCPayload(String token, String anonymousId)
       throws JsonProcessingException {
 
-    if (!validationIdToken(token)) {
+    if (!validationIdToken(token, anonymousId)) {
       log.error("token 유효성 검증 실패 [" + token + "]");
       return null;
     }
@@ -106,7 +106,8 @@ public class JwtOIDCProvider {
     return splitToken[0] + "." + splitToken[1] + "." + splitToken[2];
   }
 
-  private boolean validationIdToken(String idToken) throws JsonProcessingException {
+  private boolean validationIdToken(String idToken, String annonymousId)
+      throws JsonProcessingException {
 
     if (ObjectUtils.isEmpty(idToken)) {
       return false;
@@ -146,6 +147,15 @@ public class JwtOIDCProvider {
     }
 
     // TODO jej8076 nonce 값(카카오 로그인 요청 시 전달한 값과 일치하는지) 확인 필요
+    if (annonymousId != null) {
+      String cachedNonce = redisCacheService.get(RedisCacheName.NONCE, annonymousId);
+      String nonce = String.valueOf(map.get("nonce"));
+      if (!nonce.equals(cachedNonce)) {
+        log.error(
+            "일치하는 nonce값이 없습니다. [annonymousId : " + annonymousId + ", nonce : " + nonce + "]");
+        return false;
+      }
+    }
 
     return true;
   }

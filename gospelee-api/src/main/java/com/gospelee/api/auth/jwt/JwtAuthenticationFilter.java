@@ -3,6 +3,8 @@ package com.gospelee.api.auth.jwt;
 import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.common.ResponseDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
+import com.gospelee.api.enums.AppType;
+import com.gospelee.api.enums.CustomHeader;
 import com.gospelee.api.enums.ErrorResponseType;
 import com.gospelee.api.properties.AuthProperties;
 import com.gospelee.api.utils.IpUtils;
@@ -11,8 +13,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -29,7 +29,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final String AUTH_HEADER = "Authorization";
   private final String BEARER = "Bearer ";
-  private final String APP_ID = "X-App-Identifier";
   private final JwtOIDCProvider jwtOIDCProvider;
   private final AuthProperties authProperties;
 
@@ -42,11 +41,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain filterChain) throws ServletException, IOException, BadCredentialsException {
     String idToken = request.getHeader(AUTH_HEADER);
-    String appId = request.getHeader(APP_ID);
+    String appId = request.getHeader(CustomHeader.X_APP_IDENTIFIER.getHeaderName());
+    String path = request.getServletPath();
+
+    String anonymousId = null;
+    // TODO 매직넘버 제거 필요
+    if (request.getServletPath().equals("/account/auth/success")) {
+      anonymousId = request.getHeader(CustomHeader.X_ANONYMOUS_USER_ID.getHeaderName());
+    }
 
     boolean isWeb = false;
 
-    if ("OOG_WEB".equals(appId)) {
+    if (AppType.OOG_WEB.getValue().equals(appId)) {
       isWeb = true;
     }
 
@@ -66,7 +72,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       return;
     }
 
-    JwtPayload jwtPayload = jwtOIDCProvider.getOIDCPayload(idToken);
+    JwtPayload jwtPayload = jwtOIDCProvider.getOIDCPayload(idToken, anonymousId);
 
     if (ObjectUtils.isEmpty(jwtPayload)) {
       failResponse(response, ErrorResponseType.AUTH_103);

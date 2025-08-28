@@ -8,6 +8,8 @@ import com.gospelee.api.dto.account.AccountEcclesiaHistoryDecideDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDetailDTO;
 import com.gospelee.api.dto.account.PushTokenDTO;
 import com.gospelee.api.dto.common.DataResponseDTO;
+import com.gospelee.api.dto.common.NonceRequestDTO;
+import com.gospelee.api.dto.common.RedisCacheDTO;
 import com.gospelee.api.dto.common.ResponseDTO;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.QrLogin;
@@ -15,10 +17,12 @@ import com.gospelee.api.enums.DeepLinkRouterPath;
 import com.gospelee.api.enums.EcclesiaStatusType;
 import com.gospelee.api.enums.ErrorResponseType;
 import com.gospelee.api.enums.PushNotificationDataType;
+import com.gospelee.api.enums.RedisCacheName;
 import com.gospelee.api.enums.RoleType;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.FirebaseService;
 import com.gospelee.api.service.QrloginService;
+import com.gospelee.api.service.RedisCacheService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +53,7 @@ public class AccountController {
   private final AccountService accountService;
   private final QrloginService qrloginService;
   private final FirebaseService firebaseService;
+  private final RedisCacheService redisCacheService;
 
   // ========== 계정 조회 관련 API ==========
 
@@ -74,6 +79,17 @@ public class AccountController {
   public ResponseEntity<Object> getAllAccounts() {
     List<Account> accounts = accountService.getAccountAll();
     return ResponseEntity.ok(accounts);
+  }
+
+  @PostMapping("/nonce/put")
+  public ResponseEntity<Object> putNonce(@RequestBody NonceRequestDTO nonceRequestDTO) {
+    RedisCacheDTO redisCacheDTO = RedisCacheDTO.builder()
+        .redisCacheName(RedisCacheName.NONCE)
+        .key(nonceRequestDTO.getAnonymousId())
+        .value(nonceRequestDTO.getNonce())
+        .build();
+    String nonce = redisCacheService.put(redisCacheDTO);
+    return ResponseEntity.ok(DataResponseDTO.of("100", "성공", nonce));
   }
 
   /**
@@ -153,7 +169,7 @@ public class AccountController {
    * @param pushTokenDTO 푸시 토큰 정보
    * @return 업데이트 결과
    */
-  @PatchMapping("/pushToken")
+  @PatchMapping("/auth/success")
   public ResponseEntity<Object> updatePushToken(
       @AuthenticationPrincipal AccountAuthDTO account,
       @RequestBody PushTokenDTO pushTokenDTO) {

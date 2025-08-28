@@ -1,20 +1,19 @@
 package com.gospelee.api.service;
 
+import com.gospelee.api.dto.common.RedisCacheDTO;
 import com.gospelee.api.dto.jwt.JwkSetDTO;
+import com.gospelee.api.enums.RedisCacheName;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
-
 public interface RedisCacheService {
 
   @Cacheable(keyGenerator = "customKeyGenerator", cacheManager = "oidcCacheManager", cacheNames = "OIDCJwkSet")
   JwkSetDTO getPublicKeySet();
 
-  @CachePut(key = "#key", cacheNames = "someCacheData")
-  String putAnyKeyValue(String key, String value);
+  String put(RedisCacheDTO redisCacheDTO);
 
-  @Cacheable(key = "#key", cacheNames = "someCacheData")
-  public String getAnyKeyValue(String key);
+  String get(RedisCacheName redisCacheName, String key);
 }

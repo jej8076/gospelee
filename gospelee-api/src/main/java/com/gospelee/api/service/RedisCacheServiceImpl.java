@@ -1,6 +1,10 @@
 package com.gospelee.api.service;
 
+import com.gospelee.api.dto.common.RedisCacheDTO;
 import com.gospelee.api.dto.jwt.JwkSetDTO;
+import com.gospelee.api.enums.RedisCacheName;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -8,9 +12,15 @@ import org.springframework.web.client.RestClient;
 @Service
 public class RedisCacheServiceImpl implements RedisCacheService {
 
+  private final CacheManager cacheManager;
   String KAKAO_AUTH_URL = "https://kauth.kakao.com";
   String JWK_WELL_KNOWN_URI = "/.well-known/jwks.json";
 
+  public RedisCacheServiceImpl(CacheManager cacheManager) {
+    this.cacheManager = cacheManager;
+  }
+
+  @Override
   public JwkSetDTO getPublicKeySet() {
     RestClient restClient = RestClient.builder()
         .baseUrl(KAKAO_AUTH_URL)
@@ -23,15 +33,20 @@ public class RedisCacheServiceImpl implements RedisCacheService {
   }
 
   @Override
-  public String putAnyKeyValue(String key, String value) {
-    // @CachePut 어노테이션에 의해 자동으로 캐시에 저장
-    return value;
+  public String put(RedisCacheDTO redisCacheDTO) {
+    Cache cache = cacheManager.getCache(redisCacheDTO.getRedisCacheName().name());
+    if (cache != null) {
+      cache.put(redisCacheDTO.getKey(), redisCacheDTO.getValue());
+    }
+    return redisCacheDTO.getValue();
   }
 
   @Override
-  public String getAnyKeyValue(String key) {
-    // @Cacheable 어노테이션에 의해 캐시에서 데이터를 조회합니다.
-    // 캐시에 없으면 null을 반환합니다.
-    return null; // 실제 구현에서는 데이터 소스에서 가져오는 로직을 추가할 수 있습니다.
+  public String get(RedisCacheName redisCacheName, String key) {
+    Cache cache = cacheManager.getCache(redisCacheName.name());
+    if (cache != null) {
+      return cache.get(key, String.class);
+    }
+    return null;
   }
 }

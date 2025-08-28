@@ -20,6 +20,10 @@
   max-width: 300px;
 }
 
+.logoImage {
+  margin-left: 25px;
+}
+
 .logoDescription {
   margin-top: 16px;
   color: #adb5bd;

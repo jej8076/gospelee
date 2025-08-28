@@ -18,6 +18,9 @@ import redis.embedded.RedisServer;
 @Configuration
 public class EmbeddedRedisConfig {
 
+  @Value("${redis.embedded:false}")
+  private boolean isEmbedded;
+
   @Value("${redis.port}")
   private int redisPort;
 
@@ -28,6 +31,11 @@ public class EmbeddedRedisConfig {
 
   @EventListener(ApplicationReadyEvent.class)
   public void startRedis() throws IOException {
+    if (!isEmbedded) {
+      log.info("Embedded Redis is disabled by configuration.");
+      return;
+    }
+
     int port = isRedisRunning() ? findAvailablePort() : redisPort;
 
     if (isArmArchitecture()) {
