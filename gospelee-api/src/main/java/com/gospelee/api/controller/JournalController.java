@@ -2,7 +2,6 @@ package com.gospelee.api.controller;
 
 import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.journal.JournalDTO;
-import com.gospelee.api.entity.Account;
 import com.gospelee.api.service.JournalService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +39,7 @@ public class JournalController {
   /**
    * 로그인한 계정의 묵상기록을 등록한다
    *
-   * @param account
+   * @param journalDTO
    * @return
    */
   @PutMapping
