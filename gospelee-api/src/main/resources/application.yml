@@ -48,8 +48,8 @@ springdoc:
 
 redis:
   embedded: true
-  host: localhost
-  port: 6377
+  host: redis
+  port: 6379
 
 auth:
   super-id: admin
