@@ -24,6 +24,8 @@ public interface AccountService {
 
   Optional<Account> getAccountByEmail(String email);
 
+  void fetchSocialUserPersonalInfo(String accessToken);
+
   Optional<AccountAuthDTO> saveAndGetAccount(JwtPayload jwtPayload, String idToken);
 
   void savePushToken(Long uid, String pushToken);

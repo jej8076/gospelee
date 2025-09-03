@@ -25,19 +25,33 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.client.RestClient;
 
 /**
  * 계정 관련 비즈니스 로직을 처리하는 서비스 구현체 - 계정 조회, 생성, 업데이트 등의 기능을 제공 - JWT 토큰 기반 인증 처리 - 교회 정보와 연동된 계정 관리
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
 
   private final AuthProperties authProperties;
   private final AccountRepository accountRepository;
   private final AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository;
   private final EcclesiaJpaRepository ecclesiaJpaRepository;
+  private final RestClient restClient;
+
+  public AccountServiceImpl(AuthProperties authProperties, AccountRepository accountRepository,
+      AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository,
+      EcclesiaJpaRepository ecclesiaJpaRepository, RestClient.Builder restClient) {
+    this.authProperties = authProperties;
+    this.accountRepository = accountRepository;
+    this.accountEcclesiaHistoryRepository = accountEcclesiaHistoryRepository;
+    this.ecclesiaJpaRepository = ecclesiaJpaRepository;
+    this.restClient = restClient
+        .baseUrl("https://kapi.kakao.com")
+        .build();
+
+  }
 
   /**
    * 모든 계정을 조회합니다.
@@ -144,6 +158,11 @@ public class AccountServiceImpl implements AccountService {
   public Optional<Account> getAccountByEmail(String email) {
     log.debug("이메일로 계정 조회 요청. email: {}", email);
     return accountRepository.findByEmail(email);
+  }
+
+  @Override
+  public void fetchSocialUserPersonalInfo(String accessToken) {
+
   }
 
   // ========== 계정 생성 및 업데이트 관련 메서드 ==========

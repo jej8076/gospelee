@@ -42,7 +42,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       FilterChain filterChain) throws ServletException, IOException, BadCredentialsException {
     String idToken = request.getHeader(AUTH_HEADER);
     String appId = request.getHeader(CustomHeader.X_APP_IDENTIFIER.getHeaderName());
-    String path = request.getServletPath();
 
     String anonymousId = null;
     // TODO 매직넘버 제거 필요

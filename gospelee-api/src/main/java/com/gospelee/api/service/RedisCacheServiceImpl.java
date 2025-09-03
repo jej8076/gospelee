@@ -13,19 +13,18 @@ import org.springframework.web.client.RestClient;
 public class RedisCacheServiceImpl implements RedisCacheService {
 
   private final CacheManager cacheManager;
-  String KAKAO_AUTH_URL = "https://kauth.kakao.com";
+  private final RestClient restClient;
   String JWK_WELL_KNOWN_URI = "/.well-known/jwks.json";
 
-  public RedisCacheServiceImpl(CacheManager cacheManager) {
+  public RedisCacheServiceImpl(CacheManager cacheManager, RestClient.Builder restClient) {
     this.cacheManager = cacheManager;
+    this.restClient = restClient
+        .baseUrl("https://kauth.kakao.com")
+        .build();
   }
 
   @Override
   public JwkSetDTO getPublicKeySet() {
-    RestClient restClient = RestClient.builder()
-        .baseUrl(KAKAO_AUTH_URL)
-        .build();
-
     return restClient.get()
         .uri(JWK_WELL_KNOWN_URI)
         .retrieve()
