@@ -1,11 +1,14 @@
 package com.gospelee.api.auth.jwt;
 
 import com.gospelee.api.dto.account.AccountAuthDTO;
+import com.gospelee.api.dto.account.TokenDTO;
 import com.gospelee.api.dto.common.ResponseDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
 import com.gospelee.api.enums.AppType;
+import com.gospelee.api.enums.Bearer;
 import com.gospelee.api.enums.CustomHeader;
 import com.gospelee.api.enums.ErrorResponseType;
+import com.gospelee.api.enums.TokenHeaders;
 import com.gospelee.api.properties.AuthProperties;
 import com.gospelee.api.utils.IpUtils;
 import jakarta.servlet.FilterChain;
@@ -27,8 +30,6 @@ import util.JsonUtils;
 @Log4j2
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-  private final String AUTH_HEADER = "Authorization";
-  private final String BEARER = "Bearer ";
   private final JwtOIDCProvider jwtOIDCProvider;
   private final AuthProperties authProperties;
 
@@ -40,8 +41,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain filterChain) throws ServletException, IOException, BadCredentialsException {
-    String idToken = request.getHeader(AUTH_HEADER);
+
+    String clientIp = IpUtils.getClientIp(request);
     String appId = request.getHeader(CustomHeader.X_APP_IDENTIFIER.getHeaderName());
+
+    TokenDTO tokenDTO = TokenDTO.builder()
+        .idToken(request.getHeader(TokenHeaders.AUTHORIZATION.getValue()))
+        .accessToken(request.getHeader(TokenHeaders.SOCIAL_ACCESS_TOKEN.getValue()))
+        .refreshToken(request.getHeader(TokenHeaders.SOCIAL_REFRESH_TOKEN.getValue()))
+        .build();
 
     String anonymousId = null;
     // TODO 매직넘버 제거 필요
@@ -55,23 +63,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       isWeb = true;
     }
 
-    if (idToken == null || !idToken.startsWith(BEARER)) {
+    if (tokenDTO.getIdToken() == null
+        || !tokenDTO.getIdToken().startsWith(Bearer.BEARER_SPACE.getValue())
+        || tokenDTO.getAccessToken() == null
+    ) {
       failResponse(response, ErrorResponseType.AUTH_103);
       return;
     }
 
-    idToken = idToken.replace(BEARER, "");
-    String clientIp = IpUtils.getClientIp(request);
+    tokenDTO.removeBearerIdToken();
 
-    if (isWeb && idToken.equals(authProperties.getSuperPass())) {
+    if (isWeb && tokenDTO.getIdToken().equals(authProperties.getSuperPass())) {
       log.info("[SUPERLOGIN] clientIp:{}", clientIp);
       JwtPayload emptyPayload = JwtPayload.builder().build();
-      setAuthenticationToContext(emptyPayload, idToken);
+      setAuthenticationToContext(emptyPayload, tokenDTO);
       filterChain.doFilter(request, response);
       return;
     }
 
-    JwtPayload jwtPayload = jwtOIDCProvider.getOIDCPayload(idToken, anonymousId);
+    JwtPayload jwtPayload = jwtOIDCProvider.getOIDCPayload(tokenDTO.getIdToken(), anonymousId);
 
     if (ObjectUtils.isEmpty(jwtPayload)) {
       failResponse(response, ErrorResponseType.AUTH_103);
@@ -79,7 +89,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     // 인증 주입
-    Authentication authentication = setAuthenticationToContext(jwtPayload, idToken);
+    Authentication authentication = setAuthenticationToContext(jwtPayload, tokenDTO);
 
     if (authentication == null || !(authentication.getPrincipal() instanceof AccountAuthDTO)) {
       failResponse(response, ErrorResponseType.AUTH_103);
@@ -102,9 +112,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             .startsWith(path.split("\\/\\*")[0]) : path.equals(requestURI));
   }
 
-  private Authentication setAuthenticationToContext(JwtPayload jwtPayload, String idToken) {
+  private Authentication setAuthenticationToContext(JwtPayload jwtPayload, TokenDTO tokenDTO) {
 
-    Authentication authentication = jwtOIDCProvider.getAuthentication(jwtPayload, idToken);
+    Authentication authentication = jwtOIDCProvider.getAuthentication(jwtPayload, tokenDTO);
     SecurityContextHolder.getContext().setAuthentication(authentication);
     return authentication;
   }

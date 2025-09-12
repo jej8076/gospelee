@@ -17,7 +17,7 @@ import com.gospelee.api.enums.DeepLinkRouterPath;
 import com.gospelee.api.enums.EcclesiaStatusType;
 import com.gospelee.api.enums.ErrorResponseType;
 import com.gospelee.api.enums.PushNotificationDataType;
-import com.gospelee.api.enums.RedisCacheName;
+import com.gospelee.api.enums.RedisCache;
 import com.gospelee.api.enums.RoleType;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.FirebaseService;
@@ -84,7 +84,7 @@ public class AccountController {
   @PostMapping("/nonce/put")
   public ResponseEntity<Object> putNonce(@RequestBody NonceRequestDTO nonceRequestDTO) {
     RedisCacheDTO redisCacheDTO = RedisCacheDTO.builder()
-        .redisCacheName(RedisCacheName.NONCE)
+        .redisCache(RedisCache.NONCE)
         .key(nonceRequestDTO.getAnonymousId())
         .value(nonceRequestDTO.getNonce())
         .build();

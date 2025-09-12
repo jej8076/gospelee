@@ -7,7 +7,7 @@ import lombok.Getter;
 public enum OrganizationType {
   BRAND_STORY("브랜드스토리", false),
   ECCLESIA("교회", true),
-//  MINISTRY("사역단체", false),
+  MINISTRY("사역단체", false),
 //  DEPARTMENT("부서", false),
 //  SMALL_GROUP("소그룹", false);
   ;
