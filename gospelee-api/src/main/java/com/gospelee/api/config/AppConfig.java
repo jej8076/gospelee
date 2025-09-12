@@ -23,7 +23,6 @@ public class AppConfig {
     module.addDeserializer(LocalDateTime.class,
         new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
     mapper.registerModule(module);
-
     mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     return mapper;
