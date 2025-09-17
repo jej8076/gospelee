@@ -38,14 +38,14 @@ public class RedisCacheConfig {
   public CacheManager oidcCacheManager(RedisConnectionFactory cf) {
     // ObjectMapper 생성 및 JavaTimeModule 등록
     ObjectMapper mapper = new ObjectMapper();
-    mapper.registerModule(new JavaTimeModule());
-    mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+//    mapper.registerModule(new JavaTimeModule());
+//    mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     // SnakeCase -> CamelCase
-    mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+//    mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
 
     // JSON 데이터에 DTO 클래스에 정의되지 않은 필드가 있어도 무시하고 직렬화함
-    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+//    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     RedisCacheConfiguration redisCacheConfiguration =
         RedisCacheConfiguration.defaultCacheConfig()
@@ -54,7 +54,7 @@ public class RedisCacheConfig {
                     new StringRedisSerializer()))
             .serializeValuesWith(
                 RedisSerializationContext.SerializationPair.fromSerializer(
-                    new GenericJackson2JsonRedisSerializer(mapper)))
+                    new StringRedisSerializer()))
             .entryTtl(Duration.ofDays(7L));
 
     return RedisCacheManager.RedisCacheManagerBuilder.fromConnectionFactory(cf)

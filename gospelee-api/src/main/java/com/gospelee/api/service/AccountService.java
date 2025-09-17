@@ -32,7 +32,6 @@ public interface AccountService {
 
   void savePushToken(Long uid, String pushToken);
 
-  @Cacheable(cacheNames = "kakaoUserMe", key = "#accessToken")
   UserMeResponse getKakaoUserMe(String accessToken);
 
 }

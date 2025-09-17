@@ -21,6 +21,22 @@ public class ApiControllerAdvice {
     return ResponseDTO.of("400", ex.getMessage());
   }
 
+  @ExceptionHandler(MissingRequiredValueException.class)
+  public ResponseDTO MissingRequiredValueException(HttpServletRequest request, Exception ex) {
+    log.error("[MissingRequiredValueException] ip={}, message={}", request.getRemoteAddr(),
+        ex.getMessage(), ex);
+
+    return ResponseDTO.of("400", ex.getMessage());
+  }
+
+  @ExceptionHandler(KakaoResponseException.class)
+  public ResponseDTO KakaoResponseException(HttpServletRequest request, Exception ex) {
+    log.error("[KakaoResponseException] ip={}, message={}", request.getRemoteAddr(),
+        ex.getMessage(), ex);
+
+    return ResponseDTO.of("400", ex.getMessage());
+  }
+
   @ExceptionHandler(Exception.class)
   public ResponseDTO unHandleExceptions(HttpServletRequest request, Exception ex) {
     log.error("[Unhandled Exception] ip={}, message={}", request.getRemoteAddr(), ex.getMessage(),

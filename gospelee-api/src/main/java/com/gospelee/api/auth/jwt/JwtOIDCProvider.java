@@ -11,7 +11,7 @@ import com.gospelee.api.dto.jwt.JwkDTO;
 import com.gospelee.api.dto.jwt.JwkSetDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
 import com.gospelee.api.dto.kakao.UserMeResponse;
-import com.gospelee.api.enums.RedisCache;
+import com.gospelee.api.enums.RedisCacheNames;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.RedisCacheService;
 import io.jsonwebtoken.Claims;
@@ -29,14 +29,11 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
-import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
 @Component
@@ -153,7 +150,7 @@ public class JwtOIDCProvider {
 
     // TODO jej8076 nonce 값(카카오 로그인 요청 시 전달한 값과 일치하는지) 확인 필요
     if (annonymousId != null) {
-      String cachedNonce = redisCacheService.get(RedisCache.NONCE, annonymousId);
+      String cachedNonce = redisCacheService.get(RedisCacheNames.NONCE, annonymousId);
       String nonce = String.valueOf(map.get("nonce"));
       if (!nonce.equals(cachedNonce)) {
         log.error(

@@ -5,6 +5,7 @@ import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDecideDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDetailDTO;
 import com.gospelee.api.dto.account.TokenDTO;
+import com.gospelee.api.dto.common.RedisCacheDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
 import com.gospelee.api.dto.kakao.UserMeResponse;
 import com.gospelee.api.entity.Account;
@@ -13,16 +14,20 @@ import com.gospelee.api.entity.Ecclesia;
 import com.gospelee.api.enums.AccountEcclesiaHistoryStatusType;
 import com.gospelee.api.enums.Bearer;
 import com.gospelee.api.enums.EcclesiaStatusType;
+import com.gospelee.api.enums.RedisCacheNames;
 import com.gospelee.api.enums.RoleType;
 import com.gospelee.api.enums.TokenHeaders;
 import com.gospelee.api.exception.AccountNotFoundException;
 import com.gospelee.api.exception.EcclesiaException;
 import com.gospelee.api.exception.KakaoResponseException;
+import com.gospelee.api.exception.MissingRequiredValueException;
 import com.gospelee.api.properties.AuthProperties;
 import com.gospelee.api.repository.AccountEcclesiaHistoryRepository;
 import com.gospelee.api.repository.jpa.account.AccountRepository;
 import com.gospelee.api.repository.jpa.ecclesia.EcclesiaJpaRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
+import com.gospelee.api.utils.CamelCaseJsonUtils;
+import com.gospelee.api.utils.SnakeCaseJsonUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -44,15 +49,23 @@ public class AccountServiceImpl implements AccountService {
   private final AccountRepository accountRepository;
   private final AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository;
   private final EcclesiaJpaRepository ecclesiaJpaRepository;
+  private final RedisCacheService redisCacheService;
+  private final SnakeCaseJsonUtils snakeCaseJsonUtils;
+  private final CamelCaseJsonUtils camelCaseJsonUtils;
   private final RestClient restClient;
 
   public AccountServiceImpl(AuthProperties authProperties, AccountRepository accountRepository,
       AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository,
-      EcclesiaJpaRepository ecclesiaJpaRepository, RestClient.Builder restClient) {
+      EcclesiaJpaRepository ecclesiaJpaRepository, RedisCacheService redisCacheService,
+      RestClient.Builder restClient, SnakeCaseJsonUtils snakeCaseJsonUtils,
+      CamelCaseJsonUtils camelCaseJsonUtils) {
     this.authProperties = authProperties;
     this.accountRepository = accountRepository;
     this.accountEcclesiaHistoryRepository = accountEcclesiaHistoryRepository;
     this.ecclesiaJpaRepository = ecclesiaJpaRepository;
+    this.redisCacheService = redisCacheService;
+    this.snakeCaseJsonUtils = snakeCaseJsonUtils;
+    this.camelCaseJsonUtils = camelCaseJsonUtils;
 
     MediaType MEDIA_TYPE_FORM_UTF_8 = new MediaType(
         MediaType.APPLICATION_FORM_URLENCODED,
@@ -60,8 +73,12 @@ public class AccountServiceImpl implements AccountService {
 
     this.restClient = restClient
         .defaultHeader(HttpHeaders.CONTENT_TYPE, MEDIA_TYPE_FORM_UTF_8.toString())
-        .baseUrl("https://kapi.kakao.com").
-        build();
+        .baseUrl("https://kapi.kakao.com")
+        .messageConverters(converters -> {
+          converters.clear(); // 기존 기본 컨버터 제거 (선택)
+          converters.add(snakeCaseJsonUtils.converter()); // 커스텀 컨버터 추가
+        })
+        .build();
   }
 
   /**
@@ -206,8 +223,15 @@ public class AccountServiceImpl implements AccountService {
     accountRepository.savePushToken(uid, pushToken, LocalDateTime.now());
   }
 
+  // TODO 캐싱 관련 AOP로 전환 필요
   @Override
   public UserMeResponse getKakaoUserMe(String accessToken) {
+
+    String cachedUserMe = redisCacheService.get(RedisCacheNames.USER_ME, accessToken);
+    if (cachedUserMe != null) {
+      return camelCaseJsonUtils.deserialization(cachedUserMe, UserMeResponse.class);
+    }
+
     Optional<UserMeResponse> userMeClientResponse = restClient.post()
         .uri("/v2/user/me")
         .headers(headers -> {
@@ -231,6 +255,19 @@ public class AccountServiceImpl implements AccountService {
     }
 
     UserMeResponse userMeResponse = userMeClientResponse.get();
+
+    if (userMeResponse.getKakaoAccount() == null
+        || userMeResponse.getKakaoAccount().getPhoneNumber() == null) {
+      throw new MissingRequiredValueException("phone_number_is_empty kakaoId:%s accessToken:%s",
+          userMeResponse.getId(), accessToken);
+    }
+
+    RedisCacheDTO cacheDTO = RedisCacheDTO.builder()
+        .redisCacheNames(RedisCacheNames.USER_ME)
+        .key(accessToken)
+        .value(userMeResponse)
+        .build();
+    redisCacheService.put(cacheDTO);
 
     return userMeResponse;
   }
