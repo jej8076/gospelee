@@ -203,10 +203,6 @@ public class AccountServiceImpl implements AccountService {
     log.debug("계정 저장/업데이트 요청. email:{}, idToken:{}, phone:{}", jwtPayload.getEmail(),
         tokenDTO.getIdToken(), userMeResponse.getKakaoAccount().getPhoneNumber());
 
-    if (isSuperUserToken(tokenDTO.getIdToken())) {
-      return handleSuperUserAuthentication();
-    }
-
     Account account = findOrCreateAccount(jwtPayload, tokenDTO, userMeResponse);
     return buildAccountAuthDTO(account);
   }
@@ -277,14 +273,14 @@ public class AccountServiceImpl implements AccountService {
   /**
    * 슈퍼 유저 토큰인지 확인합니다.
    */
-  private boolean isSuperUserToken(String idToken) {
+  public boolean isSuperUserToken(String idToken) {
     return authProperties.getSuperPass().equals(idToken);
   }
 
   /**
    * 슈퍼 유저 인증을 처리합니다.
    */
-  private Optional<AccountAuthDTO> handleSuperUserAuthentication() {
+  public Optional<AccountAuthDTO> handleSuperUserAuthentication() {
     log.debug("슈퍼 유저 인증 처리");
 
     Account superAccount = accountRepository.findByEmail(authProperties.getSuperId())

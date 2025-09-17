@@ -34,4 +34,8 @@ public interface AccountService {
 
   UserMeResponse getKakaoUserMe(String accessToken);
 
+  boolean isSuperUserToken(String idToken);
+
+  Optional<AccountAuthDTO> handleSuperUserAuthentication();
+
 }

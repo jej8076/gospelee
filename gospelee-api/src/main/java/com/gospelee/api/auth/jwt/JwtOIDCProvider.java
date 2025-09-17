@@ -193,9 +193,14 @@ public class JwtOIDCProvider {
   }
 
   public Authentication getAuthentication(JwtPayload jwtPayload, TokenDTO tokenDTO) {
-    UserMeResponse userMeResponse = accountService.getKakaoUserMe(tokenDTO.getAccessToken());
-    Optional<AccountAuthDTO> accountAuthDTO = accountService.saveAndGetAccount(jwtPayload,
-        tokenDTO, userMeResponse);
+    Optional<AccountAuthDTO> accountAuthDTO;
+    if (accountService.isSuperUserToken(tokenDTO.getIdToken())) {
+      accountAuthDTO = accountService.handleSuperUserAuthentication();
+    } else {
+      UserMeResponse userMeResponse = accountService.getKakaoUserMe(tokenDTO.getAccessToken());
+      accountAuthDTO = accountService.saveAndGetAccount(jwtPayload,
+          tokenDTO, userMeResponse);
+    }
 
     return accountAuthDTO.map(account -> {
       UserDetails userDetails = AccountAuthDTO.builder()

@@ -63,14 +63,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       isWeb = true;
     }
 
-    if (tokenDTO.getIdToken() == null
-        || !tokenDTO.getIdToken().startsWith(Bearer.BEARER_SPACE.getValue())
-        || tokenDTO.getAccessToken() == null
-    ) {
-      failResponse(response, ErrorResponseType.AUTH_103);
-      return;
-    }
-
     tokenDTO.removeBearerIdToken();
 
     if (isWeb && tokenDTO.getIdToken().equals(authProperties.getSuperPass())) {
@@ -78,6 +70,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       JwtPayload emptyPayload = JwtPayload.builder().build();
       setAuthenticationToContext(emptyPayload, tokenDTO);
       filterChain.doFilter(request, response);
+      return;
+    }
+
+    if (tokenDTO.getIdToken() == null
+        || !tokenDTO.getIdToken().startsWith(Bearer.BEARER_SPACE.getValue())
+        || tokenDTO.getAccessToken() == null
+    ) {
+      failResponse(response, ErrorResponseType.AUTH_103);
       return;
     }
 
