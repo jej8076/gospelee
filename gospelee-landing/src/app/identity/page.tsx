@@ -35,7 +35,7 @@ export default function BrandStoryPage() {
             {/* Hero Section */}
             <div className={styles.hero}>
               <h1 className={styles.mainTitle}>"나눌수록 성장하는 믿음"</h1>
-              <p className={styles.heroSubtitle}>믿음은 누군가에게 고백하며 성장한다고 생각합니다</p>
+              <p className={styles.heroSubtitle}>내가 받은 은혜는 나누면서 더 커질거예요</p>
             </div>
 
             {/* Vision Section */}
@@ -61,7 +61,7 @@ export default function BrandStoryPage() {
                 </h2>
                 <p className={styles.description}>
                   성경을 다양하게 묵상할 수 있고<br/>
-                  교회와 함께 삶에 적용할 수 있는 도구를 제공합니다
+                  교회와 함께 삶에 적용할 수 있는 도구를 제공해요
                 </p>
               </div>
             </div>
@@ -75,7 +75,7 @@ export default function BrandStoryPage() {
                 </h2>
                 <p className={styles.description}>
                   세상의 작은 틈 속에서<br/>
-                  하나님의 말씀만이 희망임을 은은히 전파합니다
+                  하나님의 말씀만이 희망임을 은은히 전파해요
                 </p>
               </div>
             </div>
@@ -88,7 +88,7 @@ export default function BrandStoryPage() {
                 </h2>
                 <p className={styles.description}>
                   세상 속에서도 경쟁력있고 인정받는<br/>
-                  그리스도인이 되는 걸 목표합니다
+                  그리스도인이 되는 게 목표예요
                 </p>
               </div>
             </div>
