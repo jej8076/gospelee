@@ -1,5 +1,12 @@
 package com.gospelee.api.config;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
@@ -29,6 +36,17 @@ public class RedisCacheConfig {
   // TODO TTL 설정 다시해야함, nonce 값 비교하는 데이터는 짧게
   @Bean
   public CacheManager oidcCacheManager(RedisConnectionFactory cf) {
+    // ObjectMapper 생성 및 JavaTimeModule 등록
+    ObjectMapper mapper = new ObjectMapper();
+//    mapper.registerModule(new JavaTimeModule());
+//    mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+    // SnakeCase -> CamelCase
+//    mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+
+    // JSON 데이터에 DTO 클래스에 정의되지 않은 필드가 있어도 무시하고 직렬화함
+//    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
     RedisCacheConfiguration redisCacheConfiguration =
         RedisCacheConfiguration.defaultCacheConfig()
             .serializeKeysWith(
@@ -36,7 +54,7 @@ public class RedisCacheConfig {
                     new StringRedisSerializer()))
             .serializeValuesWith(
                 RedisSerializationContext.SerializationPair.fromSerializer(
-                    new GenericJackson2JsonRedisSerializer()))
+                    new StringRedisSerializer()))
             .entryTtl(Duration.ofDays(7L));
 
     return RedisCacheManager.RedisCacheManagerBuilder.fromConnectionFactory(cf)

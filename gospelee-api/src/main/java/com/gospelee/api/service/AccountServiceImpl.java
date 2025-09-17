@@ -4,40 +4,82 @@ import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDecideDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDetailDTO;
+import com.gospelee.api.dto.account.TokenDTO;
+import com.gospelee.api.dto.common.RedisCacheDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
+import com.gospelee.api.dto.kakao.UserMeResponse;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.AccountEcclesiaHistory;
 import com.gospelee.api.entity.Ecclesia;
 import com.gospelee.api.enums.AccountEcclesiaHistoryStatusType;
+import com.gospelee.api.enums.Bearer;
 import com.gospelee.api.enums.EcclesiaStatusType;
+import com.gospelee.api.enums.RedisCacheNames;
 import com.gospelee.api.enums.RoleType;
+import com.gospelee.api.enums.TokenHeaders;
 import com.gospelee.api.exception.AccountNotFoundException;
 import com.gospelee.api.exception.EcclesiaException;
+import com.gospelee.api.exception.KakaoResponseException;
+import com.gospelee.api.exception.MissingRequiredValueException;
 import com.gospelee.api.properties.AuthProperties;
 import com.gospelee.api.repository.AccountEcclesiaHistoryRepository;
 import com.gospelee.api.repository.jpa.account.AccountRepository;
 import com.gospelee.api.repository.jpa.ecclesia.EcclesiaJpaRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
+import com.gospelee.api.utils.CamelCaseJsonUtils;
+import com.gospelee.api.utils.SnakeCaseJsonUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.client.RestClient;
 
 /**
  * 계정 관련 비즈니스 로직을 처리하는 서비스 구현체 - 계정 조회, 생성, 업데이트 등의 기능을 제공 - JWT 토큰 기반 인증 처리 - 교회 정보와 연동된 계정 관리
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
 
   private final AuthProperties authProperties;
   private final AccountRepository accountRepository;
   private final AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository;
   private final EcclesiaJpaRepository ecclesiaJpaRepository;
+  private final RedisCacheService redisCacheService;
+  private final SnakeCaseJsonUtils snakeCaseJsonUtils;
+  private final CamelCaseJsonUtils camelCaseJsonUtils;
+  private final RestClient restClient;
+
+  public AccountServiceImpl(AuthProperties authProperties, AccountRepository accountRepository,
+      AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository,
+      EcclesiaJpaRepository ecclesiaJpaRepository, RedisCacheService redisCacheService,
+      RestClient.Builder restClient, SnakeCaseJsonUtils snakeCaseJsonUtils,
+      CamelCaseJsonUtils camelCaseJsonUtils) {
+    this.authProperties = authProperties;
+    this.accountRepository = accountRepository;
+    this.accountEcclesiaHistoryRepository = accountEcclesiaHistoryRepository;
+    this.ecclesiaJpaRepository = ecclesiaJpaRepository;
+    this.redisCacheService = redisCacheService;
+    this.snakeCaseJsonUtils = snakeCaseJsonUtils;
+    this.camelCaseJsonUtils = camelCaseJsonUtils;
+
+    MediaType MEDIA_TYPE_FORM_UTF_8 = new MediaType(
+        MediaType.APPLICATION_FORM_URLENCODED,
+        java.nio.charset.StandardCharsets.UTF_8);
+
+    this.restClient = restClient
+        .defaultHeader(HttpHeaders.CONTENT_TYPE, MEDIA_TYPE_FORM_UTF_8.toString())
+        .baseUrl("https://kapi.kakao.com")
+        .messageConverters(converters -> {
+          converters.clear(); // 기존 기본 컨버터 제거 (선택)
+          converters.add(snakeCaseJsonUtils.converter()); // 커스텀 컨버터 추가
+        })
+        .build();
+  }
 
   /**
    * 모든 계정을 조회합니다.
@@ -152,18 +194,20 @@ public class AccountServiceImpl implements AccountService {
    * JWT 페이로드를 기반으로 계정을 저장하거나 업데이트하고 인증 정보를 반환합니다.
    *
    * @param jwtPayload JWT 페이로드 정보
-   * @param idToken    ID 토큰
+   * @param tokenDTO   TokenDTO
    * @return 인증된 계정 정보
    */
   @Override
-  public Optional<AccountAuthDTO> saveAndGetAccount(JwtPayload jwtPayload, String idToken) {
-    log.debug("계정 저장/업데이트 요청. email: {}, idToken: {}", jwtPayload.getEmail(), idToken);
+  public Optional<AccountAuthDTO> saveAndGetAccount(JwtPayload jwtPayload, TokenDTO tokenDTO,
+      UserMeResponse userMeResponse) {
+    log.debug("계정 저장/업데이트 요청. email:{}, idToken:{}, phone:{}", jwtPayload.getEmail(),
+        tokenDTO.getIdToken(), userMeResponse.getKakaoAccount().getPhoneNumber());
 
-    if (isSuperUserToken(idToken)) {
+    if (isSuperUserToken(tokenDTO.getIdToken())) {
       return handleSuperUserAuthentication();
     }
 
-    Account account = findOrCreateAccount(jwtPayload, idToken);
+    Account account = findOrCreateAccount(jwtPayload, tokenDTO, userMeResponse);
     return buildAccountAuthDTO(account);
   }
 
@@ -177,6 +221,55 @@ public class AccountServiceImpl implements AccountService {
   public void savePushToken(Long uid, String pushToken) {
     log.debug("푸시 토큰 저장 요청. uid: {}", uid);
     accountRepository.savePushToken(uid, pushToken, LocalDateTime.now());
+  }
+
+  // TODO 캐싱 관련 AOP로 전환 필요
+  @Override
+  public UserMeResponse getKakaoUserMe(String accessToken) {
+
+    String cachedUserMe = redisCacheService.get(RedisCacheNames.USER_ME, accessToken);
+    if (cachedUserMe != null) {
+      return camelCaseJsonUtils.deserialization(cachedUserMe, UserMeResponse.class);
+    }
+
+    Optional<UserMeResponse> userMeClientResponse = restClient.post()
+        .uri("/v2/user/me")
+        .headers(headers -> {
+          headers.add(TokenHeaders.AUTHORIZATION.getValue(),
+              Bearer.BEARER_SPACE.getValue() + accessToken);
+        })
+        .exchange((request, response) -> {
+          if (response.getStatusCode().is2xxSuccessful()) {
+            return Optional.ofNullable(response.bodyTo(UserMeResponse.class));
+          } else {
+            // 로그 찍고 Optional.empty() 반환
+            String errorBody = response.bodyTo(String.class);
+            log.error("kakao 요청 후 오류 응답 -> {}", errorBody);
+
+            throw new KakaoResponseException("kakao 요청 후 오류 응답 -> %s", errorBody);
+          }
+        });
+
+    if (userMeClientResponse.isEmpty()) {
+      throw new KakaoResponseException("kakao 요청에 대한 응답이 없습니다");
+    }
+
+    UserMeResponse userMeResponse = userMeClientResponse.get();
+
+    if (userMeResponse.getKakaoAccount() == null
+        || userMeResponse.getKakaoAccount().getPhoneNumber() == null) {
+      throw new MissingRequiredValueException("phone_number_is_empty kakaoId:%s accessToken:%s",
+          userMeResponse.getId(), accessToken);
+    }
+
+    RedisCacheDTO cacheDTO = RedisCacheDTO.builder()
+        .redisCacheNames(RedisCacheNames.USER_ME)
+        .key(accessToken)
+        .value(userMeResponse)
+        .build();
+    redisCacheService.put(cacheDTO);
+
+    return userMeResponse;
   }
 
   // ========== Private Helper Methods ==========
@@ -217,31 +310,36 @@ public class AccountServiceImpl implements AccountService {
   /**
    * 기존 계정을 찾거나 새로운 계정을 생성합니다.
    */
-  private Account findOrCreateAccount(JwtPayload jwtPayload, String idToken) {
-    return accountRepository.findByEmail(jwtPayload.getEmail())
-        .map(existingAccount -> updateExistingAccount(existingAccount, idToken))
-        .orElseGet(() -> createNewAccount(jwtPayload, idToken));
+  private Account findOrCreateAccount(JwtPayload jwtPayload, TokenDTO tokenDTO,
+      UserMeResponse userMeResponse) {
+    return accountRepository.findByPhone(userMeResponse.getKakaoAccount().getPhoneNumber())
+        .map(existingAccount -> updateExistingAccount(existingAccount, tokenDTO))
+        .orElseGet(() -> createNewAccount(jwtPayload, tokenDTO, userMeResponse));
   }
 
   /**
    * 기존 계정의 ID 토큰을 업데이트합니다.
    */
-  private Account updateExistingAccount(Account existingAccount, String idToken) {
+  private Account updateExistingAccount(Account existingAccount, TokenDTO tokenDTO) {
     log.debug("기존 계정 ID 토큰 업데이트. uid: {}", existingAccount.getUid());
-    return accountRepository.updateAccountIdTokenAndFindById(existingAccount.getUid(), idToken);
+
+    return accountRepository.updateAccountIdTokenAndFindById(existingAccount.getUid(),
+        tokenDTO.getIdToken());
   }
 
   /**
    * 새로운 계정을 생성합니다.
    */
-  private Account createNewAccount(JwtPayload jwtPayload, String idToken) {
-    log.debug("새로운 계정 생성. email: {}", jwtPayload.getEmail());
+  private Account createNewAccount(JwtPayload jwtPayload, TokenDTO tokenDTO,
+      UserMeResponse userMeResponse) {
+    log.debug("새로운 계정 생성. email:{}", jwtPayload.getEmail());
 
     Account newAccount = Account.builder()
         .name(jwtPayload.getNickname())
         .email(jwtPayload.getEmail())
+        .phone(userMeResponse.getKakaoAccount().getPhoneNumber())
         .role(RoleType.LAYMAN)
-        .idToken(idToken)
+        .idToken(tokenDTO.getIdToken())
         .build();
 
     Account savedAccount = accountRepository.save(newAccount);

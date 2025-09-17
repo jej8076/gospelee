@@ -22,12 +22,6 @@ public class RedisCacheServiceImpl implements RedisCacheService {
   }
 
   @Override
-  public String putAnyKeyValue(String key, String value) {
-    // @CachePut 어노테이션에 의해 자동으로 캐시에 저장
-    return value;
-  }
-
-  @Override
   public String getAnyKeyValue(String key) {
     // @Cacheable 어노테이션에 의해 캐시에서 데이터를 조회합니다.
     // 캐시에 없으면 null을 반환합니다.

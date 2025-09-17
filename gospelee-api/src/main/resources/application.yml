@@ -58,9 +58,11 @@ auth:
     - /bible/view/*
     - /account/qr/enter
     - /account/qr/check
+    - /account/nonce/put
     - /file/*
     - /app-link/*
-    - /article
+    - /article/*
+    - /youtube/videos
     - /announcement/unauthorized/BRAND_STORY
   allow-pending-paths:
     - /api/account/qr/req/*

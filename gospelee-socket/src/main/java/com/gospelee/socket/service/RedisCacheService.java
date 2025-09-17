@@ -11,9 +11,6 @@ public interface RedisCacheService {
   @Cacheable(keyGenerator = "customKeyGenerator", cacheManager = "oidcCacheManager", cacheNames = "OIDCJwkSet")
   JwkSetDTO getPublicKeySet();
 
-  @CachePut(key = "#key", cacheNames = "someCacheData")
-  String putAnyKeyValue(String key, String value);
-
   @Cacheable(key = "#key", cacheNames = "someCacheData")
   public String getAnyKeyValue(String key);
 }

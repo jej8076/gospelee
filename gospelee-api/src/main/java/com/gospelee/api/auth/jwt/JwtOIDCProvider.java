@@ -6,10 +6,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gospelee.api.dto.account.AccountAuthDTO;
+import com.gospelee.api.dto.account.TokenDTO;
 import com.gospelee.api.dto.jwt.JwkDTO;
 import com.gospelee.api.dto.jwt.JwkSetDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
-import com.gospelee.api.enums.RedisCacheName;
+import com.gospelee.api.dto.kakao.UserMeResponse;
+import com.gospelee.api.enums.RedisCacheNames;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.RedisCacheService;
 import io.jsonwebtoken.Claims;
@@ -32,6 +34,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.client.RestClientException;
 
 @Component
 @Slf4j
@@ -59,9 +62,6 @@ public class JwtOIDCProvider {
 
     // 카카오 제공 공개키(캐싱)
     JwkSetDTO cachedJwkSet = redisCacheService.getPublicKeySet();
-
-//    String kid = getKid(token);
-
     Optional<String> kidOptional = getKid(token);
 
     // 예외 처리를 호출자 쪽으로 위임
@@ -91,11 +91,13 @@ public class JwtOIDCProvider {
           .email(claimsJws.getPayload().get("email", String.class))
           .build();
 
+    } catch (RestClientException e) {
+      log.error("RestClient 요청 실패", e);
+      return null;
     } catch (Exception e) {
-      log.error("token 유효성 검증 실패 [" + token + "]");
+      log.error("token 유효성 검증 실패 [{}]", token, e);
       return null;
     }
-
   }
 
   private CharSequence getUnsignedToken(String token) {
@@ -148,7 +150,7 @@ public class JwtOIDCProvider {
 
     // TODO jej8076 nonce 값(카카오 로그인 요청 시 전달한 값과 일치하는지) 확인 필요
     if (annonymousId != null) {
-      String cachedNonce = redisCacheService.get(RedisCacheName.NONCE, annonymousId);
+      String cachedNonce = redisCacheService.get(RedisCacheNames.NONCE, annonymousId);
       String nonce = String.valueOf(map.get("nonce"));
       if (!nonce.equals(cachedNonce)) {
         log.error(
@@ -190,8 +192,10 @@ public class JwtOIDCProvider {
     }
   }
 
-  public Authentication getAuthentication(JwtPayload jwtPayload, String idToken) {
-    Optional<AccountAuthDTO> accountAuthDTO = accountService.saveAndGetAccount(jwtPayload, idToken);
+  public Authentication getAuthentication(JwtPayload jwtPayload, TokenDTO tokenDTO) {
+    UserMeResponse userMeResponse = accountService.getKakaoUserMe(tokenDTO.getAccessToken());
+    Optional<AccountAuthDTO> accountAuthDTO = accountService.saveAndGetAccount(jwtPayload,
+        tokenDTO, userMeResponse);
 
     return accountAuthDTO.map(account -> {
       UserDetails userDetails = AccountAuthDTO.builder()
@@ -204,7 +208,7 @@ public class JwtOIDCProvider {
           .pushToken(account.getPushToken())
           .ecclesiaStatus(account.getEcclesiaStatus())
           .build();
-      return new UsernamePasswordAuthenticationToken(userDetails, idToken,
+      return new UsernamePasswordAuthenticationToken(userDetails, tokenDTO.getIdToken(),
           userDetails.getAuthorities());
     }).orElseThrow(() -> new RuntimeException("account 불러오기 혹은 저장 실패"));
   }

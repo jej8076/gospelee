@@ -1,6 +1,6 @@
 package com.gospelee.api.dto.common;
 
-import com.gospelee.api.enums.RedisCacheName;
+import com.gospelee.api.enums.RedisCacheNames;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,13 +10,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RedisCacheDTO {
 
-  private RedisCacheName redisCacheName;
+  private RedisCacheNames redisCacheNames;
   private String key;
-  private String value;
+  private Object value;
 
   @Builder
-  public RedisCacheDTO(RedisCacheName redisCacheName, String key, String value) {
-    this.redisCacheName = redisCacheName;
+  public RedisCacheDTO(RedisCacheNames redisCacheNames, String key, Object value) {
+    this.redisCacheNames = redisCacheNames;
     this.key = key;
     this.value = value;
   }
