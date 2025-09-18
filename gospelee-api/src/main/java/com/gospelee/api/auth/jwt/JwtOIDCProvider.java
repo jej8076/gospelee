@@ -52,10 +52,10 @@ public class JwtOIDCProvider {
     this.accountService = accountService;
   }
 
-  public JwtPayload getOIDCPayload(String token, String anonymousId)
+  public JwtPayload getOIDCPayload(String token, String nonceCacheKey)
       throws JsonProcessingException {
 
-    if (!validationIdToken(token, anonymousId)) {
+    if (!validationIdToken(token, nonceCacheKey)) {
       log.error("token 유효성 검증 실패 [" + token + "]");
       return null;
     }
@@ -108,7 +108,7 @@ public class JwtOIDCProvider {
     return splitToken[0] + "." + splitToken[1] + "." + splitToken[2];
   }
 
-  private boolean validationIdToken(String idToken, String annonymousId)
+  private boolean validationIdToken(String idToken, String nonceCacheKey)
       throws JsonProcessingException {
 
     if (ObjectUtils.isEmpty(idToken)) {
@@ -149,12 +149,12 @@ public class JwtOIDCProvider {
     }
 
     // TODO jej8076 nonce 값(카카오 로그인 요청 시 전달한 값과 일치하는지) 확인 필요
-    if (annonymousId != null) {
-      String cachedNonce = redisCacheService.get(RedisCacheNames.NONCE, annonymousId);
+    if (nonceCacheKey != null) {
+      String cachedNonce = redisCacheService.get(RedisCacheNames.NONCE, nonceCacheKey);
       String nonce = String.valueOf(map.get("nonce"));
       if (!nonce.equals(cachedNonce)) {
         log.error(
-            "일치하는 nonce값이 없습니다. [annonymousId : " + annonymousId + ", nonce : " + nonce + "]");
+            "일치하는 nonce값이 없습니다. [nonceCacheKey : " + nonceCacheKey + ", nonce : " + nonce + "]");
         return false;
       }
     }

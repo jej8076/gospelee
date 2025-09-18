@@ -32,6 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtOIDCProvider jwtOIDCProvider;
   private final AuthProperties authProperties;
+  private final String NONCE_CHECK_PATH = "/account/auth/success";
 
   public JwtAuthenticationFilter(JwtOIDCProvider jwtOIDCProvider, AuthProperties authProperties) {
     this.jwtOIDCProvider = jwtOIDCProvider;
@@ -45,10 +46,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     String clientIp = IpUtils.getClientIp(request);
     String appId = request.getHeader(CustomHeader.X_APP_IDENTIFIER.getHeaderName());
     boolean isWeb = AppType.OOG_WEB.getValue().equals(appId);
-    String anonymousId = null;
-    // TODO 매직넘버 제거 필요
-    if (request.getServletPath().equals("/account/auth/success")) {
-      anonymousId = request.getHeader(CustomHeader.X_ANONYMOUS_USER_ID.getHeaderName());
+
+    String nonceCacheKey = null;
+    if (NONCE_CHECK_PATH.equals(request.getServletPath())) {
+      nonceCacheKey = request.getHeader(CustomHeader.X_ANONYMOUS_USER_ID.getHeaderName());
     }
 
     TokenDTO tokenDTO = TokenDTO.builder()
@@ -78,7 +79,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       return;
     }
 
-    JwtPayload jwtPayload = jwtOIDCProvider.getOIDCPayload(tokenDTO.getIdToken(), anonymousId);
+    JwtPayload jwtPayload = jwtOIDCProvider.getOIDCPayload(tokenDTO.getIdToken(), nonceCacheKey);
 
     if (ObjectUtils.isEmpty(jwtPayload)) {
       failResponse(response, ErrorResponseType.AUTH_103);
