@@ -44,6 +44,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     String clientIp = IpUtils.getClientIp(request);
     String appId = request.getHeader(CustomHeader.X_APP_IDENTIFIER.getHeaderName());
+    boolean isWeb = AppType.OOG_WEB.getValue().equals(appId);
+    String anonymousId = null;
+    // TODO 매직넘버 제거 필요
+    if (request.getServletPath().equals("/account/auth/success")) {
+      anonymousId = request.getHeader(CustomHeader.X_ANONYMOUS_USER_ID.getHeaderName());
+    }
 
     TokenDTO tokenDTO = TokenDTO.builder()
         .idToken(request.getHeader(TokenHeaders.AUTHORIZATION.getValue()))
@@ -51,16 +57,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         .refreshToken(request.getHeader(TokenHeaders.SOCIAL_REFRESH_TOKEN.getValue()))
         .build();
 
-    String anonymousId = null;
-    // TODO 매직넘버 제거 필요
-    if (request.getServletPath().equals("/account/auth/success")) {
-      anonymousId = request.getHeader(CustomHeader.X_ANONYMOUS_USER_ID.getHeaderName());
-    }
-
-    boolean isWeb = false;
-
-    if (AppType.OOG_WEB.getValue().equals(appId)) {
-      isWeb = true;
+    if (tokenDTO.getIdToken() == null || !tokenDTO.getIdToken()
+        .startsWith(Bearer.BEARER_SPACE.getValue())) {
+      failResponse(response, ErrorResponseType.AUTH_103);
+      return;
     }
 
     tokenDTO.removeBearerIdToken();
@@ -73,10 +73,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       return;
     }
 
-    if (tokenDTO.getIdToken() == null
-        || !tokenDTO.getIdToken().startsWith(Bearer.BEARER_SPACE.getValue())
-        || tokenDTO.getAccessToken() == null
-    ) {
+    if (tokenDTO.getAccessToken() == null) {
       failResponse(response, ErrorResponseType.AUTH_103);
       return;
     }
