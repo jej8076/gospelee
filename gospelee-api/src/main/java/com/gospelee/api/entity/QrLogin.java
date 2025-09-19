@@ -40,17 +40,26 @@ public class QrLogin extends EditInfomation {
   private String code;
 
   @Column(length = 1000)
-  private String token;
+  private String idToken;
+
+  @Column(length = 1000)
+  private String accessToken;
+
+  @Column(length = 1000)
+  private String refreshToken;
 
   @Column
   private LocalDateTime expireTime;
 
   @Builder
-  public QrLogin(long uid, String email, String code, String token, LocalDateTime expireTime) {
+  public QrLogin(long uid, String email, String code, String idToken, String accessToken,
+      String refreshToken, LocalDateTime expireTime) {
     this.uid = uid;
     this.email = email;
     this.code = code;
-    this.token = token;
+    this.idToken = idToken;
+    this.accessToken = accessToken;
+    this.refreshToken = refreshToken;
     this.expireTime = expireTime;
   }
 }

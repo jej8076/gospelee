@@ -11,6 +11,15 @@ export const getCookie = async (cookieName: string) => {
   return data.cookieValue ? data.cookieValue.value : null;
 };
 
+export const getCookies = async (cookieNames: string[]) => {
+  const results = [];
+  for (const name of cookieNames) {
+    const value = await getCookie(name);
+    results.push({name, value});
+  }
+  return results;
+};
+
 export const setCookie = async (name: string, value: string) => {
   const response = await fetch('/api-next/cookies', {
     method: 'POST',
@@ -26,6 +35,15 @@ export const setCookie = async (name: string, value: string) => {
 
   const data = await response.json();
   return data.code;
+};
+
+export const setCookies = async (
+    cookies: { name: string; value: string }[]
+) => {
+  for (const cookie of cookies) {
+    await setCookie(cookie.name, cookie.value);
+  }
+  return 200;
 };
 
 export const expireCookie = async (name: string) => {

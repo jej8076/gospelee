@@ -204,7 +204,7 @@ public class AccountServiceImpl implements AccountService {
         tokenDTO.getIdToken(), userMeResponse.getKakaoAccount().getPhoneNumber());
 
     Account account = findOrCreateAccount(jwtPayload, tokenDTO, userMeResponse);
-    return buildAccountAuthDTO(account);
+    return buildAccountAuthDTO(account, tokenDTO.getAccessToken(), tokenDTO.getRefreshToken());
   }
 
   /**
@@ -350,11 +350,9 @@ public class AccountServiceImpl implements AccountService {
   /**
    * 계정 정보를 기반으로 인증 DTO를 생성합니다.
    */
-  private Optional<AccountAuthDTO> buildAccountAuthDTO(Account account) {
+  private Optional<AccountAuthDTO> buildAccountAuthDTO(Account account, String accessToken,
+      String refreshToken) {
     log.debug("계정 인증 DTO 생성. uid: {}", account.getUid());
-
-    Optional<Ecclesia> ecclesia = ecclesiaJpaRepository.findEcclesiasByMasterAccountUid(
-        account.getUid());
 
     AccountAuthDTO.AccountAuthDTOBuilder authDTOBuilder = AccountAuthDTO.builder()
         .uid(account.getUid())
@@ -364,14 +362,20 @@ public class AccountServiceImpl implements AccountService {
         .rrn(account.getRrn())
         .role(account.getRole())
         .idToken(account.getIdToken())
+        .accessToken(accessToken)
+        .refreshToken(refreshToken)
         .pushToken(account.getPushToken());
 
     if (account.getEcclesiaUid() == null) {
       // 계정의 ecclesiaUid 정보가 없어도 ecclesia의 masterAccountUid로 로그인한 계정을 조회했을 때 결과가 있으면 해당 교회에 소속된 것으로 간주한다
+      Optional<Ecclesia> ecclesia = ecclesiaJpaRepository.findEcclesiasByMasterAccountUid(
+          account.getUid());
       authDTOBuilder
           .ecclesiaUid(ecclesia.map(Ecclesia::getUid).orElse(null))
           .ecclesiaStatus(ecclesia.map(Ecclesia::getStatus).orElse(null));
     } else {
+      Optional<Ecclesia> ecclesia = ecclesiaJpaRepository.findById(account.getEcclesiaUid());
+
       authDTOBuilder
           .ecclesiaUid(account.getEcclesiaUid())
           .ecclesiaStatus(ecclesia.map(Ecclesia::getStatus).orElse(EcclesiaStatusType.NONE.name()));

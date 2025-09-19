@@ -1,5 +1,5 @@
 'use client'
-import {setCookie} from "~/lib/cookie/cookie-utils";
+import {setCookie, setCookies} from "~/lib/cookie/cookie-utils";
 import {AuthItems} from "~/constants/auth-items";
 import {apiFetch} from "~/lib/api-client";
 
@@ -34,14 +34,18 @@ export const qrCheckAndGetToken = async (email: string, code: string) => {
   }
 
   const result = await response.json();
-  if (result.token == null) {
+  if (result.idToken == null || result.accessToken == null) {
     return null;
   }
 
-  return result.token;
+  return result;
 }
 
 export const setBrowserCookie = async (token: string) => {
   return setCookie(AuthItems.Authorization, token);
-
 }
+
+export const setBrowserCookies = async (cookies: { name: string; value: string }[]) => {
+  return await setCookies(cookies);
+}
+

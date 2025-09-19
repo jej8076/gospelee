@@ -11,6 +11,8 @@ interface AuthInfoType {
   email: string;
   role: string;
   idToken: string | null;
+  accessToken: string | null;
+  refreshToken: string | null;
   pushToken: string | null;
   ecclesiaStatus: string;
   enabled: boolean;

@@ -209,6 +209,8 @@ public class JwtOIDCProvider {
           .name(account.getName())
           .role(account.getRole())
           .idToken(account.getIdToken())
+          .accessToken(account.getAccessToken())
+          .refreshToken(account.getRefreshToken())
           .ecclesiaUid(account.getEcclesiaUid())
           .pushToken(account.getPushToken())
           .ecclesiaStatus(account.getEcclesiaStatus())

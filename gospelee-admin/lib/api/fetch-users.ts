@@ -1,6 +1,7 @@
 import {expireCookie, getCookie} from "~/lib/cookie/cookie-utils";
 import {AuthItems} from "~/constants/auth-items";
 import {apiFetch} from "~/lib/api-client";
+import {authHeaders} from "~/lib/api/utils/headers";
 
 export type Users = {
   name: string;
@@ -12,13 +13,10 @@ export type Users = {
 };
 
 export const fetchUsers = async (): Promise<Users[]> => {
-
+  const headers = await authHeaders();
   const response = await apiFetch("/api/account/getAccount/list", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
-    }
+    headers: headers,
   });
 
   if (!response.ok) {

@@ -1,0 +1,14 @@
+import {AuthItems} from "~/constants/auth-items";
+import {getCookie} from "~/lib/cookie/cookie-utils";
+
+export const authHeaders = async () => {
+  return {
+    "Content-Type": "application/json",
+    [AuthItems.Authorization]:
+        AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
+    [AuthItems.SocialAccessToken]:
+        (await getCookie(AuthItems.SocialAccessToken)) || "",
+    [AuthItems.SocialRefreshToken]:
+        (await getCookie(AuthItems.SocialRefreshToken)) || "",
+  };
+};

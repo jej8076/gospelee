@@ -2,17 +2,16 @@ import {expireCookie, getCookie} from "~/lib/cookie/cookie-utils";
 import {AuthItems} from "~/constants/auth-items";
 import {apiFetch} from "~/lib/api-client";
 import {isBlank} from "@/utils/common-utils";
+import {authHeaders} from "~/lib/api/utils/headers";
 
 export const fetchAnnouncements = async (type?: string): Promise<Announcement[]> => {
 
   type = isBlank(type) ? 'ECCLESIA' : type;
 
+  const headers = await authHeaders();
   const response = await apiFetch(`/api/announcement/${type}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
-    },
+    headers: headers
   });
 
   if (!response.ok) {
@@ -26,12 +25,11 @@ export const fetchAnnouncements = async (type?: string): Promise<Announcement[]>
 };
 
 export const fetchAnnouncementById = async (type: string, id: string): Promise<Announcement> => {
+
+  const headers = await authHeaders();
   const response = await apiFetch(`/api/announcement/${type}/${id}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
-    },
+    headers: headers
   });
 
   if (!response.ok) {
@@ -105,11 +103,10 @@ export const fetchInsertAnnouncement = async (inputData: {
     console.log(key, value);
   });
 
+  const headers = await authHeaders();
   const response = await apiFetch("/api/announcement", {
     method: "POST",
-    headers: {
-      Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
-    },
+    headers: headers,
     body: formData,
   });
 
@@ -149,11 +146,10 @@ export const fetchUpdateAnnouncement = async (inputData: {
     console.log(key, value);
   });
 
+  const headers = await authHeaders();
   const response = await apiFetch("/api/announcement", {
     method: "PUT",
-    headers: {
-      Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
-    },
+    headers: headers,
     body: formData,
   });
 

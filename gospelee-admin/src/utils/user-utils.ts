@@ -9,7 +9,7 @@ export const getLastLoginOrElseNull = (): AuthInfoType | null => {
   if (typeof window === 'undefined') {
     return null;
   }
-  
+
   const authInfoString: string | null = localStorage.getItem(AuthItems.LastAuthInfo);
   const result = tryParseJson<AuthInfoType>(authInfoString);
   return result.success ? result.data : null;
@@ -20,6 +20,8 @@ export const logout = async (router: AppRouterInstance) => {
   try {
     // 토큰 만료
     await expireCookie(AuthItems.Authorization);
+    await expireCookie(AuthItems.SocialAccessToken);
+    await expireCookie(AuthItems.SocialRefreshToken);
 
     // 마지막 로그인 정보 제거 (클라이언트에서만)
     if (typeof window !== 'undefined') {

@@ -1,6 +1,7 @@
 import {apiFetch} from "~/lib/api-client";
 import {getCookie} from "~/lib/cookie/cookie-utils";
 import {AuthItems} from "~/constants/auth-items";
+import {authHeaders} from "~/lib/api/utils/headers";
 
 /**
  * 파일 조회 API
@@ -10,17 +11,16 @@ import {AuthItems} from "~/constants/auth-items";
  */
 export const fetchFileById = async (fileId: number, fileDetailId: number): Promise<string> => {
   try {
+    const headers = await authHeaders();
     const response = await apiFetch(`/api/file/${fileId}/${fileDetailId}`, {
       method: "GET",
-      headers: {
-        Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
-      },
+      headers: headers
     });
 
     if (!response.ok) {
       throw new Error(`파일 조회 실패: ${response.status}`);
     }
-    
+
     // 응답을 blob으로 변환
     const blob = await response.blob();
     return URL.createObjectURL(blob);

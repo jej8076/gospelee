@@ -1,12 +1,14 @@
 import {useEffect} from 'react';
 import {useRouter} from 'next/navigation';
-import {expireCookie, getCookie} from '~/lib/cookie/cookie-utils';
+import {expireCookie, getCookie, getCookies} from '~/lib/cookie/cookie-utils';
 import {Users} from "~/lib/api/fetch-users";
 import {AuthItems} from "~/constants/auth-items";
 import {apiFetch} from "~/lib/api-client";
 import {ResponseItems} from "~/constants/response-items";
 import {useMenuListStore} from "@/hooks/useMenuList";
 import {getUserMenuList} from "@/utils/menu-utils";
+
+type CookieItem = { name: string; value: string | null };
 
 const useAuth = () => {
   const router = useRouter();
@@ -15,24 +17,27 @@ const useAuth = () => {
   useEffect(() => {
     const abortController = new AbortController();
 
-    const initializeToken = async (): Promise<string | null> => {
+    const initializeToken = async (): Promise<CookieItem[] | null> => {
       try {
-        return await getCookie(AuthItems.Authorization); // 토큰 값을 반환
+        return await getCookies([AuthItems.Authorization, AuthItems.SocialAccessToken, AuthItems.SocialRefreshToken])
       } catch (error) {
         console.error('Failed to get token:', error);
-        // setToken(null);
         return null; // 실패 시 null 반환
       }
     };
 
-    const auth = async (token: string): Promise<Users> => {
+    const auth = async (cookies: CookieItem[]): Promise<Users> => {
+
+      const customHeaders: { [key: string]: string } = {};
+      for (const cookie of cookies) {
+        if (cookie.value) {
+          customHeaders[cookie.name] = cookie.value;
+        }
+      }
       try {
         const response = await apiFetch(`/api/account/auth/validate`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `${AuthItems.Bearer}${token}`,
-          },
+          headers: customHeaders,
           signal: abortController.signal, // AbortController 신호 추가
         });
 
@@ -82,13 +87,13 @@ const useAuth = () => {
         // 에러를 다시 throw하여 상위에서 처리하도록 함
         throw error;
       }
-    };
+    }
 
     const initializeAuth = async () => {
       try {
         const token = await initializeToken(); // 토큰을 직접 받아옴
 
-        if (!token) {
+        if (token === null) {
           router.push('/login');
           return;
         }

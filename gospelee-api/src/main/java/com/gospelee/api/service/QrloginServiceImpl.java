@@ -31,7 +31,11 @@ public class QrloginServiceImpl implements QrloginService {
     if (qrLogin == null) {
       return false;
     }
-    return qrloginRepository.updateQrLoginSuccess(qrLogin.getUid(), account.getIdToken(),
+    return qrloginRepository.updateQrLoginSuccess(
+        qrLogin.getUid(),
+        account.getIdToken(),
+        account.getAccessToken(),
+        account.getRefreshToken(),
         account.getEmail(),
         TimeUtils.now()) == 1;
   }
