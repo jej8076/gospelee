@@ -16,6 +16,9 @@ export const fetchAnnouncements = async (type?: string): Promise<Announcement[]>
 
   if (!response.ok) {
     await expireCookie(AuthItems.Authorization);
+    await expireCookie(AuthItems.SocialAccessToken);
+    await expireCookie(AuthItems.SocialRefreshToken);
+
     const errorData = await response.json();
     console.error("Error response from server:", errorData.message);
     throw {status: response.status, message: errorData.message};
@@ -34,6 +37,8 @@ export const fetchAnnouncementById = async (type: string, id: string): Promise<A
 
   if (!response.ok) {
     await expireCookie(AuthItems.Authorization);
+    await expireCookie(AuthItems.SocialAccessToken);
+    await expireCookie(AuthItems.SocialRefreshToken);
     const errorData = await response.json();
     console.error("Error response from server:", errorData.message);
     throw {status: response.status, message: errorData.message};
@@ -112,6 +117,8 @@ export const fetchInsertAnnouncement = async (inputData: {
 
   if (!response.ok) {
     await expireCookie(AuthItems.Authorization);
+    await expireCookie(AuthItems.SocialAccessToken);
+    await expireCookie(AuthItems.SocialRefreshToken);
     const errorData = await response.json();
     console.error("Error response from server:", errorData);
     throw {status: response.status, message: errorData.message};
@@ -155,6 +162,8 @@ export const fetchUpdateAnnouncement = async (inputData: {
 
   if (!response.ok) {
     await expireCookie(AuthItems.Authorization);
+    await expireCookie(AuthItems.SocialAccessToken);
+    await expireCookie(AuthItems.SocialRefreshToken);
     const errorData = await response.json();
     console.error("Error response from server:", errorData);
     throw {status: response.status, message: errorData.message};

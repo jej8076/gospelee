@@ -13,6 +13,7 @@ import {blueButton} from "@/components/modal/modal-buttons";
 import StatusSelector from "@/components/ecclesia/status-selector";
 import SeniorPastorNameSelector from "@/components/ecclesia/senior-pastor-name-selector";
 import ChurchAddressSelector from "@/components/ecclesia/church-address-selector";
+import {authHeaders} from "~/lib/api/utils/headers";
 
 export default function Ecclesia() {
   useAuth();
@@ -30,12 +31,10 @@ export default function Ecclesia() {
 
   const fetchEcclesias = async () => {
     try {
+      const headers = await authHeaders();
       const response = await apiFetch(`/api/ecclesia/list`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `${AuthItems.Bearer}${await getCookie(AuthItems.Authorization)}`,
-        },
+        headers: headers
       });
 
       const res: Ecclesia[] = await response.json();

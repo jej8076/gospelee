@@ -21,6 +21,8 @@ export const fetchUsers = async (): Promise<Users[]> => {
 
   if (!response.ok) {
     await expireCookie(AuthItems.Authorization);
+    await expireCookie(AuthItems.SocialAccessToken);
+    await expireCookie(AuthItems.SocialRefreshToken);
     const errorData = await response.json();
     console.error("Error response from server:", errorData.message);
     throw {status: response.status, message: errorData.message};

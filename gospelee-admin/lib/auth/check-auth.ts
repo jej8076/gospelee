@@ -66,6 +66,8 @@ const useAuth = () => {
 
           // 토큰 만료
           await expireCookie(AuthItems.Authorization);
+          await expireCookie(AuthItems.SocialAccessToken);
+          await expireCookie(AuthItems.SocialRefreshToken);
 
           router.push('/login');
           return responseBody;
@@ -83,6 +85,8 @@ const useAuth = () => {
 
         // 토큰 만료 처리
         await expireCookie(AuthItems.Authorization);
+        await expireCookie(AuthItems.SocialAccessToken);
+        await expireCookie(AuthItems.SocialRefreshToken);
 
         // 에러를 다시 throw하여 상위에서 처리하도록 함
         throw error;
@@ -113,6 +117,8 @@ const useAuth = () => {
 
         // 토큰 만료 처리
         await expireCookie(AuthItems.Authorization);
+        await expireCookie(AuthItems.SocialAccessToken);
+        await expireCookie(AuthItems.SocialRefreshToken);
         router.push('/login');
       }
     };
