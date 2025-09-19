@@ -1,14 +1,13 @@
 import {expireCookie, getCookie} from "~/lib/cookie/cookie-utils";
 import {AuthItems} from "~/constants/auth-items";
 import {apiFetch} from "~/lib/api-client";
+import {authHeaders} from "~/lib/api/utils/headers";
 
 export const fetchEcclesiaRequests = async (): Promise<AccountEcclesiaRequest[]> => {
+  const headers = await authHeaders();
   const response = await apiFetch("/api/account/ecclesia/join/request/list", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
-    }
+    headers: headers,
   });
 
   if (!response.ok) {
@@ -23,12 +22,10 @@ export const fetchEcclesiaRequests = async (): Promise<AccountEcclesiaRequest[]>
 };
 
 export const decideEcclesiaRequest = async (accountEcclesiaDecide: AccountEcclesiaDecide): Promise<AccountEcclesiaRequest> => {
+  const headers = await authHeaders();
   const response = await apiFetch("/api/account/ecclesia/join/request/decide", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
-    },
+    headers: headers,
     body: JSON.stringify(accountEcclesiaDecide),
   });
 
@@ -40,6 +37,5 @@ export const decideEcclesiaRequest = async (accountEcclesiaDecide: AccountEccles
   }
 
   const result = await response.json();
-  debugger;
   return result.data || null;
 };

@@ -30,6 +30,10 @@ public class AccountAuthDTO implements UserDetails {
 
   private String idToken;
 
+  private String accessToken;
+
+  private String refreshToken;
+
   private String pushToken;
 
   private String ecclesiaStatus;

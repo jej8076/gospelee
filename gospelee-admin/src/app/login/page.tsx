@@ -3,8 +3,6 @@
 import {useRouter} from 'next/navigation';
 import {ChangeEvent, FormEvent, KeyboardEvent, useEffect, useRef, useState} from 'react';
 import Image from 'next/image';
-import {setCookie} from "~/lib/cookie/cookie-utils";
-import {AuthItems} from "~/constants/auth-items";
 import {useMenuListStore} from "@/hooks/useMenuList";
 import PageTransition from '@/components/PageTransition';
 
@@ -33,7 +31,7 @@ export default function Login() {
 
     if (email) {
       setIsLoading(true);
-      
+
       // super@super.com인 경우 비밀번호 입력 페이지로 이동
       if (email === 'super@super.com') {
         setTimeout(() => {
