@@ -52,8 +52,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       nonceCacheKey = request.getHeader(CustomHeader.X_ANONYMOUS_USER_ID.getHeaderName());
     }
 
-    System.out.println("request.getServletPath() = " + request.getServletPath());
-
     TokenDTO tokenDTO = TokenDTO.builder()
         .idToken(request.getHeader(TokenHeaders.AUTHORIZATION.getValue()))
         .accessToken(request.getHeader(TokenHeaders.SOCIAL_ACCESS_TOKEN.getValue()))
