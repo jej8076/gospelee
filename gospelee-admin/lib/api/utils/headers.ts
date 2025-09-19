@@ -12,3 +12,15 @@ export const authHeaders = async () => {
         (await getCookie(AuthItems.SocialRefreshToken)) || "",
   };
 };
+
+export const authHeadersWithoutContentsType = async () => {
+  return {
+    [AuthItems.Authorization]:
+        AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
+    [AuthItems.SocialAccessToken]:
+        (await getCookie(AuthItems.SocialAccessToken)) || "",
+    [AuthItems.SocialRefreshToken]:
+        (await getCookie(AuthItems.SocialRefreshToken)) || "",
+  };
+};
+

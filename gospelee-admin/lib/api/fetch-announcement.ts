@@ -2,7 +2,7 @@ import {expireCookie, getCookie} from "~/lib/cookie/cookie-utils";
 import {AuthItems} from "~/constants/auth-items";
 import {apiFetch} from "~/lib/api-client";
 import {isBlank} from "@/utils/common-utils";
-import {authHeaders} from "~/lib/api/utils/headers";
+import {authHeaders, authHeadersWithoutContentsType} from "~/lib/api/utils/headers";
 
 export const fetchAnnouncements = async (type?: string): Promise<Announcement[]> => {
 
@@ -103,7 +103,7 @@ export const fetchInsertAnnouncement = async (inputData: {
     console.log(key, value);
   });
 
-  const headers = await authHeaders();
+  const headers = await authHeadersWithoutContentsType();
   const response = await apiFetch("/api/announcement", {
     method: "POST",
     headers: headers,
@@ -146,7 +146,7 @@ export const fetchUpdateAnnouncement = async (inputData: {
     console.log(key, value);
   });
 
-  const headers = await authHeaders();
+  const headers = await authHeadersWithoutContentsType();
   const response = await apiFetch("/api/announcement", {
     method: "PUT",
     headers: headers,
