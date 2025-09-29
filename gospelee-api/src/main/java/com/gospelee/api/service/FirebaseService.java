@@ -9,6 +9,7 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.Notification;
+import com.gospelee.api.exception.FirebaseMessagingClientException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +70,7 @@ public class FirebaseService {
     try {
       result = firebaseMessaging.send(message);
     } catch (FirebaseMessagingException e) {
-      e.getMessage();
+      throw FirebaseMessagingClientException.from(e);
     }
 
     return result;
@@ -119,4 +120,5 @@ public class FirebaseService {
       throw new RuntimeException(e);
     }
   }
+
 }

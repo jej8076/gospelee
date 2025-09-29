@@ -4,6 +4,7 @@ import com.gospelee.api.dto.common.ResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -35,6 +36,18 @@ public class ApiControllerAdvice {
         ex.getMessage(), ex);
 
     return ResponseDTO.of("400", ex.getMessage());
+  }
+
+  @ExceptionHandler(FirebaseMessagingClientException.class)
+  public ResponseDTO FirebaseMessagingClientException(HttpServletRequest request,
+      FirebaseMessagingClientException ex) {
+    // 원인(FCM 예외)까지 함께 로그
+    log.error("[FirebaseMessagingClientException] ip={}, status={}, code={}, message={}",
+        request.getRemoteAddr(), ex.getHttpStatus(), ex.getErrorCode(), ex.getMessage(), ex);
+
+    return ResponseEntity
+        .status(ex.getHttpStatus())
+        .body(ResponseDTO.of(String.valueOf(ex.getHttpStatus()), ex.getMessage())).getBody();
   }
 
   @ExceptionHandler(Exception.class)
