@@ -33,48 +33,62 @@ public class FirebaseService {
     return sendNotification(token, title, body, null);
   }
 
+
   public String sendNotification(String token, String title, String body,
       Map<String, String> data) {
-
-    // IOS 설정
-    ApnsConfig apnsConfig = ApnsConfig.builder()
-        .putHeader("apns-priority", "10")
-        .setAps(
-            Aps.builder()
-                .setContentAvailable(false)
-                .setMutableContent(false)
-                .setSound("default")
-                .setBadge(1)
-                .build()
-        ).build();
-
-    // Android 설정
-    AndroidConfig androidConfig = AndroidConfig.builder()
-        .setPriority(AndroidConfig.Priority.HIGH)
-        .build();
-
-    Notification notification = Notification.builder()
-        .setTitle(title)
-        .setBody(body)
-        .build();
-
-    Message message = Message.builder()
+    Message msg = Message.builder()
         .setToken(token)
-        .setNotification(notification)
-        .putAllData(data == null ? new HashMap<>() : data)
-        .setApnsConfig(apnsConfig)
-        .setAndroidConfig(androidConfig)
+        .setNotification(Notification.builder().setTitle(title).setBody(body).build())
         .build();
-
-    String result = "";
     try {
-      result = firebaseMessaging.send(message);
+      return firebaseMessaging.send(msg);
     } catch (FirebaseMessagingException e) {
       throw FirebaseMessagingClientException.from(e);
     }
-
-    return result;
   }
+
+//  public String sendNotification(String token, String title, String body,
+//      Map<String, String> data) {
+//
+//    // IOS 설정
+//    ApnsConfig apnsConfig = ApnsConfig.builder()
+//        .putHeader("apns-priority", "10")
+//        .setAps(
+//            Aps.builder()
+//                .setContentAvailable(false)
+//                .setMutableContent(false)
+//                .setSound("default")
+//                .setBadge(1)
+//                .build()
+//        ).build();
+//
+//    // Android 설정
+//    AndroidConfig androidConfig = AndroidConfig.builder()
+//        .setPriority(AndroidConfig.Priority.HIGH)
+//        .build();
+//
+//    Notification notification = Notification.builder()
+//        .setTitle(title)
+//        .setBody(body)
+//        .build();
+//
+//    Message message = Message.builder()
+//        .setToken(token)
+//        .setNotification(notification)
+//        .putAllData(data == null ? new HashMap<>() : data)
+//        .setApnsConfig(apnsConfig)
+//        .setAndroidConfig(androidConfig)
+//        .build();
+//
+//    String result = "";
+//    try {
+//      result = firebaseMessaging.send(message);
+//    } catch (FirebaseMessagingException e) {
+//      throw FirebaseMessagingClientException.from(e);
+//    }
+//
+//    return result;
+//  }
 
   /**
    * <pre>
