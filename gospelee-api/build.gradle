@@ -41,7 +41,7 @@ dependencies {
     implementation 'org.springframework:spring-webflux:6.2.7'
 
     // https://mvnrepository.com/artifact/com.google.firebase/firebase-admin
-    implementation 'com.google.firebase:firebase-admin:9.4.3'
+    implementation 'com.google.firebase:firebase-admin:9.7.0'
 
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket:3.3.0'

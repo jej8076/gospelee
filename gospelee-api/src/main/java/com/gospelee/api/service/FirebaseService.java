@@ -3,6 +3,7 @@ package com.gospelee.api.service;
 import com.google.firebase.messaging.AndroidConfig;
 import com.google.firebase.messaging.ApnsConfig;
 import com.google.firebase.messaging.Aps;
+import com.google.firebase.messaging.ApsAlert;
 import com.google.firebase.messaging.BatchResponse;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
@@ -19,9 +20,12 @@ import org.springframework.stereotype.Service;
 public class FirebaseService {
 
   private final FirebaseMessaging firebaseMessaging;
+  private final String apnsEnvironment;
 
   public FirebaseService(FirebaseMessaging firebaseMessaging) {
     this.firebaseMessaging = firebaseMessaging;
+    String activeProfile = System.getProperty("spring.profiles.active", "dev");
+    this.apnsEnvironment = "prod".equals(activeProfile) ? "production" : "development";
   }
 
   /**
@@ -33,62 +37,50 @@ public class FirebaseService {
     return sendNotification(token, title, body, null);
   }
 
-
   public String sendNotification(String token, String title, String body,
       Map<String, String> data) {
-    Message msg = Message.builder()
-        .setToken(token)
-        .setNotification(Notification.builder().setTitle(title).setBody(body).build())
+
+    // IOS 설정
+    ApnsConfig apnsConfig = ApnsConfig.builder()
+        .putHeader("apns-priority", "10")
+        .putHeader("apns-environment", apnsEnvironment)
+        .setAps(
+            Aps.builder()
+                .setContentAvailable(false)
+                .setMutableContent(false)
+                .setSound("default")
+                .setBadge(1)
+                .setAlert(ApsAlert.builder().build())
+                .build()
+        ).build();
+
+    // Android 설정
+    AndroidConfig androidConfig = AndroidConfig.builder()
+        .setPriority(AndroidConfig.Priority.HIGH)
         .build();
+
+    Notification notification = Notification.builder()
+        .setTitle(title)
+        .setBody(body)
+        .build();
+
+    Message message = Message.builder()
+        .setToken(token)
+        .setNotification(notification)
+        .putAllData(data == null ? new HashMap<>() : data)
+        .setApnsConfig(apnsConfig)
+        .setAndroidConfig(androidConfig)
+        .build();
+
+    String result = "";
     try {
-      return firebaseMessaging.send(msg);
+      result = firebaseMessaging.send(message);
     } catch (FirebaseMessagingException e) {
       throw FirebaseMessagingClientException.from(e);
     }
-  }
 
-//  public String sendNotification(String token, String title, String body,
-//      Map<String, String> data) {
-//
-//    // IOS 설정
-//    ApnsConfig apnsConfig = ApnsConfig.builder()
-//        .putHeader("apns-priority", "10")
-//        .setAps(
-//            Aps.builder()
-//                .setContentAvailable(false)
-//                .setMutableContent(false)
-//                .setSound("default")
-//                .setBadge(1)
-//                .build()
-//        ).build();
-//
-//    // Android 설정
-//    AndroidConfig androidConfig = AndroidConfig.builder()
-//        .setPriority(AndroidConfig.Priority.HIGH)
-//        .build();
-//
-//    Notification notification = Notification.builder()
-//        .setTitle(title)
-//        .setBody(body)
-//        .build();
-//
-//    Message message = Message.builder()
-//        .setToken(token)
-//        .setNotification(notification)
-//        .putAllData(data == null ? new HashMap<>() : data)
-//        .setApnsConfig(apnsConfig)
-//        .setAndroidConfig(androidConfig)
-//        .build();
-//
-//    String result = "";
-//    try {
-//      result = firebaseMessaging.send(message);
-//    } catch (FirebaseMessagingException e) {
-//      throw FirebaseMessagingClientException.from(e);
-//    }
-//
-//    return result;
-//  }
+    return result;
+  }
 
   /**
    * <pre>
