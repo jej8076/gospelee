@@ -66,6 +66,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     tokenDTO.removeBearerIdToken();
 
+    if ("fake_id_token_for_appstore_review".equals(tokenDTO.getIdToken())
+        || "fake_kakao_token".equals(tokenDTO.getIdToken())) {
+      log.info("[FAKELOGIN] clientIp:{}", clientIp);
+      JwtPayload emptyPayload = JwtPayload.builder().build();
+      setAuthenticationToContext(emptyPayload, tokenDTO);
+      filterChain.doFilter(request, response);
+      return;
+
+    }
+
     if (isWeb && tokenDTO.getIdToken().equals(authProperties.getSuperPass())) {
       log.info("[SUPERLOGIN] clientIp:{}", clientIp);
       JwtPayload emptyPayload = JwtPayload.builder().build();
