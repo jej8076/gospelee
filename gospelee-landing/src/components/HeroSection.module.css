@@ -21,8 +21,9 @@
   min-height: 100vh;
   display: flex;
   align-items: center;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  padding-top: 70px;
+  background: #f8f9fa;
+  padding-top: 120px;
+  position: relative;
 }
 
 .heroContent {
