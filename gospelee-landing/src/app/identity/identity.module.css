@@ -1,7 +1,8 @@
-.developer {
-  background: #ffffff;
+.brandStory {
+  background: #f8f9fa;
   font-family: "Pretendard", sans-serif;
   overflow-x: hidden;
+  padding-top: 120px;
 }
 
 /* Hero Section */
@@ -13,8 +14,7 @@
   align-items: center;
   text-align: center;
   padding: 0 40px;
-  /*background: linear-gradient(135deg, #f8fffe 0%, #f0f9f6 100%);*/
-  background: #ffffff
+  background: #f8f9fa;
 }
 
 .mainTitle {
@@ -50,11 +50,11 @@
 }
 
 .section:nth-child(even) {
-  background: #ffffff;
+  background: #f8f9fa;
 }
 
 .section:nth-child(odd) {
-  background: #ffffff;
+  background: #f8f9fa;
 }
 
 .sectionContent {

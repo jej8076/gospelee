@@ -40,6 +40,11 @@ const Header = () => {
                     앱 다운로드
                   </Link>
                 </li>
+                <li className={styles.navItem}>
+                  <Link href="/support" className={styles.navLink}>
+                    고객지원
+                  </Link>
+                </li>
               </ul>
             </nav>
 
