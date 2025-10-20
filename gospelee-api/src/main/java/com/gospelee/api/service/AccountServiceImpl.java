@@ -198,12 +198,11 @@ public class AccountServiceImpl implements AccountService {
    * @return 인증된 계정 정보
    */
   @Override
-  public Optional<AccountAuthDTO> saveAndGetAccount(JwtPayload jwtPayload, TokenDTO tokenDTO,
-      UserMeResponse userMeResponse) {
-    log.debug("계정 저장/업데이트 요청. email:{}, idToken:{}, phone:{}", jwtPayload.getEmail(),
-        tokenDTO.getIdToken(), userMeResponse.getKakaoAccount().getPhoneNumber());
+  public Optional<AccountAuthDTO> saveAndGetAccount(JwtPayload jwtPayload, TokenDTO tokenDTO) {
+    log.debug("계정 저장/업데이트 요청. email:{}, idToken:{}", jwtPayload.getEmail(),
+        tokenDTO.getIdToken());
 
-    Account account = findOrCreateAccount(jwtPayload, tokenDTO, userMeResponse);
+    Account account = findOrCreateAccount(jwtPayload, tokenDTO);
     return buildAccountAuthDTO(account, tokenDTO.getAccessToken(), tokenDTO.getRefreshToken());
   }
 
@@ -306,11 +305,10 @@ public class AccountServiceImpl implements AccountService {
   /**
    * 기존 계정을 찾거나 새로운 계정을 생성합니다.
    */
-  private Account findOrCreateAccount(JwtPayload jwtPayload, TokenDTO tokenDTO,
-      UserMeResponse userMeResponse) {
-    return accountRepository.findByPhone(userMeResponse.getKakaoAccount().getPhoneNumber())
+  private Account findOrCreateAccount(JwtPayload jwtPayload, TokenDTO tokenDTO) {
+    return accountRepository.findByEmail(jwtPayload.getEmail())
         .map(existingAccount -> updateExistingAccount(existingAccount, tokenDTO))
-        .orElseGet(() -> createNewAccount(jwtPayload, tokenDTO, userMeResponse));
+        .orElseGet(() -> createNewAccount(jwtPayload, tokenDTO));
   }
 
   /**
@@ -326,14 +324,12 @@ public class AccountServiceImpl implements AccountService {
   /**
    * 새로운 계정을 생성합니다.
    */
-  private Account createNewAccount(JwtPayload jwtPayload, TokenDTO tokenDTO,
-      UserMeResponse userMeResponse) {
+  private Account createNewAccount(JwtPayload jwtPayload, TokenDTO tokenDTO) {
     log.debug("새로운 계정 생성. email:{}", jwtPayload.getEmail());
 
     Account newAccount = Account.builder()
         .name(jwtPayload.getNickname())
         .email(jwtPayload.getEmail())
-        .phone(userMeResponse.getKakaoAccount().getPhoneNumber())
         .role(RoleType.LAYMAN)
         .idToken(tokenDTO.getIdToken())
         .build();

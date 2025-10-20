@@ -1,7 +1,6 @@
 package com.gospelee.api.dto.kakao;
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

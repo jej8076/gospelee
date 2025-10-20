@@ -74,11 +74,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       return;
     }
 
-    if (tokenDTO.getAccessToken() == null) {
-      failResponse(response, ErrorResponseType.AUTH_103);
-      return;
-    }
-
     JwtPayload jwtPayload = jwtOIDCProvider.getOIDCPayload(tokenDTO.getIdToken(), nonceCacheKey);
 
     if (ObjectUtils.isEmpty(jwtPayload)) {

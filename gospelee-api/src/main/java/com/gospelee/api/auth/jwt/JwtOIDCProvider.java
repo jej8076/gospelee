@@ -197,9 +197,8 @@ public class JwtOIDCProvider {
     if (accountService.isSuperUserToken(tokenDTO.getIdToken())) {
       accountAuthDTO = accountService.handleSuperUserAuthentication();
     } else {
-      UserMeResponse userMeResponse = accountService.getKakaoUserMe(tokenDTO.getAccessToken());
-      accountAuthDTO = accountService.saveAndGetAccount(jwtPayload,
-          tokenDTO, userMeResponse);
+//      UserMeResponse userMeResponse = accountService.getKakaoUserMe(tokenDTO.getAccessToken());
+      accountAuthDTO = accountService.saveAndGetAccount(jwtPayload, tokenDTO);
     }
 
     return accountAuthDTO.map(account -> {
