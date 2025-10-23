@@ -10,10 +10,10 @@ import com.gospelee.api.dto.account.TokenDTO;
 import com.gospelee.api.dto.jwt.JwkDTO;
 import com.gospelee.api.dto.jwt.JwkSetDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
-import com.gospelee.api.dto.kakao.UserMeResponse;
 import com.gospelee.api.enums.RedisCacheNames;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.RedisCacheService;
+import com.gospelee.api.utils.SHA256Util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -38,16 +38,17 @@ import org.springframework.web.client.RestClientException;
 
 @Component
 @Slf4j
-public class JwtOIDCProvider {
+public class AppleJwtProvider {
 
   private final RedisCacheService redisCacheService;
   private final AccountService accountService;
-  @Value("${kakao.issuer}")
-  private String KAKAO_ISS;
-  @Value("${kakao.app-key}")
-  private String KAKAO_SERVICE_APP_KEY;
+  @Value("${apple.issuer}")
+  private String APPLE_ISS;
+  @Value("${apple.app-key}")
+  private String APPLE_SERVICE_APP_KEY;
 
-  public JwtOIDCProvider(RedisCacheService redisCacheService, AccountService accountService) {
+  public AppleJwtProvider(RedisCacheService redisCacheService,
+      AccountService accountService) {
     this.redisCacheService = redisCacheService;
     this.accountService = accountService;
   }
@@ -100,6 +101,33 @@ public class JwtOIDCProvider {
     }
   }
 
+  public Authentication getAuthentication(JwtPayload jwtPayload, TokenDTO tokenDTO) {
+    Optional<AccountAuthDTO> accountAuthDTO;
+    if (accountService.isSuperUserToken(tokenDTO.getIdToken())) {
+      accountAuthDTO = accountService.handleSuperUserAuthentication();
+    } else {
+//      UserMeResponse userMeResponse = accountService.getKakaoUserMe(tokenDTO.getAccessToken());
+      accountAuthDTO = accountService.saveAndGetAccount(jwtPayload, tokenDTO);
+    }
+
+    return accountAuthDTO.map(account -> {
+      UserDetails userDetails = AccountAuthDTO.builder()
+          .uid(account.getUid())
+          .email(account.getEmail())
+          .name(account.getName())
+          .role(account.getRole())
+          .idToken(account.getIdToken())
+          .accessToken(account.getAccessToken())
+          .refreshToken(account.getRefreshToken())
+          .ecclesiaUid(account.getEcclesiaUid())
+          .pushToken(account.getPushToken())
+          .ecclesiaStatus(account.getEcclesiaStatus())
+          .build();
+      return new UsernamePasswordAuthenticationToken(userDetails, tokenDTO.getIdToken(),
+          userDetails.getAuthorities());
+    }).orElseThrow(() -> new RuntimeException("account 불러오기 혹은 저장 실패"));
+  }
+
   private CharSequence getUnsignedToken(String token) {
     String[] splitToken = token.split("\\.");
     if (splitToken.length != 3) {
@@ -131,12 +159,12 @@ public class JwtOIDCProvider {
 
     String iss = String.valueOf(map.get("iss"));
 
-    if (!KAKAO_ISS.equals(iss)) {
+    if (!APPLE_ISS.equals(iss)) {
       return false;
     }
 
     String aud = String.valueOf(map.get("aud"));
-    if (!KAKAO_SERVICE_APP_KEY.equals(aud)) {
+    if (!APPLE_SERVICE_APP_KEY.equals(aud)) {
       return false;
     }
 
@@ -152,7 +180,7 @@ public class JwtOIDCProvider {
     if (nonceCacheKey != null) {
       String cachedNonce = redisCacheService.get(RedisCacheNames.NONCE, nonceCacheKey);
       String nonce = String.valueOf(map.get("nonce"));
-      if (!nonce.equals(cachedNonce)) {
+      if (!SHA256Util.verifyPassword(nonce, cachedNonce)) {
         log.error(
             "일치하는 nonce값이 없습니다. [nonceCacheKey : " + nonceCacheKey + ", nonce : " + nonce + "]");
         return false;
@@ -190,33 +218,6 @@ public class JwtOIDCProvider {
       log.error("getKid 처리 중 예외 발생", e);
       return Optional.empty(); // 예외 발생 시 빈 Optional 반환
     }
-  }
-
-  public Authentication getAuthentication(JwtPayload jwtPayload, TokenDTO tokenDTO) {
-    Optional<AccountAuthDTO> accountAuthDTO;
-    if (accountService.isSuperUserToken(tokenDTO.getIdToken())) {
-      accountAuthDTO = accountService.handleSuperUserAuthentication();
-    } else {
-//      UserMeResponse userMeResponse = accountService.getKakaoUserMe(tokenDTO.getAccessToken());
-      accountAuthDTO = accountService.saveAndGetAccount(jwtPayload, tokenDTO);
-    }
-
-    return accountAuthDTO.map(account -> {
-      UserDetails userDetails = AccountAuthDTO.builder()
-          .uid(account.getUid())
-          .email(account.getEmail())
-          .name(account.getName())
-          .role(account.getRole())
-          .idToken(account.getIdToken())
-          .accessToken(account.getAccessToken())
-          .refreshToken(account.getRefreshToken())
-          .ecclesiaUid(account.getEcclesiaUid())
-          .pushToken(account.getPushToken())
-          .ecclesiaStatus(account.getEcclesiaStatus())
-          .build();
-      return new UsernamePasswordAuthenticationToken(userDetails, tokenDTO.getIdToken(),
-          userDetails.getAuthorities());
-    }).orElseThrow(() -> new RuntimeException("account 불러오기 혹은 저장 실패"));
   }
 
 }

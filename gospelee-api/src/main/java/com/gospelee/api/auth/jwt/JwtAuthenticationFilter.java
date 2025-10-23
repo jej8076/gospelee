@@ -8,6 +8,7 @@ import com.gospelee.api.enums.AppType;
 import com.gospelee.api.enums.Bearer;
 import com.gospelee.api.enums.CustomHeader;
 import com.gospelee.api.enums.ErrorResponseType;
+import com.gospelee.api.enums.SocialLoginType;
 import com.gospelee.api.enums.TokenHeaders;
 import com.gospelee.api.properties.AuthProperties;
 import com.gospelee.api.utils.IpUtils;
@@ -30,12 +31,12 @@ import util.JsonUtils;
 @Log4j2
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-  private final JwtOIDCProvider jwtOIDCProvider;
+  private final KakaoJwtProvider kakaoJwtProvider;
   private final AuthProperties authProperties;
   private final String NONCE_CHECK_PATH = "/account/auth/success";
 
-  public JwtAuthenticationFilter(JwtOIDCProvider jwtOIDCProvider, AuthProperties authProperties) {
-    this.jwtOIDCProvider = jwtOIDCProvider;
+  public JwtAuthenticationFilter(KakaoJwtProvider kakaoJwtProvider, AuthProperties authProperties) {
+    this.kakaoJwtProvider = kakaoJwtProvider;
     this.authProperties = authProperties;
   }
 
@@ -44,6 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       FilterChain filterChain) throws ServletException, IOException, BadCredentialsException {
 
     String clientIp = IpUtils.getClientIp(request);
+    String socialLogin = request.getHeader(CustomHeader.SOCIAL_LOGIN.getHeaderName());
     String appId = request.getHeader(CustomHeader.X_APP_IDENTIFIER.getHeaderName());
     boolean isWeb = AppType.OOG_WEB.getValue().equals(appId);
 
@@ -53,6 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     TokenDTO tokenDTO = TokenDTO.builder()
+        .socialLoginType(SocialLoginType.of(socialLogin))
         .idToken(request.getHeader(TokenHeaders.AUTHORIZATION.getValue()))
         .accessToken(request.getHeader(TokenHeaders.SOCIAL_ACCESS_TOKEN.getValue()))
         .refreshToken(request.getHeader(TokenHeaders.SOCIAL_REFRESH_TOKEN.getValue()))
@@ -74,7 +77,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       return;
     }
 
-    JwtPayload jwtPayload = jwtOIDCProvider.getOIDCPayload(tokenDTO.getIdToken(), nonceCacheKey);
+    JwtPayload jwtPayload = kakaoJwtProvider.getOIDCPayload(tokenDTO.getIdToken(),
+        nonceCacheKey);
 
     if (ObjectUtils.isEmpty(jwtPayload)) {
       failResponse(response, ErrorResponseType.AUTH_103);
@@ -107,7 +111,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private Authentication setAuthenticationToContext(JwtPayload jwtPayload, TokenDTO tokenDTO) {
 
-    Authentication authentication = jwtOIDCProvider.getAuthentication(jwtPayload, tokenDTO);
+    Authentication authentication = kakaoJwtProvider.getAuthentication(jwtPayload,
+        tokenDTO);
     SecurityContextHolder.getContext().setAuthentication(authentication);
     return authentication;
   }

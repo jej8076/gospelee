@@ -67,5 +67,6 @@ auth:
   allow-pending-paths:
     - /api/account/qr/req/*
 
+
 file:
   base-path: /Users/ej/dev/testFiles/gospelee/api
