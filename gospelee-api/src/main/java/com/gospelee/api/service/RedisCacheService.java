@@ -6,7 +6,9 @@ import com.gospelee.api.enums.RedisCacheNames;
 
 public interface RedisCacheService {
 
-  JwkSetDTO getPublicKeySet();
+  JwkSetDTO getKakaoPublicKeySet();
+
+  JwkSetDTO getApplePublicKeySet();
 
   String put(RedisCacheDTO redisCacheDTO);
 

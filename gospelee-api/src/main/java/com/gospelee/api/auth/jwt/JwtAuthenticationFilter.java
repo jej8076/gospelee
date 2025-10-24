@@ -8,7 +8,7 @@ import com.gospelee.api.enums.AppType;
 import com.gospelee.api.enums.Bearer;
 import com.gospelee.api.enums.CustomHeader;
 import com.gospelee.api.enums.ErrorResponseType;
-import com.gospelee.api.enums.SocialLoginType;
+import com.gospelee.api.enums.SocialLoginPlatform;
 import com.gospelee.api.enums.TokenHeaders;
 import com.gospelee.api.properties.AuthProperties;
 import com.gospelee.api.utils.IpUtils;
@@ -34,10 +34,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private final KakaoJwtProvider kakaoJwtProvider;
   private final AuthProperties authProperties;
   private final String NONCE_CHECK_PATH = "/account/auth/success";
+  private final AppleJwtProvider appleJwtProvider;
 
-  public JwtAuthenticationFilter(KakaoJwtProvider kakaoJwtProvider, AuthProperties authProperties) {
+  public JwtAuthenticationFilter(KakaoJwtProvider kakaoJwtProvider, AuthProperties authProperties,
+      AppleJwtProvider appleJwtProvider) {
     this.kakaoJwtProvider = kakaoJwtProvider;
     this.authProperties = authProperties;
+    this.appleJwtProvider = appleJwtProvider;
   }
 
   @Override
@@ -45,7 +48,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       FilterChain filterChain) throws ServletException, IOException, BadCredentialsException {
 
     String clientIp = IpUtils.getClientIp(request);
-    String socialLogin = request.getHeader(CustomHeader.SOCIAL_LOGIN.getHeaderName());
+    String socialLoginPlatform = request.getHeader(
+        CustomHeader.SOCIAL_LOGIN_PLATFORM.getHeaderName());
     String appId = request.getHeader(CustomHeader.X_APP_IDENTIFIER.getHeaderName());
     boolean isWeb = AppType.OOG_WEB.getValue().equals(appId);
 
@@ -55,7 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     TokenDTO tokenDTO = TokenDTO.builder()
-        .socialLoginType(SocialLoginType.of(socialLogin))
+        .socialLoginPlatform(SocialLoginPlatform.of(socialLoginPlatform))
         .idToken(request.getHeader(TokenHeaders.AUTHORIZATION.getValue()))
         .accessToken(request.getHeader(TokenHeaders.SOCIAL_ACCESS_TOKEN.getValue()))
         .refreshToken(request.getHeader(TokenHeaders.SOCIAL_REFRESH_TOKEN.getValue()))
@@ -77,8 +81,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       return;
     }
 
-    JwtPayload jwtPayload = kakaoJwtProvider.getOIDCPayload(tokenDTO.getIdToken(),
-        nonceCacheKey);
+    JwtPayload jwtPayload = null;
+
+    if (tokenDTO.getSocialLoginPlatform() == SocialLoginPlatform.APPLE) {
+      jwtPayload = appleJwtProvider.getOIDCPayload(tokenDTO.getIdToken(),
+          nonceCacheKey);
+    } else if (tokenDTO.getSocialLoginPlatform() == SocialLoginPlatform.KAKAO) {
+      jwtPayload = kakaoJwtProvider.getOIDCPayload(tokenDTO.getIdToken(),
+          nonceCacheKey);
+    }
 
     if (ObjectUtils.isEmpty(jwtPayload)) {
       failResponse(response, ErrorResponseType.AUTH_103);

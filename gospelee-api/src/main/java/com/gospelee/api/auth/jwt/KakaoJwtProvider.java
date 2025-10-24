@@ -61,7 +61,7 @@ public class KakaoJwtProvider {
     }
 
     // 카카오 제공 공개키(캐싱)
-    JwkSetDTO cachedJwkSet = redisCacheService.getPublicKeySet();
+    JwkSetDTO cachedJwkSet = redisCacheService.getKakaoPublicKeySet();
     Optional<String> kidOptional = getKid(token);
 
     // 예외 처리를 호출자 쪽으로 위임

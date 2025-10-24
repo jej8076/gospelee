@@ -4,6 +4,7 @@ import java.time.Duration;
 
 public enum RedisCacheNames {
   KAKAO_JWK_SET(Duration.ofDays(7L)),
+  APPLE_JWK_SET(Duration.ofDays(7L)),
   NONCE(Duration.ofMinutes(5L)),
   USER_ME(Duration.ofHours(6L)),
   ;

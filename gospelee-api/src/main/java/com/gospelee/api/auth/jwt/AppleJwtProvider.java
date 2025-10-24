@@ -62,7 +62,7 @@ public class AppleJwtProvider {
     }
 
     // 카카오 제공 공개키(캐싱)
-    JwkSetDTO cachedJwkSet = redisCacheService.getPublicKeySet();
+    JwkSetDTO cachedJwkSet = redisCacheService.getApplePublicKeySet();
     Optional<String> kidOptional = getKid(token);
 
     // 예외 처리를 호출자 쪽으로 위임
@@ -176,11 +176,10 @@ public class AppleJwtProvider {
       return false;
     }
 
-    // TODO jej8076 nonce 값(카카오 로그인 요청 시 전달한 값과 일치하는지) 확인 필요
     if (nonceCacheKey != null) {
       String cachedNonce = redisCacheService.get(RedisCacheNames.NONCE, nonceCacheKey);
       String nonce = String.valueOf(map.get("nonce"));
-      if (!SHA256Util.verifyPassword(nonce, cachedNonce)) {
+      if (!nonce.equals(cachedNonce)) {
         log.error(
             "일치하는 nonce값이 없습니다. [nonceCacheKey : " + nonceCacheKey + ", nonce : " + nonce + "]");
         return false;

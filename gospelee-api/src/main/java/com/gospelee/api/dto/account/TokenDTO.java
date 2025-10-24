@@ -2,7 +2,7 @@ package com.gospelee.api.dto.account;
 
 import static com.google.auth.http.AuthHttpConstants.BEARER;
 
-import com.gospelee.api.enums.SocialLoginType;
+import com.gospelee.api.enums.SocialLoginPlatform;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,15 +12,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TokenDTO {
 
-  private SocialLoginType socialLoginType;
+  private SocialLoginPlatform socialLoginPlatform;
   private String idToken;
   private String accessToken;
   private String refreshToken;
 
   @Builder
-  public TokenDTO(SocialLoginType socialLoginType, String idToken, String accessToken,
+  public TokenDTO(SocialLoginPlatform socialLoginPlatform, String idToken, String accessToken,
       String refreshToken) {
-    this.socialLoginType = socialLoginType;
+    this.socialLoginPlatform = socialLoginPlatform;
     this.idToken = idToken;
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gospelee.api.dto.common.RedisCacheDTO;
 import com.gospelee.api.dto.jwt.JwkSetDTO;
 import com.gospelee.api.enums.RedisCacheNames;
+import com.gospelee.api.enums.SocialLoginPlatform;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -16,26 +17,31 @@ public class RedisCacheServiceImpl implements RedisCacheService {
 
   private final CacheManager cacheManager;
   private final RedisTemplate<String, String> redisTemplate;
-  private final RestClient restClient;
+  private final RestClient appleRestClient;
+  private final RestClient kakaoRestClient;
   private final ObjectMapper objectMapper;
-  String JWK_CACHE_KEY = "kakao";
-  String JWK_WELL_KNOWN_URI = "/.well-known/jwks.json";
+  String APPLE_JWK_WELL_KNOWN_URI = "/auth/keys";
+  String KAKAO_JWK_WELL_KNOWN_URI = "/.well-known/jwks.json";
   String REDIS_SEPARATOR = "::";
 
   public RedisCacheServiceImpl(CacheManager cacheManager,
-      RedisTemplate<String, String> redisTemplate, RestClient.Builder restClient,
-      ObjectMapper objectMapper) {
+      RedisTemplate<String, String> redisTemplate, RestClient.Builder kakaoRestClient,
+      RestClient.Builder appleRestClient, ObjectMapper objectMapper) {
     this.cacheManager = cacheManager;
     this.redisTemplate = redisTemplate;
     this.objectMapper = objectMapper;
-    this.restClient = restClient
+    this.appleRestClient = appleRestClient
+        .baseUrl("https://appleid.apple.com")
+        .build();
+    this.kakaoRestClient = kakaoRestClient
         .baseUrl("https://kauth.kakao.com")
         .build();
   }
 
   @Override
-  public JwkSetDTO getPublicKeySet() {
-    String cachedJson = this.get(RedisCacheNames.KAKAO_JWK_SET, JWK_CACHE_KEY);
+  public JwkSetDTO getKakaoPublicKeySet() {
+    String cachedJson = this.get(RedisCacheNames.KAKAO_JWK_SET,
+        SocialLoginPlatform.KAKAO.getValue());
 
     if (cachedJson != null) {
       try {
@@ -46,14 +52,43 @@ public class RedisCacheServiceImpl implements RedisCacheService {
     }
 
     // 캐시에 없으면 외부에서 가져옴
-    JwkSetDTO fetched = restClient.get()
-        .uri(JWK_WELL_KNOWN_URI)
+    JwkSetDTO fetched = kakaoRestClient.get()
+        .uri(KAKAO_JWK_WELL_KNOWN_URI)
         .retrieve()
         .body(JwkSetDTO.class);
 
     RedisCacheDTO redisCacheDTO = RedisCacheDTO.builder()
         .redisCacheNames(RedisCacheNames.KAKAO_JWK_SET)
-        .key(JWK_CACHE_KEY)
+        .key(SocialLoginPlatform.KAKAO.getValue())
+        .value(fetched)
+        .build();
+    this.put(redisCacheDTO);
+
+    return fetched;
+  }
+
+  @Override
+  public JwkSetDTO getApplePublicKeySet() {
+    String cachedJson = this.get(RedisCacheNames.APPLE_JWK_SET,
+        SocialLoginPlatform.APPLE.getValue());
+
+    if (cachedJson != null) {
+      try {
+        return objectMapper.readValue(cachedJson, JwkSetDTO.class);
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException("JWKSet 역직렬화 실패", e);
+      }
+    }
+
+    // 캐시에 없으면 외부에서 가져옴
+    JwkSetDTO fetched = appleRestClient.get()
+        .uri(APPLE_JWK_WELL_KNOWN_URI)
+        .retrieve()
+        .body(JwkSetDTO.class);
+
+    RedisCacheDTO redisCacheDTO = RedisCacheDTO.builder()
+        .redisCacheNames(RedisCacheNames.APPLE_JWK_SET)
+        .key(SocialLoginPlatform.APPLE.getValue())
         .value(fetched)
         .build();
     this.put(redisCacheDTO);
