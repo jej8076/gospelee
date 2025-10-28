@@ -10,6 +10,7 @@ import com.gospelee.api.dto.jwt.JwtPayload;
 import com.gospelee.api.dto.kakao.UserMeResponse;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.AccountEcclesiaHistory;
+import com.gospelee.api.entity.AccountMeta;
 import com.gospelee.api.entity.Ecclesia;
 import com.gospelee.api.enums.AccountEcclesiaHistoryStatusType;
 import com.gospelee.api.enums.Bearer;
@@ -23,6 +24,7 @@ import com.gospelee.api.exception.KakaoResponseException;
 import com.gospelee.api.exception.MissingRequiredValueException;
 import com.gospelee.api.properties.AuthProperties;
 import com.gospelee.api.repository.AccountEcclesiaHistoryRepository;
+import com.gospelee.api.repository.jpa.account.AccountMetaRepository;
 import com.gospelee.api.repository.jpa.account.AccountRepository;
 import com.gospelee.api.repository.jpa.ecclesia.EcclesiaJpaRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
@@ -47,6 +49,7 @@ public class AccountServiceImpl implements AccountService {
 
   private final AuthProperties authProperties;
   private final AccountRepository accountRepository;
+  private final AccountMetaRepository accountMetaRepository;
   private final AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository;
   private final EcclesiaJpaRepository ecclesiaJpaRepository;
   private final RedisCacheService redisCacheService;
@@ -55,12 +58,14 @@ public class AccountServiceImpl implements AccountService {
   private final RestClient restClient;
 
   public AccountServiceImpl(AuthProperties authProperties, AccountRepository accountRepository,
+      AccountMetaRepository accountMetaRepository,
       AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository,
       EcclesiaJpaRepository ecclesiaJpaRepository, RedisCacheService redisCacheService,
       RestClient.Builder restClient, SnakeCaseJsonUtils snakeCaseJsonUtils,
       CamelCaseJsonUtils camelCaseJsonUtils) {
     this.authProperties = authProperties;
     this.accountRepository = accountRepository;
+    this.accountMetaRepository = accountMetaRepository;
     this.accountEcclesiaHistoryRepository = accountEcclesiaHistoryRepository;
     this.ecclesiaJpaRepository = ecclesiaJpaRepository;
     this.redisCacheService = redisCacheService;
@@ -306,7 +311,7 @@ public class AccountServiceImpl implements AccountService {
    * 기존 계정을 찾거나 새로운 계정을 생성합니다.
    */
   private Account findOrCreateAccount(JwtPayload jwtPayload, TokenDTO tokenDTO) {
-    return accountRepository.findByEmail(jwtPayload.getEmail())
+    return findAccountOrMetaByEmail(jwtPayload.getEmail())
         .map(existingAccount -> updateExistingAccount(existingAccount, tokenDTO))
         .orElseGet(() -> createNewAccount(jwtPayload, tokenDTO));
   }
@@ -341,6 +346,21 @@ public class AccountServiceImpl implements AccountService {
     }
 
     return savedAccount;
+  }
+
+  private Optional<Account> findAccountOrMetaByEmail(String email) {
+    Optional<Account> accountOpt = accountRepository.findByEmail(email);
+    if (accountOpt.isPresent()) {
+      return accountOpt;
+    }
+
+    Optional<AccountMeta> metaOpt = accountMetaRepository.findByEmail(email);
+    if (metaOpt.isPresent()) {
+      AccountMeta meta = metaOpt.get();
+      return accountRepository.findById(meta.getAccountUid());
+    }
+
+    return Optional.empty();
   }
 
   /**
