@@ -5,6 +5,7 @@ import java.util.Map;
 import lombok.Getter;
 
 public enum SocialLoginPlatform {
+  EMPTY("empty"),
   KAKAO("kakao"),
   APPLE("apple");
 
@@ -26,7 +27,7 @@ public enum SocialLoginPlatform {
   public static SocialLoginPlatform of(String name) {
     SocialLoginPlatform result = NAME_MAP.get(name);
     if (result == null) {
-      throw new IllegalArgumentException("Invalid SocialLoginPlatform name: " + name);
+      return EMPTY;
     }
     return result;
   }
