@@ -11,17 +11,21 @@ import com.gospelee.api.enums.ErrorResponseType;
 import com.gospelee.api.enums.SocialLoginPlatform;
 import com.gospelee.api.enums.TokenHeaders;
 import com.gospelee.api.properties.AuthProperties;
+import com.gospelee.api.service.AccountService;
 import com.gospelee.api.utils.IpUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -31,16 +35,16 @@ import util.JsonUtils;
 @Log4j2
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-  private final KakaoJwtProvider kakaoJwtProvider;
   private final AuthProperties authProperties;
+  private final AccountService accountService;
+  private final SocialJwtProviderFactory providerFactory;
   private final String NONCE_CHECK_PATH = "/account/auth/success";
-  private final AppleJwtProvider appleJwtProvider;
 
-  public JwtAuthenticationFilter(KakaoJwtProvider kakaoJwtProvider, AuthProperties authProperties,
-      AppleJwtProvider appleJwtProvider) {
-    this.kakaoJwtProvider = kakaoJwtProvider;
+  public JwtAuthenticationFilter(AuthProperties authProperties, AccountService accountService,
+      SocialJwtProviderFactory providerFactory) {
     this.authProperties = authProperties;
-    this.appleJwtProvider = appleJwtProvider;
+    this.accountService = accountService;
+    this.providerFactory = providerFactory;
   }
 
   @Override
@@ -76,20 +80,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     if (isWeb && tokenDTO.getIdToken().equals(authProperties.getSuperPass())) {
       log.info("[SUPERLOGIN] clientIp:{}", clientIp);
       JwtPayload emptyPayload = JwtPayload.builder().build();
-      setAuthenticationToContext(emptyPayload, tokenDTO);
+      applySuperAuthenticationToContext(tokenDTO);
       filterChain.doFilter(request, response);
       return;
     }
 
-    JwtPayload jwtPayload = null;
+    SocialJwtProvider socialJwtProvider = providerFactory.getProvider(
+        tokenDTO.getSocialLoginPlatform());
 
-    if (tokenDTO.getSocialLoginPlatform() == SocialLoginPlatform.APPLE) {
-      jwtPayload = appleJwtProvider.getOIDCPayload(tokenDTO.getIdToken(),
-          nonceCacheKey);
-    } else if (tokenDTO.getSocialLoginPlatform() == SocialLoginPlatform.KAKAO) {
-      jwtPayload = kakaoJwtProvider.getOIDCPayload(tokenDTO.getIdToken(),
-          nonceCacheKey);
-    }
+    JwtPayload jwtPayload = socialJwtProvider.getOIDCPayload(tokenDTO.getIdToken(), nonceCacheKey);
 
     if (ObjectUtils.isEmpty(jwtPayload)) {
       failResponse(response, ErrorResponseType.AUTH_103);
@@ -97,7 +96,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     // 인증 주입
-    Authentication authentication = setAuthenticationToContext(jwtPayload, tokenDTO);
+    Authentication authentication = applyAuthenticationToContext(socialJwtProvider, jwtPayload,
+        tokenDTO);
 
     if (authentication == null || !(authentication.getPrincipal() instanceof AccountAuthDTO)) {
       failResponse(response, ErrorResponseType.AUTH_103);
@@ -120,9 +120,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             .startsWith(path.split("\\/\\*")[0]) : path.equals(requestURI));
   }
 
-  private Authentication setAuthenticationToContext(JwtPayload jwtPayload, TokenDTO tokenDTO) {
+  private void applySuperAuthenticationToContext(TokenDTO tokenDTO) {
+    Authentication authentication = getSuperAuthentication(tokenDTO);
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+  }
 
-    Authentication authentication = kakaoJwtProvider.getAuthentication(jwtPayload,
+  private Authentication applyAuthenticationToContext(SocialJwtProvider socialJwtProvider,
+      JwtPayload jwtPayload, TokenDTO tokenDTO) {
+
+    Authentication authentication = socialJwtProvider.getAuthentication(jwtPayload,
         tokenDTO);
     SecurityContextHolder.getContext().setAuthentication(authentication);
     return authentication;
@@ -161,4 +167,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       logger.debug(e.getMessage());
     }
   }
+
+  private UsernamePasswordAuthenticationToken getSuperAuthentication(TokenDTO tokenDTO) {
+    Optional<AccountAuthDTO> accountAuthDTO = accountService.handleSuperUserAuthentication();
+    return accountAuthDTO.map(account -> {
+      UserDetails userDetails = AccountAuthDTO.builder()
+          .uid(account.getUid())
+          .email(account.getEmail())
+          .name(account.getName())
+          .role(account.getRole())
+          .idToken(account.getIdToken())
+          .accessToken(account.getAccessToken())
+          .refreshToken(account.getRefreshToken())
+          .ecclesiaUid(account.getEcclesiaUid())
+          .pushToken(account.getPushToken())
+          .ecclesiaStatus(account.getEcclesiaStatus())
+          .build();
+      return new UsernamePasswordAuthenticationToken(userDetails, tokenDTO.getIdToken(),
+          userDetails.getAuthorities());
+    }).orElseThrow(() -> new RuntimeException("account 불러오기 혹은 저장 실패"));
+  }
+
 }

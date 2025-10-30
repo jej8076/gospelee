@@ -5,51 +5,42 @@ import static util.Base64Util.decodeBase64;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gospelee.api.dto.account.AccountAuthDTO;
-import com.gospelee.api.dto.account.TokenDTO;
 import com.gospelee.api.dto.jwt.JwkDTO;
 import com.gospelee.api.dto.jwt.JwkSetDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
 import com.gospelee.api.enums.RedisCacheNames;
+import com.gospelee.api.enums.SocialLoginPlatform;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.RedisCacheService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import java.math.BigInteger;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.RSAPublicKeySpec;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestClientException;
 
 @Component
 @Slf4j
-public class KakaoJwtProvider {
+public class KakaoJwtProvider extends SocialJwtProvider {
 
   private final RedisCacheService redisCacheService;
-  private final AccountService accountService;
   @Value("${kakao.issuer}")
   private String KAKAO_ISS;
   @Value("${kakao.app-key}")
   private String KAKAO_SERVICE_APP_KEY;
 
-  public KakaoJwtProvider(RedisCacheService redisCacheService,
-      AccountService accountService) {
+  public KakaoJwtProvider(AccountService accountService, RedisCacheService redisCacheService) {
+    super(accountService);
     this.redisCacheService = redisCacheService;
-    this.accountService = accountService;
+  }
+
+  public SocialLoginPlatform getSupportedPlatform() {
+    return SocialLoginPlatform.KAKAO;
   }
 
   public JwtPayload getOIDCPayload(String token, String nonceCacheKey)
@@ -98,41 +89,6 @@ public class KakaoJwtProvider {
       log.error("token 유효성 검증 실패 [{}]", token, e);
       return null;
     }
-  }
-
-  public Authentication getAuthentication(JwtPayload jwtPayload, TokenDTO tokenDTO) {
-    Optional<AccountAuthDTO> accountAuthDTO;
-    if (accountService.isSuperUserToken(tokenDTO.getIdToken())) {
-      accountAuthDTO = accountService.handleSuperUserAuthentication();
-    } else {
-//      UserMeResponse userMeResponse = accountService.getKakaoUserMe(tokenDTO.getAccessToken());
-      accountAuthDTO = accountService.saveAndGetAccount(jwtPayload, tokenDTO);
-    }
-
-    return accountAuthDTO.map(account -> {
-      UserDetails userDetails = AccountAuthDTO.builder()
-          .uid(account.getUid())
-          .email(account.getEmail())
-          .name(account.getName())
-          .role(account.getRole())
-          .idToken(account.getIdToken())
-          .accessToken(account.getAccessToken())
-          .refreshToken(account.getRefreshToken())
-          .ecclesiaUid(account.getEcclesiaUid())
-          .pushToken(account.getPushToken())
-          .ecclesiaStatus(account.getEcclesiaStatus())
-          .build();
-      return new UsernamePasswordAuthenticationToken(userDetails, tokenDTO.getIdToken(),
-          userDetails.getAuthorities());
-    }).orElseThrow(() -> new RuntimeException("account 불러오기 혹은 저장 실패"));
-  }
-
-  private CharSequence getUnsignedToken(String token) {
-    String[] splitToken = token.split("\\.");
-    if (splitToken.length != 3) {
-      throw new IllegalArgumentException("잘못된 Id Token 입니다.");
-    }
-    return splitToken[0] + "." + splitToken[1] + "." + splitToken[2];
   }
 
   private boolean validationIdToken(String idToken, String nonceCacheKey)
@@ -187,19 +143,6 @@ public class KakaoJwtProvider {
     }
 
     return true;
-  }
-
-  private PublicKey getRSAPublicKey(String modulus, String exponent)
-      throws NoSuchAlgorithmException, InvalidKeySpecException {
-    KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-
-    byte[] decodeN = Base64.getUrlDecoder().decode(modulus);
-    byte[] decodeE = Base64.getUrlDecoder().decode(exponent);
-    BigInteger n = new BigInteger(1, decodeN);
-    BigInteger e = new BigInteger(1, decodeE);
-
-    RSAPublicKeySpec keySpec = new RSAPublicKeySpec(n, e);
-    return keyFactory.generatePublic(keySpec);
   }
 
   private Optional<String> getKid(String token) {
