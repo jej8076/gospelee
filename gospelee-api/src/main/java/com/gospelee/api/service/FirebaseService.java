@@ -121,7 +121,7 @@ public class FirebaseService {
         .build();
 
     try {
-      return firebaseMessaging.sendMulticast(message);
+      return firebaseMessaging.sendEachForMulticast(message);
     } catch (FirebaseMessagingException e) {
       throw new RuntimeException(e);
     }
