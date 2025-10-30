@@ -46,6 +46,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     this.accountService = accountService;
     this.providerFactory = providerFactory;
   }
+  
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
