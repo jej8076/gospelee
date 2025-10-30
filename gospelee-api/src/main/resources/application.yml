@@ -66,7 +66,14 @@ auth:
     - /announcement/unauthorized/BRAND_STORY
   allow-pending-paths:
     - /api/account/qr/req/*
+    -
+kakao:
+  issuer: https://kauth.kakao.com
+  app-key: sample
 
+apple:
+  issuer: https://appleid.apple.com
+  app-key: sample
 
 file:
   base-path: /Users/ej/dev/testFiles/gospelee/api
