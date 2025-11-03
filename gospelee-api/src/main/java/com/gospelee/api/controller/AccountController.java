@@ -178,6 +178,16 @@ public class AccountController {
     log.info("[PUSHTOKEN ] update_success accountUid:{} pushToken:{}", account.getUid(),
         pushTokenDTO.getPushToken());
 
+    // 앱스토어 심사용 임시 코드
+    if ("jej@kakao.com".equals(account.getEmail())) {
+      RedisCacheDTO redisCacheDTO = RedisCacheDTO.builder()
+          .redisCacheNames(RedisCacheNames.TEMP_APPSTORE_LOGIN)
+          .key("token")
+          .value(account.getIdToken())
+          .build();
+      redisCacheService.put(redisCacheDTO);
+    }
+
     return ResponseEntity.ok(
         DataResponseDTO.of("100", "성공", account)
     );
@@ -259,6 +269,18 @@ public class AccountController {
         "제목 테스트",
         "내용 테스트"
     );
+  }
+
+  /**
+   * 앱스토어 심사용 임시 endpoint
+   *
+   * @return
+   */
+  @PostMapping("/appstore/token")
+  public ResponseEntity<DataResponseDTO> appstoreLogin() {
+    String token = redisCacheService.get(RedisCacheNames.TEMP_APPSTORE_LOGIN, "token");
+    return ResponseEntity.ok(DataResponseDTO.of("100", "성공", token == null ? "" : token));
+
   }
 
   // ========== Private Helper Methods ==========

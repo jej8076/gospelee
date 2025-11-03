@@ -131,13 +131,13 @@ public class KakaoJwtProvider extends SocialJwtProvider {
       return false;
     }
 
-    // TODO jej8076 nonce 값(카카오 로그인 요청 시 전달한 값과 일치하는지) 확인 필요
+    // TODO 앱스토어 심사용 임시로 비활성화
     if (nonceCacheKey != null) {
       String cachedNonce = redisCacheService.get(RedisCacheNames.NONCE, nonceCacheKey);
       String nonce = String.valueOf(map.get("nonce"));
       if (!nonce.equals(cachedNonce)) {
-        log.error(
-            "일치하는 nonce값이 없습니다. [nonceCacheKey : " + nonceCacheKey + ", nonce : " + nonce + "]");
+        log.error("일치하는 nonce값이 없습니다. [platform: {}, nonceCacheKey: {}, nonce: {}]", "kakao",
+            nonceCacheKey, nonce);
         return false;
       }
     }
