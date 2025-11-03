@@ -7,6 +7,7 @@ public enum RedisCacheNames {
   APPLE_JWK_SET(Duration.ofDays(7L)),
   NONCE(Duration.ofMinutes(5L)),
   USER_ME(Duration.ofHours(6L)),
+  TEMP_APPSTORE_LOGIN(Duration.ofDays(1L)),
   ;
 
   final private Duration ttl;
