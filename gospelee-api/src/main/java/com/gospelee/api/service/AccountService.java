@@ -4,6 +4,7 @@ import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDecideDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDetailDTO;
+import com.gospelee.api.dto.account.AccountLeaveResponseDTO;
 import com.gospelee.api.dto.account.TokenDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
 import com.gospelee.api.dto.kakao.UserMeResponse;
@@ -22,7 +23,7 @@ public interface AccountService {
   AccountEcclesiaHistoryDTO decideJoinRequest(
       AccountEcclesiaHistoryDecideDTO accountEcclesiaHistoryDecideDTO);
 
-  Account leaveAccount(Account account);
+  AccountLeaveResponseDTO leaveAccount(AccountAuthDTO account);
 
   Optional<Account> getAccountByPhone(final String Phone);
 

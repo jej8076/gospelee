@@ -99,7 +99,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     Authentication authentication = applyAuthenticationToContext(socialJwtProvider, jwtPayload,
         tokenDTO);
 
-    if (authentication == null || !(authentication.getPrincipal() instanceof AccountAuthDTO)) {
+    if (authentication == null) {
+      failResponse(response, ErrorResponseType.AUTH_111);
+      return;
+    }
+
+    if (!(authentication.getPrincipal() instanceof AccountAuthDTO)) {
       failResponse(response, ErrorResponseType.AUTH_103);
       return;
     }
@@ -127,9 +132,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private Authentication applyAuthenticationToContext(SocialJwtProvider socialJwtProvider,
       JwtPayload jwtPayload, TokenDTO tokenDTO) {
-
     Authentication authentication = socialJwtProvider.getAuthentication(jwtPayload,
         tokenDTO);
+    if (authentication == null) {
+      // TODO authentication 이 null인 경우는 회원이 있으나 탈퇴한 경우 뿐임, 코드만 봐서는 의도가 명확하지 않으므로 의도 명확히 해야함
+      return null;
+    }
     SecurityContextHolder.getContext().setAuthentication(authentication);
     return authentication;
   }

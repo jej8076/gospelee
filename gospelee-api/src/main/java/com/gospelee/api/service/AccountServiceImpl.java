@@ -4,6 +4,7 @@ import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDecideDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDetailDTO;
+import com.gospelee.api.dto.account.AccountLeaveResponseDTO;
 import com.gospelee.api.dto.account.TokenDTO;
 import com.gospelee.api.dto.common.RedisCacheDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
@@ -19,6 +20,7 @@ import com.gospelee.api.enums.RedisCacheNames;
 import com.gospelee.api.enums.RoleType;
 import com.gospelee.api.enums.SocialLoginPlatform;
 import com.gospelee.api.enums.TokenHeaders;
+import com.gospelee.api.enums.Yn;
 import com.gospelee.api.exception.AccountNotFoundException;
 import com.gospelee.api.exception.EcclesiaException;
 import com.gospelee.api.exception.KakaoResponseException;
@@ -171,8 +173,17 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public Account leaveAccount(Account account) {
-    return null;
+  public AccountLeaveResponseDTO leaveAccount(AccountAuthDTO accountRequest) {
+    Optional<Account> account = accountRepository.findById(accountRequest.getUid());
+    if (account.isEmpty()) {
+      throw new AccountNotFoundException("탈퇴할 계정이 존재하지 않습니다.");
+    }
+    Account getAccount = account.get();
+    getAccount.changeLeaveYn(Yn.Y);
+    accountRepository.save(getAccount);
+    return AccountLeaveResponseDTO.builder()
+        .uid(getAccount.getUid())
+        .build();
   }
 
   /**
@@ -334,6 +345,7 @@ public class AccountServiceImpl implements AccountService {
         .email(jwtPayload.getEmail())
         .role(RoleType.LAYMAN)
         .idToken(tokenDTO.getIdToken())
+        .leaveYn(Yn.N)
         .build();
 
     Account savedAccount = accountRepository.save(newAccount);
@@ -388,7 +400,8 @@ public class AccountServiceImpl implements AccountService {
         .idToken(account.getIdToken())
         .accessToken(accessToken)
         .refreshToken(refreshToken)
-        .pushToken(account.getPushToken());
+        .pushToken(account.getPushToken())
+        .leaveYn(account.getLeaveYn());
 
     if (account.getEcclesiaUid() == null) {
       // 계정의 ecclesiaUid 정보가 없어도 ecclesia의 masterAccountUid로 로그인한 계정을 조회했을 때 결과가 있으면 해당 교회에 소속된 것으로 간주한다

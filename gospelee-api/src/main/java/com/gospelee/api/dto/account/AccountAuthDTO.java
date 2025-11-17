@@ -1,6 +1,7 @@
 package com.gospelee.api.dto.account;
 
 import com.gospelee.api.enums.RoleType;
+import com.gospelee.api.enums.Yn;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,6 +38,8 @@ public class AccountAuthDTO implements UserDetails {
   private String pushToken;
 
   private String ecclesiaStatus;
+
+  private Yn leaveYn;
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
