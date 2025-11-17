@@ -10,7 +10,6 @@ import com.gospelee.api.dto.kakao.UserMeResponse;
 import com.gospelee.api.entity.Account;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.cache.annotation.Cacheable;
 
 public interface AccountService {
 
@@ -23,6 +22,8 @@ public interface AccountService {
   AccountEcclesiaHistoryDTO decideJoinRequest(
       AccountEcclesiaHistoryDecideDTO accountEcclesiaHistoryDecideDTO);
 
+  Account leaveAccount(Account account);
+
   Optional<Account> getAccountByPhone(final String Phone);
 
   Optional<Account> getAccountByEmail(String email);
@@ -32,8 +33,6 @@ public interface AccountService {
   void savePushToken(Long uid, String pushToken);
 
   UserMeResponse getKakaoUserMe(String accessToken);
-
-  boolean isSuperUserToken(String idToken);
 
   Optional<AccountAuthDTO> handleSuperUserAuthentication();
 

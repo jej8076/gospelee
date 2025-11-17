@@ -9,11 +9,11 @@ public class JwtPayload {
 
   private final String issuer;
   private final Set<String> audience;
+  // apple social login client의 primary value
   private final String sub;
   private final String email;
   private final String nickname;
   private final String picture;
-
 
   @Builder
   public JwtPayload(String issuer, String sub, Set<String> audience, String email,

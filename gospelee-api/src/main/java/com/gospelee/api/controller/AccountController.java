@@ -160,6 +160,13 @@ public class AccountController {
     );
   }
 
+  @PostMapping("/leave")
+  public ResponseEntity<Object> leaveAccount(@AuthenticationPrincipal AccountAuthDTO account) {
+    List<AccountEcclesiaHistoryDetailDTO> accountEcclesiaHistoryDetailList = accountService.getAccountEcclesiaRequestList();
+    return ResponseEntity.ok(
+        DataResponseDTO.of("100", "성공", accountEcclesiaHistoryDetailList));
+  }
+
   // ========== 푸시 토큰 관리 API ==========
 
   /**

@@ -39,3 +39,4 @@ out/
 /gospelee-api/src/main/resources/application-dev.yml
 /gospelee-api/src/main/resources/application-prod.yml
 /.java-version
+/gospelee-api/src/main/resources/binary/redis/dump.rdb

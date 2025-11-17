@@ -17,6 +17,7 @@ import com.gospelee.api.enums.Bearer;
 import com.gospelee.api.enums.EcclesiaStatusType;
 import com.gospelee.api.enums.RedisCacheNames;
 import com.gospelee.api.enums.RoleType;
+import com.gospelee.api.enums.SocialLoginPlatform;
 import com.gospelee.api.enums.TokenHeaders;
 import com.gospelee.api.exception.AccountNotFoundException;
 import com.gospelee.api.exception.EcclesiaException;
@@ -169,6 +170,11 @@ public class AccountServiceImpl implements AccountService {
         accountEcclesiaHistoryRepository.save(accountEcclesiaHistory));
   }
 
+  @Override
+  public Account leaveAccount(Account account) {
+    return null;
+  }
+
   /**
    * 전화번호로 계정을 조회합니다.
    *
@@ -272,15 +278,6 @@ public class AccountServiceImpl implements AccountService {
     return userMeResponse;
   }
 
-  // ========== Private Helper Methods ==========
-
-  /**
-   * 슈퍼 유저 토큰인지 확인합니다.
-   */
-  public boolean isSuperUserToken(String idToken) {
-    return authProperties.getSuperPass().equals(idToken);
-  }
-
   /**
    * 슈퍼 유저 인증을 처리합니다.
    */
@@ -344,6 +341,17 @@ public class AccountServiceImpl implements AccountService {
     if (ObjectUtils.isEmpty(savedAccount)) {
       throw new RuntimeException("계정 저장에 실패했습니다.");
     }
+
+    AccountMeta accountMeta = AccountMeta.builder()
+        .accountUid(newAccount.getUid())
+        .identifier(
+            tokenDTO.getSocialLoginPlatform() == SocialLoginPlatform.APPLE ? jwtPayload.getSub()
+                : null)
+        .email(newAccount.getEmail())
+        .insertTime(LocalDateTime.now())
+        .build();
+
+    accountMetaRepository.save(accountMeta);
 
     return savedAccount;
   }
