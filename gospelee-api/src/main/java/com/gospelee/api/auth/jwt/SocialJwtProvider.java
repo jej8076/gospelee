@@ -39,7 +39,9 @@ public abstract class SocialJwtProvider {
     return accountAuthDTO.map(account -> {
       if (account.getLeaveYn() == Yn.Y) {
         // TODO null 로 return하면 회원탈퇴된 경우 뿐이여야함, 의도 명확히 할 필요 있음
-        return null;
+//        return null;
+
+        return new UsernamePasswordAuthenticationToken(null, null, null);
       }
       UserDetails userDetails = AccountAuthDTO.builder()
           .uid(account.getUid())

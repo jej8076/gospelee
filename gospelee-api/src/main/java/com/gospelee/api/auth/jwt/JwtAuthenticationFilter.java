@@ -100,7 +100,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         tokenDTO);
 
     if (authentication == null) {
-      failResponse(response, ErrorResponseType.AUTH_111);
+      failResponse(response, ErrorResponseType.AUTH_111, HttpStatus.GONE);
       return;
     }
 
@@ -134,7 +134,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       JwtPayload jwtPayload, TokenDTO tokenDTO) {
     Authentication authentication = socialJwtProvider.getAuthentication(jwtPayload,
         tokenDTO);
-    if (authentication == null) {
+    if (authentication.getPrincipal() == null) {
       // TODO authentication 이 null인 경우는 회원이 있으나 탈퇴한 경우 뿐임, 코드만 봐서는 의도가 명확하지 않으므로 의도 명확히 해야함
       return null;
     }
