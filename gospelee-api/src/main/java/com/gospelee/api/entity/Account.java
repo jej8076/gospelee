@@ -2,6 +2,7 @@ package com.gospelee.api.entity;
 
 import com.gospelee.api.entity.common.EditInfomation;
 import com.gospelee.api.enums.RoleType;
+import com.gospelee.api.enums.Yn;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -51,9 +52,13 @@ public class Account extends EditInfomation {
   @Column(length = 1000)
   private String pushToken;
 
+  @Column
+  @Enumerated(EnumType.STRING)
+  private Yn leaveYn;
+
   @Builder
   public Account(long uid, String name, Long ecclesiaUid, String rrn, String phone, String email,
-      RoleType role, String idToken, String pushToken) {
+      RoleType role, String idToken, String pushToken, Yn leaveYn) {
     this.uid = uid;
     this.name = name;
     this.ecclesiaUid = ecclesiaUid;
@@ -63,6 +68,7 @@ public class Account extends EditInfomation {
     this.role = role;
     this.idToken = idToken;
     this.pushToken = pushToken;
+    this.leaveYn = leaveYn;
   }
 
   public void changeRole(RoleType role) {
@@ -73,5 +79,8 @@ public class Account extends EditInfomation {
     this.ecclesiaUid = ecclesiaUid;
   }
 
+  public void changeLeaveYn(Yn yn) {
+    this.leaveYn = yn;
+  }
 
 }

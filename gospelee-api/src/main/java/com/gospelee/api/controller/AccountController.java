@@ -6,6 +6,7 @@ import com.gospelee.api.dto.account.AccountDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDecideDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDetailDTO;
+import com.gospelee.api.dto.account.AccountLeaveResponseDTO;
 import com.gospelee.api.dto.account.PushTokenDTO;
 import com.gospelee.api.dto.common.DataResponseDTO;
 import com.gospelee.api.dto.common.NonceRequestDTO;
@@ -158,6 +159,12 @@ public class AccountController {
     return ResponseEntity.ok(
         DataResponseDTO.of("100", "성공", account)
     );
+  }
+
+  @PostMapping("/leave")
+  public ResponseEntity<Object> leaveAccount(@AuthenticationPrincipal AccountAuthDTO account) {
+    AccountLeaveResponseDTO accountLeaveResponseDTO = accountService.leaveAccount(account);
+    return ResponseEntity.ok(DataResponseDTO.of("100", "성공", accountLeaveResponseDTO));
   }
 
   // ========== 푸시 토큰 관리 API ==========

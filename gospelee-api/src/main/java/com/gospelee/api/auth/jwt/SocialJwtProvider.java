@@ -5,6 +5,7 @@ import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.account.TokenDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
 import com.gospelee.api.enums.SocialLoginPlatform;
+import com.gospelee.api.enums.Yn;
 import com.gospelee.api.service.AccountService;
 import java.math.BigInteger;
 import java.security.KeyFactory;
@@ -36,6 +37,12 @@ public abstract class SocialJwtProvider {
         tokenDTO);
 
     return accountAuthDTO.map(account -> {
+      if (account.getLeaveYn() == Yn.Y) {
+        // TODO null 로 return하면 회원탈퇴된 경우 뿐이여야함, 의도 명확히 할 필요 있음
+//        return null;
+
+        return new UsernamePasswordAuthenticationToken(null, null, null);
+      }
       UserDetails userDetails = AccountAuthDTO.builder()
           .uid(account.getUid())
           .email(account.getEmail())

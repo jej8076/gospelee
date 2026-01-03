@@ -5,7 +5,7 @@ import java.util.Map;
 import lombok.Getter;
 
 public enum CustomHeader {
-  SOCIAL_LOGIN_PLATFORM("Social-Login-platform"),
+  SOCIAL_LOGIN_PLATFORM("Social-Login-Platform"),
   SOCIAL_ACCESS_TOKEN("Social-Access-Token"),
   X_APP_IDENTIFIER("X-App-Identifier"),
   X_ANONYMOUS_USER_ID("X-Anonymous-User-ID"),

@@ -24,6 +24,7 @@ public enum ErrorResponseType {
   AUTH_108("AUTH-108", "허용되지 않은 아이피"),
   AUTH_109("AUTH-109", "중복로그인으로 인한 로그아웃"),
   AUTH_110("AUTH-110", "토큰이 존재하지 않음"),
+  AUTH_111("AUTH-111", "탈퇴한 회원임"),
 
   /* ECCLESIA */
   ECCL_101("ECCL-101", "교회 정보가 없음"),

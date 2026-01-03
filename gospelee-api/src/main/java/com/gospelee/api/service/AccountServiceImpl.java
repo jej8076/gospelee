@@ -4,6 +4,7 @@ import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDecideDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDetailDTO;
+import com.gospelee.api.dto.account.AccountLeaveResponseDTO;
 import com.gospelee.api.dto.account.TokenDTO;
 import com.gospelee.api.dto.common.RedisCacheDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
@@ -17,7 +18,9 @@ import com.gospelee.api.enums.Bearer;
 import com.gospelee.api.enums.EcclesiaStatusType;
 import com.gospelee.api.enums.RedisCacheNames;
 import com.gospelee.api.enums.RoleType;
+import com.gospelee.api.enums.SocialLoginPlatform;
 import com.gospelee.api.enums.TokenHeaders;
+import com.gospelee.api.enums.Yn;
 import com.gospelee.api.exception.AccountNotFoundException;
 import com.gospelee.api.exception.EcclesiaException;
 import com.gospelee.api.exception.KakaoResponseException;
@@ -169,6 +172,20 @@ public class AccountServiceImpl implements AccountService {
         accountEcclesiaHistoryRepository.save(accountEcclesiaHistory));
   }
 
+  @Override
+  public AccountLeaveResponseDTO leaveAccount(AccountAuthDTO accountRequest) {
+    Optional<Account> account = accountRepository.findById(accountRequest.getUid());
+    if (account.isEmpty()) {
+      throw new AccountNotFoundException("탈퇴할 계정이 존재하지 않습니다.");
+    }
+    Account getAccount = account.get();
+    getAccount.changeLeaveYn(Yn.Y);
+    accountRepository.save(getAccount);
+    return AccountLeaveResponseDTO.builder()
+        .uid(getAccount.getUid())
+        .build();
+  }
+
   /**
    * 전화번호로 계정을 조회합니다.
    *
@@ -272,15 +289,6 @@ public class AccountServiceImpl implements AccountService {
     return userMeResponse;
   }
 
-  // ========== Private Helper Methods ==========
-
-  /**
-   * 슈퍼 유저 토큰인지 확인합니다.
-   */
-  public boolean isSuperUserToken(String idToken) {
-    return authProperties.getSuperPass().equals(idToken);
-  }
-
   /**
    * 슈퍼 유저 인증을 처리합니다.
    */
@@ -337,6 +345,7 @@ public class AccountServiceImpl implements AccountService {
         .email(jwtPayload.getEmail())
         .role(RoleType.LAYMAN)
         .idToken(tokenDTO.getIdToken())
+        .leaveYn(Yn.N)
         .build();
 
     Account savedAccount = accountRepository.save(newAccount);
@@ -344,6 +353,17 @@ public class AccountServiceImpl implements AccountService {
     if (ObjectUtils.isEmpty(savedAccount)) {
       throw new RuntimeException("계정 저장에 실패했습니다.");
     }
+
+    AccountMeta accountMeta = AccountMeta.builder()
+        .accountUid(newAccount.getUid())
+        .identifier(
+            tokenDTO.getSocialLoginPlatform() == SocialLoginPlatform.APPLE ? jwtPayload.getSub()
+                : null)
+        .email(newAccount.getEmail())
+        .insertTime(LocalDateTime.now())
+        .build();
+
+    accountMetaRepository.save(accountMeta);
 
     return savedAccount;
   }
@@ -380,7 +400,8 @@ public class AccountServiceImpl implements AccountService {
         .idToken(account.getIdToken())
         .accessToken(accessToken)
         .refreshToken(refreshToken)
-        .pushToken(account.getPushToken());
+        .pushToken(account.getPushToken())
+        .leaveYn(account.getLeaveYn());
 
     if (account.getEcclesiaUid() == null) {
       // 계정의 ecclesiaUid 정보가 없어도 ecclesia의 masterAccountUid로 로그인한 계정을 조회했을 때 결과가 있으면 해당 교회에 소속된 것으로 간주한다
