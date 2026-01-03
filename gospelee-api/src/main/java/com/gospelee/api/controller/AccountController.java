@@ -31,6 +31,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -55,6 +56,8 @@ public class AccountController {
   private final QrloginService qrloginService;
   private final FirebaseService firebaseService;
   private final RedisCacheService redisCacheService;
+  @Value("${appstore.setting_email:}")
+  private String settingEmail;
 
   // ========== 계정 조회 관련 API ==========
 
@@ -186,7 +189,7 @@ public class AccountController {
         pushTokenDTO.getPushToken());
 
     // 앱스토어 심사용 임시 코드
-    if ("jej@kakao.com".equals(account.getEmail())) {
+    if (settingEmail.equals(account.getEmail())) {
       RedisCacheDTO redisCacheDTO = RedisCacheDTO.builder()
           .redisCacheNames(RedisCacheNames.TEMP_APPSTORE_LOGIN)
           .key("token")
