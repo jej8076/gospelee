@@ -8,7 +8,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gospelee.api.dto.jwt.JwkDTO;
 import com.gospelee.api.dto.jwt.JwkSetDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
+import com.gospelee.api.enums.RedisCacheNames;
 import com.gospelee.api.enums.SocialLoginPlatform;
+import com.gospelee.api.properties.AuthProperties;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.RedisCacheService;
 import io.jsonwebtoken.Claims;
@@ -28,14 +30,17 @@ import org.springframework.web.client.RestClientException;
 public class AppleJwtProvider extends SocialJwtProvider {
 
   private final RedisCacheService redisCacheService;
+  private final AuthProperties authProperties;
   @Value("${apple.issuer}")
   private String APPLE_ISS;
   @Value("${apple.app-key}")
   private String APPLE_SERVICE_APP_KEY;
 
-  public AppleJwtProvider(AccountService accountService, RedisCacheService redisCacheService) {
+  public AppleJwtProvider(AccountService accountService, RedisCacheService redisCacheService,
+      AuthProperties authProperties) {
     super(accountService);
     this.redisCacheService = redisCacheService;
+    this.authProperties = authProperties;
   }
 
   public SocialLoginPlatform getSupportedPlatform() {
@@ -130,16 +135,17 @@ public class AppleJwtProvider extends SocialJwtProvider {
       return false;
     }
 
-    // TODO 앱스토어 심사용 임시로 비활성화
-//    if (nonceCacheKey != null) {
-//      String cachedNonce = redisCacheService.get(RedisCacheNames.NONCE, nonceCacheKey);
-//      String nonce = String.valueOf(map.get("nonce"));
-//      if (!nonce.equals(cachedNonce)) {
-//        log.error("일치하는 nonce값이 없습니다. [platform: {}, nonceCacheKey: {}, nonce: {}]", "apple",
-//            nonceCacheKey, nonce);
-//        return false;
-//      }
-//    }
+    // nonce 검증 (앱스토어 심사용 이메일은 검증 건너뜀)
+    String email = String.valueOf(map.get("email"));
+    if (nonceCacheKey != null && !authProperties.shouldSkipNonceValidation(email)) {
+      String cachedNonce = redisCacheService.get(RedisCacheNames.NONCE, nonceCacheKey);
+      String nonce = String.valueOf(map.get("nonce"));
+      if (!nonce.equals(cachedNonce)) {
+        log.error("일치하는 nonce값이 없습니다. [platform: {}, nonceCacheKey: {}, nonce: {}]", "apple",
+            nonceCacheKey, nonce);
+        return false;
+      }
+    }
 
     return true;
   }

@@ -51,6 +51,9 @@ public class EcclesiaServiceImpl implements EcclesiaService {
 
   @Override
   public Ecclesia getEcclesia(Long ecclesiaUid) {
+    if (ecclesiaUid == 0) {
+      return null;
+    }
     return ecclesiaRepository.findEcclesiasByUid(ecclesiaUid)
         .orElseThrow(
             () -> new IllegalArgumentException("해당 UID를 가진 Ecclesia를 찾을 수 없습니다: " + ecclesiaUid));

@@ -5,6 +5,7 @@ import {ChangeEvent, FormEvent, KeyboardEvent, useEffect, useRef, useState} from
 import Image from 'next/image';
 import {useMenuListStore} from "@/hooks/useMenuList";
 import PageTransition from '@/components/PageTransition';
+import {isMobile} from "@/utils/common-utils";
 
 export default function Login() {
   const router = useRouter();
@@ -37,8 +38,13 @@ export default function Login() {
         setTimeout(() => {
           router.push(`/login/password?email=${encodeURIComponent(email)}`);
         }, 300);
+      } else if (isMobile()) {
+        // 모바일 사용자는 딥링크 로그인 페이지로 이동
+        setTimeout(() => {
+          router.push(`/login/mobile?email=${encodeURIComponent(email)}`);
+        }, 300);
       } else {
-        // 일반 사용자는 QR 페이지로 이동
+        // 데스크톱 사용자는 QR 페이지로 이동
         setTimeout(() => {
           router.push(`/login/qr?email=${encodeURIComponent(email)}`);
         }, 300);

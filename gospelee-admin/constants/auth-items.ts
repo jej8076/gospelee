@@ -2,6 +2,7 @@ export const AuthItems = {
   LastAuthInfo: "last-auth-info",
   Bearer: "Bearer ",
   Authorization: "Authorization",
+  SocialLoginPlatform: "Social-Login-Platform",
   SocialAccessToken: "Social-Access-Token",
   SocialRefreshToken: "Social-Refresh-Token",
 

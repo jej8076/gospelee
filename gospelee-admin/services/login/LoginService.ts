@@ -30,11 +30,12 @@ export const qrCheckAndGetToken = async (email: string, code: string) => {
   });
 
   if (!response.ok) {
+    alert(response.ok);
     return null;
   }
 
   const result = await response.json();
-  if (result.idToken == null || result.accessToken == null) {
+  if (result.idToken == null && result.accessToken == null) {
     return null;
   }
 
