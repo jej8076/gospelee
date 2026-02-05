@@ -1,4 +1,4 @@
-package com.gospelee.api.repository.jpa;
+package com.gospelee.api.repository.jpa.youtube;
 
 import com.gospelee.api.entity.YoutubeVideo;
 import org.springframework.data.jpa.repository.JpaRepository;

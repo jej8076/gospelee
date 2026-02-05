@@ -1,4 +1,4 @@
-package com.gospelee.api.repository.jdbc.ecclesia;
+package com.gospelee.api.repository.jdbc;
 
 import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
 import java.util.List;
@@ -8,11 +8,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class EcclesiaJdbcRepositoryImpl implements EcclesiaJdbcRepository {
+public class EcclesiaJdbcRepository {
 
   private final JdbcClient jdbcClient;
 
-  @Override
   public List<EcclesiaResponseDTO> findAllWithMasterName() {
     String sql = """
         SELECT e.uid AS uid,
@@ -41,7 +40,6 @@ public class EcclesiaJdbcRepositoryImpl implements EcclesiaJdbcRepository {
         .list();
   }
 
-  @Override
   public List<EcclesiaResponseDTO> searchEcclesia(String text) {
     String sql = """
         SELECT e.uid AS uid,
