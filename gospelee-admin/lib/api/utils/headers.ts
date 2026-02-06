@@ -6,6 +6,8 @@ export const authHeaders = async () => {
     "Content-Type": "application/json",
     [AuthItems.Authorization]:
         AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
+    [AuthItems.SocialLoginPlatform]:
+        (await getCookie(AuthItems.SocialLoginPlatform)) || "",
     [AuthItems.SocialAccessToken]:
         (await getCookie(AuthItems.SocialAccessToken)) || "",
     [AuthItems.SocialRefreshToken]:
@@ -17,6 +19,8 @@ export const authHeadersWithoutContentsType = async () => {
   return {
     [AuthItems.Authorization]:
         AuthItems.Bearer + (await getCookie(AuthItems.Authorization)),
+    [AuthItems.SocialLoginPlatform]:
+        (await getCookie(AuthItems.SocialLoginPlatform)) || "",
     [AuthItems.SocialAccessToken]:
         (await getCookie(AuthItems.SocialAccessToken)) || "",
     [AuthItems.SocialRefreshToken]:

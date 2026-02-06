@@ -19,7 +19,7 @@ const useAuth = () => {
 
     const initializeToken = async (): Promise<CookieItem[] | null> => {
       try {
-        return await getCookies([AuthItems.Authorization, AuthItems.SocialAccessToken, AuthItems.SocialRefreshToken])
+        return await getCookies([AuthItems.Authorization, AuthItems.SocialLoginPlatform, AuthItems.SocialAccessToken, AuthItems.SocialRefreshToken])
       } catch (error) {
         console.error('Failed to get token:', error);
         return null; // 실패 시 null 반환
@@ -66,6 +66,7 @@ const useAuth = () => {
 
           // 토큰 만료
           await expireCookie(AuthItems.Authorization);
+          await expireCookie(AuthItems.SocialLoginPlatform);
           await expireCookie(AuthItems.SocialAccessToken);
           await expireCookie(AuthItems.SocialRefreshToken);
 
@@ -85,6 +86,7 @@ const useAuth = () => {
 
         // 토큰 만료 처리
         await expireCookie(AuthItems.Authorization);
+        await expireCookie(AuthItems.SocialLoginPlatform);
         await expireCookie(AuthItems.SocialAccessToken);
         await expireCookie(AuthItems.SocialRefreshToken);
 
@@ -117,6 +119,7 @@ const useAuth = () => {
 
         // 토큰 만료 처리
         await expireCookie(AuthItems.Authorization);
+        await expireCookie(AuthItems.SocialLoginPlatform);
         await expireCookie(AuthItems.SocialAccessToken);
         await expireCookie(AuthItems.SocialRefreshToken);
         router.push('/login');

@@ -27,6 +27,7 @@ const QRCodeContent = () => {
 
       const cookies = [
         {name: AuthItems.Authorization, value: AuthItems.Bearer + token.idToken},
+        {name: AuthItems.SocialLoginPlatform, value: token.socialLoginPlatform || "kakao"},
         {name: AuthItems.SocialAccessToken, value: token.accessToken},
         {name: AuthItems.SocialRefreshToken, value: token.refreshToken,}
       ]

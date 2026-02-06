@@ -1,6 +1,7 @@
 package com.gospelee.api.dto.account;
 
 import com.gospelee.api.enums.RoleType;
+import com.gospelee.api.enums.SocialLoginPlatform;
 import com.gospelee.api.enums.Yn;
 import java.util.Collection;
 import java.util.HashSet;
@@ -38,6 +39,8 @@ public class AccountAuthDTO implements UserDetails {
   private String pushToken;
 
   private String ecclesiaStatus;
+
+  private SocialLoginPlatform socialLoginPlatform;
 
   private Yn leaveYn;
 

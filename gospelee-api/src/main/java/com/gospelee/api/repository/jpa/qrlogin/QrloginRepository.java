@@ -1,6 +1,7 @@
 package com.gospelee.api.repository.jpa.qrlogin;
 
 import com.gospelee.api.entity.QrLogin;
+import com.gospelee.api.enums.SocialLoginPlatform;
 import java.time.LocalDateTime;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,12 +17,13 @@ public interface QrloginRepository extends JpaRepository<QrLogin, Long> {
 
   @Modifying
   @Transactional
-  @Query("UPDATE QrLogin l SET l.idToken = :idToken, l.accessToken = :accessToken, l.refreshToken = :refreshToken, l.updateUser = :updateUser, l.updateTime = :updateTime WHERE l.uid = :uid")
+  @Query("UPDATE QrLogin l SET l.idToken = :idToken, l.accessToken = :accessToken, l.refreshToken = :refreshToken, l.socialLoginPlatform = :socialLoginPlatform, l.updateUser = :updateUser, l.updateTime = :updateTime WHERE l.uid = :uid")
   Integer updateQrLoginSuccess(
       @Param("uid") Long uid,
       @Param("idToken") String idToken,
       @Param("accessToken") String accessToken,
       @Param("refreshToken") String refreshToken,
+      @Param("socialLoginPlatform") SocialLoginPlatform socialLoginPlatform,
       @Param("updateUser") String updateUser,
       @Param("updateTime") LocalDateTime updateTime);
 }

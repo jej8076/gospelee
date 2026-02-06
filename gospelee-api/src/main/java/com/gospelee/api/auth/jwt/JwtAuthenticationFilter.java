@@ -190,6 +190,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           .ecclesiaUid(account.getEcclesiaUid())
           .pushToken(account.getPushToken())
           .ecclesiaStatus(account.getEcclesiaStatus())
+          .socialLoginPlatform(tokenDTO.getSocialLoginPlatform())
           .build();
       return new UsernamePasswordAuthenticationToken(userDetails, tokenDTO.getIdToken(),
           userDetails.getAuthorities());

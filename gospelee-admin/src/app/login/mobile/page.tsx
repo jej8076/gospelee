@@ -26,8 +26,7 @@ const MobileLoginContent = () => {
 
       const cookies = [
         {name: AuthItems.Authorization, value: AuthItems.Bearer + token.idToken},
-        // TODO 하드코딩 되어있음, 디바이스에서 로그인 플랫폼을 가져와야함
-        {name: AuthItems.SocialLoginPlatform, value: "kakao"},
+        {name: AuthItems.SocialLoginPlatform, value: token.socialLoginPlatform || "kakao"},
         {name: AuthItems.SocialAccessToken, value: token.accessToken},
         {name: AuthItems.SocialRefreshToken, value: token.refreshToken}
       ];
