@@ -126,10 +126,10 @@ export default function ApplyChurch() {
                   </div>
                 </div>
               </div>
-              <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl mb-4">
+              <h1 className="text-[31px] sm:text-4xl font-bold text-gray-900 mb-4">
                 교회 신청
               </h1>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              <p className="text-[15px] sm:text-xl text-gray-600 max-w-2xl mx-auto">
                 교회 정보를 입력하여 서비스 이용을 신청해주세요.<br/>
                 관리자 승인 후 서비스를 이용하실 수 있습니다.
               </p>
@@ -139,7 +139,7 @@ export default function ApplyChurch() {
             <div
                 className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden mb-8">
               <div className="bg-gray-800 px-6 py-4">
-                <h2 className="text-xl font-semibold text-white flex items-center">
+                <h2 className="text-[15px] sm:text-xl font-semibold text-white flex items-center">
                   <DocumentCheckIcon className="w-6 h-6 mr-2"/>
                   신청 정보 입력
                 </h2>
@@ -156,7 +156,7 @@ export default function ApplyChurch() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <label htmlFor="manager-name"
-                           className="block text-lg font-semibold text-gray-900 mb-2">
+                           className="block text-[13px] sm:text-lg font-semibold text-gray-900 mb-2">
                       담당 교역자
                     </label>
                     <input
@@ -167,7 +167,7 @@ export default function ApplyChurch() {
                         onChange={(e) => setManagerName(e.target.value)}
                         autoComplete="organization"
                         readOnly={true}
-                        className="block w-full rounded-lg bg-gray-50 px-4 py-3 text-base text-gray-900 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="block w-full rounded-lg bg-gray-50 px-4 py-3 text-[11px] sm:text-base text-gray-900 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -182,7 +182,7 @@ export default function ApplyChurch() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <label htmlFor="church-name"
-                           className="block text-lg font-semibold text-gray-900 mb-2">
+                           className="block text-[13px] sm:text-lg font-semibold text-gray-900 mb-2">
                       교회 이름
                     </label>
                     <input
@@ -193,7 +193,7 @@ export default function ApplyChurch() {
                         onChange={(e) => setChurchName(e.target.value)}
                         autoComplete="organization"
                         placeholder="교회 이름을 입력해주세요"
-                        className="block w-full rounded-lg bg-white px-4 py-3 text-base text-gray-900 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="block w-full rounded-lg bg-white px-4 py-3 text-[11px] sm:text-base text-gray-900 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -208,7 +208,7 @@ export default function ApplyChurch() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <label htmlFor="telephone"
-                           className="block text-lg font-semibold text-gray-900 mb-2">
+                           className="block text-[13px] sm:text-lg font-semibold text-gray-900 mb-2">
                       교회 전화번호
                     </label>
                     <input
@@ -219,7 +219,7 @@ export default function ApplyChurch() {
                         onChange={handleTelephoneChange}
                         placeholder="010-1234-5678"
                         autoComplete="tel"
-                        className="block w-full rounded-lg bg-white px-4 py-3 text-base text-gray-900 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="block w-full rounded-lg bg-white px-4 py-3 text-[11px] sm:text-base text-gray-900 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -245,14 +245,14 @@ export default function ApplyChurch() {
                       </Switch>
                     </div>
                     <div className="flex-1">
-                      <Label className="text-base text-gray-700 leading-relaxed">
+                      <Label className="text-[11px] sm:text-base text-gray-700 leading-relaxed">
                         개인정보 보호 정책에{' '}
                         <a href="#" className="font-semibold text-blue-600 hover:text-blue-700">
                           동의합니다
                         </a>
                         .
                       </Label>
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="text-[9px] sm:text-sm text-gray-500 mt-1">
                         서비스 이용을 위해 개인정보 수집 및 이용에 동의해주세요.
                       </p>
                     </div>
@@ -267,7 +267,7 @@ export default function ApplyChurch() {
                   type="button"
                   disabled={!agreed}
                   onClick={() => insertEcclesia()}
-                  className={`px-12 py-4 text-lg font-semibold rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 ${
+                  className={`px-12 py-4 text-[13px] sm:text-lg font-semibold rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 ${
                       agreed
                           ? 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 transform hover:scale-105'
                           : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -287,7 +287,7 @@ export default function ApplyChurch() {
 
             {/* Help Text */}
             <div className="text-center mt-12">
-              <p className="text-gray-500 text-sm">
+              <p className="text-gray-500 text-[9px] sm:text-sm">
                 신청 후 관리자 승인까지 1-2일 정도 소요될 수 있습니다.<br/>
                 문의사항이 있으시면 관리자에게 연락해 주세요.
               </p>
