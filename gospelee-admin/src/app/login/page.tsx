@@ -1,20 +1,29 @@
 'use client'
 
-import {useRouter} from 'next/navigation';
-import {ChangeEvent, FormEvent, KeyboardEvent, useEffect, useRef, useState} from 'react';
+import {useRouter, useSearchParams} from 'next/navigation';
+import {ChangeEvent, FormEvent, KeyboardEvent, Suspense, useEffect, useRef, useState} from 'react';
 import Image from 'next/image';
 import {useMenuListStore} from "@/hooks/useMenuList";
 import PageTransition from '@/components/PageTransition';
 import {isMobile} from "@/utils/common-utils";
 
-export default function Login() {
+function LoginContent() {
   const router = useRouter();
-  const [email, setEmail] = useState<string>('');
+  const searchParams = useSearchParams();
+  const emailParam = searchParams.get('email');
+  const [email, setEmail] = useState<string>(emailParam || '');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const setMenuList = useMenuListStore((state) => state.setMenuList);
   const emailInputRef = useRef<HTMLInputElement>(null);
 
-  // 페이지 로드 시 이메일 입력 필드에 자동 포커스
+  // URL 파라미터가 변경되면 이메일 업데이트
+  useEffect(() => {
+    if (emailParam && emailParam !== email) {
+      setEmail(emailParam);
+    }
+  }, [emailParam]);
+
+  // 페이지 로드 시 포커스
   useEffect(() => {
     if (emailInputRef.current) {
       emailInputRef.current.focus();
@@ -124,5 +133,19 @@ export default function Login() {
           </div>
         </div>
       </PageTransition>
+  );
+}
+
+export default function Login() {
+  return (
+    <Suspense fallback={
+      <PageTransition>
+        <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </PageTransition>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }

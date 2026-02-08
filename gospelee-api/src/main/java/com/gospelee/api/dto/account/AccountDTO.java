@@ -32,6 +32,7 @@ public class AccountDTO {
   public static class QrRequest {
 
     private String email;
+    private boolean skipNotification;
   }
 
   @Getter

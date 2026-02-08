@@ -218,7 +218,7 @@ public class AccountController {
 
     Account account = findAccountByEmail(qrRequest.getEmail());
 
-    if (hasPushToken(account)) {
+    if (!qrRequest.isSkipNotification() && hasPushToken(account)) {
       sendQrLoginNotification(account, qrLogin.getCode());
     }
 

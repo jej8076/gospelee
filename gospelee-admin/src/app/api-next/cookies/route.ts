@@ -12,10 +12,21 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const {name, value} = await request.json();
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({code: 400, message: 'Invalid JSON body'}, {status: 400});
+  }
+
+  const {name, value} = body;
+  if (!name) {
+    return NextResponse.json({code: 400, message: 'Cookie name is required'}, {status: 400});
+  }
+
   (await cookies()).set({
     name,
-    value,
+    value: value ?? '',
     httpOnly: true,
     path: '/',
   });
@@ -23,8 +34,14 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const {name} = await request.json();
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({code: 400, message: 'Invalid JSON body'}, {status: 400});
+  }
 
+  const {name} = body;
   if (!name) {
     return NextResponse.json({code: 400, message: 'Cookie name is required'}, {status: 400});
   }
