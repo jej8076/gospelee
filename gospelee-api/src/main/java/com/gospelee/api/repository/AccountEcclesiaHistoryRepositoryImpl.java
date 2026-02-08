@@ -3,7 +3,7 @@ package com.gospelee.api.repository;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDetailDTO;
 import com.gospelee.api.entity.AccountEcclesiaHistory;
-import com.gospelee.api.repository.jdbc.ecclesia.AccountEcclesiaHistoryJdbcRepository;
+import com.gospelee.api.repository.jdbc.AccountEcclesiaHistoryJdbcRepository;
 import com.gospelee.api.repository.jpa.ecclesia.AccountEcclesiaHistoryJpaRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

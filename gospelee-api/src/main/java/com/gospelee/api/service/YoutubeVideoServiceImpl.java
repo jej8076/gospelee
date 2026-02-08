@@ -2,7 +2,7 @@ package com.gospelee.api.service;
 
 import com.gospelee.api.dto.youtube.YoutubeVideoResponseDTO;
 import com.gospelee.api.entity.YoutubeVideo;
-import com.gospelee.api.repository.jpa.YoutubeVideoRepository;
+import com.gospelee.api.repository.jpa.youtube.YoutubeVideoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

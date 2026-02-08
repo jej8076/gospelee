@@ -58,10 +58,10 @@ export default function WaitPage() {
                   </div>
                 </div>
               </div>
-              <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl mb-4">
+              <h1 className="text-[31px] sm:text-4xl font-bold text-gray-900 mb-4">
                 승인 대기중
               </h1>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              <p className="text-[15px] sm:text-xl text-gray-600 max-w-2xl mx-auto">
                 관리자가 교회 정보를 검토하고 있습니다.<br/>
                 승인이 완료되면 알림을 받으실 수 있습니다.
               </p>
@@ -71,7 +71,7 @@ export default function WaitPage() {
             <div
                 className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden mb-8">
               <div className="bg-gray-800 px-6 py-4">
-                <h2 className="text-xl font-semibold text-white flex items-center">
+                <h2 className="text-[15px] sm:text-xl font-semibold text-white flex items-center">
                   <CheckCircleIcon className="w-6 h-6 mr-2"/>
                   신청 정보
                 </h2>
@@ -87,8 +87,8 @@ export default function WaitPage() {
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">교회 이름</h3>
-                    <p className="text-2xl font-bold text-gray-800">{ecclesia?.name || '로딩 중...'}</p>
+                    <h3 className="text-[13px] sm:text-lg font-semibold text-gray-900 mb-1">교회 이름</h3>
+                    <p className="text-[19px] sm:text-2xl font-bold text-gray-800">{ecclesia?.name || '로딩 중...'}</p>
                   </div>
                 </div>
 
@@ -101,8 +101,8 @@ export default function WaitPage() {
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">담당 교역자</h3>
-                    <p className="text-xl text-gray-700">{manager || '정보 없음'}</p>
+                    <h3 className="text-[13px] sm:text-lg font-semibold text-gray-900 mb-1">담당 교역자</h3>
+                    <p className="text-[15px] sm:text-xl text-gray-700">{manager || '정보 없음'}</p>
                   </div>
                 </div>
 
@@ -115,8 +115,8 @@ export default function WaitPage() {
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">전화번호</h3>
-                    <p className="text-xl text-gray-700">{ecclesia?.telephone || '정보 없음'}</p>
+                    <h3 className="text-[13px] sm:text-lg font-semibold text-gray-900 mb-1">전화번호</h3>
+                    <p className="text-[15px] sm:text-xl text-gray-700">{ecclesia?.telephone || '정보 없음'}</p>
                   </div>
                 </div>
               </div>
@@ -124,14 +124,14 @@ export default function WaitPage() {
 
             {/* Progress Steps */}
             <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8 mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">승인 진행 상황</h3>
+              <h3 className="text-[13px] sm:text-lg font-semibold text-gray-900 mb-6">승인 진행 상황</h3>
               <div className="flex items-center justify-between">
                 <div className="flex flex-col items-center">
                   <div
                       className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mb-2">
                     <CheckCircleIcon className="w-6 h-6 text-white"/>
                   </div>
-                  <span className="text-sm font-medium text-green-600">신청 완료</span>
+                  <span className="text-[9px] sm:text-sm font-medium text-green-600">신청 완료</span>
                 </div>
                 <div className="flex-1 h-1 bg-gray-200 mx-4 rounded-full">
                   <div className="h-1 bg-blue-500 rounded-full animate-pulse"
@@ -142,7 +142,7 @@ export default function WaitPage() {
                       className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mb-2">
                     <ClockIcon className="w-6 h-6 text-white"/>
                   </div>
-                  <span className="text-sm font-medium text-blue-600">검토 중</span>
+                  <span className="text-[9px] sm:text-sm font-medium text-blue-600">검토 중</span>
                 </div>
                 <div className="flex-1 h-1 bg-gray-200 mx-4 rounded-full"></div>
                 <div className="flex flex-col items-center">
@@ -150,7 +150,7 @@ export default function WaitPage() {
                       className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center mb-2">
                     <CheckCircleIcon className="w-6 h-6 text-white"/>
                   </div>
-                  <span className="text-sm font-medium text-gray-500">승인 완료</span>
+                  <span className="text-[9px] sm:text-sm font-medium text-gray-500">승인 완료</span>
                 </div>
               </div>
             </div>
@@ -175,7 +175,7 @@ export default function WaitPage() {
 
             {/* Help Text */}
             <div className="text-center mt-12">
-              <p className="text-gray-500 text-sm">
+              <p className="text-gray-500 text-[9px] sm:text-sm">
                 승인 과정에서 문제가 있거나 문의사항이 있으시면<br/>
                 관리자에게 연락해 주세요.
               </p>

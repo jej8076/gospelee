@@ -1,6 +1,8 @@
 package com.gospelee.api.controller;
 
+import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.bible.AccountBibleWriteDTO;
+import com.gospelee.api.dto.common.DataResponseDTO;
 import com.gospelee.api.service.BibleService;
 import jakarta.validation.Valid;
 import java.util.NoSuchElementException;
@@ -8,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -68,6 +71,17 @@ public class BibleController {
         .orElseThrow(
             () -> new NoSuchElementException("save fail reason by [" + dto.toString() + "]")),
         HttpStatus.OK);
+  }
+
+  /**
+   * 성경쓰기 통계 조회
+   */
+  @PostMapping("/write/stats")
+  public ResponseEntity<Object> getBibleWriteStats(
+      @AuthenticationPrincipal AccountAuthDTO account) {
+    return ResponseEntity.ok(
+        DataResponseDTO.of("100", "성공", bibleService.getBibleWriteStats(account.getUid()))
+    );
   }
 
 }

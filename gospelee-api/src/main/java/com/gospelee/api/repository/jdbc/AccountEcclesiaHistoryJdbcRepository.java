@@ -1,4 +1,4 @@
-package com.gospelee.api.repository.jdbc.ecclesia;
+package com.gospelee.api.repository.jdbc;
 
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDetailDTO;
@@ -10,12 +10,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class AccountEcclesiaHistoryJdbcRepositoryImpl implements
-    AccountEcclesiaHistoryJdbcRepository {
+public class AccountEcclesiaHistoryJdbcRepository {
 
   private final JdbcClient jdbcClient;
 
-  @Override
   public List<AccountEcclesiaHistoryDTO> findByStatusAndEcclesiaId(Long ecclesiaUid) {
     String sql = """
         SELECT id, account_uid, ecclesia_uid, insert_time, `status`
@@ -46,7 +44,6 @@ public class AccountEcclesiaHistoryJdbcRepositoryImpl implements
         .list();
   }
 
-  @Override
   public List<AccountEcclesiaHistoryDetailDTO> findByAccountEcclesiaRequestByEcclesiaUid(
       Long ecclesiaUid) {
     String sql = """

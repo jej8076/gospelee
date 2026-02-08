@@ -36,6 +36,7 @@ public class QrloginServiceImpl implements QrloginService {
         account.getIdToken(),
         account.getAccessToken(),
         account.getRefreshToken(),
+        account.getSocialLoginPlatform(),
         account.getEmail(),
         TimeUtils.now()) == 1;
   }

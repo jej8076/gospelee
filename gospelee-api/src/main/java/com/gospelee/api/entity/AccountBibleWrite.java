@@ -6,12 +6,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter
@@ -37,18 +35,12 @@ public class AccountBibleWrite extends EditInfomation {
   @Column
   private int chapter;
 
-  // 읽은 횟수
-  @Column
-  @ColumnDefault("1")
-  private int count;
-
   @Builder
-  public AccountBibleWrite(Long idx, Long accountUid, int cate, int book, int chapter, int count) {
+  public AccountBibleWrite(Long idx, Long accountUid, int cate, int book, int chapter) {
     this.idx = idx;
     this.accountUid = accountUid;
     this.cate = cate;
     this.book = book;
     this.chapter = chapter;
-    this.count = count;
   }
 }

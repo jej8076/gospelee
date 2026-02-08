@@ -3,14 +3,14 @@ import {setCookie, setCookies} from "~/lib/cookie/cookie-utils";
 import {AuthItems} from "~/constants/auth-items";
 import {apiFetch} from "~/lib/api-client";
 
-export const makeQrCodeAndGetCode = async (email: string) => {
+export const makeQrCodeAndGetCode = async (email: string, skipNotification: boolean = false) => {
   console.log('API 호출 시작'); // API 호출 확인용 로그
   const response = await apiFetch(`/api/account/qr/enter`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({email}),
+    body: JSON.stringify({email, skipNotification}),
   });
 
   if (!response.ok) {
@@ -30,11 +30,12 @@ export const qrCheckAndGetToken = async (email: string, code: string) => {
   });
 
   if (!response.ok) {
+    alert(response.ok);
     return null;
   }
 
   const result = await response.json();
-  if (result.idToken == null || result.accessToken == null) {
+  if (result.idToken == null && result.accessToken == null) {
     return null;
   }
 

@@ -20,6 +20,7 @@ import com.gospelee.api.enums.ErrorResponseType;
 import com.gospelee.api.enums.PushNotificationDataType;
 import com.gospelee.api.enums.RedisCacheNames;
 import com.gospelee.api.enums.RoleType;
+import com.gospelee.api.properties.AuthProperties;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.FirebaseService;
 import com.gospelee.api.service.QrloginService;
@@ -31,7 +32,6 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -56,8 +56,9 @@ public class AccountController {
   private final QrloginService qrloginService;
   private final FirebaseService firebaseService;
   private final RedisCacheService redisCacheService;
-  @Value("${appstore.setting_email:}")
-  private String settingEmail;
+  private final AuthProperties authProperties;
+  //  @Value("${appstore.setting_email:}")
+//  private String settingEmail;
 
   // ========== 계정 조회 관련 API ==========
 
@@ -189,7 +190,7 @@ public class AccountController {
         pushTokenDTO.getPushToken());
 
     // 앱스토어 심사용 임시 코드
-    if (settingEmail.equals(account.getEmail())) {
+    if (authProperties.shouldSkipNonceValidation(account.getEmail())) {
       RedisCacheDTO redisCacheDTO = RedisCacheDTO.builder()
           .redisCacheNames(RedisCacheNames.TEMP_APPSTORE_LOGIN)
           .key("token")
@@ -217,7 +218,7 @@ public class AccountController {
 
     Account account = findAccountByEmail(qrRequest.getEmail());
 
-    if (hasPushToken(account)) {
+    if (!qrRequest.isSkipNotification() && hasPushToken(account)) {
       sendQrLoginNotification(account, qrLogin.getCode());
     }
 
@@ -239,7 +240,10 @@ public class AccountController {
     boolean isSuccess = qrloginService.updateQrlogin(account, code);
     HttpStatus status = isSuccess ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    return new ResponseEntity<>("", status);
+    Map<String, String> result =
+        status.is2xxSuccessful() ? Map.of("result", "success") : Map.of("result", "fail");
+
+    return new ResponseEntity<>(result, status);
   }
 
   /**

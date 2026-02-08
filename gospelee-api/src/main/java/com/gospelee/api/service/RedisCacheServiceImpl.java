@@ -41,7 +41,7 @@ public class RedisCacheServiceImpl implements RedisCacheService {
   @Override
   public JwkSetDTO getKakaoPublicKeySet() {
     String cachedJson = this.get(RedisCacheNames.KAKAO_JWK_SET,
-        SocialLoginPlatform.KAKAO.getValue());
+        SocialLoginPlatform.KAKAO.name());
 
     if (cachedJson != null) {
       try {
@@ -59,7 +59,7 @@ public class RedisCacheServiceImpl implements RedisCacheService {
 
     RedisCacheDTO redisCacheDTO = RedisCacheDTO.builder()
         .redisCacheNames(RedisCacheNames.KAKAO_JWK_SET)
-        .key(SocialLoginPlatform.KAKAO.getValue())
+        .key(SocialLoginPlatform.KAKAO.name())
         .value(fetched)
         .build();
     this.put(redisCacheDTO);
@@ -70,7 +70,7 @@ public class RedisCacheServiceImpl implements RedisCacheService {
   @Override
   public JwkSetDTO getApplePublicKeySet() {
     String cachedJson = this.get(RedisCacheNames.APPLE_JWK_SET,
-        SocialLoginPlatform.APPLE.getValue());
+        SocialLoginPlatform.APPLE.name());
 
     if (cachedJson != null) {
       try {
@@ -88,7 +88,7 @@ public class RedisCacheServiceImpl implements RedisCacheService {
 
     RedisCacheDTO redisCacheDTO = RedisCacheDTO.builder()
         .redisCacheNames(RedisCacheNames.APPLE_JWK_SET)
-        .key(SocialLoginPlatform.APPLE.getValue())
+        .key(SocialLoginPlatform.APPLE.name())
         .value(fetched)
         .build();
     this.put(redisCacheDTO);

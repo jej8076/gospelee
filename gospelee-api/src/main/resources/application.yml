@@ -66,7 +66,8 @@ auth:
     - /announcement/unauthorized/BRAND_STORY
   allow-pending-paths:
     - /api/account/qr/req/*
-    -
+  app-store-skip-email: dvhvvhddf2@privaterelay.appleid.com
+
 kakao:
   issuer: https://kauth.kakao.com
   app-key: sample

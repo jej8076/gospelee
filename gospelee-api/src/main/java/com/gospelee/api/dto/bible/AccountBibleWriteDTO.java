@@ -40,7 +40,6 @@ public class AccountBibleWriteDTO {
         .cate(getCateByBook(this.book))
         .book(this.book)
         .chapter(this.chapter)
-        .count(1)
         .build();
   }
 

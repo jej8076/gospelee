@@ -20,6 +20,7 @@ export const logout = async (router: AppRouterInstance) => {
   try {
     // 토큰 만료
     await expireCookie(AuthItems.Authorization);
+    await expireCookie(AuthItems.SocialLoginPlatform);
     await expireCookie(AuthItems.SocialAccessToken);
     await expireCookie(AuthItems.SocialRefreshToken);
 
