@@ -1,11 +1,9 @@
 package com.gospelee.api.repository.jpa.account;
 
 import com.gospelee.api.entity.AccountBibleWrite;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -13,12 +11,8 @@ public interface AccountBibleWriteRepository extends JpaRepository<AccountBibleW
 
   Optional<List<AccountBibleWrite>> findAllByAccountUid(long accountUid);
 
-  @Query("SELECT aw FROM AccountBibleWrite aw WHERE aw.accountUid = :accountId AND aw.book = :book AND aw.chapter = :chapter")
-  Optional<AccountBibleWrite> findByUniqueConstraint(@Param("accountId") Long accountId,
-      @Param("book") Integer book, @Param("chapter") Integer chapter);
-
-  @Modifying
-  @Transactional
-  @Query("UPDATE AccountBibleWrite aw SET aw.count = aw.count + 1 WHERE aw.idx = :idx")
-  int increaseCountByIdx(@Param("idx") long idx);
+  // 사용자별 책별 완료 장 수 조회 (통계용) - 중복 chapter는 DISTINCT로 1회만 카운트
+  @Query("SELECT aw.book, COUNT(DISTINCT aw.chapter) FROM AccountBibleWrite aw " +
+      "WHERE aw.accountUid = :accountUid GROUP BY aw.book ORDER BY aw.book")
+  List<Object[]> getCompletedChaptersByBook(@Param("accountUid") Long accountUid);
 }
