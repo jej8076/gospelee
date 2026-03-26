@@ -68,7 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         .accessToken(request.getHeader(TokenHeaders.SOCIAL_ACCESS_TOKEN.getValue()))
         .refreshToken(request.getHeader(TokenHeaders.SOCIAL_REFRESH_TOKEN.getValue()))
         .build();
-
+//
     if (tokenDTO.getIdToken() == null || !tokenDTO.getIdToken()
         .startsWith(Bearer.BEARER_SPACE.getValue())) {
       failResponse(response, ErrorResponseType.AUTH_103);
