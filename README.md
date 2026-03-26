@@ -76,7 +76,6 @@ gospelee/
 │   ├── public/            # 정적 파일
 │   └── package.json       # 의존성 관리
 ├── gospelee-landing/       # 랜딩 페이지
-├── gospelee-socket/        # WebSocket 서버
 ├── gospelee-common/        # 공통 라이브러리
 ├── dockerfile.api          # API 서버 Docker 설정
 ├── dockerfile.admin        # 관리자 패널 Docker 설정

@@ -53,7 +53,9 @@ public class EmbeddedRedisConfig {
 
   @EventListener(ContextClosedEvent.class)
   public void stopRedis() {
-    redisServer.stop();
+    if (redisServer != null) {
+      redisServer.stop();
+    }
   }
 
   public int findAvailablePort() throws IOException {
@@ -78,10 +80,22 @@ public class EmbeddedRedisConfig {
    * 해당 port를 사용중인 프로세스를 확인하는 sh 실행
    */
   private Process executeGrepProcessCommand(int redisPort) throws IOException {
+    if (isWindows()) {
+      String command = String.format("netstat -nao | findstr LISTENING | findstr :%d", redisPort);
+      String[] shell = {"cmd.exe", "/c", command};
+      return Runtime.getRuntime().exec(shell);
+    }
     String command = String.format("netstat -nat | grep LISTEN | grep %d", redisPort);
     String[] shell = {"/bin/sh", "-c", command};
 
     return Runtime.getRuntime().exec(shell);
+  }
+
+  /**
+   * 운영체제가 윈도우인지 확인
+   */
+  private boolean isWindows() {
+    return System.getProperty("os.name").toLowerCase().contains("win");
   }
 
   /**
