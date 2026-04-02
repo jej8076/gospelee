@@ -123,7 +123,7 @@ export default function MainLayout({children}: Readonly<{
       currentPath.includes('/wait');
 
   return (
-      <html>
+      <html suppressHydrationWarning>
       <body>
       {isSpecialPage ? (
           <div>{children}</div>

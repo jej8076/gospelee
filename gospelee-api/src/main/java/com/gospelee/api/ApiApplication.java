@@ -1,7 +1,6 @@
 package com.gospelee.api;
 
 import com.gospelee.api.dto.account.AccountDTO;
-import com.gospelee.api.entity.Account;
 import com.gospelee.api.enums.RoleType;
 import com.gospelee.api.repository.jpa.account.AccountRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -13,7 +12,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import util.FieldUtil;
 
 @EnableJpaAuditing
 @EnableCaching
@@ -36,8 +34,7 @@ public class ApiApplication {
             .rrn("9108141155812")
             .roleType(RoleType.ADMIN)
             .build();
-        Account entity = (Account) FieldUtil.toEntity(account);
-        accountRepository.save(entity);
+        accountRepository.save(account.toEntity());
       }
     };
   }
