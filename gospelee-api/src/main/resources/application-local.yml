@@ -1,0 +1,86 @@
+server:
+  port: 8008
+  domain: http://192.168.0.25:8008
+  servlet:
+    context-path: /api
+
+cors:
+  allowed-origins:
+    - http://localhost:3000
+    - http://192.168.0.25:3000
+
+spring:
+  application:
+    name: api
+  datasource:
+    url: jdbc:postgresql://localhost:5433/podo
+    username: jej
+    password: 5y^Z8u#A2k!M
+    hikari:
+      pool-name: HikariCP
+      maximum-pool-size: 10
+      connection-timeout: 10000
+      validation-timeout: 10000
+      max-lifetime: 580000
+      connection-init-sql: SELECT 1
+      data-source-properties:
+        sslmode: require
+        sslcert: /home/jej/.tsh/keys/teleport.po-do.org/jej-db/po-do.org/podo-postgresql.crt
+        sslkey: /home/jej/.tsh/keys/teleport.po-do.org/jej-db/po-do.org/podo-postgresql.pk8
+        sslrootcert: /home/jej/.tsh/keys/teleport.po-do.org/cas/po-do.org.pem
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+        show_sql: true
+        format_sql: true
+  cache:
+    type: redis
+    redis:
+      cache-null-values: true
+  data:
+    redis:
+      repositories:
+        enabled: false
+
+springdoc:
+  default-consumes-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+    display-query-params-without-oauth2: true
+
+redis:
+  embedded: true
+  host: localhost
+  port: 6377
+
+auth:
+  super-id: super@super.com
+  super-pass: bEpcbrbOA9JJdf92QwkEzlE5At88jmoHjEKyd8skZr22MMBkCvjC2ZNuT444mRthGcQ78hG9nz4CIiuYnS8idNq04Ws7P7YxPrYYO5htkNxeOAVNvws9KPxBS2QufvCIhuKjggULfvc26GUiYOvq6UTxhuSnHzyd7V0VJviM1NkqRjb5nEQFM2Pu2vEcDhhHZPPoAFDXf6Wbkmwz9EDwINtG0lQUB6CO4tc7A64mCBoTsiLatEPuw0Y6GHff4QmO
+  exclude-paths:
+    - /bible/view/*
+    - /account/qr/enter
+    - /account/qr/check
+    - /account/nonce/put
+    - /account/appstore/token
+    - /file/*
+    - /app-link/*
+    - /article/*
+    - /youtube/videos
+    - /announcement/unauthorized/BRAND_STORY
+  allow-pending-paths:
+    - /api/account/qr/req/*
+  app-store-skip-email: dvhvvhddf2@privaterelay.appleid.com
+
+kakao:
+  issuer: https://kauth.kakao.com
+  app-key: bc9ac0fd4cd17a858c971f6d4aede305
+
+apple:
+  issuer: https://appleid.apple.com
+  app-key: com.gospelee.ourgod
+
+firebase:
+  admin-sdk:
+    path: /home/jej/dev/gospelee/firebase/podo-d55b1-firebase-adminsdk-fbsvc-f086c21401.json
