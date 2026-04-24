@@ -6,17 +6,21 @@ import static com.gospelee.api.utils.StringUtils.SLASH;
 import com.gospelee.api.dto.applink.AppLinkDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class AppLinkServiceImpl implements AppLinkService {
 
-  // TODO application.yml에서 설정하도록 뺄 것
-  private static final String APP = "oog";
+  @Value("${app-link.scheme:oog}")
+  private String scheme;
+
+  @Value("${app-link.fallback-url:https://teleport.oog.kr}")
+  private String fallbackUrl;
+
   private static final String API = "api";
   private static final String APP_LINK = "app-link";
-  private static final String fallbackUrl = "https://teleport.oog.kr";
 
   @Override
   public AppLinkDTO makeAppUrl(HttpServletRequest request, String userAgent) {
@@ -27,11 +31,11 @@ public class AppLinkServiceImpl implements AppLinkService {
     String uri = request.getRequestURI();
     String[] parts = uri.split(SLASH);
     StringBuilder stringBuilder = new StringBuilder();
-    stringBuilder.append(APP + SCHEME_DELIMITER);
+    stringBuilder.append(scheme + SCHEME_DELIMITER);
 
     boolean isFirst = true;
     for (String part : parts) {
-      if (part.isBlank() || API.equals(part) | APP_LINK.equals(part)) {
+      if (part.isBlank() || API.equals(part) || APP_LINK.equals(part)) {
         continue;
       }
 

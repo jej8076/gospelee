@@ -16,8 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class AnnouncementServiceDispatcher implements AnnouncementService {
 
   private static final String HEADER_KEY = "X-App-Identifier";
-  private static final String ADMIN = "AnnouncementAdmin";
-  private static final String CLIENT = "AnnouncementClient";
+  private static final String ADMIN_BEAN_NAME = "AnnouncementAdmin";
+  private static final String CLIENT_BEAN_NAME = "AnnouncementClient";
 
   private final Map<String, AnnouncementService> strategyMap;
   private final HttpServletRequest request;
@@ -35,8 +35,8 @@ public class AnnouncementServiceDispatcher implements AnnouncementService {
 
     // TODO request를 사용해 header를 가져와서 enum과 비교하는 것까지 수행하는 메서드 만들어 재사용할 것
     String headerValue = request.getHeader(HEADER_KEY);
-    String beanName = (headerValue != null && !headerValue.isBlank() && AppType.OOG_WEB.name()
-        .equals(headerValue)) ? ADMIN : CLIENT;
+    String beanName = (headerValue != null && !headerValue.isBlank() && AppType.PODO_WEB.name()
+        .equals(headerValue)) ? ADMIN_BEAN_NAME : CLIENT_BEAN_NAME;
 
     AnnouncementService svc = strategyMap.get(beanName);
     if (svc == null) {

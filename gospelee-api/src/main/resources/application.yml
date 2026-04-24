@@ -68,6 +68,10 @@ auth:
     - /api/account/qr/req/*
   app-store-skip-email: dvhvvhddf2@privaterelay.appleid.com
 
+app-link:
+  scheme: oog
+  fallback-url: https://teleport.oog.kr
+
 kakao:
   issuer: https://kauth.kakao.com
   app-key: sample

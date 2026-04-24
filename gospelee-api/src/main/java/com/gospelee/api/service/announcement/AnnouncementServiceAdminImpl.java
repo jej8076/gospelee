@@ -82,7 +82,7 @@ public class AnnouncementServiceAdminImpl implements AnnouncementService {
       OrganizationType organizationType = OrganizationType.fromName(announcementType);
 
       // OOG_WEB 헤더가 아니면 open된 목록만 조회하도록 의도함
-      boolean isOpen = !AppType.OOG_WEB.getValue().equals(appIdentify);
+      boolean isOpen = !AppType.PODO_WEB.getValue().equals(appIdentify);
 
       if (organizationType.equals(OrganizationType.BRAND_STORY)) {
         // BRAND_STORY는 organization_id를 1로 고정함
