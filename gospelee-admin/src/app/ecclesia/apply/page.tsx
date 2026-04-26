@@ -289,7 +289,8 @@ export default function ApplyChurch() {
             <div className="text-center mt-12">
               <p className="text-gray-500 text-[9px] sm:text-sm">
                 신청 후 관리자 승인까지 1-2일 정도 소요될 수 있습니다.<br/>
-                문의사항이 있으시면 관리자에게 연락해 주세요.
+                문의사항이 있으시면 관리자에게 연락해 주세요.<br/>
+                010-2431-8076
               </p>
             </div>
           </div>

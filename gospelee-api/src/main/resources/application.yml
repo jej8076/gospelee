@@ -1,12 +1,12 @@
 server:
   port: 8008
-  domain: https://api.oog.kr:8888
+  domain: https://api.podo.kr:8888
   servlet:
     context-path: /api
 
 cors:
   allowed-origins:
-    - https://admin.oog.kr:8800
+    - https://admin.podo.kr:8800
 
 spring:
   application:
@@ -70,7 +70,7 @@ auth:
 
 app-link:
   scheme: oog
-  fallback-url: https://teleport.oog.kr
+  fallback-url: https://teleport.podo.kr
 
 kakao:
   issuer: https://kauth.kakao.com

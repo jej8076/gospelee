@@ -16,7 +16,7 @@ public class AppLinkServiceImpl implements AppLinkService {
   @Value("${app-link.scheme:oog}")
   private String scheme;
 
-  @Value("${app-link.fallback-url:https://teleport.oog.kr}")
+  @Value("${app-link.fallback-url:https://teleport.podo.kr}")
   private String fallbackUrl;
 
   private static final String API = "api";

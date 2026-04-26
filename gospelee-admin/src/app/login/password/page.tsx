@@ -38,8 +38,8 @@ function PasswordLoginContent() {
   const handleLogin = async () => {
     if (isLoading) return; // 중복 클릭 방지
 
-    if (!password.trim()) {
-      alert('비밀번호를 입력하세요.');
+    if (password.trim().length !== 256) {
+      alert(`비밀번호는 256자여야 합니다. (현재 ${password.trim().length}자)`);
       return;
     }
 

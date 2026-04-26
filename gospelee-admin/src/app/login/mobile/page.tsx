@@ -50,7 +50,7 @@ const MobileLoginContent = () => {
 
           // 딥링크 열기
           const serverUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/account/qr/req/${qrCode.code}`;
-          const deepLink = `oog://mobile/login/${encodeURIComponent(serverUrl)}`;
+          const deepLink = `podo://mobile/login/${encodeURIComponent(serverUrl)}`;
           addLog(`딥링크 실행`);
           window.location.href = deepLink;
           setIsAppOpened(true);
@@ -125,7 +125,7 @@ const MobileLoginContent = () => {
                   onClick={() => {
                     if (code) {
                       const serverUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/account/qr/req/${code}`;
-                      const deepLink = `oog://mobile/login/${encodeURIComponent(serverUrl)}`;
+                      const deepLink = `podo://mobile/login/${encodeURIComponent(serverUrl)}`;
                       addLog(`수동 딥링크 실행`);
                       window.location.href = deepLink;
                     }

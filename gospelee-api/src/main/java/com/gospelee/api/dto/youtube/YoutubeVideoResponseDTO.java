@@ -17,5 +17,7 @@ public class YoutubeVideoResponseDTO {
     private String thumbnailUrl;
     private String channelTitle;
     private String publishedAt;
+    private Boolean isActive;
     private Integer sortOrder;
+    private String insertTime;
 }
