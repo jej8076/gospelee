@@ -71,7 +71,7 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
 
     String appIdentify = request.getHeader(CustomHeader.X_APP_IDENTIFIER.getHeaderName());
     OrganizationType organizationType = OrganizationType.fromName(announcementType);
-    boolean isOpen = !AppType.OOG_WEB.getValue().equals(appIdentify);
+    boolean isOpen = !AppType.PODO_WEB.getValue().equals(appIdentify);
 
     List<AnnouncementResponseDTO> responseList;
 

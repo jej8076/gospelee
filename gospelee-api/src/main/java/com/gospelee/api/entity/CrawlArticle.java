@@ -40,13 +40,12 @@ public class CrawlArticle {
    * JSON 형식의 images
    */
   @Lob
-  @Column(columnDefinition = "LONGTEXT COLLATE utf8mb4_bin")
   private String images;
 
   @Column(length = 20)
   private String category;
 
-  @Column(name = "order_num", columnDefinition = "TINYINT UNSIGNED")
+  @Column(name = "order_num")
   private Short orderNum;
 
   private LocalDateTime crawledAt;
@@ -55,15 +54,12 @@ public class CrawlArticle {
    * JSON 형식의 selectors_used
    */
   @Lob
-  @Column(columnDefinition = "LONGTEXT COLLATE utf8mb4_bin")
   private String selectorsUsed;
 
-  @Column(nullable = false, updatable = false,
-      columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+  @Column(nullable = false, updatable = false)
   private Timestamp createdAt;
 
-  @Column(nullable = false,
-      columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+  @Column(nullable = false)
   private Timestamp updatedAt;
   
   @Builder

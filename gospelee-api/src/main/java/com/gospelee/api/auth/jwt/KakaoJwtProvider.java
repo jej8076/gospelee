@@ -145,6 +145,8 @@ public class KakaoJwtProvider extends SocialJwtProvider {
             nonceCacheKey, nonce);
         return false;
       }
+      // nonce 일회용 — 검증 성공 후 즉시 삭제하여 replay attack 방지
+      redisCacheService.delete(RedisCacheNames.NONCE, nonceCacheKey);
     }
 
     return true;

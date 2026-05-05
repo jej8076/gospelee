@@ -52,6 +52,15 @@ const storyAction: Action = {
   description: '스토리를 관리합니다',
 };
 
+const videoAction: Action = {
+  title: '영상 관리',
+  href: '/manage/video',
+  icon: AcademicCapIcon,
+  iconForeground: 'text-blue-700',
+  iconBackground: 'bg-blue-50',
+  description: 'YouTube 영상을 관리합니다',
+};
+
 function classNames(...classes: (string | boolean | undefined | null)[]): string {
   return classes.filter(Boolean).join(' ')
 }
@@ -69,7 +78,7 @@ export default function Noti() {
 
   // loginEmail에 따라 actions 배열을 동적으로 생성
   const baseActionsArray = loginEmail === 'super@super.com'
-      ? [...baseActions, storyAction]
+      ? [...baseActions, storyAction, videoAction]
       : baseActions;
 
   // 홀수 개의 항목이면 더미 데이터 추가하여 짝수로 맞춤

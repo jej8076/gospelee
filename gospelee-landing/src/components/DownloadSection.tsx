@@ -15,7 +15,7 @@ const DownloadSection = () => {
                 OOG 앱을 다운로드하고<br/>
                 말씀을 다양하게 묵상해 보세요
               </p>
-              <a href="https://landing.oog.kr/download/app-release.apk" download>
+              <a href="https://landing.podo.kr/download/app-release.apk" download>
                 <div className={styles.storeButtons}>
                   <button className={styles.storeButton}>
                     <div className={styles.storeIcon}>📱</div>

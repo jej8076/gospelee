@@ -1,6 +1,7 @@
 package com.gospelee.api.repository.jdbc;
 
 import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -17,7 +18,7 @@ public class EcclesiaJdbcRepository {
         SELECT e.uid AS uid,
                e.church_identification_number,
                e.status,
-               e.name AS `name`,
+               e.name AS "name",
                a.name AS master_account_name,
                e.senior_paster_name,
                e.church_address,
@@ -35,7 +36,7 @@ public class EcclesiaJdbcRepository {
             rs.getString("master_account_name"),
             rs.getString("senior_paster_name"),
             rs.getString("church_address"),
-            rs.getTimestamp("insert_time").toLocalDateTime()
+            rs.getObject("insert_time", LocalDateTime.class)
         ))
         .list();
   }
@@ -45,7 +46,7 @@ public class EcclesiaJdbcRepository {
         SELECT e.uid AS uid,
                e.church_identification_number,
                e.status,
-               e.name AS `name`,
+               e.name AS "name",
                e.senior_paster_name,
                e.church_address,
                e.insert_time
@@ -63,7 +64,7 @@ public class EcclesiaJdbcRepository {
             null,
             rs.getString("senior_paster_name"),
             rs.getString("church_address"),
-            rs.getTimestamp("insert_time").toLocalDateTime()
+            rs.getObject("insert_time", LocalDateTime.class)
         ))
         .list();
   }

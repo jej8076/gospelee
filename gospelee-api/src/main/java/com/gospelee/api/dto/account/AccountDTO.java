@@ -1,6 +1,7 @@
 package com.gospelee.api.dto.account;
 
 import com.gospelee.api.annotation.validation.PhoneNumber;
+import com.gospelee.api.entity.Account;
 import com.gospelee.api.enums.RoleType;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AccessLevel;
@@ -26,6 +27,15 @@ public class AccountDTO {
   private RoleType roleType;
 
   private AccountKakaoTokenDTO accountKakaoTokenDTO;
+
+  public Account toEntity() {
+    return Account.builder()
+        .name(this.name)
+        .rrn(this.rrn)
+        .phone(this.phone)
+        .role(this.roleType)
+        .build();
+  }
 
   @Getter
   @NoArgsConstructor(access = AccessLevel.PRIVATE)

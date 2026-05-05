@@ -24,7 +24,7 @@ public class FirebaseConfig {
 
   private static final String CLOUD_PLATFORM_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
   private static final String FIREBASE_MESSAGING_SCOPE = "https://www.googleapis.com/auth/firebase.messaging";
-  private static final String APP_NAME = "oog-dev"; // Firebase 앱의 고유 이름
+  private static final String APP_NAME = "podo"; // Firebase 앱의 고유 이름
 
   // application.properties 또는 application.yml 파일에 정의된 firebase.admin-sdk.path 속성 값을 주입받습니다.
   @Value("${firebase.admin-sdk.path}")

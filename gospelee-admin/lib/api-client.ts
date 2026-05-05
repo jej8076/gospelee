@@ -18,7 +18,7 @@ export const apiFetch = async (
 
   // 절대 변경 불가능한 기본 헤더
   const defaultHeaders: HeadersInit = {
-    "X-App-Identifier": "OOG_WEB",
+    "X-App-Identifier": "PODO_WEB",
   };
 
   // 사용자 헤더에서 기본 헤더 키는 제거

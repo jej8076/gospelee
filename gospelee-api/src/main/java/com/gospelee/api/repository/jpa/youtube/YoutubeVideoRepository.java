@@ -12,4 +12,7 @@ public interface YoutubeVideoRepository extends JpaRepository<YoutubeVideo, Long
     
     @Query("SELECT y FROM YoutubeVideo y WHERE y.isActive = true ORDER BY y.sortOrder ASC, y.insertTime DESC")
     List<YoutubeVideo> findActiveVideosOrderBySortOrder();
+
+    @Query("SELECT y FROM YoutubeVideo y ORDER BY y.sortOrder ASC, y.insertTime DESC")
+    List<YoutubeVideo> findAllOrderBySortOrder();
 }

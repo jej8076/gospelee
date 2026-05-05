@@ -125,4 +125,10 @@ public class RedisCacheServiceImpl implements RedisCacheService {
     }
     return null;
   }
+
+  @Override
+  public void delete(RedisCacheNames redisCacheNames, String key) {
+    String namespacedKey = redisCacheNames.name() + REDIS_SEPARATOR + key;
+    redisTemplate.delete(namespacedKey);
+  }
 }

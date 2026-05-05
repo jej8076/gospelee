@@ -3,6 +3,7 @@ package com.gospelee.api.repository.jdbc;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDetailDTO;
 import com.gospelee.api.enums.AccountEcclesiaHistoryStatusType;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -16,14 +17,14 @@ public class AccountEcclesiaHistoryJdbcRepository {
 
   public List<AccountEcclesiaHistoryDTO> findByStatusAndEcclesiaId(Long ecclesiaUid) {
     String sql = """
-        SELECT id, account_uid, ecclesia_uid, insert_time, `status`
+        SELECT id, account_uid, ecclesia_uid, insert_time, "status"
         FROM (
             SELECT
                 id,
                 account_uid,
                 ecclesia_uid,
                 insert_time,
-                `status`,
+                "status",
                 ROW_NUMBER() OVER(PARTITION BY ecclesia_uid ORDER BY insert_time DESC) as row_num
             FROM
                 account_ecclesia_history
@@ -39,7 +40,7 @@ public class AccountEcclesiaHistoryJdbcRepository {
             rs.getLong("account_uid"),
             rs.getLong("ecclesia_uid"),
             AccountEcclesiaHistoryStatusType.of(rs.getString("status")),
-            rs.getTimestamp("insert_time").toLocalDateTime()
+            rs.getObject("insert_time", LocalDateTime.class)
         ))
         .list();
   }
@@ -48,7 +49,7 @@ public class AccountEcclesiaHistoryJdbcRepository {
       Long ecclesiaUid) {
     String sql = """
         WITH ranked AS (
-            SELECT id, account_uid, ecclesia_uid, insert_time, `status`,
+            SELECT id, account_uid, ecclesia_uid, insert_time, "status",
                    ROW_NUMBER() OVER (PARTITION BY account_uid ORDER BY insert_time DESC) AS row_num
             FROM account_ecclesia_history
             WHERE ecclesia_uid = :ecclesiaUid
@@ -57,10 +58,10 @@ public class AccountEcclesiaHistoryJdbcRepository {
             r.id AS id,
             r.account_uid AS accountUid,
             r.ecclesia_uid AS ecclesiaUid,
-            a.name AS `name`,
+            a.name AS "name",
             a.email AS email,
             a.phone AS phone,
-            r.status AS `status`,
+            r.status AS "status",
             r.insert_time AS insertTime
         FROM ranked r
         JOIN account a ON r.account_uid = a.uid
@@ -77,7 +78,7 @@ public class AccountEcclesiaHistoryJdbcRepository {
             rs.getString("email"),
             rs.getString("phone"),
             AccountEcclesiaHistoryStatusType.of(rs.getString("status")),
-            rs.getTimestamp("insertTime").toLocalDateTime()
+            rs.getObject("insertTime", LocalDateTime.class)
         ))
         .list();
   }

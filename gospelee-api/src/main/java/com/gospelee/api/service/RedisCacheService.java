@@ -13,4 +13,6 @@ public interface RedisCacheService {
   String put(RedisCacheDTO redisCacheDTO);
 
   String get(RedisCacheNames redisCacheNames, String key);
+
+  void delete(RedisCacheNames redisCacheNames, String key);
 }

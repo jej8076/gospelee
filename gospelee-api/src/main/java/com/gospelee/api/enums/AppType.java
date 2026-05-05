@@ -5,7 +5,7 @@ import java.util.Map;
 import lombok.Getter;
 
 public enum AppType {
-  OOG_WEB("OOG_WEB");
+  PODO_WEB("PODO_WEB");
 
   @Getter
   final private String value;

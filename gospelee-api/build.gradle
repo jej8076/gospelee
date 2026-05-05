@@ -22,6 +22,9 @@ dependencies {
 // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
     implementation("com.mysql:mysql-connector-j:9.3.0")
 
+    // https://mvnrepository.com/artifact/org.postgresql/postgresql
+    runtimeOnly("org.postgresql:postgresql:42.7.3")
+
     // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-ui
     implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
 

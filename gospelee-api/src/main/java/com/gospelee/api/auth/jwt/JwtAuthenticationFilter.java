@@ -55,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     String socialLoginPlatform = request.getHeader(
         CustomHeader.SOCIAL_LOGIN_PLATFORM.getHeaderName());
     String appId = request.getHeader(CustomHeader.X_APP_IDENTIFIER.getHeaderName());
-    boolean isWeb = AppType.OOG_WEB.getValue().equals(appId);
+    boolean isWeb = AppType.PODO_WEB.getValue().equals(appId);
 
     String nonceCacheKey = null;
     if (NONCE_CHECK_PATH.equals(request.getServletPath())) {

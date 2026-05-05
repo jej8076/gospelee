@@ -59,4 +59,32 @@ public class YoutubeVideo extends EditInfomation {
     this.isActive = isActive;
     this.sortOrder = sortOrder;
   }
+
+  public void changeTitle(String title) {
+    this.title = title;
+  }
+
+  public void changeDescription(String description) {
+    this.description = description;
+  }
+
+  public void changeThumbnailUrl(String thumbnailUrl) {
+    this.thumbnailUrl = thumbnailUrl;
+  }
+
+  public void changeChannelTitle(String channelTitle) {
+    this.channelTitle = channelTitle;
+  }
+
+  public void changePublishedAt(String publishedAt) {
+    this.publishedAt = publishedAt;
+  }
+
+  public void changeIsActive(Boolean isActive) {
+    this.isActive = isActive;
+  }
+
+  public void changeSortOrder(Integer sortOrder) {
+    this.sortOrder = sortOrder;
+  }
 }
