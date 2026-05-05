@@ -59,7 +59,7 @@ public class BibleServiceImpl implements BibleService {
 
   @Override
   public Optional<List<Bible>> findByBookAndChapter(Integer book, Integer chapter) {
-    return bibleRepository.findByBookAndChapter(book, chapter);
+    return bibleRepository.findByBookAndChapterOrderByIdxAsc(book, chapter);
   }
 
   @Override
@@ -84,7 +84,8 @@ public class BibleServiceImpl implements BibleService {
 
   @Override
   public BibleWriteStatsDTO getBibleWriteStats(Long accountUid) {
-    List<Object[]> completedByBook = accountBibleWriteRepository.getCompletedChaptersByBook(accountUid);
+    List<Object[]> completedByBook = accountBibleWriteRepository.getCompletedChaptersByBook(
+        accountUid);
 
     List<BookStatDTO> bookStats = new ArrayList<>();
     int totalCompleted = 0;
