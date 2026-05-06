@@ -88,6 +88,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     SocialJwtProvider socialJwtProvider = providerFactory.getProvider(
         tokenDTO.getSocialLoginPlatform());
 
+    if (socialJwtProvider == null) {
+      log.warn("[JWT] unsupported platform: {}", tokenDTO.getSocialLoginPlatform());
+      failResponse(response, ErrorResponseType.AUTH_103);
+      return;
+    }
+
     JwtPayload jwtPayload = socialJwtProvider.getOIDCPayload(tokenDTO.getIdToken(), nonceCacheKey);
 
     if (ObjectUtils.isEmpty(jwtPayload)) {

@@ -34,6 +34,12 @@ const useAuth = () => {
           customHeaders[cookie.name] = cookie.value;
         }
       }
+
+      if (!customHeaders[AuthItems.SocialLoginPlatform]) {
+        router.push('/login');
+        return {} as Users;
+      }
+
       try {
         const response = await apiFetch(`/api/account/auth/validate`, {
           method: "POST",
