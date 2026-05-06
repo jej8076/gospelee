@@ -25,9 +25,9 @@ spring:
       connection-init-sql: SELECT 1
       data-source-properties:
         sslmode: require
-        sslcert: /home/jej/.tsh/keys/teleport.po-do.org/jej-db/po-do.org/podo-postgresql.crt
-        sslkey: /home/jej/.tsh/keys/teleport.po-do.org/jej-db/po-do.org/podo-postgresql.pk8
-        sslrootcert: /home/jej/.tsh/keys/teleport.po-do.org/cas/po-do.org.pem
+        sslcert: \\wsl.localhost\Ubuntu-24.04\home\jej\.tsh\keys\teleport.po-do.org\jej-db\po-do.org\podo-postgresql.crt
+        sslkey: \\wsl.localhost\Ubuntu-24.04\home\jej\.tsh\keys\teleport.po-do.org\jej-db\po-do.org\podo-postgresql.pk8
+        sslrootcert: \\wsl.localhost\Ubuntu-24.04\home\jej\.tsh\keys\teleport.po-do.org\cas\po-do.org.pem
   jpa:
     hibernate:
       ddl-auto: none
@@ -83,4 +83,4 @@ apple:
 
 firebase:
   admin-sdk:
-    path: /home/jej/dev/gospelee/firebase/podo-d55b1-firebase-adminsdk-fbsvc-f086c21401.json
+    path: \\wsl.localhost\Ubuntu-24.04\home\jej\dev\gospelee\firebase\podo-d55b1-firebase-adminsdk-fbsvc-f086c21401.json

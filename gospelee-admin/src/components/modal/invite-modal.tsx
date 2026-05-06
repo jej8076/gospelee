@@ -14,7 +14,6 @@ export default function InviteModal({ isOpen, onClose }: InviteModalProps) {
   const [activeTab, setActiveTab] = useState<'url' | 'qr'>('url');
   const [copySuccess, setCopySuccess] = useState(false);
   
-  // TODO: 실제 환경에서는 환경변수나 설정에서 가져와야 함
   const inviteUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/invite`;
 
   const handleCopyUrl = async () => {
