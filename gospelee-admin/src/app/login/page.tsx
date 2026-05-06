@@ -82,7 +82,7 @@ function LoginContent() {
             <div className="flex justify-center mb-8">
               <Image
                   className="h-16 w-auto"
-                  src="/images/logo/logo_oog.svg"
+                  src="/images/logo/podo_logo.svg"
                   alt="Gospelee"
                   width={64}
                   height={64}
@@ -138,14 +138,14 @@ function LoginContent() {
 
 export default function Login() {
   return (
-    <Suspense fallback={
-      <PageTransition>
-        <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        </div>
-      </PageTransition>
-    }>
-      <LoginContent />
-    </Suspense>
+      <Suspense fallback={
+        <PageTransition>
+          <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        </PageTransition>
+      }>
+        <LoginContent/>
+      </Suspense>
   );
 }

@@ -141,7 +141,7 @@ export default function MainLayout({children}: Readonly<{
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
-                  <div className="fixed inset-0 bg-gray-900/80" />
+                  <div className="fixed inset-0 bg-gray-900/80"/>
                 </Transition.Child>
 
                 <div className="fixed inset-0 flex">
@@ -165,17 +165,19 @@ export default function MainLayout({children}: Readonly<{
                           leaveTo="opacity-0"
                       >
                         <div className="absolute left-full top-0 flex w-16 justify-center pt-5">
-                          <button type="button" className="-m-2.5 p-2.5" onClick={() => setSidebarOpen(false)}>
+                          <button type="button" className="-m-2.5 p-2.5"
+                                  onClick={() => setSidebarOpen(false)}>
                             <span className="sr-only">Close sidebar</span>
-                            <XMarkIcon className="h-6 w-6 text-white" aria-hidden="true" />
+                            <XMarkIcon className="h-6 w-6 text-white" aria-hidden="true"/>
                           </button>
                         </div>
                       </Transition.Child>
-                      <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
+                      <div
+                          className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
                         <div className="flex h-16 shrink-0 items-center justify-center">
                           <Image
                               className="h-8 w-auto"
-                              src="/images/logo/logo_oog.svg"
+                              src="/images/logo/podo_logo.svg"
                               alt="Your Company"
                               width={32}
                               height={32}
@@ -244,7 +246,7 @@ export default function MainLayout({children}: Readonly<{
                 <div className="flex h-16 shrink-0 items-center justify-center">
                   <Image
                       className="h-8 w-auto"
-                      src="/images/logo/logo_oog.svg"
+                      src="/images/logo/podo_logo.svg"
                       alt="Your Company"
                       width={32}
                       height={32}

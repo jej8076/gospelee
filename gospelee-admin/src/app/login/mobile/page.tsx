@@ -40,15 +40,13 @@ const MobileLoginContent = () => {
 
     const fetchCodeAndOpenApp = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-        addLog(`API: ${apiUrl}/api/account/qr/enter`);
+        addLog(`API: /api/account/qr/enter`);
         const qrCode = await makeQrCodeAndGetCode(email, true);
 
         if (qrCode && qrCode.code) {
           addLog(`코드 수신: ${qrCode.code}`);
           setCode(qrCode.code);
 
-          // 딥링크 열기
           const serverUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/account/qr/req/${qrCode.code}`;
           const deepLink = `podo://mobile/login/${encodeURIComponent(serverUrl)}`;
           addLog(`딥링크 실행`);

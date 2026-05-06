@@ -19,7 +19,7 @@ const Header = () => {
             <div className={styles.logo}>
               <a href="/">
                 <Image
-                    src="/images/logo/logo_oog.svg"
+                    src="/images/logo/podo_logo.svg"
                     alt="Gospelee"
                     width={120}
                     height={40}

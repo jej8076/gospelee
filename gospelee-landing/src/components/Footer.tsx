@@ -12,7 +12,7 @@ const Footer = () => {
             <div className={styles.footerTop}>
               <div className={styles.logoSection}>
                 <Image
-                    src="/images/logo/logo_oog.svg"
+                    src="/images/logo/podo_logo.svg"
                     alt="Gospelee"
                     width={100}
                     height={32}
