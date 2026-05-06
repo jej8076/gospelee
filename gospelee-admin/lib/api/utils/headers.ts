@@ -1,30 +1,13 @@
-import {AuthItems} from "~/constants/auth-items";
-import {getCookie} from "~/lib/cookie/cookie-utils";
-
+/**
+ * 인증은 httpOnly 세션 쿠키로 자동 처리됨 (apiFetch의 credentials: 'include').
+ * 기본 JSON 요청 헤더만 반환.
+ */
 export const authHeaders = async () => {
   return {
     "Content-Type": "application/json",
-    [AuthItems.Authorization]:
-        (await getCookie(AuthItems.Authorization)) || "",
-    [AuthItems.SocialLoginPlatform]:
-        (await getCookie(AuthItems.SocialLoginPlatform)) || "",
-    [AuthItems.SocialAccessToken]:
-        (await getCookie(AuthItems.SocialAccessToken)) || "",
-    [AuthItems.SocialRefreshToken]:
-        (await getCookie(AuthItems.SocialRefreshToken)) || "",
   };
 };
 
 export const authHeadersWithoutContentsType = async () => {
-  return {
-    [AuthItems.Authorization]:
-        (await getCookie(AuthItems.Authorization)) || "",
-    [AuthItems.SocialLoginPlatform]:
-        (await getCookie(AuthItems.SocialLoginPlatform)) || "",
-    [AuthItems.SocialAccessToken]:
-        (await getCookie(AuthItems.SocialAccessToken)) || "",
-    [AuthItems.SocialRefreshToken]:
-        (await getCookie(AuthItems.SocialRefreshToken)) || "",
-  };
+  return {};
 };
-

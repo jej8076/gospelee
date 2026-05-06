@@ -1,5 +1,3 @@
-import {expireCookie, getCookie} from "~/lib/cookie/cookie-utils";
-import {AuthItems} from "~/constants/auth-items";
 import {apiFetch} from "~/lib/api-client";
 import {authHeaders} from "~/lib/api/utils/headers";
 
@@ -11,7 +9,6 @@ export const fetchYoutubeVideos = async (): Promise<YoutubeVideo[]> => {
   });
 
   if (!response.ok) {
-    await expireCookie(AuthItems.Authorization);
     const errorData = await response.json();
     console.error("Error response from server:", errorData.message);
     throw {status: response.status, message: errorData.message};
@@ -29,7 +26,6 @@ export const fetchYoutubeVideoById = async (id: string): Promise<YoutubeVideo> =
   });
 
   if (!response.ok) {
-    await expireCookie(AuthItems.Authorization);
     const errorData = await response.json();
     console.error("Error response from server:", errorData.message);
     throw {status: response.status, message: errorData.message};
@@ -48,7 +44,6 @@ export const fetchCreateYoutubeVideo = async (inputData: Partial<YoutubeVideo>):
   });
 
   if (!response.ok) {
-    await expireCookie(AuthItems.Authorization);
     const errorData = await response.json();
     console.error("Error response from server:", errorData);
     throw {status: response.status, message: errorData.message};
@@ -67,7 +62,6 @@ export const fetchUpdateYoutubeVideo = async (inputData: Partial<YoutubeVideo>):
   });
 
   if (!response.ok) {
-    await expireCookie(AuthItems.Authorization);
     const errorData = await response.json();
     console.error("Error response from server:", errorData);
     throw {status: response.status, message: errorData.message};

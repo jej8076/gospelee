@@ -2,13 +2,8 @@
 
 import {Suspense, useCallback, useEffect, useRef, useState} from "react";
 import {useRouter, useSearchParams} from 'next/navigation';
-import {
-  makeQrCodeAndGetCode,
-  qrCheckAndGetToken,
-  setBrowserCookies
-} from "~/services/login/LoginService";
+import {makeQrCodeAndGetCode, checkQrAuthenticated} from "~/services/login/LoginService";
 import PageTransition from '@/components/PageTransition';
-import {AuthItems} from "~/constants/auth-items";
 
 const MobileLoginContent = () => {
   const searchParams = useSearchParams();
@@ -56,21 +51,12 @@ const MobileLoginContent = () => {
           // 폴링 시작
           addLog(`폴링 시작`);
           const intervalId = setInterval(async () => {
-            const token = await qrCheckAndGetToken(email, qrCode.code);
-            if (token == null) return;
+            const authenticated = await checkQrAuthenticated(email, qrCode.code);
+            if (!authenticated) return;
 
-            addLog(`토큰 수신!`);
-            const cookies = [
-              {name: AuthItems.Authorization, value: AuthItems.Bearer + token.idToken},
-              {name: AuthItems.SocialLoginPlatform, value: token.socialLoginPlatform || "kakao"},
-              {name: AuthItems.SocialAccessToken, value: token.accessToken},
-              {name: AuthItems.SocialRefreshToken, value: token.refreshToken}
-            ];
-            if (await setBrowserCookies(cookies) == 200) {
-              clearInterval(intervalId);
-              addLog(`로그인 성공, 이동 중...`);
-              router.push('/main');
-            }
+            addLog(`인증 완료, 이동 중...`);
+            clearInterval(intervalId);
+            router.push('/main');
           }, 3000);
         } else {
           addLog(`에러: QR 응답 없음 - ${JSON.stringify(qrCode)}`);

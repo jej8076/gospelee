@@ -6,7 +6,7 @@ server:
 
 cors:
   allowed-origins:
-    - https://admin.podo.kr:8800
+    - https://admin.po-do.org
 
 spring:
   application:
@@ -64,9 +64,20 @@ auth:
     - /article/*
     - /youtube/videos
     - /announcement/unauthorized/BRAND_STORY
+    - /auth/super
+    - /auth/logout
   allow-pending-paths:
     - /api/account/qr/req/*
   app-store-skip-email: dvhvvhddf2@privaterelay.appleid.com
+
+session:
+  cookie:
+    name: SESSION
+    domain: ""
+    path: /
+    secure: false
+    same-site: Lax
+    max-age: 604800
 
 app-link:
   scheme: oog

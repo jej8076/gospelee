@@ -2,6 +2,7 @@ package com.gospelee.api.auth.jwt;
 
 import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.account.TokenDTO;
+import com.gospelee.api.dto.auth.SessionData;
 import com.gospelee.api.dto.common.ResponseDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
 import com.gospelee.api.enums.AppType;
@@ -12,7 +13,9 @@ import com.gospelee.api.enums.SocialLoginPlatform;
 import com.gospelee.api.enums.TokenHeaders;
 import com.gospelee.api.properties.AuthProperties;
 import com.gospelee.api.service.AccountService;
+import com.gospelee.api.service.SessionService;
 import com.gospelee.api.utils.IpUtils;
+import com.gospelee.api.utils.SessionCookieUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,13 +41,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private final AuthProperties authProperties;
   private final AccountService accountService;
   private final SocialJwtProviderFactory providerFactory;
+  private final SessionService sessionService;
+  private final SessionCookieUtils sessionCookieUtils;
   private final String NONCE_CHECK_PATH = "/account/auth/success";
 
   public JwtAuthenticationFilter(AuthProperties authProperties, AccountService accountService,
-      SocialJwtProviderFactory providerFactory) {
+      SocialJwtProviderFactory providerFactory, SessionService sessionService,
+      SessionCookieUtils sessionCookieUtils) {
     this.authProperties = authProperties;
     this.accountService = accountService;
     this.providerFactory = providerFactory;
+    this.sessionService = sessionService;
+    this.sessionCookieUtils = sessionCookieUtils;
   }
 
   @Override
@@ -52,6 +60,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       FilterChain filterChain) throws ServletException, IOException, BadCredentialsException {
 
     String clientIp = IpUtils.getClientIp(request);
+
+    // 1. cookie 기반 세션 우선 확인 (admin 웹)
+    String sessionId = sessionCookieUtils.extractSessionId(request);
+    if (sessionId != null) {
+      Optional<SessionData> sessionOpt = sessionService.get(sessionId);
+      if (sessionOpt.isPresent()) {
+        if (applySessionAuthenticationToContext(sessionOpt.get())) {
+          filterChain.doFilter(request, response);
+          return;
+        }
+      }
+      // session ID는 있는데 Redis에 없거나 만료 → 401
+      failResponse(response, ErrorResponseType.AUTH_103);
+      return;
+    }
+
+    // 2. cookie 없으면 기존 헤더 기반 로직 (모바일 앱)
     String socialLoginPlatform = request.getHeader(
         CustomHeader.SOCIAL_LOGIN_PLATFORM.getHeaderName());
     String appId = request.getHeader(CustomHeader.X_APP_IDENTIFIER.getHeaderName());
@@ -134,6 +159,44 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private void applySuperAuthenticationToContext(TokenDTO tokenDTO) {
     Authentication authentication = getSuperAuthentication(tokenDTO);
     SecurityContextHolder.getContext().setAuthentication(authentication);
+  }
+
+  /**
+   * 세션 데이터로부터 SecurityContext에 인증 정보 주입.
+   * super 세션이면 super 계정 조회, 일반 세션이면 email로 계정 조회.
+   *
+   * @return 성공 시 true, 계정 조회 실패 등으로 실패 시 false
+   */
+  private boolean applySessionAuthenticationToContext(SessionData session) {
+    Optional<AccountAuthDTO> accountOpt;
+    if (session.isSuperUser()) {
+      accountOpt = accountService.handleSuperUserAuthentication();
+    } else {
+      accountOpt = accountService.getAccountByEmail(session.getEmail())
+          .map(account -> AccountAuthDTO.builder()
+              .uid(account.getUid())
+              .email(account.getEmail())
+              .name(account.getName())
+              .phone(account.getPhone())
+              .role(account.getRole())
+              .ecclesiaUid(account.getEcclesiaUid())
+              .pushToken(account.getPushToken())
+              .idToken(session.getIdToken())
+              .accessToken(session.getAccessToken())
+              .refreshToken(session.getRefreshToken())
+              .socialLoginPlatform(session.getSocialLoginPlatform())
+              .build());
+    }
+
+    if (accountOpt.isEmpty()) {
+      return false;
+    }
+
+    AccountAuthDTO account = accountOpt.get();
+    UsernamePasswordAuthenticationToken authentication =
+        new UsernamePasswordAuthenticationToken(account, "", account.getAuthorities());
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+    return true;
   }
 
   private Authentication applyAuthenticationToContext(SocialJwtProvider socialJwtProvider,

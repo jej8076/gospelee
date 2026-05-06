@@ -8,6 +8,7 @@ public enum RedisCacheNames {
   NONCE(Duration.ofMinutes(5L)),
   USER_ME(Duration.ofHours(6L)),
   TEMP_APPSTORE_LOGIN(Duration.ofDays(5L)),
+  SESSION(Duration.ofDays(7L)),
   ;
 
   final private Duration ttl;

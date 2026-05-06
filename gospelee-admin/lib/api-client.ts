@@ -31,6 +31,7 @@ export const apiFetch = async (
       ...userHeaders,
       ...defaultHeaders,
     },
+    credentials: 'include',
     signal
   };
 

@@ -1,5 +1,3 @@
-import {expireCookie, getCookie} from "~/lib/cookie/cookie-utils";
-import {AuthItems} from "~/constants/auth-items";
 import {apiFetch} from "~/lib/api-client";
 import {convertEcclesiaStatusType, EcclesiaStatusType} from "@/enums/ecclesia/status";
 import {authHeaders} from "~/lib/api/utils/headers";
@@ -17,10 +15,6 @@ export const fetchGetEcclesia = async (accountUid: number): Promise<Ecclesia> =>
   });
 
   if (!response.ok) {
-    await expireCookie(AuthItems.Authorization);
-    await expireCookie(AuthItems.SocialAccessToken);
-    await expireCookie(AuthItems.SocialRefreshToken);
-
     const errorData = await response.json();
     console.error("Error response from server:", errorData.message);
     throw {status: response.status, message: errorData.message};
@@ -40,9 +34,6 @@ export const fetchInsertEcclesia = async (inputData: {
   });
 
   if (!response.ok) {
-    await expireCookie(AuthItems.Authorization);
-    await expireCookie(AuthItems.SocialAccessToken);
-    await expireCookie(AuthItems.SocialRefreshToken);
     const errorData = await response.json();
     console.error("Error response from server:", errorData.message);
     throw {status: response.status, message: errorData.message};
@@ -63,9 +54,6 @@ export const fetchUpdateEcclesia = async (inputData: {
   });
 
   if (!response.ok) {
-    await expireCookie(AuthItems.Authorization);
-    await expireCookie(AuthItems.SocialAccessToken);
-    await expireCookie(AuthItems.SocialRefreshToken);
     const errorData = await response.json();
     console.error("Error response from server:", errorData.message);
     throw {status: response.status, message: errorData.message};

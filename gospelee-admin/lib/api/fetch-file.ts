@@ -1,6 +1,4 @@
 import {apiFetch} from "~/lib/api-client";
-import {getCookie} from "~/lib/cookie/cookie-utils";
-import {AuthItems} from "~/constants/auth-items";
 import {authHeaders} from "~/lib/api/utils/headers";
 
 /**

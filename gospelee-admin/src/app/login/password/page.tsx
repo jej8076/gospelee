@@ -3,8 +3,7 @@
 import {useRouter, useSearchParams} from 'next/navigation';
 import {ChangeEvent, FormEvent, KeyboardEvent, Suspense, useEffect, useRef, useState} from 'react';
 import Image from 'next/image';
-import {setCookie} from "~/lib/cookie/cookie-utils";
-import {AuthItems} from "~/constants/auth-items";
+import {apiFetch} from "~/lib/api-client";
 import {useMenuListStore} from "@/hooks/useMenuList";
 import PageTransition from '@/components/PageTransition';
 
@@ -47,7 +46,17 @@ function PasswordLoginContent() {
     setMenuList([]);
 
     try {
-      await setCookie(AuthItems.Authorization, AuthItems.Bearer + password.trim());
+      const response = await apiFetch('/api/auth/super', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({password: password.trim()}),
+      });
+
+      if (!response.ok) {
+        alert('비밀번호가 올바르지 않습니다.');
+        return;
+      }
+
       router.push('/main');
     } catch (error) {
       console.error('로그인 처리 중 오류:', error);
