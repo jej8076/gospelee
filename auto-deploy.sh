@@ -60,14 +60,24 @@ load_token() {
 # ─── 원격 이미지 digest 조회 ─────────────────────────────────
 get_remote_digest() {
   local image="$1"
-  local url="https://${GHCR_REGISTRY}/v2/${GITHUB_REPOSITORY}/${image}/manifests/latest"
+  # GHCR은 패키지명의 슬래시를 %2F로 인코딩해야 함
+  local owner
+  owner=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f1)
+  local repo
+  repo=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)
+  local url="https://${GHCR_REGISTRY}/v2/${owner}/${repo}%2F${image}/manifests/latest"
+
+  # GHCR Registry API는 PAT를 Base64 인코딩해서 Bearer로 전달
+  local encoded_token
+  encoded_token=$(echo -n "${GHCR_TOKEN}" | base64)
 
   local digest
   digest=$(curl -fsSL \
-    -H "Authorization: Bearer ${GHCR_TOKEN}" \
+    -H "Authorization: Bearer ${encoded_token}" \
+    -H "Accept: application/vnd.oci.image.index.v1+json" \
     -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
     -H "Accept: application/vnd.oci.image.manifest.v1+json" \
-    --head \
+    -D - \
     "${url}" 2>/dev/null \
     | grep -i "docker-content-digest" \
     | awk '{print $2}' \
@@ -87,12 +97,17 @@ get_local_digest() {
 
 # ─── 메인 ────────────────────────────────────────────────────
 main() {
+  local force=false
+  for arg in "$@"; do
+    [ "${arg}" = "--force" ] && force=true
+  done
+
   rotate_log
-  log "INFO" "========== 배포 체크 시작 =========="
+  log "INFO" "========== 배포 체크 시작 $([ "${force}" = true ] && echo '[강제 배포]') =========="
   load_token
 
   # GHCR 로그인
-  echo "${GHCR_TOKEN}" | docker login "${GHCR_REGISTRY}" -u _token --password-stdin > /dev/null 2>&1
+  echo "${GHCR_TOKEN}" | docker login "${GHCR_REGISTRY}" -u jej8076 --password-stdin > /dev/null 2>&1
   if [ $? -ne 0 ]; then
     log "ERROR" "GHCR 로그인 실패"
     exit 1
@@ -100,36 +115,50 @@ main() {
 
   local updated=false
 
-  for image in "${IMAGES[@]}"; do
-    local full_image="${GHCR_REGISTRY}/${GITHUB_REPOSITORY}/${image}:latest"
-
-    log "INFO" "[${image}] 원격 digest 확인 중..."
-    local remote_digest
-    remote_digest=$(get_remote_digest "${image}")
-
-    if [ -z "${remote_digest}" ]; then
-      log "WARN" "[${image}] 원격 digest 조회 실패. 스킵합니다."
-      continue
-    fi
-
-    local local_digest
-    local_digest=$(get_local_digest "${image}")
-
-    log "INFO" "[${image}] 원격: ${remote_digest}"
-    log "INFO" "[${image}] 로컬: ${local_digest:-없음}"
-
-    if [ "${remote_digest}" != "${local_digest}" ]; then
-      log "INFO" "[${image}] 새 이미지 감지 → pull 시작"
+  if [ "${force}" = true ]; then
+    log "INFO" "--force 옵션: digest 확인 없이 모든 이미지를 pull합니다."
+    for image in "${IMAGES[@]}"; do
+      local full_image="${GHCR_REGISTRY}/${GITHUB_REPOSITORY}/${image}:latest"
+      log "INFO" "[${image}] pull 시작"
       if docker pull "${full_image}" >> "${LOG_FILE}" 2>&1; then
         log "INFO" "[${image}] pull 완료"
         updated=true
       else
         log "ERROR" "[${image}] pull 실패"
       fi
-    else
-      log "INFO" "[${image}] 변경 없음. 스킵합니다."
-    fi
-  done
+    done
+  else
+    for image in "${IMAGES[@]}"; do
+      local full_image="${GHCR_REGISTRY}/${GITHUB_REPOSITORY}/${image}:latest"
+
+      log "INFO" "[${image}] 원격 digest 확인 중..."
+      local remote_digest
+      remote_digest=$(get_remote_digest "${image}")
+
+      if [ -z "${remote_digest}" ]; then
+        log "WARN" "[${image}] 원격 digest 조회 실패. 스킵합니다."
+        continue
+      fi
+
+      local local_digest
+      local_digest=$(get_local_digest "${image}")
+
+      log "INFO" "[${image}] 원격: ${remote_digest}"
+      log "INFO" "[${image}] 로컬: ${local_digest:-없음}"
+
+      if [ "${remote_digest}" != "${local_digest}" ]; then
+        log "INFO" "[${image}] 새 이미지 감지 → pull 시작"
+        if docker pull "${full_image}" >> "${LOG_FILE}" 2>&1; then
+          log "INFO" "[${image}] pull 완료"
+          updated=true
+        else
+          log "ERROR" "[${image}] pull 실패"
+        fi
+      else
+        log "INFO" "[${image}] 변경 없음. 스킵합니다."
+      fi
+    done
+  fi
 
   # 하나라도 업데이트됐으면 재배포
   if [ "${updated}" = true ]; then
