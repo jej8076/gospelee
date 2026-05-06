@@ -22,7 +22,6 @@ const userNavigation = [
   {id: 'profile', name: 'Your profile', href: '#'},
   {id: 'signOut', name: 'Sign out', href: '#',},
 ]
-
 function classNames(...classes: String[]) {
   return classes.filter(Boolean).join('  ')
 }
