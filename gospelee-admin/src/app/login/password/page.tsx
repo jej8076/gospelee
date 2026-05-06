@@ -1,7 +1,7 @@
 'use client'
 
 import {useRouter, useSearchParams} from 'next/navigation';
-import {ChangeEvent, FormEvent, KeyboardEvent, useEffect, useRef, useState, Suspense} from 'react';
+import {ChangeEvent, FormEvent, KeyboardEvent, Suspense, useEffect, useRef, useState} from 'react';
 import Image from 'next/image';
 import {setCookie} from "~/lib/cookie/cookie-utils";
 import {AuthItems} from "~/constants/auth-items";
@@ -85,7 +85,7 @@ function PasswordLoginContent() {
             <div className="flex justify-center mb-8">
               <Image
                   className="h-16 w-auto"
-                  src="/images/logo/logo_oog.svg"
+                  src="/images/logo/podo_logo.svg"
                   alt="Gospelee"
                   width={64}
                   height={64}
@@ -167,7 +167,7 @@ export default function PasswordLogin() {
             <div className="flex justify-center mb-8">
               <Image
                   className="h-16 w-auto"
-                  src="/images/logo/logo_oog.svg"
+                  src="/images/logo/podo_logo.svg"
                   alt="Gospelee"
                   width={64}
                   height={64}

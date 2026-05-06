@@ -48,48 +48,6 @@
   font-family: "Pretendard", sans-serif;
 }
 
-.signature {
-  font-size: 4.0rem;
-  color: #316049;
-}
-
-.black {
-  color: #212529;
-}
-
-.highlight {
-  color: #007bff;
-  background: linear-gradient(135deg, #007bff, #0056b3);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.wordContainer {
-  display: inline-block;
-  position: relative;
-  height: 1.15em; /* 한 줄 높이 */
-  width: 140px; /* Our이 짤리지 않도록 너비 증가 */
-  overflow: hidden;
-  vertical-align: baseline;
-  transform: translateY(0.2em); /* 약간 아래로 이동 */
-}
-
-.animatedWord {
-  display: block;
-  position: absolute;
-  width: 100%;
-  text-align: center;
-  transition: transform 0.6s ease-in-out;
-  top: 0;
-  left: 0;
-  letter-spacing: 0.02em; /* 애니메이션 단어 자간 추가 */
-}
-
-.animatedWord.active {
-  transform: translateY(0) !important;
-}
-
 .subtitle {
   text-align: right;
   font-size: 1.25rem;
@@ -304,21 +262,6 @@
     font-size: 3rem;
     letter-spacing: -0.0em;
     word-spacing: -2.5rem;
-  }
-
-  .wordContainer {
-    display: inline-block;
-    position: relative;
-    height: 1.2em; /* 한 줄 높이 */
-    width: 100px;
-    overflow: hidden;
-    vertical-align: baseline;
-    transform: translateY(0.2em); /* 약간 아래로 이동 */
-  }
-
-  .signature {
-    font-size: 2.3rem;
-    color: #316049;
   }
 
   .buttonGroup {

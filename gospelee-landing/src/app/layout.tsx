@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   keywords: '성경, 말씀, 묵상, 기도, 크리스천, 앱',
   authors: [{name: 'Gospelee Team'}],
   robots: 'index, follow',
-  metadataBase: new URL('https://landing.oog.com'),
+  metadataBase: new URL('https://landing.po-do.org'),
   openGraph: {
     title: 'OOG',
     description: '우리는 교회, 교회는 우리',

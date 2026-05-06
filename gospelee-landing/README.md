@@ -12,16 +12,19 @@ Gospelee 서비스의 랜딩페이지입니다.
 ## 개발 환경 설정
 
 1. 의존성 설치:
+
 ```bash
 npm install
 ```
 
 2. 개발 서버 실행:
+
 ```bash
 npm run dev
 ```
 
 3. 빌드:
+
 ```bash
 npm run build
 ```
@@ -51,7 +54,7 @@ src/
 └── public/
     └── images/
         └── logo/
-            └── logo_oog.svg
+            └── podo_logo.svg
 ```
 
 ## 특징

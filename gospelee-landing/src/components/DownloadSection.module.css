@@ -1,6 +1,6 @@
 .download {
   padding: 120px 0;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: #f8f9fa;
 }
 
 .downloadContent {
@@ -130,7 +130,7 @@
 .appHeader {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #007bff;
+  color: #316049;
   text-align: center;
   margin-bottom: 20px;
   padding-bottom: 15px;
@@ -149,11 +149,11 @@
   border-radius: 10px;
   font-size: 0.9rem;
   color: #495057;
-  border-left: 4px solid #007bff;
+  border-left: 4px solid #316049;
 }
 
 .todayVerse {
-  background: linear-gradient(135deg, #007bff, #0056b3);
+  background: #316049;
   color: white;
   padding: 20px 15px;
   border-radius: 15px;

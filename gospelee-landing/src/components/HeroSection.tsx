@@ -1,23 +1,14 @@
 'use client';
 
-import {useState, useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import Image from 'next/image';
 import styles from './HeroSection.module.css';
 import Link from "next/link";
 
 const HeroSection = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [fontLoaded, setFontLoaded] = useState(false);
-  const words = ['OUR', 'MY'];
-
-  const getDelay = (index: number) => {
-    if (index === 0) return 2000;
-    if (index === 1) return 1000;
-    return 2000;
-  };
 
   useEffect(() => {
-    // 폰트 로딩 확인
     const checkFontLoaded = async () => {
       try {
         await document.fonts.load('400 16px Pretendard');
@@ -25,7 +16,6 @@ const HeroSection = () => {
         await document.fonts.load('700 16px Pretendard');
         setFontLoaded(true);
       } catch (error) {
-        // 폰트 로딩 실패시에도 3초 후 표시
         setTimeout(() => setFontLoaded(true), 3000);
       }
     };
@@ -33,49 +23,17 @@ const HeroSection = () => {
     checkFontLoaded();
   }, []);
 
-  useEffect(() => {
-    const delay = getDelay(currentIndex);
-
-    const timer = setTimeout(() => {
-      setCurrentIndex(prev => (prev + 1) % words.length);
-    }, delay);
-
-    return () => clearTimeout(timer);
-  }, [currentIndex]);
-
   return (
       <section className={`${styles.hero} ${fontLoaded ? styles.fontLoaded : styles.fontLoading}`}>
         <div className="container">
           <div className={styles.heroContent}>
             <div className={styles.textContent}>
               <h1 className={styles.title}>
-                <span className={styles.black}>O</span>
-                <span className={styles.signature}>H</span>
-                {' '}
-                <span className={styles.wordContainer}>
-                  {words.map((word, wordIndex) => (
-                      <span
-                          key={word}
-                          className={`${styles.animatedWord} ${wordIndex === currentIndex ? styles.active : ''}`}
-                          style={{
-                            transform: `translateY(${(wordIndex - currentIndex) * 100}%)`
-                          }}
-                      >
-                      {word.split('').map((char, charIndex) => (
-                          <span key={charIndex}
-                                className={charIndex === 0 ? styles.black : styles.signature}>
-                            {char}
-                          </span>
-                      ))}
-                    </span>
-                  ))}
-                </span>{' '}
-                <span className={styles.black}>G</span>
-                <span className={styles.signature}>O</span>
-                <span className={styles.signature}>D</span>
+                나는 포도나무요<br/>
+                너희는 가지니
               </h1>
               <p className={styles.subtitle}>
-                우리는 교회, 교회는 우리<br/>
+                요한복음 15:5<br/>
               </p>
               <div className={styles.buttonGroup}>
                 <Link href="/#download">
@@ -96,8 +54,8 @@ const HeroSection = () => {
                       <div className={styles.previewHeader}>
                         <div className={styles.previewTitle}>
                           <Image
-                              src="/images/logo/logo_oog.svg"
-                              alt="OOG Logo"
+                              src="/images/logo/podo_logo.svg"
+                              alt="podo Logo"
                               width={60}
                               height={30}
                               className={styles.logoImage}
