@@ -8,6 +8,14 @@ cors:
   allowed-origins:
     - https://admin.po-do.org
 
+session:
+  cookie:
+    name: SESSION
+    domain: .po-do.org
+    secure: true
+    same-site: None
+    max-age: 604800
+
 spring:
   application:
     name: api
@@ -69,15 +77,6 @@ auth:
   allow-pending-paths:
     - /api/account/qr/req/*
   app-store-skip-email: dvhvvhddf2@privaterelay.appleid.com
-
-session:
-  cookie:
-    name: SESSION
-    domain: ""
-    path: /
-    secure: false
-    same-site: Lax
-    max-age: 604800
 
 app-link:
   scheme: oog
