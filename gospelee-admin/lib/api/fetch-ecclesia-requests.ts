@@ -1,5 +1,3 @@
-import {expireCookie, getCookie} from "~/lib/cookie/cookie-utils";
-import {AuthItems} from "~/constants/auth-items";
 import {apiFetch} from "~/lib/api-client";
 import {authHeaders} from "~/lib/api/utils/headers";
 
@@ -11,9 +9,6 @@ export const fetchEcclesiaRequests = async (): Promise<AccountEcclesiaRequest[]>
   });
 
   if (!response.ok) {
-    await expireCookie(AuthItems.Authorization);
-    await expireCookie(AuthItems.SocialAccessToken);
-    await expireCookie(AuthItems.SocialRefreshToken);
     const errorData = await response.json();
     console.error("Error response from server:", errorData.message);
     throw {status: response.status, message: errorData.message};
@@ -32,9 +27,6 @@ export const decideEcclesiaRequest = async (accountEcclesiaDecide: AccountEccles
   });
 
   if (!response.ok) {
-    await expireCookie(AuthItems.Authorization);
-    await expireCookie(AuthItems.SocialAccessToken);
-    await expireCookie(AuthItems.SocialRefreshToken);
     const errorData = await response.json();
     console.error("Error response from server:", errorData.message);
     throw {status: response.status, message: errorData.message};

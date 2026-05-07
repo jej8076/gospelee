@@ -3,15 +3,8 @@
 import {QRCodeSVG} from 'qrcode.react';
 import {useEffect, useState, Suspense, useRef, useCallback} from "react";
 import {useRouter, useSearchParams} from 'next/navigation';
-import {
-  makeQrCodeAndGetCode,
-  qrCheckAndGetToken,
-  setBrowserCookie, setBrowserCookies
-} from "~/services/login/LoginService";
+import {makeQrCodeAndGetCode, checkQrAuthenticated} from "~/services/login/LoginService";
 import PageTransition from '@/components/PageTransition';
-import {AuthItems} from "~/constants/auth-items";
-import {getCookies} from "~/lib/cookie/cookie-utils";
-import {logout} from "@/utils/user-utils";
 
 const QRCodeContent = () => {
   const searchParams = useSearchParams();
@@ -22,24 +15,13 @@ const QRCodeContent = () => {
 
   const startCheckingStatus = useCallback((email: string, code: string) => {
     const intervalId = setInterval(async () => {
-      const token = await qrCheckAndGetToken(email, code);
-      if (token == null) return;
-
-      const cookies = [
-        {name: AuthItems.Authorization, value: AuthItems.Bearer + token.idToken},
-        {name: AuthItems.SocialLoginPlatform, value: token.socialLoginPlatform || "kakao"},
-        {name: AuthItems.SocialAccessToken, value: token.accessToken},
-        {name: AuthItems.SocialRefreshToken, value: token.refreshToken,}
-      ]
-      if (await setBrowserCookies(cookies) == 200) {
-        const token = await getCookies([AuthItems.Authorization, AuthItems.SocialAccessToken, AuthItems.SocialRefreshToken])
+      const authenticated = await checkQrAuthenticated(email, code);
+      if (authenticated) {
         clearInterval(intervalId);
         router.push('/main');
       }
-
     }, 3000);
 
-    // Clean up interval on component unmount
     return () => clearInterval(intervalId);
   }, [router]);
 

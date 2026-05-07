@@ -21,10 +21,15 @@ import com.gospelee.api.enums.PushNotificationDataType;
 import com.gospelee.api.enums.RedisCacheNames;
 import com.gospelee.api.enums.RoleType;
 import com.gospelee.api.properties.AuthProperties;
+import com.gospelee.api.dto.auth.SessionData;
+import com.gospelee.api.entity.Account;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.FirebaseService;
 import com.gospelee.api.service.QrloginService;
 import com.gospelee.api.service.RedisCacheService;
+import com.gospelee.api.service.SessionService;
+import com.gospelee.api.utils.SessionCookieUtils;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +62,8 @@ public class AccountController {
   private final FirebaseService firebaseService;
   private final RedisCacheService redisCacheService;
   private final AuthProperties authProperties;
+  private final SessionService sessionService;
+  private final SessionCookieUtils sessionCookieUtils;
   //  @Value("${appstore.setting_email:}")
 //  private String settingEmail;
 
@@ -255,14 +262,37 @@ public class AccountController {
    */
   @PostMapping("/qr/check")
   public ResponseEntity<Object> checkQrLoginStatus(
-      @RequestBody AccountDTO.QrCheckRequest qrCheckRequest) {
+      @RequestBody AccountDTO.QrCheckRequest qrCheckRequest,
+      HttpServletResponse response) {
 
     QrLogin qrLogin = qrloginService.getQrLogin(
         qrCheckRequest.getEmail(),
         qrCheckRequest.getCode()
     );
 
-    return ResponseEntity.ok(qrLogin);
+    if (qrLogin == null || qrLogin.getIdToken() == null) {
+      return ResponseEntity.ok(Map.of("authenticated", false));
+    }
+
+    Account account = accountService.getAccountByEmail(qrLogin.getEmail())
+        .orElseThrow(() -> new NoSuchElementException(
+            "Account not found for email: " + qrLogin.getEmail()));
+
+    SessionData sessionData = SessionData.builder()
+        .accountUid(account.getUid())
+        .email(account.getEmail())
+        .socialLoginPlatform(qrLogin.getSocialLoginPlatform())
+        .idToken(qrLogin.getIdToken())
+        .accessToken(qrLogin.getAccessToken())
+        .refreshToken(qrLogin.getRefreshToken())
+        .superUser(false)
+        .build();
+
+    String sessionId = sessionService.create(sessionData);
+    sessionCookieUtils.setSessionCookie(response, sessionId);
+
+    log.info("[QR_LOGIN] session issued email={}", account.getEmail());
+    return ResponseEntity.ok(Map.of("authenticated", true));
   }
 
   // ========== 테스트 API ==========

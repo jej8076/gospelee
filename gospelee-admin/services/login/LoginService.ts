@@ -1,10 +1,7 @@
 'use client'
-import {setCookie, setCookies} from "~/lib/cookie/cookie-utils";
-import {AuthItems} from "~/constants/auth-items";
 import {apiFetch} from "~/lib/api-client";
 
 export const makeQrCodeAndGetCode = async (email: string, skipNotification: boolean = false) => {
-  console.log('API 호출 시작'); // API 호출 확인용 로그
   const response = await apiFetch(`/api/account/qr/enter`, {
     method: 'POST',
     headers: {
@@ -20,7 +17,11 @@ export const makeQrCodeAndGetCode = async (email: string, skipNotification: bool
   return await response.json();
 };
 
-export const qrCheckAndGetToken = async (email: string, code: string) => {
+/**
+ * QR 인증 상태 확인. 모바일이 인증을 완료하면 API가 세션 cookie를 발급함.
+ * 응답이 200이고 authenticated=true면 로그인 성공.
+ */
+export const checkQrAuthenticated = async (email: string, code: string): Promise<boolean> => {
   const response = await apiFetch(`/api/account/qr/check`, {
     method: 'POST',
     headers: {
@@ -30,23 +31,9 @@ export const qrCheckAndGetToken = async (email: string, code: string) => {
   });
 
   if (!response.ok) {
-    alert(response.ok);
-    return null;
+    return false;
   }
 
   const result = await response.json();
-  if (result.idToken == null && result.accessToken == null) {
-    return null;
-  }
-
-  return result;
+  return result?.authenticated === true;
 }
-
-export const setBrowserCookie = async (token: string) => {
-  return setCookie(AuthItems.Authorization, token);
-}
-
-export const setBrowserCookies = async (cookies: { name: string; value: string }[]) => {
-  return await setCookies(cookies);
-}
-

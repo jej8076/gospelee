@@ -38,5 +38,6 @@ out/
 .vscode/
 /gospelee-api/src/main/resources/application-dev.yml
 /gospelee-api/src/main/resources/application-prod.yml
+/gospelee-api/src/main/resources/application-local.yml
 /.java-version
 /gospelee-api/src/main/resources/binary/redis/dump.rdb
