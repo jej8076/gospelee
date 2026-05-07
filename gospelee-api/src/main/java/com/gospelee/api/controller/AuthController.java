@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -64,6 +65,37 @@ public class AuthController {
     sessionCookieUtils.setSessionCookie(response, sessionId);
 
     log.info("[SUPERLOGIN] success email={}", account.getEmail());
+    return ResponseEntity.ok(ResponseDTO.builder().code("100").message("성공").build());
+  }
+
+  /**
+   * 모바일 앱 → admin 웹뷰 접근용 세션 발급.
+   * JwtAuthenticationFilter에서 소셜 토큰 헤더로 인증 후 SESSION 쿠키 발급.
+   */
+  @PostMapping("/session")
+  public ResponseEntity<Object> issueSession(
+      @AuthenticationPrincipal AccountAuthDTO account,
+      HttpServletResponse response) {
+
+    if (account == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .body(ResponseDTO.builder().code("AUTH-103").message("Unauthorized").build());
+    }
+
+    SessionData sessionData = SessionData.builder()
+        .accountUid(account.getUid())
+        .email(account.getEmail())
+        .socialLoginPlatform(account.getSocialLoginPlatform())
+        .idToken(account.getIdToken())
+        .accessToken(account.getAccessToken())
+        .refreshToken(account.getRefreshToken())
+        .superUser(false)
+        .build();
+
+    String sessionId = sessionService.create(sessionData);
+    sessionCookieUtils.setSessionCookie(response, sessionId);
+
+    log.info("[SESSION] issued for email={}", account.getEmail());
     return ResponseEntity.ok(ResponseDTO.builder().code("100").message("성공").build());
   }
 
