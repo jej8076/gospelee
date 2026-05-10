@@ -1,6 +1,7 @@
 package com.gospelee.api.auth.jwt;
 
 import com.gospelee.api.dto.account.AccountAuthDTO;
+import com.gospelee.api.dto.account.AccountEcclesiaInfo;
 import com.gospelee.api.dto.account.TokenDTO;
 import com.gospelee.api.dto.auth.SessionData;
 import com.gospelee.api.dto.common.ResponseDTO;
@@ -173,19 +174,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       accountOpt = accountService.handleSuperUserAuthentication();
     } else {
       accountOpt = accountService.getAccountByEmail(session.getEmail())
-          .map(account -> AccountAuthDTO.builder()
-              .uid(account.getUid())
-              .email(account.getEmail())
-              .name(account.getName())
-              .phone(account.getPhone())
-              .role(account.getRole())
-              .ecclesiaUid(account.getEcclesiaUid())
-              .pushToken(account.getPushToken())
-              .idToken(session.getIdToken())
-              .accessToken(session.getAccessToken())
-              .refreshToken(session.getRefreshToken())
-              .socialLoginPlatform(session.getSocialLoginPlatform())
-              .build());
+          .map(account -> {
+            AccountEcclesiaInfo ecclesiaInfo = accountService.resolveEcclesiaInfo(account);
+            return AccountAuthDTO.builder()
+                .uid(account.getUid())
+                .email(account.getEmail())
+                .name(account.getName())
+                .phone(account.getPhone())
+                .role(account.getRole())
+                .ecclesiaUid(ecclesiaInfo.getEcclesiaUid())
+                .ecclesiaStatus(ecclesiaInfo.getEcclesiaStatus())
+                .pushToken(account.getPushToken())
+                .idToken(session.getIdToken())
+                .accessToken(session.getAccessToken())
+                .refreshToken(session.getRefreshToken())
+                .socialLoginPlatform(session.getSocialLoginPlatform())
+                .build();
+          });
     }
 
     if (accountOpt.isEmpty()) {
