@@ -37,5 +37,10 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
   void savePushToken(@Param("uid") Long uid, @Param("pushToken") String pushToken,
       @Param("updateTime") LocalDateTime updateTime);
 
+  @Modifying
+  @Transactional
+  @Query("UPDATE Account a SET a.name = :name, a.updateTime = :updateTime WHERE a.uid = :uid")
+  void updateName(@Param("uid") Long uid, @Param("name") String name,
+      @Param("updateTime") LocalDateTime updateTime);
 
 }

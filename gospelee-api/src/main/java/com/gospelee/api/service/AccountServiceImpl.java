@@ -2,6 +2,7 @@ package com.gospelee.api.service;
 
 import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
+import com.gospelee.api.dto.account.AccountEcclesiaInfo;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDecideDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDetailDTO;
 import com.gospelee.api.dto.account.AccountLeaveResponseDTO;
@@ -240,6 +241,12 @@ public class AccountServiceImpl implements AccountService {
     accountRepository.savePushToken(uid, pushToken, LocalDateTime.now());
   }
 
+  @Override
+  public void updateName(Long uid, String name) {
+    log.info("[ACCOUNT   ] update_name uid:{} name:{}", uid, name);
+    accountRepository.updateName(uid, name, LocalDateTime.now());
+  }
+
   // TODO 캐싱 관련 AOP로 전환 필요
   @Override
   public UserMeResponse getKakaoUserMe(String accessToken) {
@@ -298,8 +305,7 @@ public class AccountServiceImpl implements AccountService {
     Account superAccount = accountRepository.findByEmail(authProperties.getSuperId())
         .orElseThrow(() -> new RuntimeException("슈퍼 계정을 찾을 수 없습니다."));
 
-    Optional<Ecclesia> ecclesia = ecclesiaJpaRepository.findEcclesiasByMasterAccountUid(
-        superAccount.getUid());
+    AccountEcclesiaInfo ecclesiaInfo = resolveEcclesiaInfo(superAccount);
 
     AccountAuthDTO authDTO = AccountAuthDTO.builder()
         .uid(superAccount.getUid())
@@ -308,8 +314,8 @@ public class AccountServiceImpl implements AccountService {
         .phone(superAccount.getPhone())
         .rrn(superAccount.getRrn())
         .role(RoleType.ADMIN)
-        .ecclesiaUid(ecclesia.map(Ecclesia::getUid).orElse(null))
-        .ecclesiaStatus(ecclesia.map(Ecclesia::getStatus).orElse(null))
+        .ecclesiaUid(ecclesiaInfo.getEcclesiaUid())
+        .ecclesiaStatus(ecclesiaInfo.getEcclesiaStatus())
         .build();
 
     return Optional.of(authDTO);
@@ -403,22 +409,34 @@ public class AccountServiceImpl implements AccountService {
         .pushToken(account.getPushToken())
         .leaveYn(account.getLeaveYn());
 
-    if (account.getEcclesiaUid() == null) {
-      // 계정의 ecclesiaUid 정보가 없어도 ecclesia의 masterAccountUid로 로그인한 계정을 조회했을 때 결과가 있으면 해당 교회에 소속된 것으로 간주한다
-      Optional<Ecclesia> ecclesia = ecclesiaJpaRepository.findEcclesiasByMasterAccountUid(
-          account.getUid());
-      authDTOBuilder
-          .ecclesiaUid(ecclesia.map(Ecclesia::getUid).orElse(null))
-          .ecclesiaStatus(ecclesia.map(Ecclesia::getStatus).orElse(null));
-    } else {
-      Optional<Ecclesia> ecclesia = ecclesiaJpaRepository.findById(account.getEcclesiaUid());
-
-      authDTOBuilder
-          .ecclesiaUid(account.getEcclesiaUid())
-          .ecclesiaStatus(ecclesia.map(Ecclesia::getStatus).orElse(EcclesiaStatusType.NONE.name()));
-    }
+    AccountEcclesiaInfo ecclesiaInfo = resolveEcclesiaInfo(account);
+    authDTOBuilder
+        .ecclesiaUid(ecclesiaInfo.getEcclesiaUid())
+        .ecclesiaStatus(ecclesiaInfo.getEcclesiaStatus());
 
     return Optional.of(authDTOBuilder.build());
+  }
+
+  /**
+   * 계정의 교회 소속 정보(uid, 상태)를 조회합니다.
+   * 계정에 ecclesiaUid 가 없더라도 해당 계정이 어떤 교회의 masterAccountUid 라면 그 교회로 간주합니다.
+   */
+  @Override
+  public AccountEcclesiaInfo resolveEcclesiaInfo(Account account) {
+    if (account.getEcclesiaUid() == null) {
+      Optional<Ecclesia> ecclesia = ecclesiaJpaRepository.findEcclesiasByMasterAccountUid(
+          account.getUid());
+      return AccountEcclesiaInfo.builder()
+          .ecclesiaUid(ecclesia.map(Ecclesia::getUid).orElse(null))
+          .ecclesiaStatus(ecclesia.map(Ecclesia::getStatus).orElse(null))
+          .build();
+    }
+
+    Optional<Ecclesia> ecclesia = ecclesiaJpaRepository.findById(account.getEcclesiaUid());
+    return AccountEcclesiaInfo.builder()
+        .ecclesiaUid(account.getEcclesiaUid())
+        .ecclesiaStatus(ecclesia.map(Ecclesia::getStatus).orElse(EcclesiaStatusType.NONE.name()))
+        .build();
   }
 }
 

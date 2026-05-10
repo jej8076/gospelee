@@ -7,6 +7,7 @@ import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDecideDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDetailDTO;
 import com.gospelee.api.dto.account.AccountLeaveResponseDTO;
+import com.gospelee.api.dto.account.AccountNameUpdateDTO;
 import com.gospelee.api.dto.account.PushTokenDTO;
 import com.gospelee.api.dto.common.DataResponseDTO;
 import com.gospelee.api.dto.common.NonceRequestDTO;
@@ -176,6 +177,35 @@ public class AccountController {
   public ResponseEntity<Object> leaveAccount(@AuthenticationPrincipal AccountAuthDTO account) {
     AccountLeaveResponseDTO accountLeaveResponseDTO = accountService.leaveAccount(account);
     return ResponseEntity.ok(DataResponseDTO.of("100", "성공", accountLeaveResponseDTO));
+  }
+
+  /**
+   * 로그인된 사용자의 이름을 변경합니다.
+   *
+   * @param account 인증된 사용자 정보
+   * @param dto     변경할 이름이 포함된 DTO
+   * @return 변경 결과
+   */
+  @PatchMapping("/name")
+  public ResponseEntity<Object> updateName(
+      @AuthenticationPrincipal AccountAuthDTO account,
+      @RequestBody AccountNameUpdateDTO dto) {
+
+    if (account == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    if (ObjectUtils.isEmpty(dto.getName()) || dto.getName().trim().isEmpty()) {
+      return ResponseEntity.ok(
+          DataResponseDTO.of("400", "이름을 입력해주세요.", null)
+      );
+    }
+
+    accountService.updateName(account.getUid(), dto.getName().trim());
+
+    return ResponseEntity.ok(
+        DataResponseDTO.of("100", "성공", null)
+    );
   }
 
   // ========== 푸시 토큰 관리 API ==========
