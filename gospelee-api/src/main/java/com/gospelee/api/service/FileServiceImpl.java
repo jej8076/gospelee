@@ -12,6 +12,7 @@ import com.gospelee.api.entity.FileEntity;
 import com.gospelee.api.enums.CategoryType;
 import com.gospelee.api.enums.Yn;
 import com.gospelee.api.exception.FileEntityNotFoundException;
+import com.gospelee.api.exception.PhysicalFileNotFoundException;
 import com.gospelee.api.repository.jpa.file.FileDetailsRepository;
 import com.gospelee.api.repository.jpa.file.FileRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
@@ -134,7 +135,7 @@ public class FileServiceImpl implements FileService {
 
     // 파일 존재 여부 확인
     if (!file.exists()) {
-      throw new IllegalArgumentException("실제 파일이 존재하지 않습니다. path: " + fullPath);
+      throw new PhysicalFileNotFoundException("실제 파일이 존재하지 않습니다. path: " + fullPath);
     }
 
     return new FileSystemResource(file);
@@ -162,7 +163,7 @@ public class FileServiceImpl implements FileService {
 
     // 파일 존재 여부 확인
     if (!file.exists()) {
-      throw new IllegalArgumentException("실제 파일이 존재하지 않습니다. path: " + fullPath);
+      throw new PhysicalFileNotFoundException("실제 파일이 존재하지 않습니다. path: " + fullPath);
     }
 
     return new FileSystemResource(file);
