@@ -2,6 +2,7 @@ package com.gospelee.api.service;
 
 import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
+import com.gospelee.api.dto.account.AccountEcclesiaInfo;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDecideDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDetailDTO;
 import com.gospelee.api.dto.account.AccountLeaveResponseDTO;
@@ -33,8 +34,12 @@ public interface AccountService {
 
   void savePushToken(Long uid, String pushToken);
 
+  void updateName(Long uid, String name);
+
   UserMeResponse getKakaoUserMe(String accessToken);
 
   Optional<AccountAuthDTO> handleSuperUserAuthentication();
+
+  AccountEcclesiaInfo resolveEcclesiaInfo(Account account);
 
 }
