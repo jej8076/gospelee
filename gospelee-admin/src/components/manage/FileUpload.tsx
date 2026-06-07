@@ -1,6 +1,6 @@
 import React from 'react';
 import { PhotoIcon } from '@heroicons/react/24/solid';
-import NextImage from 'next/image';
+
 
 interface FileUploadProps {
   files: File[];
@@ -52,12 +52,10 @@ export default function FileUpload({
           className="flex flex-col items-center justify-center space-y-2 relative"
         >
           <div className="w-36 h-36 border rounded-lg overflow-hidden bg-white flex items-center justify-center relative">
-            <NextImage
+            <img
               src={file.url}
               alt={file.name}
               className="object-cover w-full h-full"
-              width={144}
-              height={144}
             />
             <button
               type="button"
@@ -84,12 +82,10 @@ export default function FileUpload({
           className="flex flex-col items-center justify-center space-y-2 relative"
         >
           <div className="w-36 h-36 border rounded-lg overflow-hidden bg-white flex items-center justify-center relative">
-            <NextImage
+            <img
               src={URL.createObjectURL(file)}
               alt={`preview-${index}`}
               className="object-cover w-full h-full"
-              width={144}
-              height={144}
             />
             <button
               type="button"

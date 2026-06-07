@@ -42,6 +42,7 @@ export const fetchAnnouncementById = async (type: string, id: string): Promise<A
     const fileResources: FileResource[] = [];
 
     for (let i = 0; i < announcement.fileDataList.length && i < announcement.fileDetailList.length; i++) {
+      let url = "";
       try {
         const base64Data = announcement.fileDataList[i];
         if (base64Data) {
@@ -53,17 +54,18 @@ export const fetchAnnouncementById = async (type: string, id: string): Promise<A
           }
           const byteArray = new Uint8Array(byteNumbers);
           const blob = new Blob([byteArray], {type: announcement.fileDetailList[i].fileType});
-          const url = URL.createObjectURL(blob);
-
-          fileResources.push({
-            url: url,
-            name: announcement.fileDetailList[i].fileOriginalName,
-            id: announcement.fileDetailList[i].id
-          });
+          url = URL.createObjectURL(blob);
         }
       } catch (error) {
         console.warn(`파일 리소스 처리 실패 - index: ${i}`, error);
       }
+
+      // 데이터 변환 여부와 관계없이 파일 정보(Metadata)가 있으면 목록에 추가
+      fileResources.push({
+        url: url,
+        name: announcement.fileDetailList[i].fileOriginalName,
+        id: announcement.fileDetailList[i].id
+      });
     }
 
     // 변환된 파일 리소스를 announcement에 추가
