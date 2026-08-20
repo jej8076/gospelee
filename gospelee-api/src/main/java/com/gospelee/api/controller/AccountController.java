@@ -391,6 +391,10 @@ public class AccountController {
    * 계정 상태를 검증합니다.
    */
   private ErrorResponseType validateAccountStatus(AccountAuthDTO account) {
+    if (isAdminUser(account)) {
+      return null;
+    }
+
     if (ObjectUtils.isEmpty(account.getEcclesiaUid())) {
       return ErrorResponseType.ECCL_101;
     }
