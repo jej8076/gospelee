@@ -1,6 +1,7 @@
 package com.gospelee.api.service;
 
 import com.google.firebase.messaging.AndroidConfig;
+import com.google.firebase.messaging.AndroidNotification;
 import com.google.firebase.messaging.ApnsConfig;
 import com.google.firebase.messaging.Aps;
 import com.google.firebase.messaging.ApsAlert;
@@ -57,6 +58,14 @@ public class FirebaseService {
     // Android 설정
     AndroidConfig androidConfig = AndroidConfig.builder()
         .setPriority(AndroidConfig.Priority.HIGH)
+        .setNotification(
+            AndroidNotification.builder()
+                .setChannelId("podo_notification_channel")
+                .setSound("default")
+                .setDefaultSound(true)
+                .setDefaultVibrateTimings(true)
+                .build()
+        )
         .build();
 
     Notification notification = Notification.builder()
@@ -109,6 +118,33 @@ public class FirebaseService {
 
     String result = "";
 
+    // IOS 설정
+    ApnsConfig apnsConfig = ApnsConfig.builder()
+        .putHeader("apns-priority", "10")
+        .putHeader("apns-environment", apnsEnvironment)
+        .setAps(
+            Aps.builder()
+                .setContentAvailable(false)
+                .setMutableContent(false)
+                .setSound("default")
+                .setBadge(1)
+                .setAlert(ApsAlert.builder().build())
+                .build()
+        ).build();
+
+    // Android 설정
+    AndroidConfig androidConfig = AndroidConfig.builder()
+        .setPriority(AndroidConfig.Priority.HIGH)
+        .setNotification(
+            AndroidNotification.builder()
+                .setChannelId("podo_notification_channel")
+                .setSound("default")
+                .setDefaultSound(true)
+                .setDefaultVibrateTimings(true)
+                .build()
+        )
+        .build();
+
     Notification notification = Notification.builder()
         .setTitle(title)
         .setBody(body)
@@ -117,7 +153,9 @@ public class FirebaseService {
     MulticastMessage message = MulticastMessage.builder()
         .addAllTokens(tokenList)
         .setNotification(notification)
-        .putAllData(data)
+        .putAllData(data == null ? new HashMap<>() : data)
+        .setApnsConfig(apnsConfig)
+        .setAndroidConfig(androidConfig)
         .build();
 
     try {
