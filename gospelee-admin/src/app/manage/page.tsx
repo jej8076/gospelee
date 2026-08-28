@@ -5,6 +5,7 @@ import {
   BanknotesIcon,
   CheckBadgeIcon,
   ClockIcon,
+  PhotoIcon,
   ReceiptRefundIcon,
   UsersIcon,
 } from '@heroicons/react/24/outline'
@@ -32,6 +33,14 @@ const baseActions: Action[] = [
     iconForeground: 'text-teal-700',
     iconBackground: 'bg-teal-50',
     description: '교회의 공지사항을 관리합니다.',
+  },
+  {
+    title: '갤러리 관리',
+    href: '/manage/gallery',
+    icon: PhotoIcon,
+    iconForeground: 'text-indigo-700',
+    iconBackground: 'bg-indigo-50',
+    description: '교회 사진과 앨범을 관리합니다.',
   },
   {
     title: 'QT 관리',

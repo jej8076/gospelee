@@ -45,10 +45,16 @@ public class Ecclesia extends EditInfomation {
   @Column(name = "church_address")
   private String churchAddress;
 
+  @Column(name = "storage_limit_bytes")
+  private Long storageLimitBytes;
+
+  @Column(name = "storage_used_bytes")
+  private Long storageUsedBytes;
+
   @Builder
   public Ecclesia(long uid, String name, String status, Long masterAccountUid,
       String churchIdentificationNumber, String telephone, String seniorPastorName,
-      String churchAddress) {
+      String churchAddress, Long storageLimitBytes, Long storageUsedBytes) {
     this.uid = uid;
     this.name = name;
     this.status = status;
@@ -57,6 +63,8 @@ public class Ecclesia extends EditInfomation {
     this.telephone = telephone;
     this.seniorPastorName = seniorPastorName;
     this.churchAddress = churchAddress;
+    this.storageLimitBytes = storageLimitBytes != null ? storageLimitBytes : 10737418240L;
+    this.storageUsedBytes = storageUsedBytes != null ? storageUsedBytes : 0L;
   }
 
   public void changeStatus(EcclesiaStatusType status) {
@@ -69,5 +77,30 @@ public class Ecclesia extends EditInfomation {
 
   public void changeChurchAddress(String address) {
     this.churchAddress = address;
+  }
+
+  public long getStorageLimitBytesOrDefault() {
+    return this.storageLimitBytes != null ? this.storageLimitBytes : 10737418240L;
+  }
+
+  public long getStorageUsedBytesOrDefault() {
+    return this.storageUsedBytes != null ? this.storageUsedBytes : 0L;
+  }
+
+  public boolean hasEnoughStorage(long incomingBytes) {
+    return getStorageUsedBytesOrDefault() + incomingBytes <= getStorageLimitBytesOrDefault();
+  }
+
+  public void addStorageUsedBytes(long bytes) {
+    this.storageUsedBytes = getStorageUsedBytesOrDefault() + bytes;
+  }
+
+  public void subtractStorageUsedBytes(long bytes) {
+    long current = getStorageUsedBytesOrDefault();
+    this.storageUsedBytes = Math.max(0L, current - bytes);
+  }
+
+  public void changeStorageLimitBytes(long bytes) {
+    this.storageLimitBytes = bytes;
   }
 }

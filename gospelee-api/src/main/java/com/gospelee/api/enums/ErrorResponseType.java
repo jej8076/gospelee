@@ -29,6 +29,14 @@ public enum ErrorResponseType {
   /* ECCLESIA */
   ECCL_101("ECCL-101", "교회 정보가 없음"),
   ECCL_102("ECCL-102", "교회 정보가 있지만 교회가 승인되지 않음"),
+
+  /* GALLERY */
+  GALL_101("GALL-101", "교회 저장 공간 용량 초과"),
+  GALL_102("GALL-102", "최대 허용 파일 크기 초과(20MB)"),
+  GALL_103("GALL-103", "지원하지 않는 파일 형식"),
+  GALL_104("GALL-104", "폴더 최대 깊이(3단계) 초과"),
+  GALL_105("GALL-105", "접근 권한이 없음"),
+  GALL_106("GALL-106", "존재하지 않는 갤러리 또는 폴더"),
   ;
 
   private final String code;

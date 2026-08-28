@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum CategoryType {
-  ANNOUNCEMENT, EXTRA;
+  ANNOUNCEMENT, EXTRA, GALLERY, GALLERY_THUMBNAIL;
 
   private static final Map<String, CategoryType> NAME_MAP = new HashMap<>();
 

@@ -10,6 +10,7 @@ import {logout} from "@/utils/user-utils";
 import {useMenuListStore} from "@/hooks/useMenuList";
 import {getUserMenuList} from "@/utils/menu-utils";
 import {layoutFadeStyle} from "@/app/style/layout/common";
+import StorageUsageWidget from "@/components/layout/StorageUsageWidget";
 import '@uiw/react-md-editor/markdown-editor.css';
 
 const teams = [
@@ -216,7 +217,10 @@ export default function MainLayout({children}: Readonly<{
                                   </ul>
                               )}
                             </li>
-                            <li className="mt-auto">
+                            <li className="mt-auto pt-2 pb-2">
+                              <StorageUsageWidget />
+                            </li>
+                            <li>
                               <a
                                   href="#"
                                   className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-50 hover:text-indigo-600"
@@ -284,7 +288,10 @@ export default function MainLayout({children}: Readonly<{
                           </ul>
                       )}
                     </li>
-                    <li className="mt-auto">
+                    <li className="mt-auto pt-2 pb-2">
+                      <StorageUsageWidget />
+                    </li>
+                    <li>
                       <a
                           href="#"
                           className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-50 hover:text-indigo-600"
