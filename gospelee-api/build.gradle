@@ -50,6 +50,9 @@ dependencies {
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+    // https://mvnrepository.com/artifact/net.coobird/thumbnailator
+    implementation 'net.coobird:thumbnailator:0.4.20'
+
 }
 
 bootJar {

@@ -50,6 +50,14 @@ public class ApiControllerAdvice {
         .body(ResponseDTO.of(String.valueOf(ex.getHttpStatus()), ex.getMessage())).getBody();
   }
 
+  @ExceptionHandler(GalleryException.class)
+  public ResponseDTO GalleryException(HttpServletRequest request, GalleryException ex) {
+    log.error("[GalleryException] ip={}, code={}, message={}", request.getRemoteAddr(),
+        ex.getErrorResponseType().code(), ex.getMessage());
+
+    return ResponseDTO.of(ex.getErrorResponseType().code(), ex.getMessage());
+  }
+
   @ExceptionHandler(PhysicalFileNotFoundException.class)
   public ResponseDTO PhysicalFileNotFoundException(HttpServletRequest request, Exception ex) {
     log.error("[PhysicalFileNotFoundException] ip={}, message={}", request.getRemoteAddr(),
