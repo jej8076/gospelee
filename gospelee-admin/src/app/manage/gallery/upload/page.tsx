@@ -311,7 +311,7 @@ function GalleryUploadForm() {
             )}
           </div>
 
-          <div
+          <label
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
               e.preventDefault();
@@ -319,8 +319,7 @@ function GalleryUploadForm() {
                 handleFiles(e.dataTransfer.files);
               }
             }}
-            onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-gray-300 hover:border-indigo-400 hover:bg-indigo-50/20 rounded-xl p-8 text-center cursor-pointer transition-colors"
+            className="block border-2 border-dashed border-gray-300 hover:border-indigo-400 hover:bg-indigo-50/20 rounded-xl p-8 text-center cursor-pointer transition-colors"
           >
             <PhotoIcon className="mx-auto h-12 w-12 text-gray-400" />
             <div className="mt-2 text-xs font-semibold text-gray-800">
@@ -340,9 +339,9 @@ function GalleryUploadForm() {
                   e.target.value = "";
                 }
               }}
-              className="hidden"
+              className="sr-only"
             />
-          </div>
+          </label>
 
           {/* 프리뷰 그리드 */}
           {previews.length > 0 && (
