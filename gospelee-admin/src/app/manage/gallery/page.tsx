@@ -68,6 +68,12 @@ export default function GalleryPage() {
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "";
 
+  const getImageUrl = (url?: string | null) => {
+    if (!url) return "/images/logo/podo_logo.svg";
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    return `${apiBaseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
+  };
+
   const loadData = async () => {
     try {
       setIsLoading(true);
@@ -483,7 +489,7 @@ export default function GalleryPage() {
               <tbody className="divide-y divide-gray-200 bg-white">
                 {images.map((image) => {
                   const isChecked = selectedImageIds.includes(image.id);
-                  const thumbSrc = `${apiBaseUrl}${image.thumbnailUrl}`;
+                  const thumbSrc = getImageUrl(image.thumbnailUrl);
 
                   return (
                     <tr
