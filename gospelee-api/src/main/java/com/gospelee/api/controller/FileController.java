@@ -5,7 +5,9 @@ import com.gospelee.api.repository.jpa.file.FileDetailsRepository;
 import com.gospelee.api.service.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import java.nio.charset.StandardCharsets;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -47,10 +49,14 @@ public class FileController {
       contentType = "application/octet-stream";
     }
 
+    String originalName = fileDetails.getFileOriginalName() != null ? fileDetails.getFileOriginalName() : "file";
+    ContentDisposition contentDisposition = ContentDisposition.inline()
+        .filename(originalName, StandardCharsets.UTF_8)
+        .build();
+
     return ResponseEntity.ok()
         .contentType(MediaType.parseMediaType(contentType))
-        .header(HttpHeaders.CONTENT_DISPOSITION,
-            "inline; filename=\"" + fileDetails.getFileOriginalName() + "\"")
+        .headers(headers -> headers.setContentDisposition(contentDisposition))
         .body(resource);
   }
 
@@ -73,10 +79,14 @@ public class FileController {
       FileDetails fileDetails = fileDetailsRepository.findById(fileDetailId)
           .orElseThrow(() -> new IllegalArgumentException("파일 상세 정보를 찾을 수 없습니다."));
 
+      String originalName = fileDetails.getFileOriginalName() != null ? fileDetails.getFileOriginalName() : "download";
+      ContentDisposition contentDisposition = ContentDisposition.attachment()
+          .filename(originalName, StandardCharsets.UTF_8)
+          .build();
+
       return ResponseEntity.ok()
           .contentType(MediaType.APPLICATION_OCTET_STREAM)
-          .header(HttpHeaders.CONTENT_DISPOSITION,
-              "attachment; filename=\"" + fileDetails.getFileOriginalName() + "\"")
+          .headers(headers -> headers.setContentDisposition(contentDisposition))
           .body(resource);
 
     } catch (IllegalArgumentException e) {

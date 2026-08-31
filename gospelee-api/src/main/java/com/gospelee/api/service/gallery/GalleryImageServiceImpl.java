@@ -146,9 +146,9 @@ public class GalleryImageServiceImpl implements GalleryImageService {
     fileEntity = fileRepository.save(fileEntity);
 
     List<GalleryImageResponseDTO> responseList = new ArrayList<>();
-    String relativeDirPath = user.getUid() + File.separator + CategoryType.GALLERY.lowerCaseName() + makeTodayPath();
-    String fullDirPath = fileBasePath + File.separator + relativeDirPath;
-    createDirectoryIfNotExists(fullDirPath);
+    String relativeDirPath = (user.getUid() + File.separator + CategoryType.GALLERY.lowerCaseName() + makeTodayPath()).replaceFirst("^[/\\\\]+", "");
+    Path fullDirPath = Paths.get(fileBasePath).resolve(relativeDirPath);
+    createDirectoryIfNotExists(fullDirPath.toString());
 
     // 4. 각 파일 저장 및 썸네일 생성
     for (MultipartFile file : files) {
@@ -161,7 +161,7 @@ public class GalleryImageServiceImpl implements GalleryImageService {
       String uuid = UUID.randomUUID().toString();
       String origFileSaveName = uuid + "." + extension;
       String origFilePath = relativeDirPath + File.separator + origFileSaveName;
-      File origDestFile = new File(fullDirPath, origFileSaveName);
+      File origDestFile = fullDirPath.resolve(origFileSaveName).toFile();
 
       try {
         file.transferTo(origDestFile);
@@ -186,7 +186,7 @@ public class GalleryImageServiceImpl implements GalleryImageService {
       FileDetails thumbDetail = null;
       String thumbSaveName = "thumb_" + uuid + ".jpg";
       String thumbFilePath = relativeDirPath + File.separator + thumbSaveName;
-      File thumbDestFile = new File(fullDirPath, thumbSaveName);
+      File thumbDestFile = fullDirPath.resolve(thumbSaveName).toFile();
 
       try {
         Thumbnails.of(origDestFile)
