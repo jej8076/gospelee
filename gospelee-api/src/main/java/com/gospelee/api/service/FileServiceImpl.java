@@ -129,15 +129,7 @@ public class FileServiceImpl implements FileService {
       throw new IllegalArgumentException("파일 ID와 파일 상세 ID가 일치하지 않습니다.");
     }
 
-    // 실제 파일 경로 생성
-    String fullPath = fileBasePath + fileDetails.getFilePath();
-    File file = new File(fullPath);
-
-    // 파일 존재 여부 확인
-    if (!file.exists()) {
-      throw new PhysicalFileNotFoundException("실제 파일이 존재하지 않습니다. path: " + fullPath);
-    }
-
+    File file = resolvePhysicalFile(fileDetails);
     return new FileSystemResource(file);
   }
 
@@ -157,16 +149,27 @@ public class FileServiceImpl implements FileService {
       throw new IllegalArgumentException("파일 ID와 파일 상세 ID가 일치하지 않습니다.");
     }
 
-    // 실제 파일 경로 생성
-    String fullPath = fileBasePath + fileDetails.getFilePath();
-    File file = new File(fullPath);
+    File file = resolvePhysicalFile(fileDetails);
+    return new FileSystemResource(file);
+  }
 
-    // 파일 존재 여부 확인
+  /**
+   * FileDetails 엔티티의 상대 경로를 기반으로 물리 파일 객체를 안전하게 조회한다.
+   */
+  private File resolvePhysicalFile(FileDetails fileDetails) {
+    if (fileDetails == null || fileDetails.getFilePath() == null || fileDetails.getFilePath().isBlank()) {
+      throw new PhysicalFileNotFoundException("파일 경로 정보가 존재하지 않습니다.");
+    }
+
+    String cleanPath = fileDetails.getFilePath().replaceFirst("^[/\\\\]+", "");
+    Path fullPath = Paths.get(fileBasePath).resolve(cleanPath).normalize();
+    File file = fullPath.toFile();
+
     if (!file.exists()) {
       throw new PhysicalFileNotFoundException("실제 파일이 존재하지 않습니다. path: " + fullPath);
     }
 
-    return new FileSystemResource(file);
+    return file;
   }
 
   private FileUploadRequestDTO fileToDTO(CategoryType categoryType, MultipartFile file,
@@ -197,11 +200,10 @@ public class FileServiceImpl implements FileService {
       throw new IllegalArgumentException("파일 경로에 userUid가 존재하지 않음");
     }
 
-    String path =
-        File.separator + userUid + File.separator + categoryType.lowerCaseName() + makeTodayPath();
-    String fullPath = fileBasePath + File.separator + path;
+    String path = (userUid + File.separator + categoryType.lowerCaseName() + makeTodayPath()).replaceFirst("^[/\\\\]+", "");
+    Path fullPath = Paths.get(fileBasePath).resolve(path);
 
-    if (!createDirectoryIfNotExists(fullPath)) {
+    if (!createDirectoryIfNotExists(fullPath.toString())) {
       throw new IllegalArgumentException("파일 경로 조회(생성)에 실패함");
     }
     // basePath는 환경에 따라 변경될 수 있으므로 상대경로를 기준으로 기록함
@@ -226,15 +228,11 @@ public class FileServiceImpl implements FileService {
 
   /**
    * 파일명을 중복없도록 생성 후 해당 파일명으로 파일을 실제로 저장하고 생성된 파일명을 return한다
-   *
-   * @param fileUploadRequestDTO
-   * @param file
-   * @return
    */
   private void saveFile(FileUploadRequestDTO fileUploadRequestDTO, MultipartFile file) {
-    File fileDestination = new File(
-        fileBasePath + File.separator + fileUploadRequestDTO.getFilePath(),
-        fileUploadRequestDTO.getFileSaveName());
+    String cleanRelPath = fileUploadRequestDTO.getFilePath().replaceFirst("^[/\\\\]+", "");
+    Path dirPath = Paths.get(fileBasePath).resolve(cleanRelPath);
+    File fileDestination = dirPath.resolve(fileUploadRequestDTO.getFileSaveName()).toFile();
     try {
       file.transferTo(fileDestination);  // 실제 파일 저장
     } catch (IOException e) {
@@ -248,7 +246,11 @@ public class FileServiceImpl implements FileService {
    * @return 삭제 성공 여부 (true: 삭제됨, false: 파일 없음 또는 실패)
    */
   private boolean deleteFile(String filePath) {
-    File fileDestination = new File(fileBasePath + File.separator + filePath);
+    if (filePath == null || filePath.isBlank()) {
+      return false;
+    }
+    String cleanRelPath = filePath.replaceFirst("^[/\\\\]+", "");
+    File fileDestination = Paths.get(fileBasePath).resolve(cleanRelPath).toFile();
 
     // 파일이 존재하면 삭제
     if (fileDestination.exists()) {
