@@ -223,8 +223,8 @@ public class GalleryImageServiceImpl implements GalleryImageService {
           .build();
       galleryImage = galleryImageRepository.save(galleryImage);
 
-      String origUrl = "/file/" + fileEntity.getAccessToken() + "/" + origDetail.getId();
-      String thumbUrl = "/file/" + fileEntity.getAccessToken() + "/"
+      String origUrl = "/api/file/" + fileEntity.getAccessToken() + "/" + origDetail.getId();
+      String thumbUrl = "/api/file/" + fileEntity.getAccessToken() + "/"
           + (thumbDetail != null ? thumbDetail.getId() : origDetail.getId());
 
       responseList.add(GalleryImageResponseDTO.builder()
@@ -317,8 +317,8 @@ public class GalleryImageServiceImpl implements GalleryImageService {
       String token = fileTokenMap.getOrDefault(image.getFileId(), "");
       FileDetails orig = detailsMap.get(image.getOriginalFileDetailId());
       String origName = orig != null ? orig.getFileOriginalName() : "";
-      String origUrl = "/file/" + token + "/" + image.getOriginalFileDetailId();
-      String thumbUrl = "/file/" + token + "/" + (image.getThumbnailFileDetailId() != null ? image.getThumbnailFileDetailId() : image.getOriginalFileDetailId());
+      String origUrl = "/api/file/" + token + "/" + image.getOriginalFileDetailId();
+      String thumbUrl = "/api/file/" + token + "/" + (image.getThumbnailFileDetailId() != null ? image.getThumbnailFileDetailId() : image.getOriginalFileDetailId());
 
       return GalleryImageResponseDTO.builder()
           .id(image.getId())

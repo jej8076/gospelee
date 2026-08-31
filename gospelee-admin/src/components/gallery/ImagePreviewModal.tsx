@@ -19,7 +19,13 @@ export default function ImagePreviewModal({
   if (!image) return null;
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "";
-  const fullImageUrl = `${apiBaseUrl}${image.originalUrl}`;
+  const fullImageUrl = (() => {
+    if (!image.originalUrl) return "/images/logo/podo_logo.svg";
+    if (image.originalUrl.startsWith("http://") || image.originalUrl.startsWith("https://")) {
+      return image.originalUrl;
+    }
+    return `${apiBaseUrl}${image.originalUrl.startsWith("/") ? "" : "/"}${image.originalUrl}`;
+  })();
 
   return (
     <Transition.Root show={isOpen} as={Fragment}>
