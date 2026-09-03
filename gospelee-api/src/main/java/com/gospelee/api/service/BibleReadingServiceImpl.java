@@ -149,6 +149,9 @@ public class BibleReadingServiceImpl implements BibleReadingService {
       throw new IllegalArgumentException("본인의 목표만 취소할 수 있습니다.");
     }
 
+    // 해당 목표에 속한 읽음 기록 일괄 삭제
+    readRepository.deleteByAccountUidAndGoalIdx(account.getUid(), goalIdx);
+
     goal.cancel();
     goalRepository.save(goal);
   }
