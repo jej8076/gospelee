@@ -12,17 +12,34 @@ import org.springframework.data.repository.query.Param;
 
 public interface AccountBibleReadRepository extends JpaRepository<AccountBibleRead, Long> {
 
-  // 특정 책에 대해 사용자가 읽은 기록 전체 조회
+  // 특정 책에 대해 사용자가 읽은 기록 전체 조회 (목표 무관)
   List<AccountBibleRead> findAllByAccountUidAndBook(Long accountUid, int book);
 
-  // 특정 책, 장에 대한 기록 조회
+  // 특정 목표, 책에 대해 사용자가 읽은 기록 전체 조회
+  List<AccountBibleRead> findAllByAccountUidAndGoalIdxAndBook(Long accountUid, Long goalIdx, int book);
+
+  // 특정 책, 장에 대한 기록 조회 (목표 무관)
   Optional<AccountBibleRead> findFirstByAccountUidAndBookAndChapter(Long accountUid, int book, int chapter);
 
-  // 특정 책, 장 다중 삭제 (읽음 해제)
+  // 특정 목표, 책, 장에 대한 기록 조회
+  Optional<AccountBibleRead> findFirstByAccountUidAndGoalIdxAndBookAndChapter(Long accountUid, Long goalIdx, int book, int chapter);
+
+  // 특정 책, 장 다중 삭제 (읽음 해제 - 목표 무관)
   @Modifying
   @Query("DELETE FROM AccountBibleRead ar WHERE ar.accountUid = :accountUid AND ar.book = :book AND ar.chapter IN :chapters")
   void deleteByAccountUidAndBookAndChapterIn(@Param("accountUid") Long accountUid,
       @Param("book") int book, @Param("chapters") Collection<Integer> chapters);
+
+  // 특정 목표 내 특정 책, 장 다중 삭제 (읽음 해제)
+  @Modifying
+  @Query("DELETE FROM AccountBibleRead ar WHERE ar.accountUid = :accountUid AND ar.goalIdx = :goalIdx AND ar.book = :book AND ar.chapter IN :chapters")
+  void deleteByAccountUidAndGoalIdxAndBookAndChapterIn(@Param("accountUid") Long accountUid,
+      @Param("goalIdx") Long goalIdx, @Param("book") int book, @Param("chapters") Collection<Integer> chapters);
+
+  // 목표별 책별 완료 장 수 조회 (중복 chapter는 DISTINCT로 1회 카운트)
+  @Query("SELECT ar.book, COUNT(DISTINCT ar.chapter) FROM AccountBibleRead ar " +
+      "WHERE ar.accountUid = :accountUid AND ar.goalIdx = :goalIdx GROUP BY ar.book ORDER BY ar.book")
+  List<Object[]> getCompletedChaptersByGoal(@Param("accountUid") Long accountUid, @Param("goalIdx") Long goalIdx);
 
   // 사용자별 책별 완료 장 수 조회 (중복 chapter는 DISTINCT로 1회 카운트)
   @Query("SELECT ar.book, COUNT(DISTINCT ar.chapter) FROM AccountBibleRead ar " +

@@ -101,11 +101,8 @@ public class BibleReadingServiceImpl implements BibleReadingService {
 
     AccountBibleReadingGoal savedGoal = goalRepository.save(goal);
 
-    Map<Integer, Integer> completedCountMap = getCompletedCountMap(account.getUid());
-    int completed = calculateGoalCompletedChapters(savedGoal, completedCountMap);
-    double rate = calculateProgressRate(completed, savedGoal.getTotalChapters());
-
-    return BibleReadingGoalResponseDTO.fromEntity(savedGoal, completed, rate);
+    // 새 목표는 0장부터 시작
+    return BibleReadingGoalResponseDTO.fromEntity(savedGoal, 0, 0.0);
   }
 
   @Override
@@ -114,7 +111,7 @@ public class BibleReadingServiceImpl implements BibleReadingService {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
     return goalRepository.findFirstByAccountUidAndStatusOrderByIdxDesc(account.getUid(), "PROGRESS")
         .map(goal -> {
-          Map<Integer, Integer> map = getCompletedCountMap(account.getUid());
+          Map<Integer, Integer> map = getCompletedCountMap(account.getUid(), goal.getIdx());
           int completed = calculateGoalCompletedChapters(goal, map);
           double rate = calculateProgressRate(completed, goal.getTotalChapters());
           return BibleReadingGoalResponseDTO.fromEntity(goal, completed, rate);
@@ -133,9 +130,8 @@ public class BibleReadingServiceImpl implements BibleReadingService {
       return Collections.emptyList();
     }
 
-    Map<Integer, Integer> completedCountMap = getCompletedCountMap(account.getUid());
-
     return activeGoals.stream().map(goal -> {
+      Map<Integer, Integer> completedCountMap = getCompletedCountMap(account.getUid(), goal.getIdx());
       int goalCompleted = calculateGoalCompletedChapters(goal, completedCountMap);
       double goalRate = calculateProgressRate(goalCompleted, goal.getTotalChapters());
       return BibleReadingGoalResponseDTO.fromEntity(goal, goalCompleted, goalRate);
@@ -168,14 +164,21 @@ public class BibleReadingServiceImpl implements BibleReadingService {
       return;
     }
 
-    Optional<AccountBibleReadingGoal> activeGoalOpt = goalRepository
-        .findFirstByAccountUidAndStatusOrderByIdxDesc(account.getUid(), "PROGRESS");
-    Long goalIdx = activeGoalOpt.map(AccountBibleReadingGoal::getIdx).orElse(null);
+    Long goalIdx = request.getGoalIdx();
+    if (goalIdx == null) {
+      Optional<AccountBibleReadingGoal> activeGoalOpt = goalRepository
+          .findFirstByAccountUidAndStatusOrderByIdxDesc(account.getUid(), "PROGRESS");
+      goalIdx = activeGoalOpt.map(AccountBibleReadingGoal::getIdx).orElse(null);
+    }
 
     String action = request.getAction() != null ? request.getAction().toUpperCase() : "READ";
 
     if ("UNREAD".equals(action)) {
-      readRepository.deleteByAccountUidAndBookAndChapterIn(account.getUid(), book, chapters);
+      if (goalIdx != null) {
+        readRepository.deleteByAccountUidAndGoalIdxAndBookAndChapterIn(account.getUid(), goalIdx, book, chapters);
+      } else {
+        readRepository.deleteByAccountUidAndBookAndChapterIn(account.getUid(), book, chapters);
+      }
     } else {
       LocalDate readDate = request.getReadDate() != null ? request.getReadDate() : LocalDate.now();
       int cate = BibleUtils.getCateByBook(book);
@@ -185,9 +188,10 @@ public class BibleReadingServiceImpl implements BibleReadingService {
           continue;
         }
 
-        // 중복 체크
-        Optional<AccountBibleRead> existing = readRepository
-            .findFirstByAccountUidAndBookAndChapter(account.getUid(), book, chapter);
+        // 목표별 중복 체크
+        Optional<AccountBibleRead> existing = (goalIdx != null)
+            ? readRepository.findFirstByAccountUidAndGoalIdxAndBookAndChapter(account.getUid(), goalIdx, book, chapter)
+            : readRepository.findFirstByAccountUidAndBookAndChapter(account.getUid(), book, chapter);
 
         if (existing.isEmpty()) {
           AccountBibleRead readRecord = AccountBibleRead.builder()
@@ -202,18 +206,29 @@ public class BibleReadingServiceImpl implements BibleReadingService {
         }
       }
 
-      // 모든 활성 목표들의 완료 여부 확인
-      List<AccountBibleReadingGoal> activeGoals = goalRepository
-          .findAllByAccountUidAndStatusOrderByIdxDesc(account.getUid(), "PROGRESS");
-      for (AccountBibleReadingGoal activeGoal : activeGoals) {
-        checkAndCompleteGoalIfFinished(account.getUid(), activeGoal);
+      // 목표 완료 여부 확인
+      if (goalIdx != null) {
+        final Long targetGoalIdx = goalIdx;
+        goalRepository.findById(targetGoalIdx).ifPresent(goal -> {
+          if ("PROGRESS".equals(goal.getStatus())) {
+            checkAndCompleteGoalIfFinished(account.getUid(), goal);
+          }
+        });
+      } else {
+        List<AccountBibleReadingGoal> activeGoals = goalRepository
+            .findAllByAccountUidAndStatusOrderByIdxDesc(account.getUid(), "PROGRESS");
+        for (AccountBibleReadingGoal activeGoal : activeGoals) {
+          checkAndCompleteGoalIfFinished(account.getUid(), activeGoal);
+        }
       }
     }
   }
 
   private void checkAndCompleteGoalIfFinished(Long accountUid, AccountBibleReadingGoal goal) {
     Set<Integer> targetBooks = getTargetBooksForGoal(goal);
-    List<Object[]> completedList = readRepository.getCompletedChaptersByBook(accountUid);
+    List<Object[]> completedList = (goal.getIdx() != null)
+        ? readRepository.getCompletedChaptersByGoal(accountUid, goal.getIdx())
+        : readRepository.getCompletedChaptersByBook(accountUid);
 
     int totalCompletedInGoal = 0;
     for (Object[] row : completedList) {
@@ -257,8 +272,10 @@ public class BibleReadingServiceImpl implements BibleReadingService {
     return books;
   }
 
-  private Map<Integer, Integer> getCompletedCountMap(Long accountUid) {
-    List<Object[]> completedByBook = readRepository.getCompletedChaptersByBook(accountUid);
+  private Map<Integer, Integer> getCompletedCountMap(Long accountUid, Long goalIdx) {
+    List<Object[]> completedByBook = (goalIdx != null)
+        ? readRepository.getCompletedChaptersByGoal(accountUid, goalIdx)
+        : readRepository.getCompletedChaptersByBook(accountUid);
     Map<Integer, Integer> map = new HashMap<>();
     for (Object[] row : completedByBook) {
       int b = ((Number) row[0]).intValue();
@@ -298,10 +315,35 @@ public class BibleReadingServiceImpl implements BibleReadingService {
     List<AccountBibleReadingGoal> activeGoals = goalRepository
         .findAllByAccountUidAndStatusOrderByIdxDesc(account.getUid(), "PROGRESS");
 
-    // 사용자 전체 읽은 기록 목록
-    Map<Integer, Integer> completedCountMap = getCompletedCountMap(account.getUid());
+    // 각 활성 목표별 진행률 계산하여 DTO 생성
+    List<BibleReadingGoalResponseDTO> goalDTOList = new ArrayList<>();
+    AccountBibleReadingGoal selectedGoal = null;
+    BibleReadingGoalResponseDTO selectedGoalDTO = null;
 
-    // 66권 전체 책별 통계 생성
+    for (AccountBibleReadingGoal g : activeGoals) {
+      Map<Integer, Integer> goalMap = getCompletedCountMap(account.getUid(), g.getIdx());
+      int goalCompleted = calculateGoalCompletedChapters(g, goalMap);
+      double goalRate = calculateProgressRate(goalCompleted, g.getTotalChapters());
+      BibleReadingGoalResponseDTO dto = BibleReadingGoalResponseDTO.fromEntity(g, goalCompleted, goalRate);
+      goalDTOList.add(dto);
+
+      if (goalIdx != null && g.getIdx().equals(goalIdx)) {
+        selectedGoal = g;
+        selectedGoalDTO = dto;
+      }
+    }
+
+    // goalIdx가 없거나 목록에 없으면 첫 번째 활성 목표를 기본 선택 (없으면 null)
+    if (selectedGoal == null && !activeGoals.isEmpty()) {
+      selectedGoal = activeGoals.get(0);
+      selectedGoalDTO = goalDTOList.get(0);
+    }
+
+    // 선택된 목표 기준 완료 현황 맵
+    Long selectedGoalIdx = selectedGoal != null ? selectedGoal.getIdx() : goalIdx;
+    Map<Integer, Integer> completedCountMap = getCompletedCountMap(account.getUid(), selectedGoalIdx);
+
+    // 66권 전체 책별 통계 생성 (선택된 목표 기준)
     List<BibleReadingBookStatDTO> bookStats = new ArrayList<>(66);
     int allCompletedChapters = 0;
     int oldCompleted = 0;
@@ -327,29 +369,6 @@ public class BibleReadingServiceImpl implements BibleReadingService {
           .isCompleted(isCompleted)
           .completedChaptersList(null)
           .build());
-    }
-
-    // 각 활성 목표별 진행률 계산하여 DTO 생성
-    List<BibleReadingGoalResponseDTO> goalDTOList = new ArrayList<>();
-    AccountBibleReadingGoal selectedGoal = null;
-    BibleReadingGoalResponseDTO selectedGoalDTO = null;
-
-    for (AccountBibleReadingGoal g : activeGoals) {
-      int goalCompleted = calculateGoalCompletedChapters(g, completedCountMap);
-      double goalRate = calculateProgressRate(goalCompleted, g.getTotalChapters());
-      BibleReadingGoalResponseDTO dto = BibleReadingGoalResponseDTO.fromEntity(g, goalCompleted, goalRate);
-      goalDTOList.add(dto);
-
-      if (goalIdx != null && g.getIdx().equals(goalIdx)) {
-        selectedGoal = g;
-        selectedGoalDTO = dto;
-      }
-    }
-
-    // goalIdx가 없거나 목록에 없으면 첫 번째 활성 목표를 기본 선택 (없으면 null)
-    if (selectedGoal == null && !activeGoals.isEmpty()) {
-      selectedGoal = activeGoals.get(0);
-      selectedGoalDTO = goalDTOList.get(0);
     }
 
     // 선택된 목표에 따른 진행 통계 (목표가 없으면 0)
@@ -381,8 +400,16 @@ public class BibleReadingServiceImpl implements BibleReadingService {
   @Override
   @Transactional(readOnly = true)
   public List<Integer> getReadChaptersByBook(int book) {
+    return getReadChaptersByBook(book, null);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<Integer> getReadChaptersByBook(int book, Long goalIdx) {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
-    List<AccountBibleRead> reads = readRepository.findAllByAccountUidAndBook(account.getUid(), book);
+    List<AccountBibleRead> reads = (goalIdx != null)
+        ? readRepository.findAllByAccountUidAndGoalIdxAndBook(account.getUid(), goalIdx, book)
+        : readRepository.findAllByAccountUidAndBook(account.getUid(), book);
     return reads.stream()
         .map(AccountBibleRead::getChapter)
         .distinct()
