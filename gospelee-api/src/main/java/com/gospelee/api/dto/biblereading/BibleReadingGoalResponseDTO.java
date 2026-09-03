@@ -26,11 +26,13 @@ public class BibleReadingGoalResponseDTO {
   private int totalChapters;
   private String status;
   private long daysElapsed;
+  private int completedChapters;
+  private double progressRate;
 
   @Builder
   public BibleReadingGoalResponseDTO(Long idx, String title, String rangeType,
       List<Integer> customBooks, LocalDate startDate, LocalDate targetDate, Integer targetDays,
-      int totalChapters, String status, long daysElapsed) {
+      int totalChapters, String status, long daysElapsed, int completedChapters, double progressRate) {
     this.idx = idx;
     this.title = title;
     this.rangeType = rangeType;
@@ -41,9 +43,16 @@ public class BibleReadingGoalResponseDTO {
     this.totalChapters = totalChapters;
     this.status = status;
     this.daysElapsed = daysElapsed;
+    this.completedChapters = completedChapters;
+    this.progressRate = progressRate;
   }
 
   public static BibleReadingGoalResponseDTO fromEntity(AccountBibleReadingGoal entity) {
+    return fromEntity(entity, 0, 0.0);
+  }
+
+  public static BibleReadingGoalResponseDTO fromEntity(AccountBibleReadingGoal entity,
+      int completedChapters, double progressRate) {
     if (entity == null) {
       return null;
     }
@@ -75,6 +84,8 @@ public class BibleReadingGoalResponseDTO {
         .totalChapters(entity.getTotalChapters())
         .status(entity.getStatus())
         .daysElapsed(days)
+        .completedChapters(completedChapters)
+        .progressRate(progressRate)
         .build();
   }
 }
