@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -36,6 +37,16 @@ public class BibleReadingController {
   public ResponseEntity<DataResponseDTO<BibleReadingGoalResponseDTO>> getActiveGoal() {
     return ResponseEntity.ok(
         DataResponseDTO.of("100", "성공", bibleReadingService.getActiveGoal())
+    );
+  }
+
+  /**
+   * 현재 진행 중인 모든 통독 목표 목록 조회
+   */
+  @GetMapping("/goals")
+  public ResponseEntity<DataResponseDTO<List<BibleReadingGoalResponseDTO>>> getActiveGoals() {
+    return ResponseEntity.ok(
+        DataResponseDTO.of("100", "성공", bibleReadingService.getActiveGoals())
     );
   }
 
@@ -73,9 +84,10 @@ public class BibleReadingController {
    * 통독 전체 상태 및 진도율 조회
    */
   @GetMapping("/status")
-  public ResponseEntity<DataResponseDTO<BibleReadingStatusResponseDTO>> getStatus() {
+  public ResponseEntity<DataResponseDTO<BibleReadingStatusResponseDTO>> getStatus(
+      @RequestParam(value = "goalIdx", required = false) Long goalIdx) {
     return ResponseEntity.ok(
-        DataResponseDTO.of("100", "성공", bibleReadingService.getStatus())
+        DataResponseDTO.of("100", "성공", bibleReadingService.getStatus(goalIdx))
     );
   }
 
