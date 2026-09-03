@@ -19,7 +19,9 @@ import lombok.NoArgsConstructor;
 @Table(
     name = "account_bible_read",
     indexes = {
-        @Index(name = "idx_abr_account_book_chapter", columnList = "account_id, book, chapter"),
+        @Index(name = "idx_abr_account_goal_book_chapter", columnList = "account_id, goal_id, book, chapter"),
+        @Index(name = "idx_abr_account_goal_read_date", columnList = "account_id, goal_id, read_date"),
+        @Index(name = "idx_abr_account_goal", columnList = "account_id, goal_id"),
         @Index(name = "idx_abr_account_read_date", columnList = "account_id, read_date")
     }
 )

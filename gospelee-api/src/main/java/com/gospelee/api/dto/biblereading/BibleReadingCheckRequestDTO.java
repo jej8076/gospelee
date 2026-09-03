@@ -13,6 +13,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BibleReadingCheckRequestDTO {
 
+  // 특정 목표에 귀속시켜 체크할 경우의 목표 idx
+  private Long goalIdx;
+
   @NotNull(message = "성경 책 번호를 지정해주세요.")
   private Integer book;
 
@@ -27,8 +30,9 @@ public class BibleReadingCheckRequestDTO {
   private LocalDate readDate;
 
   @Builder
-  public BibleReadingCheckRequestDTO(Integer book, List<Integer> chapters, String action,
-      LocalDate readDate) {
+  public BibleReadingCheckRequestDTO(Long goalIdx, Integer book, List<Integer> chapters,
+      String action, LocalDate readDate) {
+    this.goalIdx = goalIdx;
     this.book = book;
     this.chapters = chapters;
     this.action = action;

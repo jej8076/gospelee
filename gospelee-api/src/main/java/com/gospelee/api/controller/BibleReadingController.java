@@ -92,13 +92,14 @@ public class BibleReadingController {
   }
 
   /**
-   * 특정 성경 책(권)의 읽은 장 번호 목록 조회
+   * 특정 성경 책(권)의 읽은 장 번호 목록 조회 (목표별)
    */
   @GetMapping("/book/{book}")
   public ResponseEntity<DataResponseDTO<List<Integer>>> getReadChaptersByBook(
-      @PathVariable("book") int book) {
+      @PathVariable("book") int book,
+      @RequestParam(value = "goalIdx", required = false) Long goalIdx) {
     return ResponseEntity.ok(
-        DataResponseDTO.of("100", "성공", bibleReadingService.getReadChaptersByBook(book))
+        DataResponseDTO.of("100", "성공", bibleReadingService.getReadChaptersByBook(book, goalIdx))
     );
   }
 

@@ -30,8 +30,11 @@ public interface BibleReadingService {
   // 통독 전체 현황 및 특정 목표 진도율 조회
   BibleReadingStatusResponseDTO getStatus(Long goalIdx);
 
-  // 특정 책에서 읽은 장 목록 조회
+  // 특정 책에서 읽은 장 목록 조회 (전체/기본)
   List<Integer> getReadChaptersByBook(int book);
+
+  // 특정 목표 내 특정 책에서 읽은 장 목록 조회
+  List<Integer> getReadChaptersByBook(int book, Long goalIdx);
 
   // 캘린더용 월별 통독 기록 조회
   List<BibleReadingCalendarDTO> getMonthlyCalendar(int year, int month);
