@@ -1,231 +1,308 @@
 .download {
-  padding: 120px 0;
-  background: #f8f9fa;
+  padding: 100px 0;
+  background: var(--bg-main);
+  position: relative;
 }
 
 .downloadContent {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 80px;
-  align-items: center;
+  max-width: 960px;
+  margin: 0 auto;
 }
 
-.textContent {
-  max-width: 500px;
+.header {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 56px;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--podo-green);
+  margin-bottom: 16px;
 }
 
 .title {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: 700;
-  line-height: 1.2;
-  color: #212529;
-  margin-bottom: 24px;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  margin-bottom: 16px;
 }
 
 .subtitle {
-  font-size: 1.25rem;
+  font-size: 1.05rem;
   line-height: 1.6;
-  color: #6c757d;
-  margin-bottom: 40px;
+  color: var(--text-secondary);
+  word-break: keep-all;
 }
 
-.storeButtons {
+.hubGrid {
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr;
+  gap: 24px;
+  align-items: stretch;
+  margin-bottom: 32px;
+}
+
+.releaseCard {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-card);
+  border-radius: 20px;
+  padding: 32px;
   display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.25s ease;
+}
+
+.releaseCard:hover {
+  border-color: var(--podo-green-border);
+  box-shadow: var(--shadow-md);
+}
+
+.cardTop {
+  display: flex;
+  align-items: flex-start;
   gap: 16px;
+  margin-bottom: 28px;
+}
+
+.platformIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--podo-green);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.platformMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.platformTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
-.storeButton {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: #000;
-  color: white;
-  padding: 12px 20px;
-  border-radius: 12px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 160px;
+.platformName {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
 }
 
-.storeButton:hover {
-  background: #333;
+.versionChip {
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--podo-green-subtle);
+  color: var(--podo-green);
+  border: 1px solid var(--podo-green-border);
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.fileDetail {
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+  font-family: monospace;
+}
+
+.cardAction {
+  margin-bottom: 24px;
+}
+
+.downloadBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  background: var(--podo-green);
+  color: #ffffff;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(49, 96, 73, 0.2);
+}
+
+.downloadBtn:hover {
+  background: var(--podo-green-hover);
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(49, 96, 73, 0.3);
+}
+
+.storeStatusGroup {
+  display: flex;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-light);
+}
+
+.storePendingItem {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid var(--border-card);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
 }
 
 .storeIcon {
-  font-size: 1.5rem;
+  font-size: 0.95rem;
 }
 
 .storeText {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-}
-
-.storeLabel {
-  font-size: 0.75rem;
-  opacity: 0.8;
-}
-
-.storeName {
-  font-size: 1rem;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
-.imageContent {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.pendingBadge {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  background: var(--bg-muted);
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
-.phonesContainer {
-  position: relative;
-  width: 300px;
-  height: 400px;
-}
-
-.phoneLeft,
-.phoneRight {
-  position: absolute;
-  width: 180px;
-  height: 360px;
-  background: #1a1a1a;
-  border-radius: 30px;
-  padding: 15px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-}
-
-.phoneLeft {
-  top: 0;
-  left: 0;
-  transform: rotate(-10deg);
-  z-index: 1;
-}
-
-.phoneRight {
-  top: 40px;
-  right: 0;
-  transform: rotate(10deg);
-  z-index: 2;
-}
-
-.phoneScreen {
-  width: 100%;
-  height: 100%;
-  background: white;
+/* QR Card */
+.qrCard {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-card);
   border-radius: 20px;
-  overflow: hidden;
-}
-
-.appContent {
-  padding: 20px 15px;
-  height: 100%;
+  padding: 32px;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: all 0.25s ease;
 }
 
-.appHeader {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #316049;
-  text-align: center;
+.qrCard:hover {
+  border-color: var(--podo-green-border);
+  box-shadow: var(--shadow-md);
+}
+
+.qrVisual {
+  background: #ffffff;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
   margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #e9ecef;
 }
 
-.verseList {
+.qrInfo {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 4px;
 }
 
-.verseItem {
-  background: #f8f9fa;
-  padding: 15px;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  color: #495057;
-  border-left: 4px solid #316049;
+.qrLabel {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
-.todayVerse {
-  background: #316049;
-  color: white;
-  padding: 20px 15px;
-  border-radius: 15px;
-  text-align: center;
-  margin-top: 20px;
-}
-
-.todayVerse p {
-  font-size: 0.9rem;
-  line-height: 1.4;
-  margin-bottom: 10px;
-}
-
-.todayVerse span {
+.qrSub {
   font-size: 0.8rem;
-  opacity: 0.9;
-  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  max-width: 220px;
+  word-break: keep-all;
 }
 
-/* Mobile Styles */
+/* Indie Note */
+.indieNote {
+  background: var(--bg-muted);
+  border-radius: 14px;
+  padding: 18px 24px;
+  border: 1px solid var(--border-light);
+}
+
+.noteContent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.noteIcon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.noteText {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.noteLink {
+  color: var(--podo-green);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.noteLink:hover {
+  color: var(--podo-green-hover);
+}
+
+/* Mobile responsive */
 @media (max-width: 768px) {
   .download {
-    padding: 80px 0;
+    padding: 70px 0;
   }
 
-  .downloadContent {
-    grid-template-columns: 1fr;
-    gap: 60px;
-    text-align: center;
+  .header {
+    margin-bottom: 40px;
   }
 
-  .title {
-    font-size: 2.5rem;
-  }
-
-  .subtitle {
-    font-size: 1.1rem;
-  }
-
-  .storeButtons {
-    justify-content: center;
-  }
-
-  .phonesContainer {
-    width: 250px;
-    height: 320px;
-  }
-
-  .phoneLeft,
-  .phoneRight {
-    width: 150px;
-    height: 300px;
-  }
-
-  .phoneRight {
-    top: 20px;
-  }
-}
-
-@media (max-width: 480px) {
   .title {
     font-size: 2rem;
   }
 
-  .storeButtons {
-    flex-direction: column;
-    align-items: center;
+  .hubGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
-  .storeButton {
-    width: 100%;
-    max-width: 200px;
-    justify-content: center;
+  .releaseCard {
+    padding: 24px 20px;
+  }
+
+  .storeStatusGroup {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .qrCard {
+    display: none; /* Mobile visitors don't need desktop QR scan */
+  }
+
+  .noteContent {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
 }
