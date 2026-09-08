@@ -1,140 +1,136 @@
 .features {
-  padding: 120px 0;
-  background: white;
-}
-
-.featuresContent {
-  max-width: 1000px;
-  margin: 0 auto;
+  padding: 100px 0;
+  background: var(--bg-subtle);
+  border-top: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
 }
 
 .header {
   text-align: center;
-  margin-bottom: 80px;
+  max-width: 640px;
+  margin: 0 auto 64px;
+}
+
+.sectionTag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--podo-green);
+  margin-bottom: 16px;
 }
 
 .title {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: 700;
-  line-height: 1.2;
-  color: #212529;
-  margin-bottom: 24px;
-}
-
-.highlight {
-  color: #212529;
-  background: #212529;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  word-break: keep-all;
 }
 
 .subtitle {
-  font-size: 1.25rem;
+  font-size: 1.05rem;
   line-height: 1.6;
-  color: #6c757d;
-  max-width: 600px;
-  margin: 0 auto;
+  color: var(--text-secondary);
+  word-break: keep-all;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 40px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
 }
 
 .card {
-  background: white;
-  padding: 40px 30px;
+  background: #ffffff;
+  border: 1px solid var(--border-card);
   border-radius: 20px;
-  text-align: center;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 36px 32px;
+  transition: all 0.25s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  border-color: var(--podo-green-border);
+  box-shadow: var(--shadow-md);
 }
 
-.cardIcon {
-  font-size: 3rem;
-  margin-bottom: 24px;
+.cardHeader {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(135deg, #316049, #316049);
-  border-radius: 50%;
-  margin: 0 auto 24px;
-  position: relative;
+  margin-bottom: 24px;
 }
 
-.cardIcon::before {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  background: linear-gradient(135deg, #316049, #316049);
-  border-radius: 50%;
-  z-index: -1;
-  opacity: 0.2;
+.cardTag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+}
+
+.cardBadge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--podo-green);
+  background: var(--podo-green-subtle);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  border: 1px solid var(--podo-green-border);
 }
 
 .cardTitle {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #212529;
-  margin-bottom: 16px;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 12px;
 }
 
 .cardDescription {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: #6c757d;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  word-break: keep-all;
 }
 
 /* Mobile Styles */
 @media (max-width: 768px) {
   .features {
-    padding: 80px 0;
+    padding: 70px 0;
   }
 
   .header {
-    margin-bottom: 60px;
+    margin-bottom: 40px;
   }
 
-  .title {
-    font-size: 2.5rem;
-  }
-
-  .subtitle {
-    font-size: 1.1rem;
-  }
-
-  .grid {
-    grid-template-columns: 1fr;
-    gap: 30px;
-  }
-
-  .card {
-    padding: 30px 20px;
-  }
-
-  .cardIcon {
-    width: 70px;
-    height: 70px;
-    font-size: 2.5rem;
-  }
-}
-
-@media (max-width: 480px) {
   .title {
     font-size: 2rem;
   }
 
+  .subtitle {
+    font-size: 0.95rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
   .card {
-    padding: 25px 15px;
+    padding: 24px 20px;
+  }
+
+  .cardTitle {
+    font-size: 1.2rem;
+  }
+
+  .cardDescription {
+    font-size: 0.9rem;
   }
 }

@@ -87,10 +87,19 @@ public class BibleReadingServiceImpl implements BibleReadingService {
         break;
     }
 
+    String orderType = request.getOrderType() != null && !request.getOrderType().isBlank()
+        ? request.getOrderType().toUpperCase()
+        : "CANONICAL";
+
+    if ("CUSTOM".equals(rangeType) && "CANONICAL".equals(orderType)) {
+      orderType = "CUSTOM";
+    }
+
     AccountBibleReadingGoal goal = AccountBibleReadingGoal.builder()
         .accountUid(account.getUid())
         .title(request.getTitle() != null && !request.getTitle().isBlank() ? request.getTitle() : "성경 통독")
         .rangeType(rangeType)
+        .orderType(orderType)
         .customBooks(customBooksStr)
         .startDate(startDate)
         .targetDate(targetDate)
@@ -149,6 +158,9 @@ public class BibleReadingServiceImpl implements BibleReadingService {
       throw new IllegalArgumentException("본인의 목표만 취소할 수 있습니다.");
     }
 
+    // 해당 목표에 속한 읽음 기록 일괄 삭제
+    readRepository.deleteByAccountUidAndGoalIdx(account.getUid(), goalIdx);
+
     goal.cancel();
     goalRepository.save(goal);
   }
@@ -171,14 +183,14 @@ public class BibleReadingServiceImpl implements BibleReadingService {
       goalIdx = activeGoalOpt.map(AccountBibleReadingGoal::getIdx).orElse(null);
     }
 
+    if (goalIdx == null) {
+      throw new IllegalStateException("진행 중인 통독 목표가 없습니다. 목표를 먼저 생성해주세요.");
+    }
+
     String action = request.getAction() != null ? request.getAction().toUpperCase() : "READ";
 
     if ("UNREAD".equals(action)) {
-      if (goalIdx != null) {
-        readRepository.deleteByAccountUidAndGoalIdxAndBookAndChapterIn(account.getUid(), goalIdx, book, chapters);
-      } else {
-        readRepository.deleteByAccountUidAndBookAndChapterIn(account.getUid(), book, chapters);
-      }
+      readRepository.deleteByAccountUidAndGoalIdxAndBookAndChapterIn(account.getUid(), goalIdx, book, chapters);
     } else {
       LocalDate readDate = request.getReadDate() != null ? request.getReadDate() : LocalDate.now();
       int cate = BibleUtils.getCateByBook(book);
@@ -189,9 +201,8 @@ public class BibleReadingServiceImpl implements BibleReadingService {
         }
 
         // 목표별 중복 체크
-        Optional<AccountBibleRead> existing = (goalIdx != null)
-            ? readRepository.findFirstByAccountUidAndGoalIdxAndBookAndChapter(account.getUid(), goalIdx, book, chapter)
-            : readRepository.findFirstByAccountUidAndBookAndChapter(account.getUid(), book, chapter);
+        Optional<AccountBibleRead> existing = readRepository
+            .findFirstByAccountUidAndGoalIdxAndBookAndChapter(account.getUid(), goalIdx, book, chapter);
 
         if (existing.isEmpty()) {
           AccountBibleRead readRecord = AccountBibleRead.builder()
@@ -207,20 +218,12 @@ public class BibleReadingServiceImpl implements BibleReadingService {
       }
 
       // 목표 완료 여부 확인
-      if (goalIdx != null) {
-        final Long targetGoalIdx = goalIdx;
-        goalRepository.findById(targetGoalIdx).ifPresent(goal -> {
-          if ("PROGRESS".equals(goal.getStatus())) {
-            checkAndCompleteGoalIfFinished(account.getUid(), goal);
-          }
-        });
-      } else {
-        List<AccountBibleReadingGoal> activeGoals = goalRepository
-            .findAllByAccountUidAndStatusOrderByIdxDesc(account.getUid(), "PROGRESS");
-        for (AccountBibleReadingGoal activeGoal : activeGoals) {
-          checkAndCompleteGoalIfFinished(account.getUid(), activeGoal);
+      final Long targetGoalIdx = goalIdx;
+      goalRepository.findById(targetGoalIdx).ifPresent(goal -> {
+        if ("PROGRESS".equals(goal.getStatus())) {
+          checkAndCompleteGoalIfFinished(account.getUid(), goal);
         }
-      }
+      });
     }
   }
 
@@ -407,9 +410,16 @@ public class BibleReadingServiceImpl implements BibleReadingService {
   @Transactional(readOnly = true)
   public List<Integer> getReadChaptersByBook(int book, Long goalIdx) {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
-    List<AccountBibleRead> reads = (goalIdx != null)
-        ? readRepository.findAllByAccountUidAndGoalIdxAndBook(account.getUid(), goalIdx, book)
-        : readRepository.findAllByAccountUidAndBook(account.getUid(), book);
+    if (goalIdx == null) {
+      Optional<AccountBibleReadingGoal> activeGoalOpt = goalRepository
+          .findFirstByAccountUidAndStatusOrderByIdxDesc(account.getUid(), "PROGRESS");
+      goalIdx = activeGoalOpt.map(AccountBibleReadingGoal::getIdx).orElse(null);
+      if (goalIdx == null) {
+        return Collections.emptyList();
+      }
+    }
+    List<AccountBibleRead> reads = readRepository
+        .findAllByAccountUidAndGoalIdxAndBook(account.getUid(), goalIdx, book);
     return reads.stream()
         .map(AccountBibleRead::getChapter)
         .distinct()

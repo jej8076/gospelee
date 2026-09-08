@@ -1,39 +1,39 @@
 .brandStory {
-  background: #f8f9fa;
-  font-family: "Pretendard", sans-serif;
+  background: var(--bg-main);
+  font-family: var(--font-sans);
   overflow-x: hidden;
-  padding-top: 120px;
+  padding-top: 80px;
 }
 
 /* Hero Section */
 .hero {
-  min-height: 100vh;
+  min-height: 80vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
   padding: 0 40px;
-  background: #f8f9fa;
+  background: var(--bg-main);
 }
 
 .mainTitle {
-  font-size: 5rem;
+  font-size: 4rem;
   font-weight: 800;
-  color: #316049;
-  margin-bottom: 40px;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+  color: var(--podo-green);
+  margin-bottom: 32px;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
   opacity: 0;
   transform: translateY(50px);
   animation: fadeInUp 1s ease-out 0.3s both;
 }
 
 .heroSubtitle {
-  font-size: 1.5rem;
-  color: #6b7280;
-  font-weight: 300;
-  letter-spacing: 0.02em;
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+  letter-spacing: 0.01em;
   opacity: 0;
   transform: translateY(30px);
   animation: fadeInUp 1s ease-out 0.6s both;
@@ -41,20 +41,20 @@
 
 /* Section Styling */
 .section {
-  min-height: 100vh;
+  min-height: 70vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 120px 40px;
+  padding: 100px 40px;
   position: relative;
 }
 
 .section:nth-child(even) {
-  background: #f8f9fa;
+  background: var(--bg-subtle);
 }
 
 .section:nth-child(odd) {
-  background: #f8f9fa;
+  background: var(--bg-main);
 }
 
 .sectionContent {

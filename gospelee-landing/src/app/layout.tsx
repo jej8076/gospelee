@@ -2,15 +2,15 @@ import type {Metadata, Viewport} from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'OOG',
-  description: '우리는 교회, 교회는 우리',
-  keywords: '성경, 말씀, 묵상, 기도, 크리스천, 앱',
-  authors: [{name: 'Gospelee Team'}],
+  title: 'Podo (포도) — 말씀과 교회를 잇는 미니멀 신앙 도구',
+  description: '1인 개발자가 기독교 문화를 위해 빚어가는 말씀 필사 & 모바일 주보 신앙 플랫폼',
+  keywords: '성경, 필사, 묵상, 주보, 교회, 크리스천, Podo, 포도, Gospelee',
+  authors: [{name: 'ej (Indie Developer)'}],
   robots: 'index, follow',
-  metadataBase: new URL('https://landing.po-do.org'),
+  metadataBase: new URL('https://landing.podo.kr'),
   openGraph: {
-    title: 'OOG',
-    description: '우리는 교회, 교회는 우리',
+    title: 'Podo (포도) — 말씀과 교회를 잇는 미니멀 신앙 도구',
+    description: '1인 개발자가 기독교 문화를 위해 빚어가는 말씀 필사 & 모바일 주보 신앙 플랫폼',
     type: 'website',
     locale: 'ko_KR',
   },

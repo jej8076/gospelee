@@ -3,22 +3,58 @@
   top: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to bottom, #d1d5db 0%, #e5e7eb 30%, #f3f4f6 70%, #f8f9fa 100%);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-light);
   z-index: 1000;
-  transition: all 0.3s ease;
-  height: 120px;
+  transition: all 0.2s ease;
+  height: 64px;
 }
 
 .headerContent {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 70px;
+  height: 64px;
 }
 
-.logo {
+.logoGroup {
   display: flex;
   align-items: center;
+  gap: 12px;
+}
+
+.logoLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.logoSvg {
+  width: auto;
+  height: 22px;
+  object-fit: contain;
+}
+
+.brandName {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+}
+
+.indieBadge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--podo-green);
+  background: var(--podo-green-subtle);
+  border: 1px solid var(--podo-green-border);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 .nav {
@@ -29,7 +65,7 @@
 .navList {
   display: flex;
   list-style: none;
-  gap: 40px;
+  gap: 32px;
   margin: 0;
   padding: 0;
 }
@@ -39,57 +75,85 @@
 }
 
 .navLink {
-  font-size: 16px;
+  font-size: 0.9rem;
   font-weight: 500;
-  color: #333;
+  color: var(--text-secondary);
   text-decoration: none;
-  padding: 8px 0;
-  transition: color 0.3s ease;
-  position: relative;
+  transition: color 0.15s ease;
 }
 
 .navLink:hover {
-  color: #316049;
+  color: var(--text-primary);
 }
 
-.navLink::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: #316049;
-  transition: width 0.3s ease;
+.navCtaMobile {
+  display: none;
 }
 
-.navLink:hover::after {
-  width: 100%;
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.headerCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--text-primary);
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.headerCta:hover {
+  background: var(--podo-green);
+  transform: translateY(-1px);
 }
 
 .menuButton {
   display: none;
   flex-direction: column;
-  justify-content: space-around;
-  width: 24px;
-  height: 24px;
+  justify-content: center;
+  gap: 5px;
+  width: 32px;
+  height: 32px;
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 0;
+  padding: 4px;
 }
 
-.menuIcon {
+.menuLine {
   width: 100%;
-  height: 2px;
-  background: #333;
-  transition: all 0.3s ease;
+  height: 1.5px;
+  background: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.menuOpen .menuLine:first-child {
+  transform: translateY(3.25px) rotate(45deg);
+}
+
+.menuOpen .menuLine:last-child {
+  transform: translateY(-3.25px) rotate(-45deg);
+}
+
+.backdrop {
+  display: none;
 }
 
 /* Mobile Styles */
 @media (max-width: 768px) {
-  .headerContent {
-    height: 60px;
+  .indieBadge {
+    display: none;
+  }
+
+  .headerCta {
+    display: none;
   }
 
   .menuButton {
@@ -98,15 +162,19 @@
 
   .nav {
     position: fixed;
-    top: 60px;
+    top: 64px;
     left: 0;
     right: 0;
-    background: white;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    transform: translateY(-100%);
+    background: #ffffff;
+    border-bottom: 1px solid var(--border-light);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-120%);
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s ease;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    flex-direction: column;
+    padding: 24px;
+    z-index: 1001;
   }
 
   .navOpen {
@@ -117,22 +185,45 @@
 
   .navList {
     flex-direction: column;
-    gap: 0;
-    padding: 20px 0;
-  }
-
-  .navItem {
+    gap: 16px;
     width: 100%;
   }
 
   .navLink {
     display: block;
-    padding: 15px 20px;
-    font-size: 18px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-size: 1rem;
+    padding: 8px 0;
   }
 
-  .navLink::after {
-    display: none;
+  .navCtaMobile {
+    display: block;
+    width: 100%;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .ctaButton {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background: var(--podo-green);
+    color: #ffffff;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .backdrop {
+    display: block;
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.2);
+    backdrop-filter: blur(2px);
+    z-index: 999;
   }
 }
