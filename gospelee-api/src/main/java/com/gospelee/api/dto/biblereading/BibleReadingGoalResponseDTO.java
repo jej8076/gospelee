@@ -19,6 +19,7 @@ public class BibleReadingGoalResponseDTO {
   private Long idx;
   private String title;
   private String rangeType;
+  private String orderType;
   private List<Integer> customBooks;
   private LocalDate startDate;
   private LocalDate targetDate;
@@ -30,12 +31,13 @@ public class BibleReadingGoalResponseDTO {
   private double progressRate;
 
   @Builder
-  public BibleReadingGoalResponseDTO(Long idx, String title, String rangeType,
+  public BibleReadingGoalResponseDTO(Long idx, String title, String rangeType, String orderType,
       List<Integer> customBooks, LocalDate startDate, LocalDate targetDate, Integer targetDays,
       int totalChapters, String status, long daysElapsed, int completedChapters, double progressRate) {
     this.idx = idx;
     this.title = title;
     this.rangeType = rangeType;
+    this.orderType = orderType;
     this.customBooks = customBooks;
     this.startDate = startDate;
     this.targetDate = targetDate;
@@ -77,6 +79,7 @@ public class BibleReadingGoalResponseDTO {
         .idx(entity.getIdx())
         .title(entity.getTitle())
         .rangeType(entity.getRangeType())
+        .orderType(entity.getOrderType() != null ? entity.getOrderType() : "CANONICAL")
         .customBooks(customBooksList)
         .startDate(entity.getStartDate())
         .targetDate(entity.getTargetDate())

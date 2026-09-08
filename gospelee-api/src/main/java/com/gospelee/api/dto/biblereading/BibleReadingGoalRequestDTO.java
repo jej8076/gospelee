@@ -19,6 +19,9 @@ public class BibleReadingGoalRequestDTO {
   @NotBlank(message = "목표 범위를 선택해주세요.")
   private String rangeType;
 
+  // CANONICAL, CHRONOLOGICAL, NEW_FIRST, CUSTOM
+  private String orderType;
+
   // CUSTOM일 때 선택한 책 번호 목록 (예: [1, 2, 3])
   private List<Integer> customBooks;
 
@@ -31,10 +34,11 @@ public class BibleReadingGoalRequestDTO {
   private Integer targetDays;
 
   @Builder
-  public BibleReadingGoalRequestDTO(String title, String rangeType, List<Integer> customBooks,
-      LocalDate startDate, LocalDate targetDate, Integer targetDays) {
+  public BibleReadingGoalRequestDTO(String title, String rangeType, String orderType,
+      List<Integer> customBooks, LocalDate startDate, LocalDate targetDate, Integer targetDays) {
     this.title = title;
     this.rangeType = rangeType;
+    this.orderType = orderType;
     this.customBooks = customBooks;
     this.startDate = startDate != null ? startDate : LocalDate.now();
     this.targetDate = targetDate;

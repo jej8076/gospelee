@@ -35,8 +35,12 @@ public class AccountBibleReadingGoal extends EditInfomation {
   private String rangeType;
 
   // CUSTOM일 때 선택된 책 번호들 (예: "1,2,3")
-  @Column(name = "custom_books", length = 500)
+  @Column(name = "custom_books", length = 1000)
   private String customBooks;
+
+  // CANONICAL(기본 정경순), CHRONOLOGICAL(연대기순), NEW_FIRST(신약 우선), CUSTOM(직접 지정)
+  @Column(name = "order_type", length = 30)
+  private String orderType;
 
   @Column(name = "start_date", nullable = false)
   private LocalDate startDate;
@@ -59,13 +63,14 @@ public class AccountBibleReadingGoal extends EditInfomation {
 
   @Builder
   public AccountBibleReadingGoal(Long idx, Long accountUid, String title, String rangeType,
-      String customBooks, LocalDate startDate, LocalDate targetDate, Integer targetDays,
+      String customBooks, String orderType, LocalDate startDate, LocalDate targetDate, Integer targetDays,
       int totalChapters, String status) {
     this.idx = idx;
     this.accountUid = accountUid;
     this.title = title;
     this.rangeType = rangeType;
     this.customBooks = customBooks;
+    this.orderType = orderType != null ? orderType : "CANONICAL";
     this.startDate = startDate;
     this.targetDate = targetDate;
     this.targetDays = targetDays;

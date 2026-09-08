@@ -87,10 +87,19 @@ public class BibleReadingServiceImpl implements BibleReadingService {
         break;
     }
 
+    String orderType = request.getOrderType() != null && !request.getOrderType().isBlank()
+        ? request.getOrderType().toUpperCase()
+        : "CANONICAL";
+
+    if ("CUSTOM".equals(rangeType) && "CANONICAL".equals(orderType)) {
+      orderType = "CUSTOM";
+    }
+
     AccountBibleReadingGoal goal = AccountBibleReadingGoal.builder()
         .accountUid(account.getUid())
         .title(request.getTitle() != null && !request.getTitle().isBlank() ? request.getTitle() : "성경 통독")
         .rangeType(rangeType)
+        .orderType(orderType)
         .customBooks(customBooksStr)
         .startDate(startDate)
         .targetDate(targetDate)
