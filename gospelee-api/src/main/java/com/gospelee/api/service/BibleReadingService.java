@@ -38,4 +38,16 @@ public interface BibleReadingService {
 
   // 캘린더용 월별 통독 기록 조회
   List<BibleReadingCalendarDTO> getMonthlyCalendar(int year, int month);
+
+  // 초대 코드로 목표 정보 사전 조회 (비회원/회원 모두 가능)
+  com.gospelee.api.dto.biblereading.BibleReadingGoalInviteInfoDTO getInviteInfo(String inviteCode);
+
+  // 초대 코드로 목표 참여 (로그인 필요)
+  BibleReadingGoalResponseDTO joinGoal(String inviteCode);
+
+  // 목표 참여자 목록 및 진도율 조회
+  List<com.gospelee.api.dto.biblereading.BibleReadingMemberDTO> getGoalMembers(Long goalIdx);
+
+  // 목표 나가기 (참여자/방장 위임 처리)
+  void leaveGoal(Long goalIdx);
 }

@@ -29,11 +29,15 @@ public class BibleReadingGoalResponseDTO {
   private long daysElapsed;
   private int completedChapters;
   private double progressRate;
+  private String inviteCode;
+  private int participantCount;
+  private Boolean isHost;
 
   @Builder
   public BibleReadingGoalResponseDTO(Long idx, String title, String rangeType, String orderType,
       List<Integer> customBooks, LocalDate startDate, LocalDate targetDate, Integer targetDays,
-      int totalChapters, String status, long daysElapsed, int completedChapters, double progressRate) {
+      int totalChapters, String status, long daysElapsed, int completedChapters, double progressRate,
+      String inviteCode, int participantCount, Boolean isHost) {
     this.idx = idx;
     this.title = title;
     this.rangeType = rangeType;
@@ -47,14 +51,22 @@ public class BibleReadingGoalResponseDTO {
     this.daysElapsed = daysElapsed;
     this.completedChapters = completedChapters;
     this.progressRate = progressRate;
+    this.inviteCode = inviteCode;
+    this.participantCount = participantCount;
+    this.isHost = isHost != null ? isHost : true;
   }
 
   public static BibleReadingGoalResponseDTO fromEntity(AccountBibleReadingGoal entity) {
-    return fromEntity(entity, 0, 0.0);
+    return fromEntity(entity, 0, 0.0, 1, true);
   }
 
   public static BibleReadingGoalResponseDTO fromEntity(AccountBibleReadingGoal entity,
       int completedChapters, double progressRate) {
+    return fromEntity(entity, completedChapters, progressRate, 1, true);
+  }
+
+  public static BibleReadingGoalResponseDTO fromEntity(AccountBibleReadingGoal entity,
+      int completedChapters, double progressRate, int participantCount, boolean isHost) {
     if (entity == null) {
       return null;
     }
@@ -89,6 +101,9 @@ public class BibleReadingGoalResponseDTO {
         .daysElapsed(days)
         .completedChapters(completedChapters)
         .progressRate(progressRate)
+        .inviteCode(entity.getInviteCode())
+        .participantCount(participantCount > 0 ? participantCount : 1)
+        .isHost(isHost)
         .build();
   }
 }

@@ -18,4 +18,7 @@ public interface AccountBibleReadingGoalRepository extends JpaRepository<Account
 
   // 사용자의 모든 목표 목록 조회
   List<AccountBibleReadingGoal> findAllByAccountUidOrderByIdxDesc(Long accountUid);
+
+  // 초대 코드로 목표 조회
+  Optional<AccountBibleReadingGoal> findByInviteCode(String inviteCode);
 }

@@ -61,10 +61,14 @@ public class AccountBibleReadingGoal extends EditInfomation {
   @Column(nullable = false, length = 20)
   private String status;
 
+  // 초대/공유용 고유 코드 (12자리 영숫자)
+  @Column(name = "invite_code", unique = true, length = 32)
+  private String inviteCode;
+
   @Builder
   public AccountBibleReadingGoal(Long idx, Long accountUid, String title, String rangeType,
       String customBooks, String orderType, LocalDate startDate, LocalDate targetDate, Integer targetDays,
-      int totalChapters, String status) {
+      int totalChapters, String status, String inviteCode) {
     this.idx = idx;
     this.accountUid = accountUid;
     this.title = title;
@@ -76,6 +80,7 @@ public class AccountBibleReadingGoal extends EditInfomation {
     this.targetDays = targetDays;
     this.totalChapters = totalChapters;
     this.status = status != null ? status : "PROGRESS";
+    this.inviteCode = inviteCode;
   }
 
   public void complete() {
@@ -84,5 +89,13 @@ public class AccountBibleReadingGoal extends EditInfomation {
 
   public void cancel() {
     this.status = "CANCELED";
+  }
+
+  public void changeInviteCode(String inviteCode) {
+    this.inviteCode = inviteCode;
+  }
+
+  public void changeAccountUid(Long accountUid) {
+    this.accountUid = accountUid;
   }
 }

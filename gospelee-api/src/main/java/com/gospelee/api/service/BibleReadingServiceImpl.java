@@ -4,27 +4,36 @@ import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.biblereading.BibleReadingBookStatDTO;
 import com.gospelee.api.dto.biblereading.BibleReadingCalendarDTO;
 import com.gospelee.api.dto.biblereading.BibleReadingCheckRequestDTO;
+import com.gospelee.api.dto.biblereading.BibleReadingGoalInviteInfoDTO;
 import com.gospelee.api.dto.biblereading.BibleReadingGoalRequestDTO;
 import com.gospelee.api.dto.biblereading.BibleReadingGoalResponseDTO;
+import com.gospelee.api.dto.biblereading.BibleReadingMemberDTO;
 import com.gospelee.api.dto.biblereading.BibleReadingStatusResponseDTO;
+import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.AccountBibleRead;
 import com.gospelee.api.entity.AccountBibleReadingGoal;
+import com.gospelee.api.entity.AccountBibleReadingGoalMember;
 import com.gospelee.api.repository.jpa.account.AccountBibleReadRepository;
+import com.gospelee.api.repository.jpa.account.AccountBibleReadingGoalMemberRepository;
 import com.gospelee.api.repository.jpa.account.AccountBibleReadingGoalRepository;
+import com.gospelee.api.repository.jpa.account.AccountRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
 import com.gospelee.api.utils.BibleUtils;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +47,8 @@ public class BibleReadingServiceImpl implements BibleReadingService {
 
   private final AccountBibleReadingGoalRepository goalRepository;
   private final AccountBibleReadRepository readRepository;
+  private final AccountBibleReadingGoalMemberRepository memberRepository;
+  private final AccountRepository accountRepository;
 
   @Override
   @Transactional
@@ -95,6 +106,8 @@ public class BibleReadingServiceImpl implements BibleReadingService {
       orderType = "CUSTOM";
     }
 
+    String inviteCode = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+
     AccountBibleReadingGoal goal = AccountBibleReadingGoal.builder()
         .accountUid(account.getUid())
         .title(request.getTitle() != null && !request.getTitle().isBlank() ? request.getTitle() : "성경 통독")
@@ -106,34 +119,107 @@ public class BibleReadingServiceImpl implements BibleReadingService {
         .targetDays(targetDays)
         .totalChapters(totalChapters)
         .status("PROGRESS")
+        .inviteCode(inviteCode)
         .build();
 
     AccountBibleReadingGoal savedGoal = goalRepository.save(goal);
 
-    // 새 목표는 0장부터 시작
-    return BibleReadingGoalResponseDTO.fromEntity(savedGoal, 0, 0.0);
+    // 방장(HOST)으로 첫 멤버 등록
+    AccountBibleReadingGoalMember hostMember = AccountBibleReadingGoalMember.builder()
+        .goalIdx(savedGoal.getIdx())
+        .accountUid(account.getUid())
+        .role("HOST")
+        .status("JOINED")
+        .joinedAt(LocalDateTime.now())
+        .build();
+    memberRepository.save(hostMember);
+
+    // 새 목표는 0장부터 시작 (참여자 1명, 방장)
+    return BibleReadingGoalResponseDTO.fromEntity(savedGoal, 0, 0.0, 1, true);
+  }
+
+  /**
+   * 사용자가 참여 중인 모든 활성 목표(본인 생성 + 멤버 참여) 조회
+   */
+  private List<AccountBibleReadingGoal> getActiveGoalsForUser(Long accountUid) {
+    // 1. 멤버로 참여 중인 목표 목록
+    List<AccountBibleReadingGoalMember> memberships = memberRepository
+        .findAllByAccountUidAndStatusOrderByJoinedAtDesc(accountUid, "JOINED");
+    Set<Long> memberGoalIds = memberships.stream()
+        .map(AccountBibleReadingGoalMember::getGoalIdx)
+        .collect(Collectors.toSet());
+
+    // 2. 본인이 생성한 목표 목록
+    List<AccountBibleReadingGoal> createdGoals = goalRepository
+        .findAllByAccountUidAndStatusOrderByIdxDesc(accountUid, "PROGRESS");
+
+    Map<Long, AccountBibleReadingGoal> goalMap = new LinkedHashMap<>();
+    for (AccountBibleReadingGoal g : createdGoals) {
+      goalMap.put(g.getIdx(), g);
+    }
+
+    for (Long gId : memberGoalIds) {
+      if (!goalMap.containsKey(gId)) {
+        goalRepository.findById(gId).ifPresent(g -> {
+          if ("PROGRESS".equals(g.getStatus())) {
+            goalMap.put(g.getIdx(), g);
+          }
+        });
+      }
+    }
+
+    // inviteCode가 없는 레거시 목표가 있다면 생성
+    for (AccountBibleReadingGoal g : goalMap.values()) {
+      ensureInviteCode(g);
+    }
+
+    return new ArrayList<>(goalMap.values());
+  }
+
+  private void ensureInviteCode(AccountBibleReadingGoal goal) {
+    if (goal.getInviteCode() == null || goal.getInviteCode().isBlank()) {
+      String code = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+      goal.changeInviteCode(code);
+      goalRepository.save(goal);
+    }
+  }
+
+  private boolean isUserHost(AccountBibleReadingGoal goal, Long accountUid) {
+    Optional<AccountBibleReadingGoalMember> memberOpt = memberRepository
+        .findByGoalIdxAndAccountUid(goal.getIdx(), accountUid);
+    if (memberOpt.isPresent()) {
+      return "HOST".equals(memberOpt.get().getRole());
+    }
+    return goal.getAccountUid().equals(accountUid);
+  }
+
+  private int getParticipantCount(Long goalIdx) {
+    int count = memberRepository.countByGoalIdxAndStatus(goalIdx, "JOINED");
+    return count > 0 ? count : 1;
   }
 
   @Override
   @Transactional(readOnly = true)
   public BibleReadingGoalResponseDTO getActiveGoal() {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
-    return goalRepository.findFirstByAccountUidAndStatusOrderByIdxDesc(account.getUid(), "PROGRESS")
-        .map(goal -> {
-          Map<Integer, Integer> map = getCompletedCountMap(account.getUid(), goal.getIdx());
-          int completed = calculateGoalCompletedChapters(goal, map);
-          double rate = calculateProgressRate(completed, goal.getTotalChapters());
-          return BibleReadingGoalResponseDTO.fromEntity(goal, completed, rate);
-        })
-        .orElse(null);
+    List<AccountBibleReadingGoal> activeGoals = getActiveGoalsForUser(account.getUid());
+    if (activeGoals.isEmpty()) {
+      return null;
+    }
+    AccountBibleReadingGoal goal = activeGoals.get(0);
+    Map<Integer, Integer> map = getCompletedCountMap(account.getUid(), goal.getIdx());
+    int completed = calculateGoalCompletedChapters(goal, map);
+    double rate = calculateProgressRate(completed, goal.getTotalChapters());
+    int participantCount = getParticipantCount(goal.getIdx());
+    boolean isHost = isUserHost(goal, account.getUid());
+    return BibleReadingGoalResponseDTO.fromEntity(goal, completed, rate, participantCount, isHost);
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<BibleReadingGoalResponseDTO> getActiveGoals() {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
-    List<AccountBibleReadingGoal> activeGoals = goalRepository
-        .findAllByAccountUidAndStatusOrderByIdxDesc(account.getUid(), "PROGRESS");
+    List<AccountBibleReadingGoal> activeGoals = getActiveGoalsForUser(account.getUid());
 
     if (activeGoals.isEmpty()) {
       return Collections.emptyList();
@@ -143,26 +229,268 @@ public class BibleReadingServiceImpl implements BibleReadingService {
       Map<Integer, Integer> completedCountMap = getCompletedCountMap(account.getUid(), goal.getIdx());
       int goalCompleted = calculateGoalCompletedChapters(goal, completedCountMap);
       double goalRate = calculateProgressRate(goalCompleted, goal.getTotalChapters());
-      return BibleReadingGoalResponseDTO.fromEntity(goal, goalCompleted, goalRate);
+      int participantCount = getParticipantCount(goal.getIdx());
+      boolean isHost = isUserHost(goal, account.getUid());
+      return BibleReadingGoalResponseDTO.fromEntity(goal, goalCompleted, goalRate, participantCount, isHost);
     }).collect(Collectors.toList());
   }
 
   @Override
   @Transactional
   public void cancelGoal(Long goalIdx) {
+    leaveGoal(goalIdx);
+  }
+
+  @Override
+  @Transactional
+  public void leaveGoal(Long goalIdx) {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
     AccountBibleReadingGoal goal = goalRepository.findById(goalIdx)
         .orElseThrow(() -> new NoSuchElementException("목표를 찾을 수 없습니다: " + goalIdx));
 
-    if (!goal.getAccountUid().equals(account.getUid())) {
-      throw new IllegalArgumentException("본인의 목표만 취소할 수 있습니다.");
+    Optional<AccountBibleReadingGoalMember> memberOpt = memberRepository
+        .findByGoalIdxAndAccountUid(goalIdx, account.getUid());
+
+    AccountBibleReadingGoalMember currentMember;
+    if (memberOpt.isEmpty()) {
+      if (goal.getAccountUid().equals(account.getUid())) {
+        currentMember = AccountBibleReadingGoalMember.builder()
+            .goalIdx(goalIdx)
+            .accountUid(account.getUid())
+            .role("HOST")
+            .status("JOINED")
+            .joinedAt(LocalDateTime.now())
+            .build();
+        currentMember = memberRepository.save(currentMember);
+      } else {
+        throw new IllegalArgumentException("해당 목표의 참여자가 아닙니다.");
+      }
+    } else {
+      currentMember = memberOpt.get();
     }
 
-    // 해당 목표에 속한 읽음 기록 일괄 삭제
+    // 본인의 해당 목표 읽음 기록 삭제
     readRepository.deleteByAccountUidAndGoalIdx(account.getUid(), goalIdx);
 
-    goal.cancel();
-    goalRepository.save(goal);
+    boolean isHost = "HOST".equals(currentMember.getRole()) || goal.getAccountUid().equals(account.getUid());
+
+    if (isHost) {
+      // B안: 방장이 나갈 경우 다음 참여자에게 방장 권한 위임
+      Optional<AccountBibleReadingGoalMember> nextMemberOpt = memberRepository
+          .findFirstByGoalIdxAndStatusAndRoleOrderByJoinedAtAsc(goalIdx, "JOINED", "MEMBER");
+
+      if (nextMemberOpt.isPresent()) {
+        AccountBibleReadingGoalMember nextHost = nextMemberOpt.get();
+        nextHost.changeRole("HOST");
+        memberRepository.save(nextHost);
+
+        goal.changeAccountUid(nextHost.getAccountUid());
+        goalRepository.save(goal);
+
+        currentMember.changeStatus("LEFT");
+        memberRepository.save(currentMember);
+      } else {
+        // 남은 다른 참여자가 없으면 목표 취소/종료 처리
+        goal.cancel();
+        goalRepository.save(goal);
+
+        currentMember.changeStatus("LEFT");
+        memberRepository.save(currentMember);
+      }
+    } else {
+      // 일반 참여자 나가기
+      currentMember.changeStatus("LEFT");
+      memberRepository.save(currentMember);
+    }
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public BibleReadingGoalInviteInfoDTO getInviteInfo(String inviteCode) {
+    AccountBibleReadingGoal goal = goalRepository.findByInviteCode(inviteCode)
+        .orElseThrow(() -> new NoSuchElementException("유효하지 않은 초대 코드입니다."));
+
+    if (!"PROGRESS".equals(goal.getStatus())) {
+      throw new IllegalStateException("이미 종료되었거나 진행 중이지 않은 통독 목표입니다.");
+    }
+
+    String hostName = accountRepository.findById(goal.getAccountUid())
+        .map(Account::getName)
+        .orElse("성도");
+
+    int participantCount = getParticipantCount(goal.getIdx());
+
+    boolean isAlreadyJoined = false;
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrNull();
+    if (account != null) {
+      isAlreadyJoined = memberRepository
+          .existsByGoalIdxAndAccountUidAndStatus(goal.getIdx(), account.getUid(), "JOINED");
+      if (!isAlreadyJoined && goal.getAccountUid().equals(account.getUid())) {
+        isAlreadyJoined = true;
+      }
+    }
+
+    String rangeTypeLabel = getRangeTypeLabel(goal.getRangeType(), goal.getCustomBooks());
+    String orderTypeLabel = getOrderTypeLabel(goal.getOrderType());
+
+    return BibleReadingGoalInviteInfoDTO.builder()
+        .goalIdx(goal.getIdx())
+        .title(goal.getTitle())
+        .rangeType(goal.getRangeType())
+        .rangeTypeLabel(rangeTypeLabel)
+        .orderType(goal.getOrderType())
+        .orderTypeLabel(orderTypeLabel)
+        .startDate(goal.getStartDate())
+        .targetDate(goal.getTargetDate())
+        .targetDays(goal.getTargetDays())
+        .totalChapters(goal.getTotalChapters())
+        .participantCount(participantCount)
+        .hostName(hostName)
+        .inviteCode(inviteCode)
+        .isAlreadyJoined(isAlreadyJoined)
+        .build();
+  }
+
+  @Override
+  @Transactional
+  public BibleReadingGoalResponseDTO joinGoal(String inviteCode) {
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+    AccountBibleReadingGoal goal = goalRepository.findByInviteCode(inviteCode)
+        .orElseThrow(() -> new NoSuchElementException("유효하지 않은 초대 코드입니다."));
+
+    if (!"PROGRESS".equals(goal.getStatus())) {
+      throw new IllegalStateException("진행 중이지 않은 통독 목표에는 참여할 수 없습니다.");
+    }
+
+    Optional<AccountBibleReadingGoalMember> existingMember = memberRepository
+        .findByGoalIdxAndAccountUid(goal.getIdx(), account.getUid());
+
+    boolean isHost = goal.getAccountUid().equals(account.getUid());
+
+    if (existingMember.isPresent()) {
+      AccountBibleReadingGoalMember member = existingMember.get();
+      if ("LEFT".equals(member.getStatus())) {
+        member.rejoin();
+        memberRepository.save(member);
+      }
+      isHost = "HOST".equals(member.getRole());
+    } else {
+      AccountBibleReadingGoalMember newMember = AccountBibleReadingGoalMember.builder()
+          .goalIdx(goal.getIdx())
+          .accountUid(account.getUid())
+          .role(isHost ? "HOST" : "MEMBER")
+          .status("JOINED")
+          .joinedAt(LocalDateTime.now())
+          .build();
+      memberRepository.save(newMember);
+    }
+
+    // 통독 목표의 날짜는 변하지 않고, 참여자는 0장부터 시작함 (요구사항 3)
+    int participantCount = getParticipantCount(goal.getIdx());
+    Map<Integer, Integer> map = getCompletedCountMap(account.getUid(), goal.getIdx());
+    int completed = calculateGoalCompletedChapters(goal, map);
+    double rate = calculateProgressRate(completed, goal.getTotalChapters());
+
+    return BibleReadingGoalResponseDTO.fromEntity(goal, completed, rate, participantCount, isHost);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<BibleReadingMemberDTO> getGoalMembers(Long goalIdx) {
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+    AccountBibleReadingGoal goal = goalRepository.findById(goalIdx)
+        .orElseThrow(() -> new NoSuchElementException("목표를 찾을 수 없습니다: " + goalIdx));
+
+    List<AccountBibleReadingGoalMember> members = memberRepository
+        .findAllByGoalIdxAndStatusOrderByJoinedAtAsc(goalIdx, "JOINED");
+
+    // 레거시 목표 등 멤버 테이블에 아무도 없으면 방장 자동 추가
+    if (members.isEmpty()) {
+      AccountBibleReadingGoalMember hostMember = AccountBibleReadingGoalMember.builder()
+          .goalIdx(goalIdx)
+          .accountUid(goal.getAccountUid())
+          .role("HOST")
+          .status("JOINED")
+          .joinedAt(goal.getInsertTime() != null ? goal.getInsertTime() : LocalDateTime.now())
+          .build();
+      members = Collections.singletonList(memberRepository.save(hostMember));
+    }
+
+    Set<Integer> targetBooks = getTargetBooksForGoal(goal);
+    List<BibleReadingMemberDTO> dtoList = new ArrayList<>();
+
+    for (AccountBibleReadingGoalMember m : members) {
+      String name = accountRepository.findById(m.getAccountUid())
+          .map(Account::getName)
+          .orElse("성도");
+
+      Map<Integer, Integer> memberMap = getCompletedCountMap(m.getAccountUid(), goalIdx);
+      int completed = 0;
+      for (int b : targetBooks) {
+        completed += memberMap.getOrDefault(b, 0);
+      }
+      double rate = calculateProgressRate(completed, goal.getTotalChapters());
+      LocalDate lastReadDate = readRepository.findLastReadDateByAccountUidAndGoalIdx(m.getAccountUid(), goalIdx);
+
+      dtoList.add(BibleReadingMemberDTO.builder()
+          .accountUid(m.getAccountUid())
+          .name(name)
+          .role(m.getRole())
+          .completedChapters(completed)
+          .progressRate(rate)
+          .lastReadDate(lastReadDate)
+          .joinedAt(m.getJoinedAt())
+          .isMe(m.getAccountUid().equals(account.getUid()))
+          .build());
+    }
+
+    // 정렬: 진도율 내림차순 -> 완료 장수 내림차순 -> 참여일 오름차순
+    dtoList.sort((a, b) -> {
+      int cmp = Double.compare(b.getProgressRate(), a.getProgressRate());
+      if (cmp != 0) return cmp;
+      cmp = Integer.compare(b.getCompletedChapters(), a.getCompletedChapters());
+      if (cmp != 0) return cmp;
+      if (a.getJoinedAt() != null && b.getJoinedAt() != null) {
+        return a.getJoinedAt().compareTo(b.getJoinedAt());
+      }
+      return 0;
+    });
+
+    return dtoList;
+  }
+
+  private String getRangeTypeLabel(String rangeType, String customBooks) {
+    if (rangeType == null) return "성경 전체 66권";
+    switch (rangeType) {
+      case "OLD":
+        return "구약 39권";
+      case "NEW":
+        return "신약 27권";
+      case "CUSTOM":
+        int count = 0;
+        if (customBooks != null && !customBooks.isBlank()) {
+          count = customBooks.split(",").length;
+        }
+        return "직접 선택 (" + count + "권)";
+      case "ALL":
+      default:
+        return "성경 전체 66권";
+    }
+  }
+
+  private String getOrderTypeLabel(String orderType) {
+    if (orderType == null) return "정경순";
+    switch (orderType) {
+      case "CHRONOLOGICAL":
+        return "연대기순";
+      case "NEW_FIRST":
+        return "신약 우선";
+      case "CUSTOM":
+        return "직접 지정 순서";
+      case "CANONICAL":
+      default:
+        return "정경순";
+    }
   }
 
   @Override
@@ -178,9 +506,8 @@ public class BibleReadingServiceImpl implements BibleReadingService {
 
     Long goalIdx = request.getGoalIdx();
     if (goalIdx == null) {
-      Optional<AccountBibleReadingGoal> activeGoalOpt = goalRepository
-          .findFirstByAccountUidAndStatusOrderByIdxDesc(account.getUid(), "PROGRESS");
-      goalIdx = activeGoalOpt.map(AccountBibleReadingGoal::getIdx).orElse(null);
+      List<AccountBibleReadingGoal> activeGoals = getActiveGoalsForUser(account.getUid());
+      goalIdx = activeGoals.isEmpty() ? null : activeGoals.get(0).getIdx();
     }
 
     if (goalIdx == null) {
@@ -314,9 +641,8 @@ public class BibleReadingServiceImpl implements BibleReadingService {
   public BibleReadingStatusResponseDTO getStatus(Long goalIdx) {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
 
-    // 활성 목표 목록 조회
-    List<AccountBibleReadingGoal> activeGoals = goalRepository
-        .findAllByAccountUidAndStatusOrderByIdxDesc(account.getUid(), "PROGRESS");
+    // 활성 목표 목록 조회 (본인 생성 + 멤버 참여)
+    List<AccountBibleReadingGoal> activeGoals = getActiveGoalsForUser(account.getUid());
 
     // 각 활성 목표별 진행률 계산하여 DTO 생성
     List<BibleReadingGoalResponseDTO> goalDTOList = new ArrayList<>();
@@ -327,7 +653,9 @@ public class BibleReadingServiceImpl implements BibleReadingService {
       Map<Integer, Integer> goalMap = getCompletedCountMap(account.getUid(), g.getIdx());
       int goalCompleted = calculateGoalCompletedChapters(g, goalMap);
       double goalRate = calculateProgressRate(goalCompleted, g.getTotalChapters());
-      BibleReadingGoalResponseDTO dto = BibleReadingGoalResponseDTO.fromEntity(g, goalCompleted, goalRate);
+      int participantCount = getParticipantCount(g.getIdx());
+      boolean isHost = isUserHost(g, account.getUid());
+      BibleReadingGoalResponseDTO dto = BibleReadingGoalResponseDTO.fromEntity(g, goalCompleted, goalRate, participantCount, isHost);
       goalDTOList.add(dto);
 
       if (goalIdx != null && g.getIdx().equals(goalIdx)) {
@@ -370,32 +698,30 @@ public class BibleReadingServiceImpl implements BibleReadingService {
           .totalChapters(totalCh)
           .completedChapters(completedCh)
           .isCompleted(isCompleted)
-          .completedChaptersList(null)
           .build());
     }
 
-    // 선택된 목표에 따른 진행 통계 (목표가 없으면 0)
-    int targetTotalChapters = 0;
-    int targetCompletedChapters = 0;
-    Long daysElapsed = null;
-    double progressRate = 0.0;
-
-    if (selectedGoal != null && selectedGoalDTO != null) {
-      targetTotalChapters = selectedGoal.getTotalChapters();
-      targetCompletedChapters = selectedGoalDTO.getCompletedChapters();
-      daysElapsed = selectedGoalDTO.getDaysElapsed();
-      progressRate = selectedGoalDTO.getProgressRate();
+    // 목표 완독 여부 확인 (1189장 달성 시 자동 COMPLETED 처리)
+    if (selectedGoal != null && "PROGRESS".equals(selectedGoal.getStatus())) {
+      int goalCompleted = selectedGoalDTO != null ? selectedGoalDTO.getCompletedChapters() : 0;
+      if (goalCompleted >= selectedGoal.getTotalChapters()) {
+        selectedGoal.complete();
+        goalRepository.save(selectedGoal);
+      }
     }
+
+    long daysElapsed = selectedGoalDTO != null ? selectedGoalDTO.getDaysElapsed() : 1L;
+    double totalProgressRate = selectedGoalDTO != null ? selectedGoalDTO.getProgressRate() : 0.0;
 
     return BibleReadingStatusResponseDTO.builder()
         .activeGoal(selectedGoalDTO)
         .goals(goalDTOList)
-        .totalChapters(targetTotalChapters)
-        .completedChapters(targetCompletedChapters)
-        .progressRate(progressRate)
-        .daysElapsed(daysElapsed)
+        .completedChapters(allCompletedChapters)
+        .progressRate(totalProgressRate)
         .oldTestamentCompleted(oldCompleted)
         .newTestamentCompleted(newCompleted)
+        .totalChapters(BibleUtils.TOTAL_CHAPTERS)
+        .daysElapsed(daysElapsed)
         .bookStats(bookStats)
         .build();
   }
@@ -411,9 +737,8 @@ public class BibleReadingServiceImpl implements BibleReadingService {
   public List<Integer> getReadChaptersByBook(int book, Long goalIdx) {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
     if (goalIdx == null) {
-      Optional<AccountBibleReadingGoal> activeGoalOpt = goalRepository
-          .findFirstByAccountUidAndStatusOrderByIdxDesc(account.getUid(), "PROGRESS");
-      goalIdx = activeGoalOpt.map(AccountBibleReadingGoal::getIdx).orElse(null);
+      List<AccountBibleReadingGoal> activeGoals = getActiveGoalsForUser(account.getUid());
+      goalIdx = activeGoals.isEmpty() ? null : activeGoals.get(0).getIdx();
       if (goalIdx == null) {
         return Collections.emptyList();
       }
@@ -433,9 +758,6 @@ public class BibleReadingServiceImpl implements BibleReadingService {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
     LocalDate start = LocalDate.of(year, month, 1);
     LocalDate end = start.plusMonths(1).minusDays(1);
-
-    List<AccountBibleRead> monthReads = readRepository.findAllByAccountUidAndReadDateOrderByBookAscChapterAsc(
-        account.getUid(), start); // or between
 
     // 월간 범위 내 날짜별 집계
     List<Object[]> dateCounts = readRepository.countReadByDateBetween(account.getUid(), start, end);
