@@ -113,4 +113,46 @@ public class BibleReadingController {
         DataResponseDTO.of("100", "성공", bibleReadingService.getMonthlyCalendar(year, month))
     );
   }
+
+  /**
+   * 초대 코드로 목표 정보 사전 조회 (비회원/회원 모두 가능)
+   */
+  @GetMapping("/goal/invite/{code}")
+  public ResponseEntity<DataResponseDTO<com.gospelee.api.dto.biblereading.BibleReadingGoalInviteInfoDTO>> getInviteInfo(
+      @PathVariable("code") String code) {
+    return ResponseEntity.ok(
+        DataResponseDTO.of("100", "성공", bibleReadingService.getInviteInfo(code))
+    );
+  }
+
+  /**
+   * 초대 코드로 목표 참여
+   */
+  @PostMapping("/goal/join")
+  public ResponseEntity<DataResponseDTO<BibleReadingGoalResponseDTO>> joinGoal(
+      @RequestBody @Valid com.gospelee.api.dto.biblereading.BibleReadingJoinRequestDTO request) {
+    return ResponseEntity.ok(
+        DataResponseDTO.of("100", "성공", bibleReadingService.joinGoal(request.getInviteCode()))
+    );
+  }
+
+  /**
+   * 목표 참여자 목록 및 진도율 조회
+   */
+  @GetMapping("/goal/{goalIdx}/members")
+  public ResponseEntity<DataResponseDTO<List<com.gospelee.api.dto.biblereading.BibleReadingMemberDTO>>> getGoalMembers(
+      @PathVariable("goalIdx") Long goalIdx) {
+    return ResponseEntity.ok(
+        DataResponseDTO.of("100", "성공", bibleReadingService.getGoalMembers(goalIdx))
+    );
+  }
+
+  /**
+   * 목표 나가기 (참여자 탈퇴 / 방장 위임)
+   */
+  @PostMapping("/goal/{goalIdx}/leave")
+  public ResponseEntity<ResponseDTO> leaveGoal(@PathVariable("goalIdx") Long goalIdx) {
+    bibleReadingService.leaveGoal(goalIdx);
+    return ResponseEntity.ok(ResponseDTO.of("100", "성공"));
+  }
 }

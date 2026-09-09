@@ -64,4 +64,8 @@ public interface AccountBibleReadRepository extends JpaRepository<AccountBibleRe
 
   // 캘린더용: 특정 날짜의 상세 읽기 목록 조회
   List<AccountBibleRead> findAllByAccountUidAndReadDateOrderByBookAscChapterAsc(Long accountUid, LocalDate readDate);
+
+  // 목표 내 사용자의 최근 읽은 날짜 조회
+  @Query("SELECT MAX(ar.readDate) FROM AccountBibleRead ar WHERE ar.accountUid = :accountUid AND ar.goalIdx = :goalIdx")
+  LocalDate findLastReadDateByAccountUidAndGoalIdx(@Param("accountUid") Long accountUid, @Param("goalIdx") Long goalIdx);
 }
