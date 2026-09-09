@@ -1,10 +1,11 @@
 package com.gospelee.api.dto.biblereading;
 
 import com.gospelee.api.entity.AccountBibleReadingGoal;
+import com.gospelee.api.enums.BibleReadingOrderType;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AccessLevel;
@@ -31,13 +32,13 @@ public class BibleReadingGoalResponseDTO {
   private double progressRate;
   private String inviteCode;
   private int participantCount;
-  private Boolean isHost;
+  private boolean isHost;
 
   @Builder
   public BibleReadingGoalResponseDTO(Long idx, String title, String rangeType, String orderType,
       List<Integer> customBooks, LocalDate startDate, LocalDate targetDate, Integer targetDays,
       int totalChapters, String status, long daysElapsed, int completedChapters, double progressRate,
-      String inviteCode, int participantCount, Boolean isHost) {
+      String inviteCode, int participantCount, boolean isHost) {
     this.idx = idx;
     this.title = title;
     this.rangeType = rangeType;
@@ -53,7 +54,7 @@ public class BibleReadingGoalResponseDTO {
     this.progressRate = progressRate;
     this.inviteCode = inviteCode;
     this.participantCount = participantCount;
-    this.isHost = isHost != null ? isHost : true;
+    this.isHost = isHost;
   }
 
   public static BibleReadingGoalResponseDTO fromEntity(AccountBibleReadingGoal entity) {
@@ -71,13 +72,17 @@ public class BibleReadingGoalResponseDTO {
       return null;
     }
 
-    List<Integer> customBooksList = new ArrayList<>();
+    List<Integer> customBooksList = Collections.emptyList();
     if (entity.getCustomBooks() != null && !entity.getCustomBooks().isBlank()) {
-      customBooksList = Arrays.stream(entity.getCustomBooks().split(","))
-          .map(String::trim)
-          .filter(s -> !s.isEmpty())
-          .map(Integer::parseInt)
-          .collect(Collectors.toList());
+      try {
+        customBooksList = Arrays.stream(entity.getCustomBooks().split(","))
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .map(Integer::parseInt)
+            .collect(Collectors.toList());
+      } catch (NumberFormatException e) {
+        // parsing fallback
+      }
     }
 
     LocalDate now = LocalDate.now();
@@ -91,7 +96,7 @@ public class BibleReadingGoalResponseDTO {
         .idx(entity.getIdx())
         .title(entity.getTitle())
         .rangeType(entity.getRangeType())
-        .orderType(entity.getOrderType() != null ? entity.getOrderType() : "CANONICAL")
+        .orderType(entity.getOrderType() != null ? entity.getOrderType() : BibleReadingOrderType.CANONICAL.getCode())
         .customBooks(customBooksList)
         .startDate(entity.getStartDate())
         .targetDate(entity.getTargetDate())

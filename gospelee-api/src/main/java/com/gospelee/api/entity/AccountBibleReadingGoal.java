@@ -1,6 +1,7 @@
 package com.gospelee.api.entity;
 
 import com.gospelee.api.entity.common.EditInfomation;
+import com.gospelee.api.enums.BibleReadingOrderType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -38,7 +39,7 @@ public class AccountBibleReadingGoal extends EditInfomation {
   @Column(name = "custom_books", length = 1000)
   private String customBooks;
 
-  // CANONICAL(기본 정경순), CHRONOLOGICAL(연대기순), NEW_FIRST(신약 우선), CUSTOM(직접 지정)
+  // CANONICAL(기본 성경목차순), CHRONOLOGICAL(연대기순), NEW_FIRST(신약 우선), CUSTOM(직접 지정)
   @Column(name = "order_type", length = 30)
   private String orderType;
 
@@ -74,7 +75,7 @@ public class AccountBibleReadingGoal extends EditInfomation {
     this.title = title;
     this.rangeType = rangeType;
     this.customBooks = customBooks;
-    this.orderType = orderType != null ? orderType : "CANONICAL";
+    this.orderType = orderType != null ? orderType : BibleReadingOrderType.CANONICAL.getCode();
     this.startDate = startDate;
     this.targetDate = targetDate;
     this.targetDays = targetDays;
