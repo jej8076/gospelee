@@ -13,6 +13,8 @@ import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.AccountBibleRead;
 import com.gospelee.api.entity.AccountBibleReadingGoal;
 import com.gospelee.api.entity.AccountBibleReadingGoalMember;
+import com.gospelee.api.enums.BibleReadingOrderType;
+import com.gospelee.api.enums.BibleReadingRangeType;
 import com.gospelee.api.repository.jpa.account.AccountBibleReadRepository;
 import com.gospelee.api.repository.jpa.account.AccountBibleReadingGoalMemberRepository;
 import com.gospelee.api.repository.jpa.account.AccountBibleReadingGoalRepository;
@@ -100,10 +102,10 @@ public class BibleReadingServiceImpl implements BibleReadingService {
 
     String orderType = request.getOrderType() != null && !request.getOrderType().isBlank()
         ? request.getOrderType().toUpperCase()
-        : "CANONICAL";
+        : BibleReadingOrderType.CANONICAL.getCode();
 
-    if ("CUSTOM".equals(rangeType) && "CANONICAL".equals(orderType)) {
-      orderType = "CUSTOM";
+    if (BibleReadingRangeType.CUSTOM.getCode().equals(rangeType) && BibleReadingOrderType.CANONICAL.getCode().equals(orderType)) {
+      orderType = BibleReadingOrderType.CUSTOM.getCode();
     }
 
     String inviteCode = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
@@ -330,8 +332,8 @@ public class BibleReadingServiceImpl implements BibleReadingService {
       }
     }
 
-    String rangeTypeLabel = getRangeTypeLabel(goal.getRangeType(), goal.getCustomBooks());
-    String orderTypeLabel = getOrderTypeLabel(goal.getOrderType());
+    String rangeTypeLabel = BibleReadingRangeType.getLabelByCode(goal.getRangeType(), goal.getCustomBooks());
+    String orderTypeLabel = BibleReadingOrderType.getLabelByCode(goal.getOrderType());
 
     return BibleReadingGoalInviteInfoDTO.builder()
         .goalIdx(goal.getIdx())
@@ -459,39 +461,7 @@ public class BibleReadingServiceImpl implements BibleReadingService {
     return dtoList;
   }
 
-  private String getRangeTypeLabel(String rangeType, String customBooks) {
-    if (rangeType == null) return "성경 전체 66권";
-    switch (rangeType) {
-      case "OLD":
-        return "구약 39권";
-      case "NEW":
-        return "신약 27권";
-      case "CUSTOM":
-        int count = 0;
-        if (customBooks != null && !customBooks.isBlank()) {
-          count = customBooks.split(",").length;
-        }
-        return "직접 선택 (" + count + "권)";
-      case "ALL":
-      default:
-        return "성경 전체 66권";
-    }
-  }
 
-  private String getOrderTypeLabel(String orderType) {
-    if (orderType == null) return "정경순";
-    switch (orderType) {
-      case "CHRONOLOGICAL":
-        return "연대기순";
-      case "NEW_FIRST":
-        return "신약 우선";
-      case "CUSTOM":
-        return "직접 지정 순서";
-      case "CANONICAL":
-      default:
-        return "정경순";
-    }
-  }
 
   @Override
   @Transactional
