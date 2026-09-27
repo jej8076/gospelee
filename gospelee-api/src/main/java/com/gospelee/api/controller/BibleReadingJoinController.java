@@ -105,7 +105,7 @@ public class BibleReadingJoinController {
               flex-direction: column;
               align-items: center;
               justify-content: center;
-              background: linear-gradient(135deg, #f7faf8 0%, #edf4ef 100%);
+              background: linear-gradient(135deg, #f7faf8 0%%, #edf4ef 100%%);
               padding: 24px;
               font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Segoe UI', Roboto, sans-serif;
               color: #1e293b;
@@ -115,7 +115,7 @@ public class BibleReadingJoinController {
               border-radius: 24px;
               box-shadow: 0 12px 36px rgba(49, 96, 73, 0.08);
               border: 1px solid #e2ebe5;
-              width: 100%;
+              width: 100%%;
               max-width: 420px;
               padding: 36px 28px;
               text-align: center;
