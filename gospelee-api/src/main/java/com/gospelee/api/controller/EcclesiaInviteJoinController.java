@@ -86,11 +86,18 @@ public class EcclesiaInviteJoinController {
         : "초대 링크가 만료되었거나 잘못되었습니다.<br>교회에 새 초대 링크를 요청해주세요.";
 
     // 앱이 아직 없는 경우를 위해 다운로드 안내 클릭 시 초대 코드를 클립보드에 복사
-    String escapedCodeJs = HtmlUtils.htmlEscape(code.replace("\\", "").replace("'", ""));
+    String escapedCodeJs = code.replaceAll("[^A-Za-z0-9_-]", "");
+    // 안드로이드는 intent URL(앱 미설치 시 설치 안내 페이지로 이동)로 앱을 연다
+    String intentUrl = "intent://ecclesia/join?code="
+        + URLEncoder.encode(code, StandardCharsets.UTF_8)
+        + "#Intent;scheme=podo;package=org.podo;S.browser_fallback_url="
+        + URLEncoder.encode(DOWNLOAD_URL, StandardCharsets.UTF_8) + ";end";
+    String escapedIntentUrl = HtmlUtils.htmlEscape(intentUrl);
+
     String actionHtml = inviteInfo != null
         ? """
             <div class="btn-group">
-              <a href="%s" class="open-btn"><span>포도 앱에서 가입하기</span></a>
+              <a href="%s" id="openBtn" class="open-btn"><span>포도 앱에서 가입하기</span></a>
               <a href="%s" class="download-btn" onclick="copyCode()"><span>앱이 없으신가요? 설치 안내</span></a>
             </div>
             """.formatted(escapedDeepLink, DOWNLOAD_URL)
@@ -208,9 +215,22 @@ public class EcclesiaInviteJoinController {
             window.onload = function() {
               var userAgent = navigator.userAgent || navigator.vendor || window.opera;
               var isMobile = /iPhone|iPad|iPod|Android/i.test(userAgent);
+              var isAndroid = /Android/i.test(userAgent);
+              var appUrl = isAndroid ? '%s' : '%s';
+
+              var openBtn = document.getElementById('openBtn');
+              if (openBtn) { openBtn.href = appUrl; }
+              copyCode();
+
+              // 카카오톡 인앱 브라우저는 앱 실행(커스텀 스키마)이 막히므로 외부 브라우저로 다시 연다
+              if (/KAKAOTALK/i.test(userAgent) && '%s') {
+                window.location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(window.location.href);
+                return;
+              }
+
               if (isMobile && '%s') {
                 setTimeout(function() {
-                  window.location.href = '%s';
+                  window.location.href = appUrl;
                 }, 500);
               }
             };
@@ -229,8 +249,10 @@ public class EcclesiaInviteJoinController {
         """.formatted(
             escapedCodeJs,
             escapedCodeJs,
-            escapedCodeJs,
+            escapedIntentUrl,
             escapedDeepLink,
+            escapedCodeJs,
+            escapedCodeJs,
             subInfoHtml,
             title,
             desc,

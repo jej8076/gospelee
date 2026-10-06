@@ -67,6 +67,28 @@ class EcclesiaInviteJoinControllerTest {
   }
 
   @Test
+  void joinLanding_shouldSanitizeCodeUsedInScript() {
+    ResponseEntity<String> response = controller.joinLanding("abc'; alert(1); //\n</script>");
+
+    // 스크립트에 들어가는 코드에는 영문/숫자/-/_ 만 남는다
+    assertTrue(response.getBody().contains("writeText('podo-ecclesia-invite:abcalert1script')"));
+    assertFalse(response.getBody().contains("alert(1); //"));
+  }
+
+  @Test
+  void joinLanding_shouldSupportAndroidIntentAndKakaoTalkBrowser() {
+    when(ecclesiaService.getInviteInfo("abc234")).thenReturn(EcclesiaInviteInfoDTO.builder()
+        .name("포도교회")
+        .memberCount(1)
+        .build());
+
+    String body = controller.joinLanding("abc234").getBody();
+
+    assertTrue(body.contains("intent://ecclesia/join?code=abc234#Intent;scheme=podo;package=org.podo"));
+    assertTrue(body.contains("kakaotalk://web/openExternal"));
+  }
+
+  @Test
   void joinLanding_shouldEscapeHtmlInChurchName() {
     when(ecclesiaService.getInviteInfo("abc234")).thenReturn(EcclesiaInviteInfoDTO.builder()
         .name("<script>alert(1)</script>")

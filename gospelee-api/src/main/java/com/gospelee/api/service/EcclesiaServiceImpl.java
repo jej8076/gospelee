@@ -281,7 +281,10 @@ public class EcclesiaServiceImpl implements EcclesiaService {
     }
     Ecclesia ecclesia = ecclesiaRepository.findById(account.getEcclesiaUid())
         .orElseThrow(() -> new EcclesiaException("교회 정보를 찾을 수 없습니다."));
-    if (!authorizationService.canUpdateEcclesiaStatus(account, ecclesia)) {
+    // 교회 대표(마스터)뿐 아니라 같은 교회의 담임목사/교역자/관리자도 초대 링크를 관리할 수 있다
+    // (가입 요청 승인/반려 권한과 동일한 기준, 소속 교회는 로그인 계정의 교회로 한정됨)
+    if (!authorizationService.canUpdateEcclesiaStatus(account, ecclesia)
+        && !EcclesiaPushNotifier.isManagerRole(account.getRole())) {
       throw new AccessDeniedException("접근할 권한이 없습니다.");
     }
     if (!EcclesiaStatusType.APPROVAL.getName().equals(ecclesia.getStatus())) {
