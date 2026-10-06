@@ -39,6 +39,7 @@ public class EcclesiaServiceImpl implements EcclesiaService {
   private final AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository;
   private final AuthorizationService authorizationService;
   private final AccountRepository accountRepository;
+  private final EcclesiaPushNotifier ecclesiaPushNotifier;
 
   // 헷갈리기 쉬운 문자(0/O, 1/l/I)를 제외한 초대 코드 문자셋
   private static final String INVITE_CODE_CHARS = "abcdefghjkmnpqrstuvwxyz23456789";
@@ -180,7 +181,12 @@ public class EcclesiaServiceImpl implements EcclesiaService {
         .insertTime(LocalDateTime.now())
         .build();
 
-    return accountEcclesiaHistoryRepository.save(accountEcclesiaHistory);
+    AccountEcclesiaHistory saved = accountEcclesiaHistoryRepository.save(accountEcclesiaHistory);
+
+    // 교회 관리자에게 새 가입 요청 알림
+    ecclesiaRepository.findById(ecclesiaUid)
+        .ifPresent(e -> ecclesiaPushNotifier.notifyJoinRequested(e, account.getName()));
+    return saved;
   }
 
   @Override
@@ -401,6 +407,9 @@ public class EcclesiaServiceImpl implements EcclesiaService {
         .status(AccountEcclesiaHistoryStatusType.JOIN_REQUEST)
         .insertTime(LocalDateTime.now())
         .build());
+
+    // 교회 관리자에게 새 가입 요청 알림
+    ecclesiaPushNotifier.notifyJoinRequested(ecclesia, account.getName());
 
     return EcclesiaInviteJoinResultDTO.builder()
         .ecclesiaUid(ecclesia.getUid())
