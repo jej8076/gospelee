@@ -66,6 +66,7 @@ public class AccountEcclesiaHistoryJdbcRepository {
         FROM ranked r
         JOIN account a ON r.account_uid = a.uid
         WHERE r.row_num = 1
+          AND r.status <> 'LEAVE'
         """;
 
     return jdbcClient.sql(sql)

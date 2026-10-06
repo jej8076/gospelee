@@ -27,6 +27,12 @@ public class AccountEcclesiaHistoryRepositoryImpl implements AccountEcclesiaHist
   }
 
   @Override
+  public AccountEcclesiaHistory findLatestByAccountUid(long accountUid) {
+    return accountEcclesiaHistoryJpaRepository.findFirstByAccountUidOrderByIdDesc(accountUid)
+        .orElse(null);
+  }
+
+  @Override
   public List<AccountEcclesiaHistoryDTO> findByStatusAndEcclesiaId(Long ecclesiaUid) {
     return accountEcclesiaHistoryJdbcRepository.findByStatusAndEcclesiaId(ecclesiaUid);
   }

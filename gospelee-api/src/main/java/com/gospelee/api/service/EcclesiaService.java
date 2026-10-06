@@ -2,6 +2,7 @@ package com.gospelee.api.service;
 
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaInsertDTO;
+import com.gospelee.api.dto.ecclesia.EcclesiaJoinRequestStatusDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaUpdateDTO;
 import com.gospelee.api.entity.AccountEcclesiaHistory;
@@ -25,4 +26,8 @@ public interface EcclesiaService {
   AccountEcclesiaHistory joinRequestEcclesia(Long ecclesiaUid);
 
   List<AccountEcclesiaHistoryDTO> getJoinRequestList();
+
+  EcclesiaJoinRequestStatusDTO getMyJoinRequestStatus();
+
+  void cancelJoinRequest();
 }

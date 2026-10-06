@@ -11,6 +11,9 @@ public interface AccountEcclesiaHistoryRepository {
 
   AccountEcclesiaHistory findById(long id);
 
+  // 계정의 가장 최근 교회 이력 조회 (없으면 null)
+  AccountEcclesiaHistory findLatestByAccountUid(long accountUid);
+
   List<AccountEcclesiaHistoryDTO> findByStatusAndEcclesiaId(Long ecclesiaUid);
 
   List<AccountEcclesiaHistoryDetailDTO> findByAccountEcclesiaRequestByEcclesiaUid(Long ecclesiaUid);

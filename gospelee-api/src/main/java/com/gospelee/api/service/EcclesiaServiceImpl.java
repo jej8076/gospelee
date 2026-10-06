@@ -3,6 +3,7 @@ package com.gospelee.api.service;
 import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaInsertDTO;
+import com.gospelee.api.dto.ecclesia.EcclesiaJoinRequestStatusDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaUpdateDTO;
 import com.gospelee.api.entity.Account;
@@ -165,6 +166,13 @@ public class EcclesiaServiceImpl implements EcclesiaService {
       throw new EcclesiaException("이미 교회에 등록 요청 되었거나 소속되었습니다.");
     }
 
+    // 한 번에 한 교회에만 가입 요청 가능 (가장 최근 이력이 요청 상태이면 대기 중)
+    AccountEcclesiaHistory latest = accountEcclesiaHistoryRepository.findLatestByAccountUid(
+        account.getUid());
+    if (latest != null && latest.getStatus() == AccountEcclesiaHistoryStatusType.JOIN_REQUEST) {
+      throw new EcclesiaException("이미 가입 요청 중인 교회가 있습니다. 요청을 취소한 후 다시 시도해주세요.");
+    }
+
     AccountEcclesiaHistory accountEcclesiaHistory = AccountEcclesiaHistory.builder()
         .accountUid(account.getUid())
         .ecclesiaUid(ecclesiaUid)
@@ -186,7 +194,59 @@ public class EcclesiaServiceImpl implements EcclesiaService {
     return accountEcclesiaHistoryRepository.findByStatusAndEcclesiaId(account.getEcclesiaUid());
   }
 
+  /**
+   * 내 교회 가입 요청 상태 조회
+   * 가장 최근 이력이 요청이면 PENDING, 반려면 REJECTED, 그 외에는 NONE
+   */
+  @Override
+  public EcclesiaJoinRequestStatusDTO getMyJoinRequestStatus() {
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+    AccountEcclesiaHistory latest = accountEcclesiaHistoryRepository.findLatestByAccountUid(
+        account.getUid());
+    if (latest == null) {
+      return EcclesiaJoinRequestStatusDTO.none();
+    }
 
+    String status;
+    if (latest.getStatus() == AccountEcclesiaHistoryStatusType.JOIN_REQUEST) {
+      status = "PENDING";
+    } else if (latest.getStatus() == AccountEcclesiaHistoryStatusType.JOIN_REJECT) {
+      status = "REJECTED";
+    } else {
+      return EcclesiaJoinRequestStatusDTO.none();
+    }
+
+    String ecclesiaName = ecclesiaRepository.findById(latest.getEcclesiaUid())
+        .map(Ecclesia::getName)
+        .orElse(null);
+
+    return EcclesiaJoinRequestStatusDTO.builder()
+        .ecclesiaUid(latest.getEcclesiaUid())
+        .ecclesiaName(ecclesiaName)
+        .status(status)
+        .build();
+  }
+
+  /**
+   * 가입 요청 취소 (반려된 요청의 확인 처리에도 사용)
+   * 이력은 삭제하지 않고 LEAVE 이력을 추가하여 요청을 종료함
+   */
+  @Override
+  public void cancelJoinRequest() {
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+    AccountEcclesiaHistory latest = accountEcclesiaHistoryRepository.findLatestByAccountUid(
+        account.getUid());
+    if (latest == null
+        || (latest.getStatus() != AccountEcclesiaHistoryStatusType.JOIN_REQUEST
+        && latest.getStatus() != AccountEcclesiaHistoryStatusType.JOIN_REJECT)) {
+      throw new EcclesiaException("취소할 가입 요청이 없습니다.");
+    }
+
+    accountEcclesiaHistoryRepository.save(AccountEcclesiaHistory.builder()
+        .accountUid(account.getUid())
+        .ecclesiaUid(latest.getEcclesiaUid())
+        .status(AccountEcclesiaHistoryStatusType.LEAVE)
+        .insertTime(LocalDateTime.now())
+        .build());
+  }
 }
-
-

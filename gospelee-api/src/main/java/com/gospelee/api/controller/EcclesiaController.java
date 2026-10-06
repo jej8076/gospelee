@@ -76,6 +76,23 @@ public class EcclesiaController {
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
+  /**
+   * 내 교회 가입 요청 상태 조회 (PENDING / REJECTED / NONE)
+   */
+  @PostMapping("/join/request/my")
+  public ResponseEntity<Object> myJoinRequestStatus() {
+    return new ResponseEntity<>(ecclesiaService.getMyJoinRequestStatus(), HttpStatus.OK);
+  }
+
+  /**
+   * 교회 가입 요청 취소 (반려된 요청 확인 처리 포함)
+   */
+  @PostMapping("/join/request/cancel")
+  public ResponseEntity<Object> cancelJoinRequest() {
+    ecclesiaService.cancelJoinRequest();
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
   @PostMapping("/list/join-request")
   public ResponseEntity<Object> joinRequestList() {
     List<AccountEcclesiaHistoryDTO> result = ecclesiaService.getJoinRequestList();

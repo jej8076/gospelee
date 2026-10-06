@@ -143,6 +143,16 @@ public class AccountServiceImpl implements AccountService {
           account.getUid(), account.getEcclesiaUid(), findAccountEcclesiaHistory.getEcclesiaUid());
     }
 
+    // 대기 중인 요청(해당 계정의 가장 최근 이력이 JOIN_REQUEST)만 처리 가능
+    AccountEcclesiaHistory latestHistory = accountEcclesiaHistoryRepository.findLatestByAccountUid(
+        findAccountEcclesiaHistory.getAccountUid());
+    if (latestHistory == null
+        || !latestHistory.getId().equals(findAccountEcclesiaHistory.getId())
+        || latestHistory.getStatus() != AccountEcclesiaHistoryStatusType.JOIN_REQUEST) {
+      throw new EcclesiaException("[ACCOUNT   ] not_pending_request id:{}",
+          accountEcclesiaHistoryDecideDTO.getId());
+    }
+
     // 요청된 상태
     AccountEcclesiaHistoryStatusType requestedStatus = AccountEcclesiaHistoryStatusType.of(
         accountEcclesiaHistoryDecideDTO.getStatus());
