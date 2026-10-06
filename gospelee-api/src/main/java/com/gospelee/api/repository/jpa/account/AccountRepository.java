@@ -20,6 +20,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
   Optional<List<Account>> findByEcclesiaUid(Long ecclesiaUid);
 
+  long countByEcclesiaUid(Long ecclesiaUid);
+
   @Modifying
   @Transactional
   @Query("UPDATE Account a SET a.idToken = :idToken, a.updateTime = :updateTime WHERE a.uid = :uid")

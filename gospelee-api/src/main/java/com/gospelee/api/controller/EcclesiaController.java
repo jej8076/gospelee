@@ -3,6 +3,8 @@ package com.gospelee.api.controller;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
 import com.gospelee.api.dto.common.SearchDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaInsertDTO;
+import com.gospelee.api.dto.ecclesia.EcclesiaInviteJoinRequestDTO;
+import com.gospelee.api.dto.ecclesia.EcclesiaInviteSettingsRequestDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaUpdateDTO;
 import com.gospelee.api.entity.AccountEcclesiaHistory;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -90,7 +93,50 @@ public class EcclesiaController {
   @PostMapping("/join/request/cancel")
   public ResponseEntity<Object> cancelJoinRequest() {
     ecclesiaService.cancelJoinRequest();
-    return new ResponseEntity<>(HttpStatus.OK);
+    return new ResponseEntity<>(
+        com.gospelee.api.dto.common.ResponseDTO.of("100", "성공"), HttpStatus.OK);
+  }
+
+  /**
+   * 교회 초대 설정 조회 (교회 관리자). 초대 코드가 없으면 생성
+   */
+  @PostMapping("/invite")
+  public ResponseEntity<Object> getInvite() {
+    return new ResponseEntity<>(ecclesiaService.getInvite(), HttpStatus.OK);
+  }
+
+  /**
+   * 초대 코드 재발급 (기존 초대 링크는 즉시 무효)
+   */
+  @PostMapping("/invite/regenerate")
+  public ResponseEntity<Object> regenerateInvite() {
+    return new ResponseEntity<>(ecclesiaService.regenerateInvite(), HttpStatus.OK);
+  }
+
+  /**
+   * 초대 가입 방식 설정 (autoApprove: 바로 가입 / 승인 후 가입)
+   */
+  @PatchMapping("/invite/settings")
+  public ResponseEntity<Object> updateInviteSettings(
+      @RequestBody EcclesiaInviteSettingsRequestDTO request) {
+    return new ResponseEntity<>(ecclesiaService.updateInviteSettings(request.isAutoApprove()),
+        HttpStatus.OK);
+  }
+
+  /**
+   * 초대 코드로 교회 소개 조회 (비로그인 공개)
+   */
+  @GetMapping("/invite/info/{code}")
+  public ResponseEntity<Object> getInviteInfo(@PathVariable("code") String code) {
+    return new ResponseEntity<>(ecclesiaService.getInviteInfo(code), HttpStatus.OK);
+  }
+
+  /**
+   * 초대 코드로 교회 가입
+   */
+  @PostMapping("/join/invite")
+  public ResponseEntity<Object> joinByInvite(@RequestBody EcclesiaInviteJoinRequestDTO request) {
+    return new ResponseEntity<>(ecclesiaService.joinByInvite(request.getCode()), HttpStatus.OK);
   }
 
   @PostMapping("/list/join-request")

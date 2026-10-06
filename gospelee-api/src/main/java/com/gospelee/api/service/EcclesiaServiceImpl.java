@@ -3,6 +3,9 @@ package com.gospelee.api.service;
 import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaInsertDTO;
+import com.gospelee.api.dto.ecclesia.EcclesiaInviteDTO;
+import com.gospelee.api.dto.ecclesia.EcclesiaInviteInfoDTO;
+import com.gospelee.api.dto.ecclesia.EcclesiaInviteJoinResultDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaJoinRequestStatusDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaUpdateDTO;
@@ -20,6 +23,7 @@ import com.gospelee.api.repository.jpa.account.AccountRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +39,11 @@ public class EcclesiaServiceImpl implements EcclesiaService {
   private final AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository;
   private final AuthorizationService authorizationService;
   private final AccountRepository accountRepository;
+
+  // 헷갈리기 쉬운 문자(0/O, 1/l/I)를 제외한 초대 코드 문자셋
+  private static final String INVITE_CODE_CHARS = "abcdefghjkmnpqrstuvwxyz23456789";
+  private static final int INVITE_CODE_LENGTH = 12;
+  private static final SecureRandom RANDOM = new SecureRandom();
 
   @Override
   public List<EcclesiaResponseDTO> getEcclesiaList() {
@@ -162,16 +171,7 @@ public class EcclesiaServiceImpl implements EcclesiaService {
   public AccountEcclesiaHistory joinRequestEcclesia(Long ecclesiaUid) {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
 
-    if (account.getEcclesiaUid() != null) {
-      throw new EcclesiaException("이미 교회에 등록 요청 되었거나 소속되었습니다.");
-    }
-
-    // 한 번에 한 교회에만 가입 요청 가능 (가장 최근 이력이 요청 상태이면 대기 중)
-    AccountEcclesiaHistory latest = accountEcclesiaHistoryRepository.findLatestByAccountUid(
-        account.getUid());
-    if (latest != null && latest.getStatus() == AccountEcclesiaHistoryStatusType.JOIN_REQUEST) {
-      throw new EcclesiaException("이미 가입 요청 중인 교회가 있습니다. 요청을 취소한 후 다시 시도해주세요.");
-    }
+    assertCanRequestJoin(account);
 
     AccountEcclesiaHistory accountEcclesiaHistory = AccountEcclesiaHistory.builder()
         .accountUid(account.getUid())
@@ -248,5 +248,164 @@ public class EcclesiaServiceImpl implements EcclesiaService {
         .status(AccountEcclesiaHistoryStatusType.LEAVE)
         .insertTime(LocalDateTime.now())
         .build());
+  }
+
+  /**
+   * 가입 요청 가능 여부 검사
+   * 이미 소속(또는 교회 등록 신청)되었거나, 가입 요청 중인 교회가 있으면 불가 (한 번에 한 교회만 요청)
+   */
+  private void assertCanRequestJoin(AccountAuthDTO account) {
+    if (account.getEcclesiaUid() != null) {
+      throw new EcclesiaException("이미 교회에 등록 요청 되었거나 소속되었습니다.");
+    }
+
+    AccountEcclesiaHistory latest = accountEcclesiaHistoryRepository.findLatestByAccountUid(
+        account.getUid());
+    if (latest != null && latest.getStatus() == AccountEcclesiaHistoryStatusType.JOIN_REQUEST) {
+      throw new EcclesiaException("이미 가입 요청 중인 교회가 있습니다. 요청을 취소한 후 다시 시도해주세요.");
+    }
+  }
+
+  /**
+   * 로그인 사용자가 관리하는 교회 조회 (승인된 교회의 관리자만 가능)
+   */
+  private Ecclesia getManagedEcclesia(AccountAuthDTO account) {
+    if (account.getEcclesiaUid() == null) {
+      throw new EcclesiaException("소속된 교회 정보가 없습니다.");
+    }
+    Ecclesia ecclesia = ecclesiaRepository.findById(account.getEcclesiaUid())
+        .orElseThrow(() -> new EcclesiaException("교회 정보를 찾을 수 없습니다."));
+    if (!authorizationService.canUpdateEcclesiaStatus(account, ecclesia)) {
+      throw new AccessDeniedException("접근할 권한이 없습니다.");
+    }
+    if (!EcclesiaStatusType.APPROVAL.getName().equals(ecclesia.getStatus())) {
+      throw new EcclesiaException("교회 등록이 승인된 후에 초대 링크를 만들 수 있습니다.");
+    }
+    return ecclesia;
+  }
+
+  private String generateInviteCode() {
+    for (int attempt = 0; attempt < 10; attempt++) {
+      StringBuilder sb = new StringBuilder(INVITE_CODE_LENGTH);
+      for (int i = 0; i < INVITE_CODE_LENGTH; i++) {
+        sb.append(INVITE_CODE_CHARS.charAt(RANDOM.nextInt(INVITE_CODE_CHARS.length())));
+      }
+      String code = sb.toString();
+      if (!ecclesiaRepository.existsByInviteCode(code)) {
+        return code;
+      }
+    }
+    throw new EcclesiaException("초대 코드 생성에 실패했습니다. 다시 시도해주세요.");
+  }
+
+  private EcclesiaInviteDTO toInviteDTO(Ecclesia ecclesia) {
+    return EcclesiaInviteDTO.builder()
+        .inviteCode(ecclesia.getInviteCode())
+        .autoApprove(ecclesia.isInviteAutoApprove())
+        .build();
+  }
+
+  @Override
+  @Transactional
+  public EcclesiaInviteDTO getInvite() {
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+    Ecclesia ecclesia = getManagedEcclesia(account);
+
+    // 코드가 없으면 최초 조회 시 생성
+    if (ecclesia.getInviteCode() == null || ecclesia.getInviteCode().isBlank()) {
+      ecclesia.changeInviteCode(generateInviteCode());
+      ecclesia = ecclesiaRepository.save(ecclesia);
+    }
+    return toInviteDTO(ecclesia);
+  }
+
+  @Override
+  @Transactional
+  public EcclesiaInviteDTO regenerateInvite() {
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+    Ecclesia ecclesia = getManagedEcclesia(account);
+
+    ecclesia.changeInviteCode(generateInviteCode());
+    return toInviteDTO(ecclesiaRepository.save(ecclesia));
+  }
+
+  @Override
+  @Transactional
+  public EcclesiaInviteDTO updateInviteSettings(boolean autoApprove) {
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+    Ecclesia ecclesia = getManagedEcclesia(account);
+
+    ecclesia.changeInviteAutoApprove(autoApprove);
+    return toInviteDTO(ecclesiaRepository.save(ecclesia));
+  }
+
+  /**
+   * 초대 코드에 해당하는 승인된 교회 조회
+   */
+  private Ecclesia findInvitableEcclesia(String code) {
+    String cleanCode = code == null ? "" : code.trim();
+    if (cleanCode.isEmpty()) {
+      throw new EcclesiaException("유효하지 않은 초대 링크입니다.");
+    }
+    Ecclesia ecclesia = ecclesiaRepository.findByInviteCode(cleanCode)
+        .orElseThrow(() -> new EcclesiaException("유효하지 않은 초대 링크입니다."));
+    if (!EcclesiaStatusType.APPROVAL.getName().equals(ecclesia.getStatus())) {
+      throw new EcclesiaException("아직 승인되지 않은 교회입니다.");
+    }
+    return ecclesia;
+  }
+
+  @Override
+  public EcclesiaInviteInfoDTO getInviteInfo(String code) {
+    Ecclesia ecclesia = findInvitableEcclesia(code);
+    return EcclesiaInviteInfoDTO.builder()
+        .name(ecclesia.getName())
+        .seniorPastorName(ecclesia.getSeniorPastorName())
+        .churchAddress(ecclesia.getChurchAddress())
+        .memberCount(accountRepository.countByEcclesiaUid(ecclesia.getUid()))
+        .build();
+  }
+
+  @Override
+  @Transactional
+  public EcclesiaInviteJoinResultDTO joinByInvite(String code) {
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+    Ecclesia ecclesia = findInvitableEcclesia(code);
+    assertCanRequestJoin(account);
+
+    if (ecclesia.isInviteAutoApprove()) {
+      // 바로 가입: 승인 이력을 남기고 소속 교회를 즉시 지정
+      Account findAccount = accountRepository.findById(account.getUid())
+          .orElseThrow(() -> new AccountNotFoundException("계정이 존재하지 않습니다. accountUid:{}",
+              account.getUid()));
+      accountEcclesiaHistoryRepository.save(AccountEcclesiaHistory.builder()
+          .accountUid(account.getUid())
+          .ecclesiaUid(ecclesia.getUid())
+          .status(AccountEcclesiaHistoryStatusType.INVITE_APPROVAL)
+          .insertTime(LocalDateTime.now())
+          .build());
+      findAccount.changeEcclesiaUid(ecclesia.getUid());
+      accountRepository.save(findAccount);
+
+      return EcclesiaInviteJoinResultDTO.builder()
+          .ecclesiaUid(ecclesia.getUid())
+          .ecclesiaName(ecclesia.getName())
+          .status("JOINED")
+          .build();
+    }
+
+    // 승인 필요: 일반 가입 요청과 동일하게 처리 (관리자가 승인/반려)
+    accountEcclesiaHistoryRepository.save(AccountEcclesiaHistory.builder()
+        .accountUid(account.getUid())
+        .ecclesiaUid(ecclesia.getUid())
+        .status(AccountEcclesiaHistoryStatusType.JOIN_REQUEST)
+        .insertTime(LocalDateTime.now())
+        .build());
+
+    return EcclesiaInviteJoinResultDTO.builder()
+        .ecclesiaUid(ecclesia.getUid())
+        .ecclesiaName(ecclesia.getName())
+        .status("PENDING")
+        .build();
   }
 }

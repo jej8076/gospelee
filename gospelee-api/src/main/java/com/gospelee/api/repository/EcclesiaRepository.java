@@ -15,6 +15,10 @@ public interface EcclesiaRepository {
 
   List<EcclesiaResponseDTO> searchEcclesia(String text);
 
+  Optional<Ecclesia> findByInviteCode(String inviteCode);
+
+  boolean existsByInviteCode(String inviteCode);
+
   Ecclesia save(Ecclesia ecclesia);
 
   Optional<Ecclesia> findById(Long id);
