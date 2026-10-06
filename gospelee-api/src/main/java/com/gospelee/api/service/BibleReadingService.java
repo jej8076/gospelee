@@ -48,6 +48,9 @@ public interface BibleReadingService {
   // 목표 참여자 목록 및 진도율 조회
   List<com.gospelee.api.dto.biblereading.BibleReadingMemberDTO> getGoalMembers(Long goalIdx);
 
+  // 목표 참여자의 날짜별 읽음 기록 조회 (같은 목표 참여자만 조회 가능)
+  List<com.gospelee.api.dto.biblereading.BibleReadingMemberRecordDTO> getMemberRecords(Long goalIdx, Long accountUid);
+
   // 목표 나가기 (참여자/방장 위임 처리)
   void leaveGoal(Long goalIdx);
 }

@@ -8,6 +8,7 @@ import com.gospelee.api.dto.biblereading.BibleReadingGoalInviteInfoDTO;
 import com.gospelee.api.dto.biblereading.BibleReadingGoalRequestDTO;
 import com.gospelee.api.dto.biblereading.BibleReadingGoalResponseDTO;
 import com.gospelee.api.dto.biblereading.BibleReadingMemberDTO;
+import com.gospelee.api.dto.biblereading.BibleReadingMemberRecordDTO;
 import com.gospelee.api.dto.biblereading.BibleReadingStatusResponseDTO;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.AccountBibleRead;
@@ -749,5 +750,41 @@ public class BibleReadingServiceImpl implements BibleReadingService {
 
     calendarList.sort((a, b) -> a.getDate().compareTo(b.getDate()));
     return calendarList;
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<BibleReadingMemberRecordDTO> getMemberRecords(Long goalIdx, Long accountUid) {
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+
+    // 요청자와 대상 모두 해당 목표의 참여자여야 조회 가능
+    List<AccountBibleReadingGoalMember> members = memberRepository
+        .findAllByGoalIdxAndStatusOrderByJoinedAtAsc(goalIdx, "JOINED");
+    boolean requesterJoined = members.stream()
+        .anyMatch(m -> m.getAccountUid().equals(account.getUid()));
+    boolean targetJoined = members.stream()
+        .anyMatch(m -> m.getAccountUid().equals(accountUid));
+    if (!requesterJoined || !targetJoined) {
+      throw new NoSuchElementException("참여자 정보를 찾을 수 없습니다.");
+    }
+
+    List<AccountBibleRead> reads = readRepository
+        .findAllByAccountUidAndGoalIdxOrderByReadDateDescBookAscChapterAsc(accountUid, goalIdx);
+
+    // 날짜별 그룹핑 (최신 날짜 우선)
+    Map<LocalDate, List<BibleReadingMemberRecordDTO.Chapter>> grouped = new LinkedHashMap<>();
+    for (AccountBibleRead r : reads) {
+      grouped.computeIfAbsent(r.getReadDate(), k -> new ArrayList<>())
+          .add(new BibleReadingMemberRecordDTO.Chapter(r.getBook(), r.getChapter()));
+    }
+
+    List<BibleReadingMemberRecordDTO> result = new ArrayList<>();
+    for (Map.Entry<LocalDate, List<BibleReadingMemberRecordDTO.Chapter>> e : grouped.entrySet()) {
+      result.add(BibleReadingMemberRecordDTO.builder()
+          .date(e.getKey())
+          .chapters(e.getValue())
+          .build());
+    }
+    return result;
   }
 }
