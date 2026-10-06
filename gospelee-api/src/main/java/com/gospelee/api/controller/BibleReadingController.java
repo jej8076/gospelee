@@ -148,6 +148,17 @@ public class BibleReadingController {
   }
 
   /**
+   * 목표 참여자의 날짜별 읽음 기록 조회
+   */
+  @GetMapping("/goal/{goalIdx}/members/{accountUid}/records")
+  public ResponseEntity<DataResponseDTO<List<com.gospelee.api.dto.biblereading.BibleReadingMemberRecordDTO>>> getMemberRecords(
+      @PathVariable("goalIdx") Long goalIdx, @PathVariable("accountUid") Long accountUid) {
+    return ResponseEntity.ok(
+        DataResponseDTO.of("100", "성공", bibleReadingService.getMemberRecords(goalIdx, accountUid))
+    );
+  }
+
+  /**
    * 목표 나가기 (참여자 탈퇴 / 방장 위임)
    */
   @PostMapping("/goal/{goalIdx}/leave")
