@@ -52,6 +52,8 @@ class EcclesiaInviteJoinControllerTest {
     assertTrue(response.getBody().contains("담임목사 홍길동"));
     assertTrue(response.getBody().contains("12명 함께하는 중"));
     assertTrue(response.getBody().contains("podo://ecclesia/join?code=abc234"));
+    // 앱 설치 후 첫 실행에서 읽을 수 있도록 접두사를 붙여 코드를 복사
+    assertTrue(response.getBody().contains("writeText('podo-ecclesia-invite:abc234')"));
   }
 
   @Test

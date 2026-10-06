@@ -201,7 +201,7 @@ public class EcclesiaInviteJoinController {
             function copyCode() {
               try {
                 if (navigator.clipboard && '%s') {
-                  navigator.clipboard.writeText('%s');
+                  navigator.clipboard.writeText('podo-ecclesia-invite:%s');
                 }
               } catch (e) {}
             }
