@@ -27,6 +27,16 @@ public class EcclesiaRepositoryImpl implements EcclesiaRepository {
   }
 
   @Override
+  public Optional<Ecclesia> findByInviteCode(String inviteCode) {
+    return ecclesiaJpaRepository.findByInviteCode(inviteCode);
+  }
+
+  @Override
+  public boolean existsByInviteCode(String inviteCode) {
+    return ecclesiaJpaRepository.existsByInviteCode(inviteCode);
+  }
+
+  @Override
   public Ecclesia save(Ecclesia ecclesia) {
     return ecclesiaJpaRepository.save(ecclesia);
   }

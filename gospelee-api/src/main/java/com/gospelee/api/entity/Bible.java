@@ -29,7 +29,7 @@ public class Bible extends EditInfomation {
     @Column
     private int verse;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String sentence;
 
     @Column

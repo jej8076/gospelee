@@ -9,4 +9,8 @@ public interface EcclesiaJpaRepository extends JpaRepository<Ecclesia, Long> {
   Optional<Ecclesia> findEcclesiasByUid(long uid);
 
   Optional<Ecclesia> findEcclesiasByMasterAccountUid(long accountUid);
+
+  Optional<Ecclesia> findByInviteCode(String inviteCode);
+
+  boolean existsByInviteCode(String inviteCode);
 }

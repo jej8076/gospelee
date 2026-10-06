@@ -51,6 +51,14 @@ public class Ecclesia extends EditInfomation {
   @Column(name = "storage_used_bytes")
   private Long storageUsedBytes;
 
+  // 초대 링크용 코드
+  @Column(name = "invite_code", length = 32, unique = true)
+  private String inviteCode;
+
+  // 초대 링크로 가입 시 관리자 승인 없이 바로 가입 여부 (기본: 승인 필요)
+  @Column(name = "invite_auto_approve")
+  private Boolean inviteAutoApprove;
+
   @Builder
   public Ecclesia(long uid, String name, String status, Long masterAccountUid,
       String churchIdentificationNumber, String telephone, String seniorPastorName,
@@ -65,6 +73,18 @@ public class Ecclesia extends EditInfomation {
     this.churchAddress = churchAddress;
     this.storageLimitBytes = storageLimitBytes != null ? storageLimitBytes : 10737418240L;
     this.storageUsedBytes = storageUsedBytes != null ? storageUsedBytes : 0L;
+  }
+
+  public void changeInviteCode(String inviteCode) {
+    this.inviteCode = inviteCode;
+  }
+
+  public void changeInviteAutoApprove(boolean autoApprove) {
+    this.inviteAutoApprove = autoApprove;
+  }
+
+  public boolean isInviteAutoApprove() {
+    return Boolean.TRUE.equals(this.inviteAutoApprove);
   }
 
   public void changeStatus(EcclesiaStatusType status) {

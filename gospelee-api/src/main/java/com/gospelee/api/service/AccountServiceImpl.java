@@ -40,6 +40,7 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestClient;
@@ -60,13 +61,14 @@ public class AccountServiceImpl implements AccountService {
   private final SnakeCaseJsonUtils snakeCaseJsonUtils;
   private final CamelCaseJsonUtils camelCaseJsonUtils;
   private final RestClient restClient;
+  private final EcclesiaPushNotifier ecclesiaPushNotifier;
 
   public AccountServiceImpl(AuthProperties authProperties, AccountRepository accountRepository,
       AccountMetaRepository accountMetaRepository,
       AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository,
       EcclesiaJpaRepository ecclesiaJpaRepository, RedisCacheService redisCacheService,
       RestClient.Builder restClient, SnakeCaseJsonUtils snakeCaseJsonUtils,
-      CamelCaseJsonUtils camelCaseJsonUtils) {
+      CamelCaseJsonUtils camelCaseJsonUtils, EcclesiaPushNotifier ecclesiaPushNotifier) {
     this.authProperties = authProperties;
     this.accountRepository = accountRepository;
     this.accountMetaRepository = accountMetaRepository;
@@ -75,6 +77,7 @@ public class AccountServiceImpl implements AccountService {
     this.redisCacheService = redisCacheService;
     this.snakeCaseJsonUtils = snakeCaseJsonUtils;
     this.camelCaseJsonUtils = camelCaseJsonUtils;
+    this.ecclesiaPushNotifier = ecclesiaPushNotifier;
 
     MediaType MEDIA_TYPE_FORM_UTF_8 = new MediaType(
         MediaType.APPLICATION_FORM_URLENCODED,
@@ -120,6 +123,7 @@ public class AccountServiceImpl implements AccountService {
       throw new EcclesiaException("[ACCOUNT   ] not_affiliated_with_church accountUid:{}",
           account.getUid());
     }
+    assertCanManageJoinRequests(account);
 
     return accountEcclesiaHistoryRepository.findByAccountEcclesiaRequestByEcclesiaUid(
         account.getEcclesiaUid());
@@ -143,9 +147,26 @@ public class AccountServiceImpl implements AccountService {
           account.getUid(), account.getEcclesiaUid(), findAccountEcclesiaHistory.getEcclesiaUid());
     }
 
-    // 요청된 상태
+    assertCanManageJoinRequests(account);
+
+    // 대기 중인 요청(해당 계정의 가장 최근 이력이 JOIN_REQUEST)만 처리 가능
+    AccountEcclesiaHistory latestHistory = accountEcclesiaHistoryRepository.findLatestByAccountUid(
+        findAccountEcclesiaHistory.getAccountUid());
+    if (latestHistory == null
+        || !latestHistory.getId().equals(findAccountEcclesiaHistory.getId())
+        || latestHistory.getStatus() != AccountEcclesiaHistoryStatusType.JOIN_REQUEST) {
+      throw new EcclesiaException("[ACCOUNT   ] not_pending_request id:{}",
+          accountEcclesiaHistoryDecideDTO.getId());
+    }
+
+    // 요청된 상태 (승인 또는 반려만 허용)
     AccountEcclesiaHistoryStatusType requestedStatus = AccountEcclesiaHistoryStatusType.of(
         accountEcclesiaHistoryDecideDTO.getStatus());
+    if (requestedStatus != AccountEcclesiaHistoryStatusType.JOIN_APPROVAL
+        && requestedStatus != AccountEcclesiaHistoryStatusType.JOIN_REJECT) {
+      throw new EcclesiaException("[ACCOUNT   ] invalid_decide_status status:{}",
+          accountEcclesiaHistoryDecideDTO.getStatus());
+    }
 
     Optional<Account> requestedAccountOptional = accountRepository.findById(
         findAccountEcclesiaHistory.getAccountUid());
@@ -169,8 +190,24 @@ public class AccountServiceImpl implements AccountService {
         .status(requestedStatus)
         .build();
 
-    return AccountEcclesiaHistoryDTO.fromEntity(
-        accountEcclesiaHistoryRepository.save(accountEcclesiaHistory));
+    AccountEcclesiaHistory saved = accountEcclesiaHistoryRepository.save(accountEcclesiaHistory);
+
+    // 가입을 요청한 성도에게 결과 알림
+    String ecclesiaName = ecclesiaJpaRepository.findById(findAccountEcclesiaHistory.getEcclesiaUid())
+        .map(Ecclesia::getName).orElse("교회");
+    ecclesiaPushNotifier.notifyJoinDecided(requestedAccountOptional.get(), ecclesiaName,
+        requestedStatus == AccountEcclesiaHistoryStatusType.JOIN_APPROVAL);
+
+    return AccountEcclesiaHistoryDTO.fromEntity(saved);
+  }
+
+  /**
+   * 가입 요청 목록 조회/승인/반려는 교회 대표, 교역자, 관리자만 가능
+   */
+  private void assertCanManageJoinRequests(AccountAuthDTO account) {
+    if (!EcclesiaPushNotifier.isManagerRole(account.getRole())) {
+      throw new AccessDeniedException("가입 요청을 처리할 권한이 없습니다.");
+    }
   }
 
   @Override

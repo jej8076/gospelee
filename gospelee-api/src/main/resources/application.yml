@@ -72,6 +72,8 @@ auth:
     - /bible-reading/*
     - /bible/reading/join*
     - /bible/reading/goal/invite/*
+    - /ecclesia/invite/info/*
+    - /ecclesia-invite/*
     - /article/*
     - /youtube/videos
     - /announcement/unauthorized/BRAND_STORY
