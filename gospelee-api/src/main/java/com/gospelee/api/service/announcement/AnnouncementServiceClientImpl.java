@@ -301,8 +301,8 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
         .sendAccountUid(account.getUid())
         .organization(OrganizationType.fromName(announcement.getOrganizationType()).name())
         .category(CategoryType.ANNOUNCEMENT.name())
-        .title("교회에서 공지사항을 등록했습니다.")
-        .message("공지사항을 확인해주세요.")
+        .title(AnnouncementPushMessage.TITLE)
+        .message(AnnouncementPushMessage.message(announcement.getSubject()))
         .build();
 
     pushNotification = pushNotificationRepository.save(pushNotification);
