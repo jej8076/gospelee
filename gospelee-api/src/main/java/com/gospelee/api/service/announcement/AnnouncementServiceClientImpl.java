@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -190,6 +191,7 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
     if (!isOnlySuperValidation(account, announcementDTO)) {
       throw new SuperAccountException("invalid_access accountEmail:{}", account.getEmail());
     }
+    assertCanWriteEcclesiaAnnouncement(account, announcementDTO);
 
     // 1. 저장
     Announcement announcement = announcementRepository.save(announcementDTO.toEntity(account));
@@ -216,6 +218,7 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
 
     // 1. 기존 데이터 조회 및 검증
     Announcement existingAnnouncement = getExistingAnnouncementOrThrow(announcementDTO.getId());
+    assertCanModifyAnnouncement(account, existingAnnouncement);
 
     // 2. 기본 필드 업데이트
     updateBasicFields(existingAnnouncement, announcementDTO);
@@ -479,6 +482,28 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
     }
 
     return blobToFileUrlMap;
+  }
+
+  // 교회 공지 작성은 같은 교회의 담임목사/교역자/관리자만 가능 (super 계정 제외)
+  private void assertCanWriteEcclesiaAnnouncement(AccountAuthDTO account,
+      AnnouncementDTO announcementDTO) {
+    if (!OrganizationType.ECCLESIA.name().equals(announcementDTO.getOrganizationType())
+        || superId.equals(account.getEmail())) {
+      return;
+    }
+    if (!AnnouncementAccessPolicy.canWriteEcclesia(account)) {
+      throw new AccessDeniedException("공지사항을 작성할 권한이 없습니다.");
+    }
+  }
+
+  // 수정은 내 교회의 공지만 가능, 브랜드 스토리 등 다른 조직 공지는 super 계정만 가능
+  private void assertCanModifyAnnouncement(AccountAuthDTO account, Announcement existing) {
+    if (superId.equals(account.getEmail())) {
+      return;
+    }
+    if (!AnnouncementAccessPolicy.canModifyEcclesia(account, existing)) {
+      throw new AccessDeniedException("공지사항을 수정할 권한이 없습니다.");
+    }
   }
 
   private boolean isOnlySuperValidation(AccountAuthDTO account, AnnouncementDTO announcementDTO) {
