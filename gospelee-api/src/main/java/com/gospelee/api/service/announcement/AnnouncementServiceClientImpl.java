@@ -314,17 +314,15 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
         continue;
       }
 
-      try {
-        firebaseService.sendNotification(acc.getPushToken(), pushNotification.getTitle(),
-            pushNotification.getMessage());
-      } catch (FirebaseMessagingException e) {
-        throw new RuntimeException(e);
-      }
+      // 한 명의 토큰이 만료/오류여도 나머지 성도에게는 계속 전송하고, 실패는 FAILED로 기록
+      boolean sent = firebaseService.trySendNotification(acc.getPushToken(),
+          pushNotification.getTitle(), pushNotification.getMessage());
 
       PushNotificationReceivers pushNotificationReceivers = PushNotificationReceivers.builder()
           .pushNotificationId(pushNotification.getId())
           .receiveAccountUid(acc.getUid())
-          .status(PushNotificationSendStatusType.READY.name())
+          .status((sent ? PushNotificationSendStatusType.READY
+              : PushNotificationSendStatusType.FAILED).name())
           .build();
 
       pushNotificationReceiversList.add(pushNotificationReceivers);
