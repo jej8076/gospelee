@@ -44,8 +44,16 @@ public class FirebaseService {
    * 여러 명에게 보내는 반복 전송용: 만료된 토큰 등으로 실패해도 예외를 던지지 않고 false 반환
    */
   public boolean trySendNotification(String token, String title, String body) {
+    return trySendNotification(token, title, body, null);
+  }
+
+  /**
+   * data에 route를 넣으면 알림을 눌렀을 때 앱이 해당 화면으로 이동한다
+   */
+  public boolean trySendNotification(String token, String title, String body,
+      Map<String, String> data) {
     try {
-      sendNotification(token, title, body, null);
+      sendNotification(token, title, body, data);
       return true;
     } catch (Exception e) {
       log.warn("[FCM] 전송 실패(건너뜀) tokenPrefix={} message={}", maskToken(token),

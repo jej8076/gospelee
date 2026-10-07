@@ -1,5 +1,8 @@
 package com.gospelee.api.service.announcement;
 
+import com.gospelee.api.enums.PushNotificationDataType;
+import java.util.Map;
+
 /**
  * 공지사항 푸시 알림 문구: 제목은 고정, 내용에는 공지 제목을 넣어 알림만 보고도 내용을 알 수 있게 한다.
  */
@@ -9,7 +12,16 @@ final class AnnouncementPushMessage {
   static final String DEFAULT_MESSAGE = "공지사항을 확인해주세요.";
   private static final int MAX_SUBJECT_LENGTH = 60;
 
+  private static final String ROUTE_PREFIX = "/ecclesia/announcement/";
+
   private AnnouncementPushMessage() {
+  }
+
+  /**
+   * 알림을 눌렀을 때 앱이 열어야 할 공지 상세 화면 경로
+   */
+  static Map<String, String> routeData(Long announcementId) {
+    return Map.of(PushNotificationDataType.ROUTE.lower(), ROUTE_PREFIX + announcementId);
   }
 
   static String message(String subject) {

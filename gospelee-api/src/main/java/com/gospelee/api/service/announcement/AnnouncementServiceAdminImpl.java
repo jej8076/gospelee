@@ -345,7 +345,8 @@ public class AnnouncementServiceAdminImpl implements AnnouncementService {
 
       // 한 명의 토큰이 만료/오류여도 나머지 성도에게는 계속 전송하고, 실패는 FAILED로 기록
       boolean sent = firebaseService.trySendNotification(acc.getPushToken(),
-          pushNotification.getTitle(), pushNotification.getMessage());
+          pushNotification.getTitle(), pushNotification.getMessage(),
+          AnnouncementPushMessage.routeData(announcement.getId()));
 
       PushNotificationReceivers pushNotificationReceivers = PushNotificationReceivers.builder()
           .pushNotificationId(pushNotification.getId())
