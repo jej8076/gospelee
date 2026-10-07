@@ -247,6 +247,26 @@ public class AnnouncementServiceAdminImpl implements AnnouncementService {
     return AnnouncementDTO.fromEntity(savedAnnouncement);
   }
 
+  @Override
+  @Transactional
+  public void deleteAnnouncement(Long id) {
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+
+    Announcement existing = getExistingAnnouncementOrThrow(id);
+    assertCanModifyAnnouncement(account, existing);
+
+    // 첨부 파일은 삭제 표시만 하고(실제 파일 정리는 별도 처리), 공지는 삭제한다
+    if (existing.getFileUid() != null) {
+      for (FileDetails detail : fileDetailsRepository.findAllByFileIdAndDelYn(
+          existing.getFileUid(), Yn.N.name())) {
+        detail.markAsDeleted();
+        fileDetailsRepository.save(detail);
+      }
+    }
+    announcementRepository.delete(existing);
+    log.info("공지사항 삭제 - id:{}, accountUid:{}", id, account.getUid());
+  }
+
   private void updateBasicFields(Announcement existing, AnnouncementDTO updates) {
     if (updates.getSubject() != null) {
       existing.changeSubject(updates.getSubject());

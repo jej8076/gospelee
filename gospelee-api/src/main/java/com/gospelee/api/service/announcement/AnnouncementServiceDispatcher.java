@@ -64,4 +64,9 @@ public class AnnouncementServiceDispatcher implements AnnouncementService {
   public AnnouncementDTO updateAnnouncement(List<MultipartFile> files, AnnouncementDTO dto) {
     return resolve().updateAnnouncement(files, dto);
   }
+
+  @Override
+  public void deleteAnnouncement(Long id) {
+    resolve().deleteAnnouncement(id);
+  }
 }
