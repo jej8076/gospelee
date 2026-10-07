@@ -13,6 +13,12 @@ class AnnouncementPushMessageTest {
   }
 
   @Test
+  void routeData_pointsToAnnouncementDetail() {
+    assertEquals("/ecclesia/announcement/42",
+        AnnouncementPushMessage.routeData(42L).get("route"));
+  }
+
+  @Test
   void blankSubject_fallsBackToDefault() {
     assertEquals(AnnouncementPushMessage.DEFAULT_MESSAGE, AnnouncementPushMessage.message(null));
     assertEquals(AnnouncementPushMessage.DEFAULT_MESSAGE, AnnouncementPushMessage.message("  "));

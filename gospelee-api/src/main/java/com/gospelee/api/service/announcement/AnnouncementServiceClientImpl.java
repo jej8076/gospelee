@@ -238,6 +238,26 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
     return AnnouncementDTO.fromEntity(savedAnnouncement);
   }
 
+  @Override
+  @Transactional
+  public void deleteAnnouncement(Long id) {
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+
+    Announcement existing = getExistingAnnouncementOrThrow(id);
+    assertCanModifyAnnouncement(account, existing);
+
+    // 첨부 파일은 삭제 표시만 하고(실제 파일 정리는 별도 처리), 공지는 삭제한다
+    if (existing.getFileUid() != null) {
+      for (FileDetails detail : fileDetailsRepository.findAllByFileIdAndDelYn(
+          existing.getFileUid(), Yn.N.name())) {
+        detail.markAsDeleted();
+        fileDetailsRepository.save(detail);
+      }
+    }
+    announcementRepository.delete(existing);
+    log.info("공지사항 삭제 - id:{}, accountUid:{}", id, account.getUid());
+  }
+
   private void updateBasicFields(Announcement existing, AnnouncementDTO updates) {
     if (updates.getSubject() != null) {
       existing.changeSubject(updates.getSubject());
@@ -314,17 +334,16 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
         continue;
       }
 
-      try {
-        firebaseService.sendNotification(acc.getPushToken(), pushNotification.getTitle(),
-            pushNotification.getMessage());
-      } catch (FirebaseMessagingException e) {
-        throw new RuntimeException(e);
-      }
+      // 한 명의 토큰이 만료/오류여도 나머지 성도에게는 계속 전송하고, 실패는 FAILED로 기록
+      boolean sent = firebaseService.trySendNotification(acc.getPushToken(),
+          pushNotification.getTitle(), pushNotification.getMessage(),
+          AnnouncementPushMessage.routeData(announcement.getId()));
 
       PushNotificationReceivers pushNotificationReceivers = PushNotificationReceivers.builder()
           .pushNotificationId(pushNotification.getId())
           .receiveAccountUid(acc.getUid())
-          .status(PushNotificationSendStatusType.READY.name())
+          .status((sent ? PushNotificationSendStatusType.READY
+              : PushNotificationSendStatusType.FAILED).name())
           .build();
 
       pushNotificationReceiversList.add(pushNotificationReceivers);

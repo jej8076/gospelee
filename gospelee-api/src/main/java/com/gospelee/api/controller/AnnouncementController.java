@@ -6,11 +6,13 @@ import com.gospelee.api.service.announcement.AnnouncementService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -82,6 +84,13 @@ public class AnnouncementController {
 
     AnnouncementDTO announcement = announcementService.insertAnnouncement(files, announcementDTO);
     return new ResponseEntity<>(announcement, HttpStatus.OK);
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Object> deleteAnnouncement(@PathVariable("id") Long id) {
+    announcementService.deleteAnnouncement(id);
+    // 앱 ApiClient는 빈 본문을 실패로 처리하므로 삭제한 id를 본문으로 반환
+    return new ResponseEntity<>(Map.of("id", id), HttpStatus.OK);
   }
 
   @PutMapping

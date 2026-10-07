@@ -16,4 +16,6 @@ public interface AnnouncementService {
   AnnouncementDTO insertAnnouncement(List<MultipartFile> files, AnnouncementDTO announcementDTO);
 
   AnnouncementDTO updateAnnouncement(List<MultipartFile> files, AnnouncementDTO announcementDTO);
+
+  void deleteAnnouncement(Long id);
 }
