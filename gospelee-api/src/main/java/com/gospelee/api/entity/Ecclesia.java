@@ -87,6 +87,7 @@ public class Ecclesia extends EditInfomation {
     this.storageLimitBytes = storageLimitBytes != null ? storageLimitBytes : 10737418240L;
     this.storageUsedBytes = storageUsedBytes != null ? storageUsedBytes : 0L;
     this.verifiedYn = "N";
+    this.inviteAutoApprove = false;
   }
 
   public boolean isVerified() {

@@ -117,6 +117,18 @@ class EcclesiaRegistrationTest {
   }
 
   @Test
+  void register_withoutIdentificationNumber_storesEmptyStringNotNull() {
+    login(7L, RoleType.LAYMAN, null);
+    org.mockito.ArgumentCaptor<Ecclesia> captor = org.mockito.ArgumentCaptor.forClass(Ecclesia.class);
+
+    // insert() 의 DTO 는 고유번호를 입력받지 않아 getChurchIdentificationNumber() 가 null
+    service.saveEcclesia(insert("포도교회"));
+
+    verify(ecclesiaRepository).save(captor.capture());
+    assertEquals("", captor.getValue().getChurchIdentificationNumber());
+  }
+
+  @Test
   void register_missingOrInvalidTelephone_isRejected() {
     login(7L, RoleType.LAYMAN, null);
 
