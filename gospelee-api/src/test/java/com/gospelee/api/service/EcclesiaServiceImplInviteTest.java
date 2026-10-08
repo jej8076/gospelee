@@ -34,7 +34,8 @@ class EcclesiaServiceImplInviteTest {
     authorizationService = new AuthorizationService();
     service = new EcclesiaServiceImpl(ecclesiaRepository,
         mock(AccountEcclesiaHistoryRepository.class), authorizationService,
-        mock(AccountRepository.class), mock(EcclesiaPushNotifier.class));
+        mock(AccountRepository.class), mock(EcclesiaPushNotifier.class),
+        mock(SlackNotifier.class));
 
     Ecclesia ecclesia = Ecclesia.builder()
         .uid(10L)

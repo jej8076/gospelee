@@ -97,3 +97,8 @@ apple:
 
 file:
   base-path: /Users/ej/dev/testFiles/gospelee/api
+
+# 운영자용 Slack 알림 (Incoming Webhook). 비워 두면 알림을 보내지 않음. 값은 application-prod.yml 등에서 지정
+slack:
+  webhook-url:
+  admin-url:

@@ -40,6 +40,7 @@ class EcclesiaRegistrationTest {
   private AccountEcclesiaHistoryRepository historyRepository;
   private AccountRepository accountRepository;
   private EcclesiaPushNotifier notifier;
+  private SlackNotifier slackNotifier;
   private EcclesiaServiceImpl service;
   private Account applicant;
 
@@ -49,11 +50,13 @@ class EcclesiaRegistrationTest {
     historyRepository = mock(AccountEcclesiaHistoryRepository.class);
     accountRepository = mock(AccountRepository.class);
     notifier = mock(EcclesiaPushNotifier.class);
+    slackNotifier = mock(SlackNotifier.class);
     service = new EcclesiaServiceImpl(ecclesiaRepository, historyRepository,
-        new AuthorizationService(), accountRepository, notifier);
+        new AuthorizationService(), accountRepository, notifier, slackNotifier);
 
     applicant = mock(Account.class);
     when(applicant.getName()).thenReturn("김목사");
+    when(applicant.getPhone()).thenReturn("01012345678");
     when(accountRepository.findById(7L)).thenReturn(Optional.of(applicant));
     when(ecclesiaRepository.findEcclesiasByMasterAccountUid(7L)).thenReturn(Optional.empty());
     when(ecclesiaRepository.save(any(Ecclesia.class))).thenAnswer(invocation -> {
@@ -94,7 +97,8 @@ class EcclesiaRegistrationTest {
     assertEquals(7L, saved.getMasterAccountUid());
     verify(applicant).changeEcclesiaUid(5L);
     verify(applicant).changeRole(RoleType.SENIOR_PASTOR);
-    verify(notifier).notifyChurchRegistered(any(Ecclesia.class), eq("김목사"));
+    verify(notifier, never()).notifyJoinRequested(any(), any());
+    verify(slackNotifier).notifyChurchRegistered(any(Ecclesia.class), eq("김목사"), eq("01012345678"));
   }
 
   @Test
@@ -103,6 +107,7 @@ class EcclesiaRegistrationTest {
 
     assertThrows(EcclesiaException.class, () -> service.saveEcclesia(insert("  ")));
     verify(ecclesiaRepository, never()).save(any(Ecclesia.class));
+    verify(slackNotifier, never()).notifyChurchRegistered(any(), any(), any());
   }
 
   @Test
