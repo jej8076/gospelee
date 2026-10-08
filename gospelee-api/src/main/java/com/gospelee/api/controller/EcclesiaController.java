@@ -7,6 +7,7 @@ import com.gospelee.api.dto.ecclesia.EcclesiaInviteJoinRequestDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaInviteSettingsRequestDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaUpdateDTO;
+import com.gospelee.api.dto.ecclesia.EcclesiaVerifyRequestDTO;
 import com.gospelee.api.entity.AccountEcclesiaHistory;
 import com.gospelee.api.entity.Ecclesia;
 import com.gospelee.api.service.EcclesiaService;
@@ -59,6 +60,12 @@ public class EcclesiaController {
   public ResponseEntity<Object> insertEcclesia(@RequestBody EcclesiaInsertDTO ecclesiaInsertDTO) {
     Ecclesia ecclesia = ecclesiaService.saveEcclesia(ecclesiaInsertDTO);
     return new ResponseEntity<>(ecclesia, HttpStatus.OK);
+  }
+
+  // 운영자(ADMIN)만 호출 가능: 전화 등으로 확인한 교회를 검증 완료로 표시
+  @PatchMapping("/verify")
+  public ResponseEntity<Object> verifyEcclesia(@RequestBody EcclesiaVerifyRequestDTO request) {
+    return new ResponseEntity<>(ecclesiaService.updateVerification(request), HttpStatus.OK);
   }
 
   @PatchMapping("/status")

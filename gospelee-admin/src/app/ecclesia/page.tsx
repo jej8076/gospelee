@@ -12,6 +12,8 @@ import StatusSelector from "@/components/ecclesia/status-selector";
 import SeniorPastorNameSelector from "@/components/ecclesia/senior-pastor-name-selector";
 import ChurchAddressSelector from "@/components/ecclesia/church-address-selector";
 import {authHeaders} from "~/lib/api/utils/headers";
+import {fetchVerifyEcclesia} from "~/lib/api/fetch-ecclesias";
+import {getVerificationState, verificationBadgeClass} from "@/utils/ecclesia-verification";
 
 export default function Ecclesia() {
   useAuth();
@@ -36,6 +38,13 @@ export default function Ecclesia() {
       });
 
       const res: Ecclesia[] = await response.json();
+      // 검증이 필요한 교회를 위쪽에, 같은 그룹에서는 최근 신청 순으로 표시
+      res.sort((a, b) => {
+        const aDone = a.verifiedYn === "Y" ? 1 : 0;
+        const bDone = b.verifiedYn === "Y" ? 1 : 0;
+        if (aDone !== bDone) return aDone - bDone;
+        return (b.insertTime || "").localeCompare(a.insertTime || "");
+      });
       setEccList(res);
     } catch (e) {
       console.error("Error fetching users:", e);
@@ -90,6 +99,28 @@ export default function Ecclesia() {
     // 모달의 선택된 교회 정보도 업데이트
     if (selectedEcclesia && selectedEcclesia.uid === ecclesiaUid) {
       setSelectedEcclesia({...selectedEcclesia, churchAddress: newChurchAddress});
+    }
+  };
+
+  // 전화로 확인한 교회를 검증 완료(또는 취소)로 표시
+  const toggleVerification = async (ecc: Ecclesia) => {
+    const nextVerified = ecc.verifiedYn !== "Y";
+    const message = nextVerified
+        ? `${ecc.name}을(를) 검증 완료로 표시할까요?\n성도 수/용량 제한이 풀리고 교회 검색에 노출됩니다.`
+        : `${ecc.name}의 검증을 취소할까요?\n성도 30명, 사진 100MB 제한이 다시 적용됩니다.`;
+    if (!window.confirm(message)) {
+      return;
+    }
+
+    try {
+      await fetchVerifyEcclesia({ecclesiaUid: ecc.uid, verified: nextVerified});
+      const newValue = nextVerified ? "Y" : "N";
+      setEccList(eccList.map(e => e.uid === ecc.uid ? {...e, verifiedYn: newValue} : e));
+      if (selectedEcclesia && selectedEcclesia.uid === ecc.uid) {
+        setSelectedEcclesia({...selectedEcclesia, verifiedYn: newValue});
+      }
+    } catch (e: any) {
+      alert(e?.message || "검증 상태 변경에 실패했습니다.");
     }
   };
 
@@ -153,6 +184,10 @@ export default function Ecclesia() {
                       className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                     상태
                   </th>
+                  <th scope="col"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    검증
+                  </th>
                   <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
                     <span className="sr-only"></span>
                   </th>
@@ -176,10 +211,14 @@ export default function Ecclesia() {
                             <div className="font-medium text-gray-900">{ecc.name}</div>
                             <div
                                 className="mt-1 text-gray-500">{ecc.churchIdentificationNumber}</div>
+                            <div className="mt-1 text-gray-500">{ecc.telephone || '-'}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{ecc.masterAccountName}</td>
+                      <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                        <div>{ecc.masterAccountName}</div>
+                        <div className="mt-1">{ecc.masterAccountPhone || '-'}</div>
+                      </td>
                       <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{ecc.seniorPastorName || '-'}</td>
                       <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{ecc.churchAddress || '-'}</td>
                       <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
@@ -188,7 +227,18 @@ export default function Ecclesia() {
                           {ecclesiaStatusKor(ecc.status)}
                         </span>
                       </td>
+                      <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                        {(() => {
+                          const state = getVerificationState(ecc.verifiedYn, ecc.insertTime);
+                          return <span className={verificationBadgeClass(state.tone)}>{state.label}</span>;
+                        })()}
+                      </td>
                       <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-left text-sm font-medium sm:pr-0">
+                        <button
+                            className="text-indigo-600 hover:text-indigo-900 cursor-pointer mr-4"
+                            onClick={() => toggleVerification(ecc)}
+                        >{ecc.verifiedYn === "Y" ? "검증 취소" : "검증 완료"}
+                        </button>
                         <button
                             className="text-indigo-600 hover:text-indigo-900 cursor-pointer"
                             onClick={() => openModal(ecc)}

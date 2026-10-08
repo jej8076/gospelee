@@ -19,12 +19,17 @@ public class EcclesiaResponseDTO {
   private String seniorPastorName;
   private String churchAddress;
   private LocalDateTime insertTime;
+  // 운영자 검증용 정보
+  private String telephone;
+  private String masterAccountPhone;
+  private String verifiedYn;
 
   @Builder
   public EcclesiaResponseDTO(Long uid, String churchIdentificationNumber, String status,
       String name,
       String masterAccountName, String seniorPastorName, String churchAddress,
-      LocalDateTime insertTime) {
+      LocalDateTime insertTime, String telephone, String masterAccountPhone,
+      String verifiedYn) {
     this.uid = uid;
     this.churchIdentificationNumber = churchIdentificationNumber;
     this.status = status;
@@ -33,6 +38,9 @@ public class EcclesiaResponseDTO {
     this.seniorPastorName = seniorPastorName;
     this.churchAddress = churchAddress;
     this.insertTime = insertTime;
+    this.telephone = telephone;
+    this.masterAccountPhone = masterAccountPhone;
+    this.verifiedYn = verifiedYn;
   }
 
   public static EcclesiaResponseDTO fromEntity(Ecclesia ecclesia) {
@@ -43,6 +51,7 @@ public class EcclesiaResponseDTO {
         .seniorPastorName(ecclesia.getSeniorPastorName())
         .churchAddress(ecclesia.getChurchAddress())
         .insertTime(ecclesia.getInsertTime())
+        .verifiedYn(ecclesia.isVerified() ? "Y" : "N")
         .build();
   }
 

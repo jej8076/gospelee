@@ -10,6 +10,9 @@ type Ecclesia = {
   insertTime: string,
   seniorPastorName?: string,
   churchAddress?: string,
+  masterAccountPhone?: string,
+  // 운영자 검증 여부 (Y: 검증 완료)
+  verifiedYn?: string,
 };
 
 type EcclesiaStatusSelectorProps = {

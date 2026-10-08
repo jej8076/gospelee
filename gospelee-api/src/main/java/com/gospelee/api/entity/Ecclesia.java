@@ -1,5 +1,6 @@
 package com.gospelee.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gospelee.api.entity.common.EditInfomation;
 import com.gospelee.api.enums.EcclesiaStatusType;
 import jakarta.persistence.Column;
@@ -7,6 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -51,13 +53,24 @@ public class Ecclesia extends EditInfomation {
   @Column(name = "storage_used_bytes")
   private Long storageUsedBytes;
 
-  // 초대 링크용 코드
+  // 초대 링크용 코드 (다른 사용자에게 노출되지 않도록 JSON 응답에서 제외)
+  @JsonIgnore
   @Column(name = "invite_code", length = 32, unique = true)
   private String inviteCode;
 
   // 초대 링크로 가입 시 관리자 승인 없이 바로 가입 여부 (기본: 승인 필요)
+  @JsonIgnore
   @Column(name = "invite_auto_approve")
   private Boolean inviteAutoApprove;
+
+  // 운영자 검증 여부 (Y: 검증 완료). 검증 전에는 성도 수, 저장 용량, 검색 노출이 제한된다.
+  @Column(name = "verified_yn", length = 1)
+  private String verifiedYn;
+
+  // 검증 전(미검증) 교회 제한
+  public static final int UNVERIFIED_MAX_MEMBERS = 30;
+  public static final long UNVERIFIED_STORAGE_LIMIT_BYTES = 100L * 1024 * 1024;
+  public static final int VERIFICATION_DEADLINE_DAYS = 14;
 
   @Builder
   public Ecclesia(long uid, String name, String status, Long masterAccountUid,
@@ -73,6 +86,39 @@ public class Ecclesia extends EditInfomation {
     this.churchAddress = churchAddress;
     this.storageLimitBytes = storageLimitBytes != null ? storageLimitBytes : 10737418240L;
     this.storageUsedBytes = storageUsedBytes != null ? storageUsedBytes : 0L;
+    this.verifiedYn = "N";
+  }
+
+  public boolean isVerified() {
+    return "Y".equals(this.verifiedYn);
+  }
+
+  public void changeVerified(boolean verified) {
+    this.verifiedYn = verified ? "Y" : "N";
+  }
+
+  /**
+   * 검증 기한(신청일 + 14일). 검증 완료된 교회도 값은 계산되지만 제한에는 쓰이지 않는다.
+   */
+  public LocalDateTime getVerificationDeadline() {
+    LocalDateTime insertTime = getInsertTime();
+    return insertTime == null ? null : insertTime.plusDays(VERIFICATION_DEADLINE_DAYS);
+  }
+
+  public boolean isVerificationExpired() {
+    return isVerificationExpiredAt(LocalDateTime.now());
+  }
+
+  public boolean isVerificationExpiredAt(LocalDateTime now) {
+    LocalDateTime deadline = getVerificationDeadline();
+    return !isVerified() && deadline != null && now.isAfter(deadline);
+  }
+
+  /**
+   * 새 성도를 받을 수 있는지 (검증 전에는 {@link #UNVERIFIED_MAX_MEMBERS}명까지)
+   */
+  public boolean hasRoomForMember(long currentMemberCount) {
+    return isVerified() || currentMemberCount < UNVERIFIED_MAX_MEMBERS;
   }
 
   public void changeInviteCode(String inviteCode) {
@@ -100,7 +146,9 @@ public class Ecclesia extends EditInfomation {
   }
 
   public long getStorageLimitBytesOrDefault() {
-    return this.storageLimitBytes != null ? this.storageLimitBytes : 10737418240L;
+    long limit = this.storageLimitBytes != null ? this.storageLimitBytes : 10737418240L;
+    // 검증 전 교회는 설정된 한도와 상관없이 더 작은 값으로 제한
+    return isVerified() ? limit : Math.min(limit, UNVERIFIED_STORAGE_LIMIT_BYTES);
   }
 
   public long getStorageUsedBytesOrDefault() {

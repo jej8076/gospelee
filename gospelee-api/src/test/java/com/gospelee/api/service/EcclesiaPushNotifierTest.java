@@ -115,6 +115,26 @@ class EcclesiaPushNotifierTest {
   }
 
   @Test
+  void notifyChurchRegistered_sendsToAdminsOnly_withoutPersonalInfo() {
+    Account admin = account(1L, RoleType.ADMIN, "admin-token");
+    Account adminWithoutToken = account(2L, RoleType.ADMIN, null);
+    when(accountRepository.findByRole(RoleType.ADMIN)).thenReturn(List.of(admin, adminWithoutToken));
+
+    Ecclesia ecclesia = mock(Ecclesia.class);
+    when(ecclesia.getName()).thenReturn("포도교회");
+    when(ecclesia.getTelephone()).thenReturn("021234567");
+
+    notifier.notifyChurchRegistered(ecclesia, "김목사");
+
+    ArgumentCaptor<String> body = ArgumentCaptor.forClass(String.class);
+    verify(firebaseService, times(1))
+        .sendNotification(eq("admin-token"), anyString(), body.capture(), any());
+    assertTrue(body.getValue().contains("포도교회"));
+    assertTrue(body.getValue().contains("김목사"));
+    assertFalse(body.getValue().contains("021234567"));
+  }
+
+  @Test
   void isManagerRole() {
     assertTrue(EcclesiaPushNotifier.isManagerRole(RoleType.SENIOR_PASTOR));
     assertTrue(EcclesiaPushNotifier.isManagerRole(RoleType.PASTOR));

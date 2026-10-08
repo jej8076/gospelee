@@ -59,6 +59,7 @@ public class AnnouncementServiceAdminImpl implements AnnouncementService {
   private final FileService fileService;
   private final FirebaseService firebaseService;
   private final FileDetailsRepository fileDetailsRepository;
+  private final AnnouncementStorageGuard storageGuard;
   private final FileRepository fileRepository;
 
   @Value("${server.domain:http://localhost:8008}")
@@ -239,7 +240,8 @@ public class AnnouncementServiceAdminImpl implements AnnouncementService {
     uploadNewFiles(savedAnnouncement, announcementDTO, files, account);
 
     // 5. 기존 파일 삭제 처리
-    deleteExistingFiles(announcementDTO.getDeleteFileDetailIdList());
+    deleteExistingFiles(announcementDTO.getDeleteFileDetailIdList(),
+        savedAnnouncement.getOrganizationId());
 
     // 6. 푸시 알림 처리
     handlePushNotificationIfNeeded(savedAnnouncement, announcementDTO, account);
@@ -257,11 +259,14 @@ public class AnnouncementServiceAdminImpl implements AnnouncementService {
 
     // 첨부 파일은 삭제 표시만 하고(실제 파일 정리는 별도 처리), 공지는 삭제한다
     if (existing.getFileUid() != null) {
+      long freedBytes = 0L;
       for (FileDetails detail : fileDetailsRepository.findAllByFileIdAndDelYn(
           existing.getFileUid(), Yn.N.name())) {
         detail.markAsDeleted();
         fileDetailsRepository.save(detail);
+        freedBytes += detail.getFileSize() != null ? detail.getFileSize() : 0L;
       }
+      storageGuard.release(existing.getOrganizationId(), freedBytes);
     }
     announcementRepository.delete(existing);
     log.info("공지사항 삭제 - id:{}, accountUid:{}", id, account.getUid());
@@ -280,7 +285,7 @@ public class AnnouncementServiceAdminImpl implements AnnouncementService {
 
   }
 
-  private void deleteExistingFiles(List<Long> deleteFileDetailIdList) {
+  private void deleteExistingFiles(List<Long> deleteFileDetailIdList, Long ecclesiaUid) {
     if (deleteFileDetailIdList == null || deleteFileDetailIdList.isEmpty()) {
       return;
     }
@@ -297,6 +302,8 @@ public class AnnouncementServiceAdminImpl implements AnnouncementService {
           // 파일 삭제 마킹 (실제 파일 삭제는 별도 배치에서 처리하거나 즉시 처리)
           fileDetail.markAsDeleted(); // 이 메서드가 FileDetails 엔티티에 있다고 가정
           fileDetailsRepository.save(fileDetail);
+          storageGuard.release(ecclesiaUid,
+              fileDetail.getFileSize() != null ? fileDetail.getFileSize() : 0L);
 
           log.info("파일 삭제 완료 - fileDetailId: {}, fileName: {}",
               fileDetailId, fileDetail.getFileOriginalName());
@@ -385,6 +392,12 @@ public class AnnouncementServiceAdminImpl implements AnnouncementService {
 
     if (files == null || files.isEmpty()) {
       return;
+    }
+
+    // 교회 공지는 첨부 사진 용량을 교회 저장 공간에 반영 (한도 초과 시 업로드 거부)
+    if (OrganizationType.ECCLESIA.name().equals(announcement.getOrganizationType())) {
+      storageGuard.reserve(announcement.getOrganizationId(),
+          files.stream().mapToLong(MultipartFile::getSize).sum());
     }
 
     FileUploadWrapperDTO fileUploadWrapper = FileUploadWrapperDTO.builder()
@@ -522,6 +535,7 @@ public class AnnouncementServiceAdminImpl implements AnnouncementService {
     if (!AnnouncementAccessPolicy.canWriteEcclesia(account)) {
       throw new AccessDeniedException("공지사항을 작성할 권한이 없습니다.");
     }
+    storageGuard.assertWritable(account.getEcclesiaUid());
   }
 
   // 수정은 내 교회의 공지만 가능, 브랜드 스토리 등 다른 조직 공지는 super 계정만 가능
@@ -532,6 +546,7 @@ public class AnnouncementServiceAdminImpl implements AnnouncementService {
     if (!AnnouncementAccessPolicy.canModifyEcclesia(account, existing)) {
       throw new AccessDeniedException("공지사항을 수정할 권한이 없습니다.");
     }
+    storageGuard.assertWritable(existing.getOrganizationId());
   }
 
   private boolean isOnlySuperValidation(AccountAuthDTO account, AnnouncementDTO announcementDTO) {
