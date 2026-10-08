@@ -79,9 +79,13 @@ class EcclesiaRegistrationTest {
   }
 
   private EcclesiaInsertDTO insert(String name) {
+    return insert(name, "02-123-4567");
+  }
+
+  private EcclesiaInsertDTO insert(String name, String telephone) {
     EcclesiaInsertDTO dto = mock(EcclesiaInsertDTO.class);
     when(dto.getName()).thenReturn(name);
-    when(dto.getTelephone()).thenReturn("021234567");
+    when(dto.getTelephone()).thenReturn(telephone);
     return dto;
   }
 
@@ -99,6 +103,29 @@ class EcclesiaRegistrationTest {
     verify(applicant).changeRole(RoleType.SENIOR_PASTOR);
     verify(notifier, never()).notifyJoinRequested(any(), any());
     verify(slackNotifier).notifyChurchRegistered(any(Ecclesia.class), eq("김목사"), eq("01012345678"));
+  }
+
+  @Test
+  void register_storesNormalizedTelephone() {
+    login(7L, RoleType.LAYMAN, null);
+    org.mockito.ArgumentCaptor<Ecclesia> captor = org.mockito.ArgumentCaptor.forClass(Ecclesia.class);
+
+    service.saveEcclesia(insert("포도교회", "010-1234-5678"));
+
+    verify(ecclesiaRepository).save(captor.capture());
+    assertEquals("01012345678", captor.getValue().getTelephone());
+  }
+
+  @Test
+  void register_missingOrInvalidTelephone_isRejected() {
+    login(7L, RoleType.LAYMAN, null);
+
+    for (String invalid : new String[]{null, "", "  ", "abc", "1234", "010-12", "99999999999999"}) {
+      assertThrows(EcclesiaException.class,
+          () -> service.saveEcclesia(insert("포도교회", invalid)), "전화번호: " + invalid);
+    }
+    verify(ecclesiaRepository, never()).save(any(Ecclesia.class));
+    verify(slackNotifier, never()).notifyChurchRegistered(any(), any(), any());
   }
 
   @Test
