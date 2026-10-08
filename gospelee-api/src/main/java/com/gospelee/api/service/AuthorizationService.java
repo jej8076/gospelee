@@ -19,6 +19,6 @@ public class AuthorizationService {
     }
 
     // 마스터 계정만 수정 가능
-    return user.getUid() == ecclesia.getMasterAccountUid();
+    return user.getUid() != null && user.getUid().equals(ecclesia.getMasterAccountUid());
   }
 }

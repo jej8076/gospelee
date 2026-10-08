@@ -176,6 +176,7 @@ public class AccountServiceImpl implements AccountService {
 
     // 승인의 경우에만 요청된 사용자의 ecclesiaUid를 부여함
     if (requestedStatus.name().equals(AccountEcclesiaHistoryStatusType.JOIN_APPROVAL.name())) {
+      assertCanAcceptMember(findAccountEcclesiaHistory.getEcclesiaUid());
       Account requestedAccount = requestedAccountOptional.get();
       requestedAccount.changeEcclesiaUid(findAccountEcclesiaHistory.getEcclesiaUid());
       accountRepository.save(requestedAccount);
@@ -199,6 +200,23 @@ public class AccountServiceImpl implements AccountService {
         requestedStatus == AccountEcclesiaHistoryStatusType.JOIN_APPROVAL);
 
     return AccountEcclesiaHistoryDTO.fromEntity(saved);
+  }
+
+  /**
+   * 검증 전 교회는 검증 기한 안에서 성도 수 한도(30명)까지만 가입을 승인할 수 있다
+   */
+  private void assertCanAcceptMember(Long ecclesiaUid) {
+    Ecclesia ecclesia = ecclesiaJpaRepository.findById(ecclesiaUid).orElse(null);
+    if (ecclesia == null) {
+      return;
+    }
+    if (ecclesia.isVerificationExpired()) {
+      throw new EcclesiaException("교회 검증 기한이 지나 가입을 승인할 수 없습니다. 운영자 검증이 필요합니다.");
+    }
+    if (!ecclesia.hasRoomForMember(accountRepository.countByEcclesiaUid(ecclesiaUid))) {
+      throw new EcclesiaException(
+          "교회 성도 수 한도(" + Ecclesia.UNVERIFIED_MAX_MEMBERS + "명)에 도달했습니다. 운영자 검증 후 이용할 수 있습니다.");
+    }
   }
 
   /**

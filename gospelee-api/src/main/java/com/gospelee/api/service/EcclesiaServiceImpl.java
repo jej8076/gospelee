@@ -6,6 +6,7 @@ import com.gospelee.api.dto.ecclesia.EcclesiaInsertDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaInviteDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaInviteInfoDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaInviteJoinResultDTO;
+import com.gospelee.api.dto.ecclesia.EcclesiaVerifyRequestDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaJoinRequestStatusDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaUpdateDTO;
@@ -65,6 +66,12 @@ public class EcclesiaServiceImpl implements EcclesiaService {
     if (ecclesiaUid == 0) {
       return null;
     }
+    // 다른 교회의 정보(연락처 등)가 노출되지 않도록 내 교회 또는 운영자만 조회 가능
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+    if (!RoleType.ADMIN.equals(account.getRole())
+        && !ecclesiaUid.equals(account.getEcclesiaUid())) {
+      throw new AccessDeniedException("접근할 권한이 없습니다.");
+    }
     return ecclesiaRepository.findEcclesiasByUid(ecclesiaUid)
         .orElseThrow(
             () -> new IllegalArgumentException("해당 UID를 가진 Ecclesia를 찾을 수 없습니다: " + ecclesiaUid));
@@ -72,6 +79,10 @@ public class EcclesiaServiceImpl implements EcclesiaService {
 
   @Override
   public Ecclesia getEcclesiaByAccountUid(Long accountUid) {
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+    if (!RoleType.ADMIN.equals(account.getRole()) && !accountUid.equals(account.getUid())) {
+      throw new AccessDeniedException("접근할 권한이 없습니다.");
+    }
     return ecclesiaRepository.findEcclesiasByMasterAccountUid(accountUid)
         .orElseThrow(
             () -> new IllegalArgumentException(
@@ -80,44 +91,82 @@ public class EcclesiaServiceImpl implements EcclesiaService {
 
   /**
    * <pre>
-   * 교회 등록(요청)
-   * ecclesia 테이블에 교회 등록 요청 상태로 입력하며 사용자 권한은 변경하지 않음
-   * 교회 등록 승인 시에 사용자 권한(RoleType)을 담임목사(SENIOR_PASTER)로 변경
+   * 교회 등록
+   * 진입 장벽을 낮추기 위해 신청 즉시 승인(APL)하고 신청자를 담임목사(SENIOR_PASTOR)로 지정한다.
+   * 운영자가 전화 등으로 검증하기 전까지(verified_yn = N)는 성도 수, 저장 용량, 검색 노출이 제한되고
+   * 신청 후 14일 안에 검증되지 않으면 일부 기능(초대, 공지)이 제한된다.
    * </pre>
    *
    * @param ecclesiaInsertDTO
    * @return
    */
   @Override
+  @Transactional
   public Ecclesia saveEcclesia(EcclesiaInsertDTO ecclesiaInsertDTO) {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+
+    if (ecclesiaInsertDTO.getName() == null || ecclesiaInsertDTO.getName().isBlank()) {
+      throw new EcclesiaException("교회 이름을 입력해주세요.");
+    }
+
+    // 한 계정은 한 교회에만 소속/등록할 수 있다 (여러 교회 반복 등록 방지)
+    if (account.getEcclesiaUid() != null
+        || ecclesiaRepository.findEcclesiasByMasterAccountUid(account.getUid()).isPresent()) {
+      throw new EcclesiaException("이미 교회에 소속되었거나 등록한 교회가 있습니다.");
+    }
+    AccountEcclesiaHistory latest = accountEcclesiaHistoryRepository.findLatestByAccountUid(
+        account.getUid());
+    if (latest != null && latest.getStatus() == AccountEcclesiaHistoryStatusType.JOIN_REQUEST) {
+      throw new EcclesiaException("가입 요청 중인 교회가 있습니다. 요청을 취소한 후 등록해주세요.");
+    }
+
+    Account findAccount = accountRepository.findById(account.getUid())
+        .orElseThrow(() -> new AccountNotFoundException("계정이 존재하지 않습니다. accountUid:{}",
+            account.getUid()));
+
     Ecclesia ecclesia = Ecclesia.builder()
-        .name(ecclesiaInsertDTO.getName())
+        .name(ecclesiaInsertDTO.getName().trim())
         .churchIdentificationNumber(ecclesiaInsertDTO.getChurchIdentificationNumber())
         .telephone(ecclesiaInsertDTO.getTelephone())
-        .status(EcclesiaStatusType.REQUEST.getName())
+        .status(EcclesiaStatusType.APPROVAL.getName())
         // insert를 요청하는 인증된 사용자가 교회의 master account가 되도록 강제함
         .masterAccountUid(account.getUid())
         .build();
 
-    Optional<Account> findAccount = accountRepository.findById(account.getUid());
-    if (findAccount.isEmpty()) {
-      throw new AccountNotFoundException("계정이 존재하지 않습니다. accountUid:{}",
-          findAccount.get().getUid());
-    }
-
     Ecclesia saveEcclesia = ecclesiaRepository.save(ecclesia);
     if (saveEcclesia.getUid() <= 0) {
-      throw new EcclesiaException("교회 등록 요청에 실패하였습니다. requestChurchName:{} accountUid:{}",
+      throw new EcclesiaException("교회 등록에 실패하였습니다. requestChurchName:{} accountUid:{}",
           ecclesiaInsertDTO.getName(), account.getUid());
     }
 
-    // 등록 요청자의 교회 소속을 결정
-    Account acc = findAccount.get();
-    acc.changeEcclesiaUid(ecclesia.getUid());
-    accountRepository.save(acc);
+    // 등록자의 교회 소속과 담임목사 권한을 즉시 부여
+    findAccount.changeEcclesiaUid(saveEcclesia.getUid());
+    findAccount.changeRole(RoleType.SENIOR_PASTOR);
+    accountRepository.save(findAccount);
+
+    // 운영자에게 검증이 필요한 새 교회가 등록되었음을 알림
+    ecclesiaPushNotifier.notifyChurchRegistered(saveEcclesia, findAccount.getName());
 
     return saveEcclesia;
+  }
+
+  @Override
+  @Transactional
+  public EcclesiaResponseDTO updateVerification(EcclesiaVerifyRequestDTO request) {
+    AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+    if (!RoleType.ADMIN.equals(account.getRole())) {
+      throw new AccessDeniedException("접근할 권한이 없습니다.");
+    }
+    if (request.getEcclesiaUid() == null || request.getVerified() == null) {
+      throw new EcclesiaException("교회와 검증 여부를 입력해주세요.");
+    }
+
+    Ecclesia ecclesia = ecclesiaRepository.findById(request.getEcclesiaUid())
+        .orElseThrow(() -> new EntityNotFoundException(
+            "Ecclesia not found with id: " + request.getEcclesiaUid()));
+    ecclesia.changeVerified(request.getVerified());
+
+    return EcclesiaResponseDTO.fromEntity(ecclesiaRepository.save(ecclesia));
   }
 
   @Override
@@ -132,6 +181,11 @@ public class EcclesiaServiceImpl implements EcclesiaService {
     AccountAuthDTO accountAuth = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
     if (!authorizationService.canUpdateEcclesiaStatus(accountAuth, ecclesia)) {
       throw new AccessDeniedException("접근할 권한이 없습니다.");
+    }
+
+    // 교회 상태(승인/반려) 변경은 운영자(ADMIN)만 가능. 교회 대표는 이름/주소만 수정할 수 있다.
+    if (ecclesiaUpdateDTO.getStatus() != null && !RoleType.ADMIN.equals(accountAuth.getRole())) {
+      throw new AccessDeniedException("교회 상태를 변경할 권한이 없습니다.");
     }
 
     EcclesiaStatusType requestType = null;
@@ -174,6 +228,14 @@ public class EcclesiaServiceImpl implements EcclesiaService {
 
     assertCanRequestJoin(account);
 
+    // 검색으로 가입 요청할 수 있는 교회는 승인되고 운영자 검증이 끝난 교회뿐이다
+    // (검증 전 교회는 초대 링크로만 가입할 수 있다)
+    Ecclesia target = ecclesiaRepository.findById(ecclesiaUid)
+        .orElseThrow(() -> new EcclesiaException("교회 정보를 찾을 수 없습니다."));
+    if (!EcclesiaStatusType.APPROVAL.getName().equals(target.getStatus()) || !target.isVerified()) {
+      throw new EcclesiaException("초대 링크로만 가입할 수 있는 교회입니다.");
+    }
+
     AccountEcclesiaHistory accountEcclesiaHistory = AccountEcclesiaHistory.builder()
         .accountUid(account.getUid())
         .ecclesiaUid(ecclesiaUid)
@@ -184,8 +246,7 @@ public class EcclesiaServiceImpl implements EcclesiaService {
     AccountEcclesiaHistory saved = accountEcclesiaHistoryRepository.save(accountEcclesiaHistory);
 
     // 교회 관리자에게 새 가입 요청 알림
-    ecclesiaRepository.findById(ecclesiaUid)
-        .ifPresent(e -> ecclesiaPushNotifier.notifyJoinRequested(e, account.getName()));
+    ecclesiaPushNotifier.notifyJoinRequested(target, account.getName());
     return saved;
   }
 
@@ -349,6 +410,17 @@ public class EcclesiaServiceImpl implements EcclesiaService {
   }
 
   /**
+   * 검증 전 교회는 성도 수 한도(30명)까지만 받을 수 있다
+   */
+  private void assertHasRoomForMember(Ecclesia ecclesia) {
+    long memberCount = accountRepository.countByEcclesiaUid(ecclesia.getUid());
+    if (!ecclesia.hasRoomForMember(memberCount)) {
+      throw new EcclesiaException(
+          "교회 성도 수 한도(" + Ecclesia.UNVERIFIED_MAX_MEMBERS + "명)에 도달했습니다. 교회에 문의해주세요.");
+    }
+  }
+
+  /**
    * 초대 코드에 해당하는 승인된 교회 조회
    */
   private Ecclesia findInvitableEcclesia(String code) {
@@ -360,6 +432,9 @@ public class EcclesiaServiceImpl implements EcclesiaService {
         .orElseThrow(() -> new EcclesiaException("유효하지 않은 초대 링크입니다."));
     if (!EcclesiaStatusType.APPROVAL.getName().equals(ecclesia.getStatus())) {
       throw new EcclesiaException("아직 승인되지 않은 교회입니다.");
+    }
+    if (ecclesia.isVerificationExpired()) {
+      throw new EcclesiaException("교회 검증 기한이 지나 초대 링크를 사용할 수 없습니다. 교회에 문의해주세요.");
     }
     return ecclesia;
   }
@@ -381,6 +456,7 @@ public class EcclesiaServiceImpl implements EcclesiaService {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
     Ecclesia ecclesia = findInvitableEcclesia(code);
     assertCanRequestJoin(account);
+    assertHasRoomForMember(ecclesia);
 
     if (ecclesia.isInviteAutoApprove()) {
       // 바로 가입: 승인 이력을 남기고 소속 교회를 즉시 지정

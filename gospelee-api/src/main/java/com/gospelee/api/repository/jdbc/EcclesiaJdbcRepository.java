@@ -22,7 +22,10 @@ public class EcclesiaJdbcRepository {
                a.name AS master_account_name,
                e.senior_paster_name,
                e.church_address,
-               e.insert_time
+               e.insert_time,
+               e.telephone,
+               a.phone AS master_account_phone,
+               e.verified_yn
         FROM ecclesia e
         LEFT JOIN account a ON e.master_account_uid = a.uid
         """;
@@ -36,7 +39,10 @@ public class EcclesiaJdbcRepository {
             rs.getString("master_account_name"),
             rs.getString("senior_paster_name"),
             rs.getString("church_address"),
-            rs.getObject("insert_time", LocalDateTime.class)
+            rs.getObject("insert_time", LocalDateTime.class),
+            rs.getString("telephone"),
+            rs.getString("master_account_phone"),
+            rs.getString("verified_yn")
         ))
         .list();
   }
@@ -52,6 +58,8 @@ public class EcclesiaJdbcRepository {
                e.insert_time
         FROM ecclesia e
         WHERE e.name LIKE :keyword
+          AND e.status = 'APL'
+          AND e.verified_yn = 'Y'
         """;
 
     return jdbcClient.sql(sql)
@@ -64,7 +72,10 @@ public class EcclesiaJdbcRepository {
             null,
             rs.getString("senior_paster_name"),
             rs.getString("church_address"),
-            rs.getObject("insert_time", LocalDateTime.class)
+            rs.getObject("insert_time", LocalDateTime.class),
+            null,
+            null,
+            null
         ))
         .list();
   }

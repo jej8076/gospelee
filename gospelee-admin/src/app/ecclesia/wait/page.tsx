@@ -59,11 +59,15 @@ export default function WaitPage() {
                 </div>
               </div>
               <h1 className="text-[31px] sm:text-4xl font-bold text-gray-900 mb-4">
-                승인 대기중
+                교회가 등록되었습니다
               </h1>
               <p className="text-[15px] sm:text-xl text-gray-600 max-w-2xl mx-auto">
-                관리자가 교회 정보를 검토하고 있습니다.<br/>
-                승인이 완료되면 알림을 받으실 수 있습니다.
+                지금 바로 앱에서 성도를 초대하고 공지를 올릴 수 있어요.<br/>
+                운영자가 14일 안에 전화로 확인할 예정입니다.
+              </p>
+              <p className="text-[12px] sm:text-base text-gray-500 max-w-2xl mx-auto mt-3">
+                확인이 끝나기 전에는 성도 30명, 사진 100MB까지 이용할 수 있고<br/>
+                교회 검색에는 노출되지 않습니다. (초대 링크로 가입)
               </p>
             </div>
 
@@ -124,7 +128,7 @@ export default function WaitPage() {
 
             {/* Progress Steps */}
             <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8 mb-8">
-              <h3 className="text-[13px] sm:text-lg font-semibold text-gray-900 mb-6">승인 진행 상황</h3>
+              <h3 className="text-[13px] sm:text-lg font-semibold text-gray-900 mb-6">교회 확인 진행 상황</h3>
               <div className="flex items-center justify-between">
                 <div className="flex flex-col items-center">
                   <div
@@ -142,7 +146,7 @@ export default function WaitPage() {
                       className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mb-2">
                     <ClockIcon className="w-6 h-6 text-white"/>
                   </div>
-                  <span className="text-[9px] sm:text-sm font-medium text-blue-600">검토 중</span>
+                  <span className="text-[9px] sm:text-sm font-medium text-blue-600">운영자 확인 중</span>
                 </div>
                 <div className="flex-1 h-1 bg-gray-200 mx-4 rounded-full"></div>
                 <div className="flex flex-col items-center">
@@ -150,7 +154,7 @@ export default function WaitPage() {
                       className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center mb-2">
                     <CheckCircleIcon className="w-6 h-6 text-white"/>
                   </div>
-                  <span className="text-[9px] sm:text-sm font-medium text-gray-500">승인 완료</span>
+                  <span className="text-[9px] sm:text-sm font-medium text-gray-500">확인 완료</span>
                 </div>
               </div>
             </div>
@@ -176,7 +180,7 @@ export default function WaitPage() {
             {/* Help Text */}
             <div className="text-center mt-12">
               <p className="text-gray-500 text-[9px] sm:text-sm">
-                승인 과정에서 문제가 있거나 문의사항이 있으시면<br/>
+                확인 과정에서 문제가 있거나 문의사항이 있으시면<br/>
                 관리자에게 연락해 주세요.
               </p>
             </div>

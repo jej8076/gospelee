@@ -8,6 +8,7 @@ import com.gospelee.api.dto.ecclesia.EcclesiaInviteJoinResultDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaJoinRequestStatusDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaResponseDTO;
 import com.gospelee.api.dto.ecclesia.EcclesiaUpdateDTO;
+import com.gospelee.api.dto.ecclesia.EcclesiaVerifyRequestDTO;
 import com.gospelee.api.entity.AccountEcclesiaHistory;
 import com.gospelee.api.entity.Ecclesia;
 import java.util.List;
@@ -25,6 +26,9 @@ public interface EcclesiaService {
   Ecclesia saveEcclesia(EcclesiaInsertDTO ecclesiaInsertDTO);
 
   EcclesiaResponseDTO updateEcclesia(EcclesiaUpdateDTO ecclesiaUpdateDTO);
+
+  // 운영자(ADMIN) 전용: 교회 검증 완료/취소
+  EcclesiaResponseDTO updateVerification(EcclesiaVerifyRequestDTO request);
 
   AccountEcclesiaHistory joinRequestEcclesia(Long ecclesiaUid);
 

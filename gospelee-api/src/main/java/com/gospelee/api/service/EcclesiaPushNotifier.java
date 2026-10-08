@@ -60,6 +60,21 @@ public class EcclesiaPushNotifier {
   }
 
   /**
+   * 운영자(ADMIN)에게 검증이 필요한 새 교회가 등록되었음을 알림 (개인정보는 알림에 넣지 않는다)
+   */
+  public void notifyChurchRegistered(Ecclesia ecclesia, String applicantName) {
+    try {
+      String name = ObjectUtils.isEmpty(applicantName) ? "신청자" : applicantName;
+      String body = ecclesia.getName() + " (" + name + ") 교회가 등록되었어요. 전화로 확인해주세요.";
+      for (Account admin : accountRepository.findByRole(RoleType.ADMIN)) {
+        send(admin, "새 교회 등록", body, null);
+      }
+    } catch (Exception e) {
+      log.warn("[ECCLESIA_PUSH] 교회 등록 알림 전송 실패 ecclesiaUid={}", ecclesia.getUid(), e);
+    }
+  }
+
+  /**
    * 가입을 요청한 성도에게 승인/반려 결과 알림
    */
   public void notifyJoinDecided(Account target, String ecclesiaName, boolean approved) {
@@ -80,7 +95,7 @@ public class EcclesiaPushNotifier {
     }
     try {
       firebaseService.sendNotification(account.getPushToken(), title, body,
-          Map.of(PushNotificationDataType.ROUTE.lower(), route));
+          route == null ? Map.of() : Map.of(PushNotificationDataType.ROUTE.lower(), route));
     } catch (Exception e) {
       log.warn("[ECCLESIA_PUSH] 전송 실패 accountUid={}", account.getUid(), e);
     }

@@ -62,3 +62,27 @@ export const fetchUpdateEcclesia = async (inputData: {
   const responseData = await response.json();
   return convertEcclesiaStatusType(responseData.status);
 };
+
+// 운영자(ADMIN) 전용: 전화 등으로 확인한 교회를 검증 완료/취소로 표시
+export const fetchVerifyEcclesia = async (inputData: {
+  ecclesiaUid: bigint;
+  verified: boolean;
+}): Promise<Ecclesia> => {
+  const headers = await authHeaders();
+  const response = await apiFetch(`/api/ecclesia/verify`, {
+    method: "PATCH",
+    headers: headers,
+    body: JSON.stringify({
+      ecclesiaUid: Number(inputData.ecclesiaUid),
+      verified: inputData.verified,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.error("Error response from server:", errorData.message);
+    throw {status: response.status, message: errorData.message};
+  }
+
+  return response.json();
+};
