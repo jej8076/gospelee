@@ -41,6 +41,7 @@ public class EcclesiaServiceImpl implements EcclesiaService {
   private final AuthorizationService authorizationService;
   private final AccountRepository accountRepository;
   private final EcclesiaPushNotifier ecclesiaPushNotifier;
+  private final SlackNotifier slackNotifier;
 
   // 헷갈리기 쉬운 문자(0/O, 1/l/I)를 제외한 초대 코드 문자셋
   private static final String INVITE_CODE_CHARS = "abcdefghjkmnpqrstuvwxyz23456789";
@@ -144,8 +145,9 @@ public class EcclesiaServiceImpl implements EcclesiaService {
     findAccount.changeRole(RoleType.SENIOR_PASTOR);
     accountRepository.save(findAccount);
 
-    // 운영자에게 검증이 필요한 새 교회가 등록되었음을 알림
-    ecclesiaPushNotifier.notifyChurchRegistered(saveEcclesia, findAccount.getName());
+    // 운영자가 전화로 검증할 수 있도록 Slack으로 알림 (커밋 후 비동기 전송)
+    slackNotifier.notifyChurchRegistered(saveEcclesia, findAccount.getName(),
+        findAccount.getPhone());
 
     return saveEcclesia;
   }

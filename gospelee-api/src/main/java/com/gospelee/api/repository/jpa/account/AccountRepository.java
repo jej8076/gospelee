@@ -1,7 +1,6 @@
 package com.gospelee.api.repository.jpa.account;
 
 import com.gospelee.api.entity.Account;
-import com.gospelee.api.enums.RoleType;
 import io.lettuce.core.dynamic.annotation.Param;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,8 +21,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
   Optional<List<Account>> findByEcclesiaUid(Long ecclesiaUid);
 
   long countByEcclesiaUid(Long ecclesiaUid);
-
-  List<Account> findByRole(RoleType role);
 
   @Modifying
   @Transactional
