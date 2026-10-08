@@ -134,7 +134,10 @@ public class EcclesiaServiceImpl implements EcclesiaService {
 
     Ecclesia ecclesia = Ecclesia.builder()
         .name(ecclesiaInsertDTO.getName().trim())
-        .churchIdentificationNumber(ecclesiaInsertDTO.getChurchIdentificationNumber())
+        // 고유번호는 더 이상 입력받지 않으며, 기존 등록 데이터와 같이 빈 값은 null 대신 빈 문자열로 저장
+        .churchIdentificationNumber(
+            ecclesiaInsertDTO.getChurchIdentificationNumber() == null ? ""
+                : ecclesiaInsertDTO.getChurchIdentificationNumber())
         .telephone(telephone)
         .status(EcclesiaStatusType.APPROVAL.getName())
         // insert를 요청하는 인증된 사용자가 교회의 master account가 되도록 강제함
