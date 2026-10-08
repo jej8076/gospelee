@@ -22,6 +22,7 @@ import com.gospelee.api.repository.AccountEcclesiaHistoryRepository;
 import com.gospelee.api.repository.EcclesiaRepository;
 import com.gospelee.api.repository.jpa.account.AccountRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
+import com.gospelee.api.utils.ContactPhoneUtils;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.security.SecureRandom;
@@ -110,6 +111,12 @@ public class EcclesiaServiceImpl implements EcclesiaService {
       throw new EcclesiaException("교회 이름을 입력해주세요.");
     }
 
+    // 운영자가 이 번호로 전화해서 교회 관리자가 맞는지 검증하므로 연락 가능한 번호가 필수
+    String telephone = ContactPhoneUtils.normalizeOrNull(ecclesiaInsertDTO.getTelephone());
+    if (telephone == null) {
+      throw new EcclesiaException("연락 가능한 전화번호를 정확히 입력해주세요.");
+    }
+
     // 한 계정은 한 교회에만 소속/등록할 수 있다 (여러 교회 반복 등록 방지)
     if (account.getEcclesiaUid() != null
         || ecclesiaRepository.findEcclesiasByMasterAccountUid(account.getUid()).isPresent()) {
@@ -128,7 +135,7 @@ public class EcclesiaServiceImpl implements EcclesiaService {
     Ecclesia ecclesia = Ecclesia.builder()
         .name(ecclesiaInsertDTO.getName().trim())
         .churchIdentificationNumber(ecclesiaInsertDTO.getChurchIdentificationNumber())
-        .telephone(ecclesiaInsertDTO.getTelephone())
+        .telephone(telephone)
         .status(EcclesiaStatusType.APPROVAL.getName())
         // insert를 요청하는 인증된 사용자가 교회의 master account가 되도록 강제함
         .masterAccountUid(account.getUid())

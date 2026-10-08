@@ -15,6 +15,9 @@ import {
   UserIcon
 } from '@heroicons/react/24/outline';
 
+// 국내 전화번호(지역번호, 휴대폰, 070, 1588 등 대표번호) 형식 확인. 서버(ContactPhoneUtils)와 같은 규칙
+const isValidContactPhone = (digits: string): boolean => /^(0\d{8,10}|1\d{7})$/.test(digits);
+
 export default function ApplyChurch() {
   const router = useRouter();
   const {callApi} = useApiClient();
@@ -22,7 +25,6 @@ export default function ApplyChurch() {
   const [ecclesia, setEcclesia] = useState<Ecclesia>();
   const [managerName, setManagerName] = useState("");
   const [churchName, setChurchName] = useState("");
-  const [churchIdentificationNumber, setChurchIdentificationNumber] = useState("");
   const [telephone, setTelephone] = useState("");
   const [agreed, setAgreed] = useState(false);
 
@@ -81,9 +83,14 @@ export default function ApplyChurch() {
     // 전화번호에서 하이픈 제거
     const cleanedTelephone = telephone.replace(/-/g, '');
 
+    // 운영자가 이 번호로 전화해서 검증하므로 연락 가능한 번호가 필수 (서버 규칙과 동일)
+    if (!isValidContactPhone(cleanedTelephone)) {
+      alert("연락 가능한 전화번호를 정확히 입력해주세요.");
+      return;
+    }
+
     const inputData = {
       name: churchName,
-      churchIdentificationNumber: churchIdentificationNumber,
       telephone: cleanedTelephone,
     };
 
@@ -209,7 +216,7 @@ export default function ApplyChurch() {
                   <div className="flex-1 min-w-0">
                     <label htmlFor="telephone"
                            className="block text-[13px] sm:text-lg font-semibold text-gray-900 mb-2">
-                      교회 전화번호
+                      교회 전화번호 <span className="text-red-500">*</span>
                     </label>
                     <input
                         id="telephone"
@@ -221,6 +228,16 @@ export default function ApplyChurch() {
                         autoComplete="tel"
                         className="block w-full rounded-lg bg-white px-4 py-3 text-[11px] sm:text-base text-gray-900 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
+                    <div className="mt-3 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3">
+                      <p className="text-[11px] sm:text-sm font-semibold text-amber-800">
+                        이 번호로 확인 전화를 드려요
+                      </p>
+                      <p className="mt-1 text-[10px] sm:text-sm text-amber-800 leading-relaxed">
+                        14일 이내에 앱 운영자가 입력하신 번호로 직접 전화해서 교회 관리자가 맞는지 확인해요.
+                        꼭 연락 가능한 정확한 번호를 적어 주세요.
+                        부재중이라 연락이 닿지 않으면 확인이 거부될 수 있어요.
+                      </p>
+                    </div>
                   </div>
                 </div>
 
