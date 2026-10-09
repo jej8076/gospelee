@@ -79,6 +79,7 @@ auth:
     - /announcement/unauthorized/BRAND_STORY
     - /auth/super
     - /auth/logout
+    - /auth/apple/refresh
   allow-pending-paths:
     - /api/account/qr/req/*
   app-store-skip-email: dvhvvhddf2@privaterelay.appleid.com
@@ -94,6 +95,10 @@ kakao:
 apple:
   issuer: https://appleid.apple.com
   app-key: sample
+  # id token 갱신용 (Apple Developer > Keys 에서 Sign in with Apple 키 발급). 비어 있으면 갱신 비활성
+  team-id:
+  key-id:
+  private-key:
 
 file:
   base-path: /Users/ej/dev/testFiles/gospelee/api

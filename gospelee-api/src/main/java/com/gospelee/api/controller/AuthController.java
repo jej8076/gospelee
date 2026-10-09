@@ -7,6 +7,11 @@ import com.gospelee.api.dto.common.ResponseDTO;
 import com.gospelee.api.enums.SocialLoginPlatform;
 import com.gospelee.api.properties.AuthProperties;
 import com.gospelee.api.service.AccountService;
+import com.gospelee.api.service.AppleAuthService;
+import com.gospelee.api.dto.common.DataResponseDTO;
+import com.gospelee.api.enums.Bearer;
+import java.util.Map;
+import org.springframework.web.bind.annotation.RequestHeader;
 import com.gospelee.api.service.SessionService;
 import com.gospelee.api.utils.SessionCookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,6 +35,7 @@ public class AuthController {
 
   private final AuthProperties authProperties;
   private final AccountService accountService;
+  private final AppleAuthService appleAuthService;
   private final SessionService sessionService;
   private final SessionCookieUtils sessionCookieUtils;
 
@@ -97,6 +103,24 @@ public class AuthController {
 
     log.info("[SESSION] issued for email={}", account.getEmail());
     return ResponseEntity.ok(ResponseDTO.builder().code("100").message("성공").build());
+  }
+
+  /**
+   * 애플 id token 갱신. id token 이 만료돼 인증 필터를 통과할 수 없으므로 제외 경로(/auth/apple/refresh)로
+   * 두고, 만료된 토큰의 서명·발급자·앱 대상과 만료 후 경과 기간을 직접 검증한다.
+   */
+  @PostMapping("/apple/refresh")
+  public ResponseEntity<Object> refreshAppleToken(
+      @RequestHeader(value = "Authorization", required = false) String authorization) {
+    String prefix = Bearer.BEARER_SPACE.getValue();
+    String expiredToken = authorization != null && authorization.startsWith(prefix)
+        ? authorization.substring(prefix.length()) : null;
+
+    return appleAuthService.refreshIdToken(expiredToken)
+        .<ResponseEntity<Object>>map(idToken -> ResponseEntity.ok(
+            DataResponseDTO.of("100", "성공", Map.of("idToken", idToken))))
+        .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(ResponseDTO.builder().code("AUTH-103").message("Unauthorized").build()));
   }
 
   /**
