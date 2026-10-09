@@ -8,6 +8,8 @@ import com.gospelee.api.enums.SocialLoginPlatform;
 import com.gospelee.api.properties.AuthProperties;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.AppleAuthService;
+import com.gospelee.api.service.ReviewLoginService;
+import com.gospelee.api.utils.IpUtils;
 import com.gospelee.api.dto.common.DataResponseDTO;
 import com.gospelee.api.enums.Bearer;
 import java.util.Map;
@@ -36,6 +38,7 @@ public class AuthController {
   private final AuthProperties authProperties;
   private final AccountService accountService;
   private final AppleAuthService appleAuthService;
+  private final ReviewLoginService reviewLoginService;
   private final SessionService sessionService;
   private final SessionCookieUtils sessionCookieUtils;
 
@@ -121,6 +124,25 @@ public class AuthController {
             DataResponseDTO.of("100", "성공", Map.of("idToken", idToken))))
         .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
             .body(ResponseDTO.builder().code("AUTH-103").message("Unauthorized").build()));
+  }
+
+  /**
+   * 앱스토어 심사용 계정 로그인. ID/비밀번호를 서버에서 확인하고 심사용 토큰을 발급한다.
+   * 인증 전 호출이라 제외 경로(/auth/review/login)로 두며, 실패가 반복되면 IP 별로 잠근다.
+   */
+  @PostMapping("/review/login")
+  public ResponseEntity<Object> reviewLogin(@RequestBody ReviewLoginRequest request,
+      HttpServletRequest httpRequest) {
+    return reviewLoginService
+        .login(request.id(), request.password(), IpUtils.getClientIp(httpRequest))
+        .<ResponseEntity<Object>>map(token -> ResponseEntity.ok(
+            DataResponseDTO.of("100", "성공", Map.of("token", token))))
+        .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(ResponseDTO.builder().code("AUTH-102").message("Unauthorized").build()));
+  }
+
+  public record ReviewLoginRequest(String id, String password) {
+
   }
 
   /**
