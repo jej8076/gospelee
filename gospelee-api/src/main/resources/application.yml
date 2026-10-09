@@ -80,9 +80,16 @@ auth:
     - /auth/super
     - /auth/logout
     - /auth/apple/refresh
+    - /auth/review/login
   allow-pending-paths:
     - /api/account/qr/req/*
-  app-store-skip-email: dvhvvhddf2@privaterelay.appleid.com
+
+# 앱스토어 심사용 계정 로그인 (login-id/password 가 비어 있으면 비활성)
+review:
+  login-id:
+  login-password:
+  # 심사용 토큰으로 인증되는 계정
+  account-email: dvhvvhddf2@privaterelay.appleid.com
 
 app-link:
   scheme: oog
