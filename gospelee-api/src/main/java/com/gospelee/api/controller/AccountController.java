@@ -21,10 +21,12 @@ import com.gospelee.api.enums.ErrorResponseType;
 import com.gospelee.api.enums.PushNotificationDataType;
 import com.gospelee.api.enums.RedisCacheNames;
 import com.gospelee.api.enums.RoleType;
+import com.gospelee.api.enums.SocialLoginPlatform;
 import com.gospelee.api.properties.AuthProperties;
 import com.gospelee.api.dto.auth.SessionData;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.service.AccountService;
+import com.gospelee.api.service.AppleAuthService;
 import com.gospelee.api.service.FirebaseService;
 import com.gospelee.api.service.QrloginService;
 import com.gospelee.api.service.RedisCacheService;
@@ -59,6 +61,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountController {
 
   private final AccountService accountService;
+  private final AppleAuthService appleAuthService;
   private final QrloginService qrloginService;
   private final FirebaseService firebaseService;
   private final RedisCacheService redisCacheService;
@@ -223,6 +226,11 @@ public class AccountController {
       @RequestBody PushTokenDTO pushTokenDTO) {
 
     accountService.savePushToken(account.getUid(), pushTokenDTO.getPushToken());
+
+    // 애플 로그인이면 refresh token 을 받아 저장해 두어 id token 만료 시 갱신할 수 있게 한다
+    if (account.getSocialLoginPlatform() == SocialLoginPlatform.APPLE) {
+      appleAuthService.saveRefreshToken(account.getUid(), pushTokenDTO.getAuthorizationCode());
+    }
     log.info("[PUSHTOKEN ] update_success accountUid:{} pushToken:{}", account.getUid(),
         pushTokenDTO.getPushToken());
 

@@ -95,6 +95,40 @@ public class AppleJwtProvider extends SocialJwtProvider {
     }
   }
 
+  /**
+   * 서명은 애플 공개키로 검증하되 만료(exp)는 허용한다. id token 갱신 요청 전용이며, 만료 시각이
+   * 얼마나 지났는지는 호출하는 쪽에서 제한한다. (jjwt 는 서명 검증 후에 exp 를 검사한다)
+   */
+  public Optional<Claims> verifyIgnoringExpiry(String token) {
+    try {
+      Optional<String> kid = getKid(token);
+      if (kid.isEmpty()) {
+        return Optional.empty();
+      }
+      JwkDTO jwk = redisCacheService.getApplePublicKeySet().getKeys().stream()
+          .filter(o -> o.getKid().equals(kid.get()))
+          .findFirst()
+          .orElseThrow();
+      var parser = Jwts.parser().verifyWith(getRSAPublicKey(jwk.getN(), jwk.getE())).build();
+      try {
+        return Optional.of(parser.parseSignedClaims(getUnsignedToken(token)).getPayload());
+      } catch (io.jsonwebtoken.ExpiredJwtException e) {
+        return Optional.of(e.getClaims());
+      }
+    } catch (Exception e) {
+      log.warn("[APPLE] 만료 허용 토큰 검증 실패: {}", e.getMessage());
+      return Optional.empty();
+    }
+  }
+
+  public String getIssuer() {
+    return APPLE_ISS;
+  }
+
+  public String getAppKey() {
+    return APPLE_SERVICE_APP_KEY;
+  }
+
   private boolean validationIdToken(String idToken, String nonceCacheKey)
       throws JsonProcessingException {
 
