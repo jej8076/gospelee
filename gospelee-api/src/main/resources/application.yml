@@ -70,6 +70,8 @@ auth:
     - /file/*
     - /app-link/*
     - /bible-reading/*
+    - /journal-share/*
+    - /.well-known/*
     - /bible/reading/join*
     - /bible/reading/goal/invite/*
     - /ecclesia/invite/info/*

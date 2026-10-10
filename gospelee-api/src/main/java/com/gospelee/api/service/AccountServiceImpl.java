@@ -302,6 +302,12 @@ public class AccountServiceImpl implements AccountService {
     accountRepository.updateName(uid, name, LocalDateTime.now());
   }
 
+  @Override
+  public void updateNickname(Long uid, String nickname) {
+    log.info("[ACCOUNT   ] update_nickname uid:{}", uid);
+    accountRepository.updateNickname(uid, nickname, LocalDateTime.now());
+  }
+
   // TODO 캐싱 관련 AOP로 전환 필요
   @Override
   public UserMeResponse getKakaoUserMe(String accessToken) {
@@ -455,6 +461,7 @@ public class AccountServiceImpl implements AccountService {
         .uid(account.getUid())
         .email(account.getEmail())
         .name(account.getName())
+        .nickname(account.getNickname())
         .phone(account.getPhone())
         .rrn(account.getRrn())
         .role(account.getRole())

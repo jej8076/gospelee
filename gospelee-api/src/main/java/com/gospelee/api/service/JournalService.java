@@ -11,4 +11,7 @@ public interface JournalService {
 
   JournalDTO insertJournal(JournalDTO journalDTO);
 
+  /** 내 묵상을 삭제한다. 공유 중이면 공유도 함께 닫는다 */
+  void deleteJournal(long accountUid, long journalUid);
+
 }

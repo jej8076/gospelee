@@ -41,6 +41,12 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
   @Modifying
   @Transactional
+  @Query("UPDATE Account a SET a.nickname = :nickname, a.updateTime = :updateTime WHERE a.uid = :uid")
+  void updateNickname(@Param("uid") Long uid, @Param("nickname") String nickname,
+      @Param("updateTime") LocalDateTime updateTime);
+
+  @Modifying
+  @Transactional
   @Query("UPDATE Account a SET a.name = :name, a.updateTime = :updateTime WHERE a.uid = :uid")
   void updateName(@Param("uid") Long uid, @Param("name") String name,
       @Param("updateTime") LocalDateTime updateTime);
