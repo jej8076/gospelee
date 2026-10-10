@@ -5,6 +5,7 @@ import {
   BanknotesIcon,
   CheckBadgeIcon,
   ClockIcon,
+  FlagIcon,
   PhotoIcon,
   ReceiptRefundIcon,
   UsersIcon,
@@ -70,6 +71,15 @@ const videoAction: Action = {
   description: 'YouTube 영상을 관리합니다',
 };
 
+const reportAction: Action = {
+  title: '신고 관리',
+  href: '/manage/report',
+  icon: FlagIcon,
+  iconForeground: 'text-red-700',
+  iconBackground: 'bg-red-50',
+  description: '묵상 나눔과 댓글 신고를 검토합니다',
+};
+
 function classNames(...classes: (string | boolean | undefined | null)[]): string {
   return classes.filter(Boolean).join(' ')
 }
@@ -78,17 +88,20 @@ export default function Noti() {
   useAuth();
 
   const [loginEmail, setLoginEmail] = useState<String | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // 페이지 진입 시 동작
   useOnMountEffect(() => {
     const lastLoginInfo: AuthInfoType | null = getLastLoginOrElseNull();
     setLoginEmail(lastLoginInfo?.email ?? "");
+    setIsAdmin(lastLoginInfo?.role === "ADMIN");
   });
 
   // loginEmail에 따라 actions 배열을 동적으로 생성
-  const baseActionsArray = loginEmail === 'super@super.com'
+  const withSuperActions = loginEmail === 'super@super.com'
       ? [...baseActions, storyAction, videoAction]
       : baseActions;
+  const baseActionsArray = isAdmin ? [...withSuperActions, reportAction] : withSuperActions;
 
   // 홀수 개의 항목이면 더미 데이터 추가하여 짝수로 맞춤
   const actions = baseActionsArray.length % 2 === 1

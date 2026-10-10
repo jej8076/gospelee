@@ -11,13 +11,16 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class JournalServiceImpl implements JournalService {
 
   private final JournalRepository journalRepository;
+  private final JournalShareService journalShareService;
 
   public List<JournalDTO> getJournalList(long accountUid) {
     return JournalDTO.toDtoList(journalRepository.findByAccountUidWithJournalBibles(accountUid));
@@ -33,6 +36,11 @@ public class JournalServiceImpl implements JournalService {
     if (journalDTO.getUid() != null) {
       journal = journalRepository.findById(journalDTO.getUid())
           .orElseThrow(() -> new RuntimeException("Journal not found"));
+
+      // 본인 묵상만 수정할 수 있다
+      if (!journal.getAccountUid().equals(account.getUid())) {
+        throw new AccessDeniedException("본인의 묵상만 수정할 수 있습니다.");
+      }
 
       // Journal의 content만 업데이트 (JournalBible은 변경하지 않음)
       journal.changeContent(journalDTO.getContent());
@@ -60,6 +68,17 @@ public class JournalServiceImpl implements JournalService {
     return JournalDTO.toDto(journalRepository.save(journal));
   }
 
+  @Override
+  @Transactional
+  public void deleteJournal(long accountUid, long journalUid) {
+    Journal journal = journalRepository.findById(journalUid)
+        .orElseThrow(() -> new RuntimeException("Journal not found"));
+    if (!journal.getAccountUid().equals(accountUid)) {
+      throw new AccessDeniedException("본인의 묵상만 삭제할 수 있습니다.");
+    }
+    journalShareService.revokeByJournal(journalUid);
+    journalRepository.delete(journal);
+  }
 
 }
 

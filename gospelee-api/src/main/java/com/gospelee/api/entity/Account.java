@@ -30,6 +30,10 @@ public class Account extends EditInfomation {
   @Column
   private String name;
 
+  // 공유/댓글 등 다른 사용자에게 노출되는 이름. 비어 있으면 입력을 유도한다
+  @Column(length = 20)
+  private String nickname;
+
   @Column
   private Long ecclesiaUid;
 
@@ -57,10 +61,11 @@ public class Account extends EditInfomation {
   private Yn leaveYn;
 
   @Builder
-  public Account(long uid, String name, Long ecclesiaUid, String rrn, String phone, String email,
+  public Account(long uid, String name, String nickname, Long ecclesiaUid, String rrn, String phone, String email,
       RoleType role, String idToken, String pushToken, Yn leaveYn) {
     this.uid = uid;
     this.name = name;
+    this.nickname = nickname;
     this.ecclesiaUid = ecclesiaUid;
     this.rrn = rrn;
     this.phone = phone;

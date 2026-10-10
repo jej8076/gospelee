@@ -185,6 +185,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 .uid(account.getUid())
                 .email(account.getEmail())
                 .name(account.getName())
+                .nickname(account.getNickname())
                 .phone(account.getPhone())
                 .role(account.getRole())
                 .ecclesiaUid(ecclesiaInfo.getEcclesiaUid())

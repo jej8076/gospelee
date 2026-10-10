@@ -8,6 +8,8 @@ import com.gospelee.api.dto.account.AccountEcclesiaHistoryDecideDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDetailDTO;
 import com.gospelee.api.dto.account.AccountLeaveResponseDTO;
 import com.gospelee.api.dto.account.AccountNameUpdateDTO;
+import com.gospelee.api.dto.account.AccountNicknameUpdateDTO;
+import com.gospelee.api.utils.NicknameValidator;
 import com.gospelee.api.dto.account.PushTokenDTO;
 import com.gospelee.api.dto.common.DataResponseDTO;
 import com.gospelee.api.dto.common.NonceRequestDTO;
@@ -209,6 +211,29 @@ public class AccountController {
     return ResponseEntity.ok(
         DataResponseDTO.of("100", "성공", null)
     );
+  }
+
+  /**
+   * 로그인된 사용자의 닉네임을 설정합니다. 묵상 공유와 댓글에 노출되는 이름입니다.
+   */
+  @PatchMapping("/nickname")
+  public ResponseEntity<Object> updateNickname(
+      @AuthenticationPrincipal AccountAuthDTO account,
+      @RequestBody AccountNicknameUpdateDTO dto) {
+
+    if (account == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    String nickname = NicknameValidator.normalize(dto.getNickname());
+    if (!NicknameValidator.isValid(nickname)) {
+      return ResponseEntity.ok(
+          DataResponseDTO.of("400", NicknameValidator.RULE_MESSAGE, null));
+    }
+
+    accountService.updateNickname(account.getUid(), nickname);
+
+    return ResponseEntity.ok(DataResponseDTO.of("100", "성공", nickname));
   }
 
   // ========== 푸시 토큰 관리 API ==========

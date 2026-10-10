@@ -20,6 +20,8 @@ public class AccountAuthDTO implements UserDetails {
 
   private String name;
 
+  private String nickname;
+
   private Long ecclesiaUid;
 
   private String rrn;

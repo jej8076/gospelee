@@ -36,6 +36,8 @@ public interface AccountService {
 
   void updateName(Long uid, String name);
 
+  void updateNickname(Long uid, String nickname);
+
   UserMeResponse getKakaoUserMe(String accessToken);
 
   Optional<AccountAuthDTO> handleSuperUserAuthentication();

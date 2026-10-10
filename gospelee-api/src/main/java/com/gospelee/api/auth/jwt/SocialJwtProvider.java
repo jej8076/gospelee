@@ -47,6 +47,7 @@ public abstract class SocialJwtProvider {
           .uid(account.getUid())
           .email(account.getEmail())
           .name(account.getName())
+          .nickname(account.getNickname())
           .role(account.getRole())
           .idToken(account.getIdToken())
           .accessToken(account.getAccessToken())
