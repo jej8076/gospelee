@@ -19,12 +19,15 @@ import com.gospelee.api.entity.Journal;
 import com.gospelee.api.entity.JournalBible;
 import com.gospelee.api.entity.JournalShare;
 import com.gospelee.api.entity.JournalShareComment;
+import com.gospelee.api.entity.JournalShareReceived;
+import com.gospelee.api.dto.journalshare.JournalShareDTOs.ShareListItem;
 import com.gospelee.api.repository.jpa.account.AccountBlockRepository;
 import com.gospelee.api.repository.jpa.account.AccountRepository;
 import com.gospelee.api.repository.jpa.bible.BibleRepository;
 import com.gospelee.api.repository.jpa.journal.ContentReportRepository;
 import com.gospelee.api.repository.jpa.journal.JournalRepository;
 import com.gospelee.api.repository.jpa.journal.JournalShareCommentRepository;
+import com.gospelee.api.repository.jpa.journal.JournalShareReceivedRepository;
 import com.gospelee.api.repository.jpa.journal.JournalShareRepository;
 import java.lang.reflect.Field;
 import java.util.List;
@@ -42,6 +45,7 @@ class JournalShareServiceTest {
   private AccountBlockRepository blockRepository;
   private AccountRepository accountRepository;
   private BibleRepository bibleRepository;
+  private JournalShareReceivedRepository receivedRepository;
   private JournalShareService service;
 
   @BeforeEach
@@ -53,8 +57,10 @@ class JournalShareServiceTest {
     blockRepository = mock(AccountBlockRepository.class);
     accountRepository = mock(AccountRepository.class);
     bibleRepository = mock(BibleRepository.class);
+    receivedRepository = mock(JournalShareReceivedRepository.class);
     service = new JournalShareService(journalRepository, shareRepository, commentRepository,
-        reportRepository, blockRepository, accountRepository, bibleRepository);
+        reportRepository, blockRepository, accountRepository, bibleRepository,
+        receivedRepository);
     set(service, "baseUrl", "https://example.test/api");
     when(shareRepository.save(any(JournalShare.class))).thenAnswer(i -> i.getArgument(0));
   }
@@ -260,5 +266,76 @@ class JournalShareServiceTest {
   @Test
   void 자기_자신은_차단할_수_없다() {
     assertThrows(JournalShareException.class, () -> service.block(5, 5L));
+  }
+
+  private JournalShare shareWithUid(long uid, long owner, String token, String content)
+      throws Exception {
+    JournalShare share = JournalShare.builder().journalUid(uid * 10).accountUid(owner)
+        .token(token).reference("요 3:16").content(content).build();
+    set(share, "uid", uid);
+    return share;
+  }
+
+  @Test
+  void 남의_공유를_열면_받은_묵상으로_기록하고_내_공유는_기록하지_않는다() throws Exception {
+    JournalShare share = shareWithUid(3, 1, "t", "묵상");
+    when(shareRepository.findByToken("t")).thenReturn(Optional.of(share));
+    when(receivedRepository.findByAccountUidAndShareUid(5L, 3L)).thenReturn(Optional.empty());
+
+    service.view(5, "t");
+    service.view(1, "t");
+
+    verify(receivedRepository, Mockito.times(1)).save(any(JournalShareReceived.class));
+  }
+
+  @Test
+  void 이미_받은_묵상을_다시_열면_새로_저장하지_않고_시각만_갱신한다() throws Exception {
+    JournalShare share = shareWithUid(3, 1, "t", "묵상");
+    JournalShareReceived existing = new JournalShareReceived(5L, 3L);
+    when(shareRepository.findByToken("t")).thenReturn(Optional.of(share));
+    when(receivedRepository.findByAccountUidAndShareUid(5L, 3L))
+        .thenReturn(Optional.of(existing));
+
+    service.view(5, "t");
+
+    verify(receivedRepository, never()).save(any(JournalShareReceived.class));
+  }
+
+  @Test
+  void 받은_묵상_목록은_최근_본_순이고_취소된_공유와_차단한_작성자는_뺀다() throws Exception {
+    JournalShare a = shareWithUid(1, 11, "a", "A 묵상");
+    JournalShare revoked = shareWithUid(2, 12, "b", "B 묵상");
+    revoked.revoke();
+    JournalShare blockedAuthor = shareWithUid(3, 13, "c", "C 묵상");
+    JournalShare d = shareWithUid(4, 14, "d", "D 묵상");
+    when(receivedRepository.findByAccountUidOrderByLastViewedAtDesc(5L)).thenReturn(List.of(
+        new JournalShareReceived(5L, 4L), new JournalShareReceived(5L, 3L),
+        new JournalShareReceived(5L, 2L), new JournalShareReceived(5L, 1L)));
+    when(shareRepository.findAllById(any())).thenReturn(List.of(a, revoked, blockedAuthor, d));
+    when(blockRepository.findByBlockerUid(5L)).thenReturn(List.of(new AccountBlock(5L, 13L)));
+    when(accountRepository.findAllById(any())).thenReturn(
+        List.of(account(11, "가"), account(14, "라")));
+
+    List<ShareListItem> list = service.receivedList(5);
+
+    assertEquals(List.of("d", "a"), list.stream().map(ShareListItem::token).toList());
+    assertEquals("라", list.get(0).authorNickname());
+  }
+
+  @Test
+  void 내가_공유한_목록은_댓글_수와_내용_미리보기를_담는다() throws Exception {
+    JournalShare share = shareWithUid(3, 1, "t", "긴 묵상 ".repeat(40));
+    when(shareRepository.findByAccountUidAndStatusOrderByUidDesc(1L, JournalShare.ACTIVE))
+        .thenReturn(List.of(share));
+    when(commentRepository.countByShareUidAndStatus(3L, JournalShareComment.ACTIVE))
+        .thenReturn(2L);
+    when(accountRepository.findAllById(any())).thenReturn(List.of(account(1, "포도")));
+
+    List<ShareListItem> list = service.mySharedList(1);
+
+    assertEquals(1, list.size());
+    assertEquals(2L, list.get(0).commentCount());
+    assertEquals("포도", list.get(0).authorNickname());
+    assertTrue(list.get(0).preview().endsWith("…"));
   }
 }

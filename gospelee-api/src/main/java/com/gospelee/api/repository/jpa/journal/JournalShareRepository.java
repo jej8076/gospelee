@@ -12,4 +12,6 @@ public interface JournalShareRepository extends JpaRepository<JournalShare, Long
   Optional<JournalShare> findByJournalUid(Long journalUid);
 
   List<JournalShare> findByJournalUidIn(List<Long> journalUids);
+
+  List<JournalShare> findByAccountUidAndStatusOrderByUidDesc(Long accountUid, String status);
 }
