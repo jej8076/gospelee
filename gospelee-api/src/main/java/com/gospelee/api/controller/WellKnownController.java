@@ -18,7 +18,7 @@ public class WellKnownController {
             "details": [
               {
                 "appID": "W28XUX376U.org.podo",
-                "paths": ["/app-link/*", "/api/journal-share/*"]
+                "paths": ["/app-link/*", "/api/journal-share/*", "/api/bible-reading/*", "/api/ecclesia-invite/*"]
               }
             ]
           }
