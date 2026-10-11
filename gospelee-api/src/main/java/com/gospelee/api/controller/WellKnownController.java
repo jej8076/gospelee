@@ -34,7 +34,9 @@ public class WellKnownController {
           "target": {
             "namespace": "android_app",
             "package_name": "org.podo",
-            "sha256_cert_fingerprints": []
+            "sha256_cert_fingerprints": [
+              "66:F6:17:3C:64:E2:ED:25:A2:00:F4:43:55:00:12:B6:CA:9F:15:45:7F:BB:CD:97:F2:F7:A3:B9:7D:81:16:22"
+            ]
           }
         }]
         """;
