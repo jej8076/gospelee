@@ -45,6 +45,18 @@ public class JournalShareController {
     });
   }
 
+  /** 내가 공유한 묵상 목록 */
+  @GetMapping("/journal/share/mine")
+  public ResponseEntity<Object> mine(@AuthenticationPrincipal AccountAuthDTO account) {
+    return run(account, () -> shareService.mySharedList(account.getUid()));
+  }
+
+  /** 공유받은(링크로 열어 본) 묵상 목록 */
+  @GetMapping("/journal/share/received")
+  public ResponseEntity<Object> received(@AuthenticationPrincipal AccountAuthDTO account) {
+    return run(account, () -> shareService.receivedList(account.getUid()));
+  }
+
   @GetMapping("/journal/share/{token}")
   public ResponseEntity<Object> view(@AuthenticationPrincipal AccountAuthDTO account,
       @PathVariable String token) {

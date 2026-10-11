@@ -3,6 +3,7 @@ package com.gospelee.api.service;
 import com.gospelee.api.dto.journalshare.JournalShareDTOs.BlockedUser;
 import com.gospelee.api.dto.journalshare.JournalShareDTOs.CommentItem;
 import com.gospelee.api.dto.journalshare.JournalShareDTOs.PublicShare;
+import com.gospelee.api.dto.journalshare.JournalShareDTOs.ShareListItem;
 import com.gospelee.api.dto.journalshare.JournalShareDTOs.ShareResult;
 import com.gospelee.api.dto.journalshare.JournalShareDTOs.ShareView;
 import com.gospelee.api.entity.Account;
@@ -13,12 +14,14 @@ import com.gospelee.api.entity.Journal;
 import com.gospelee.api.entity.JournalBible;
 import com.gospelee.api.entity.JournalShare;
 import com.gospelee.api.entity.JournalShareComment;
+import com.gospelee.api.entity.JournalShareReceived;
 import com.gospelee.api.repository.jpa.account.AccountBlockRepository;
 import com.gospelee.api.repository.jpa.account.AccountRepository;
 import com.gospelee.api.repository.jpa.bible.BibleRepository;
 import com.gospelee.api.repository.jpa.journal.ContentReportRepository;
 import com.gospelee.api.repository.jpa.journal.JournalRepository;
 import com.gospelee.api.repository.jpa.journal.JournalShareCommentRepository;
+import com.gospelee.api.repository.jpa.journal.JournalShareReceivedRepository;
 import com.gospelee.api.repository.jpa.journal.JournalShareRepository;
 import com.gospelee.api.utils.VerseReferenceFormatter;
 import com.gospelee.api.utils.VerseReferenceFormatter.VerseLine;
@@ -59,9 +62,58 @@ public class JournalShareService {
   private final AccountBlockRepository blockRepository;
   private final AccountRepository accountRepository;
   private final BibleRepository bibleRepository;
+  private final JournalShareReceivedRepository receivedRepository;
 
   @Value("${journal-share.base-url:https://api.po-do.org/api}")
   private String baseUrl;
+
+  /** 내가 공유 중인 묵상 목록 (최근 공유 순) */
+  @Transactional(readOnly = true)
+  public List<ShareListItem> mySharedList(long accountUid) {
+    List<JournalShare> shares = shareRepository
+        .findByAccountUidAndStatusOrderByUidDesc(accountUid, JournalShare.ACTIVE);
+    Map<Long, String> names = nicknames(Set.of(accountUid));
+    return shares.stream()
+        .map(share -> toListItem(share, names.getOrDefault(accountUid, "나")))
+        .toList();
+  }
+
+  /** 내가 링크로 열어 본 남의 공유 목록 (최근 본 순). 취소된 공유와 차단한 작성자의 공유는 제외 */
+  @Transactional(readOnly = true)
+  public List<ShareListItem> receivedList(long accountUid) {
+    List<JournalShareReceived> received = receivedRepository
+        .findByAccountUidOrderByLastViewedAtDesc(accountUid);
+    Map<Long, JournalShare> shares = shareRepository
+        .findAllById(received.stream().map(JournalShareReceived::getShareUid).toList()).stream()
+        .collect(Collectors.toMap(JournalShare::getUid, s -> s));
+    Set<Long> blocked = blockedUids(accountUid);
+
+    List<JournalShare> ordered = received.stream()
+        .map(r -> shares.get(r.getShareUid()))
+        .filter(share -> share != null && share.isActive()
+            && !blocked.contains(share.getAccountUid()))
+        .toList();
+    Map<Long, String> names = nicknames(ordered.stream().map(JournalShare::getAccountUid)
+        .collect(Collectors.toSet()));
+    return ordered.stream()
+        .map(share -> toListItem(share, names.getOrDefault(share.getAccountUid(), "성도")))
+        .toList();
+  }
+
+  private ShareListItem toListItem(JournalShare share, String authorNickname) {
+    return new ShareListItem(share.getToken(), share.getReference(),
+        preview(share.getContent()), authorNickname,
+        commentRepository.countByShareUidAndStatus(share.getUid(), JournalShareComment.ACTIVE),
+        format(share));
+  }
+
+  private static String preview(String content) {
+    if (content == null) {
+      return "";
+    }
+    String flat = content.replaceAll("\\s+", " ").trim();
+    return flat.length() <= 80 ? flat : flat.substring(0, 80) + "…";
+  }
 
   // ========== 공유 ==========
 
@@ -131,13 +183,18 @@ public class JournalShareService {
 
   // ========== 조회 ==========
 
-  /** 로그인한 사용자가 공유 상세와 댓글을 본다 */
-  @Transactional(readOnly = true)
+  /** 로그인한 사용자가 공유 상세와 댓글을 본다. 남의 공유면 '공유받은 묵상'으로 기록한다 */
+  @Transactional
   public ShareView view(long viewerUid, String token) {
     JournalShare share = findActiveShare(token);
     Set<Long> blocked = blockedUids(viewerUid);
     if (blocked.contains(share.getAccountUid())) {
       throw new JournalShareException(JournalShareException.NOT_FOUND, "볼 수 없는 공유입니다.");
+    }
+    if (!share.getAccountUid().equals(viewerUid)) {
+      receivedRepository.findByAccountUidAndShareUid(viewerUid, share.getUid())
+          .ifPresentOrElse(JournalShareReceived::touch,
+              () -> receivedRepository.save(new JournalShareReceived(viewerUid, share.getUid())));
     }
 
     List<JournalShareComment> comments = commentRepository

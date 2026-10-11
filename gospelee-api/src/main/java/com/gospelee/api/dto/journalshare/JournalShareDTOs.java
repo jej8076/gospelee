@@ -24,6 +24,12 @@ public final class JournalShareDTOs {
 
   }
 
+  /** 내가 공유한 / 공유받은 묵상 목록 항목 (본문은 스냅샷 앞부분만) */
+  public record ShareListItem(String token, String reference, String preview,
+                              String authorNickname, long commentCount, String sharedAt) {
+
+  }
+
   /** 비회원 웹 페이지용 공유 내용 (댓글은 개수만) */
   public record PublicShare(String token, String reference, String verseText, String content,
                             String authorNickname, long commentCount) {
