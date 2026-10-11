@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.gospelee.api.dto.journalshare.JournalShareDTOs.ShareResult;
@@ -320,6 +321,29 @@ class JournalShareServiceTest {
 
     assertEquals(List.of("d", "a"), list.stream().map(ShareListItem::token).toList());
     assertEquals("라", list.get(0).authorNickname());
+  }
+
+  @Test
+  void 받은_목록에서_제거하면_받은_기록만_지우고_댓글은_건드리지_않는다() throws Exception {
+    JournalShare share = shareWithUid(3, 1, "t", "묵상");
+    JournalShareReceived existing = new JournalShareReceived(5L, 3L);
+    when(shareRepository.findByToken("t")).thenReturn(Optional.of(share));
+    when(receivedRepository.findByAccountUidAndShareUid(5L, 3L))
+        .thenReturn(Optional.of(existing));
+
+    service.removeReceived(5, "t");
+
+    verify(receivedRepository).delete(existing);
+    verifyNoInteractions(commentRepository);
+  }
+
+  @Test
+  void 받은_기록이_없는_토큰을_제거해도_오류가_없다() throws Exception {
+    when(shareRepository.findByToken("none")).thenReturn(Optional.empty());
+
+    service.removeReceived(5, "none");
+
+    verify(receivedRepository, never()).delete(any(JournalShareReceived.class));
   }
 
   @Test
