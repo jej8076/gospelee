@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.gospelee.api.dto.common.DataResponseDTO;
 import com.gospelee.api.dto.journalshare.JournalShareDTOs.PublicShare;
 import com.gospelee.api.service.JournalShareService;
 import org.junit.jupiter.api.Test;
@@ -42,5 +43,22 @@ class JournalSharePageControllerTest {
 
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     assertTrue(response.getBody().contains("묵상을 찾을 수 없어요"));
+  }
+
+  @Test
+  void 앱_비로그인용_JSON은_본문과_댓글_수만_내려주고_없으면_404_코드() {
+    when(service.publicView("tok")).thenReturn(new PublicShare("tok", "요 3:16", "구절", "묵상",
+        "포도", 3));
+    when(service.publicView("none")).thenReturn(null);
+
+    ResponseEntity<Object> ok = controller.data("tok");
+    ResponseEntity<Object> missing = controller.data("none");
+
+    assertEquals(HttpStatus.OK, ok.getStatusCode());
+    DataResponseDTO<?> okBody = (DataResponseDTO<?>) ok.getBody();
+    DataResponseDTO<?> missingBody = (DataResponseDTO<?>) missing.getBody();
+    assertEquals("100", okBody.getCode());
+    assertEquals("포도", ((PublicShare) okBody.getData()).authorNickname());
+    assertEquals("404", missingBody.getCode());
   }
 }

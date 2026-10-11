@@ -1,5 +1,6 @@
 package com.gospelee.api.controller;
 
+import com.gospelee.api.dto.common.DataResponseDTO;
 import com.gospelee.api.dto.journalshare.JournalShareDTOs.PublicShare;
 import com.gospelee.api.service.JournalShareService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,16 @@ public class JournalSharePageController {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(html).body(notFoundHtml());
     }
     return ResponseEntity.ok().contentType(html).body(buildHtml(share));
+  }
+
+  /** 앱에서 로그인하지 않은 사용자가 읽는 공유 내용(JSON). 댓글 내용은 내려주지 않는다 */
+  @GetMapping(value = "/journal-share/{token}/data", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<Object> data(@PathVariable String token) {
+    PublicShare share = shareService.publicView(token);
+    if (share == null) {
+      return ResponseEntity.ok(DataResponseDTO.of("404", "삭제되었거나 공유가 취소된 묵상입니다.", null));
+    }
+    return ResponseEntity.ok(DataResponseDTO.of("100", "성공", share));
   }
 
   static String buildHtml(PublicShare share) {
