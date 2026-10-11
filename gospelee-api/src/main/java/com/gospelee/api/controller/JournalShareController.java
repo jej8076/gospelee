@@ -57,6 +57,16 @@ public class JournalShareController {
     return run(account, () -> shareService.receivedList(account.getUid()));
   }
 
+  /** 공유받은 목록에서 제거 (댓글은 유지, 링크를 다시 열면 목록에 복귀) */
+  @DeleteMapping("/journal/share/received/{token}")
+  public ResponseEntity<Object> removeReceived(@AuthenticationPrincipal AccountAuthDTO account,
+      @PathVariable String token) {
+    return run(account, () -> {
+      shareService.removeReceived(account.getUid(), token);
+      return null;
+    });
+  }
+
   @GetMapping("/journal/share/{token}")
   public ResponseEntity<Object> view(@AuthenticationPrincipal AccountAuthDTO account,
       @PathVariable String token) {

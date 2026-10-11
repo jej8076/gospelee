@@ -100,6 +100,17 @@ public class JournalShareService {
         .toList();
   }
 
+  /**
+   * 공유받은 목록에서 항목을 제거한다. 받은 기록만 지우므로 내가 쓴 댓글은 그대로 남고,
+   * 같은 링크를 다시 열면 목록에 다시 나타난다.
+   */
+  @Transactional
+  public void removeReceived(long accountUid, String token) {
+    shareRepository.findByToken(token).ifPresent(share ->
+        receivedRepository.findByAccountUidAndShareUid(accountUid, share.getUid())
+            .ifPresent(receivedRepository::delete));
+  }
+
   private ShareListItem toListItem(JournalShare share, String authorNickname) {
     return new ShareListItem(share.getToken(), share.getReference(),
         preview(share.getContent()), authorNickname,
