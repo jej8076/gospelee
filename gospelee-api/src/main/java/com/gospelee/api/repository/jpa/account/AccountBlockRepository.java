@@ -12,4 +12,8 @@ public interface AccountBlockRepository extends JpaRepository<AccountBlock, Long
   Optional<AccountBlock> findByBlockerUidAndBlockedUid(Long blockerUid, Long blockedUid);
 
   boolean existsByBlockerUidAndBlockedUid(Long blockerUid, Long blockedUid);
+
+  void deleteByBlockerUid(Long blockerUid);
+
+  void deleteByBlockedUid(Long blockedUid);
 }

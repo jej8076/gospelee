@@ -18,4 +18,8 @@ public interface AccountBibleReadingGoalMemberRepository extends JpaRepository<A
   boolean existsByGoalIdxAndAccountUidAndStatus(Long goalIdx, Long accountUid, String status);
 
   Optional<AccountBibleReadingGoalMember> findFirstByGoalIdxAndStatusAndRoleOrderByJoinedAtAsc(Long goalIdx, String status, String role);
+
+  List<AccountBibleReadingGoalMember> findAllByAccountUid(Long accountUid);
+
+  void deleteByAccountUid(Long accountUid);
 }

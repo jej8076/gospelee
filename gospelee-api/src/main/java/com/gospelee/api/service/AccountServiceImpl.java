@@ -5,7 +5,6 @@ import com.gospelee.api.dto.account.AccountEcclesiaHistoryDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaInfo;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDecideDTO;
 import com.gospelee.api.dto.account.AccountEcclesiaHistoryDetailDTO;
-import com.gospelee.api.dto.account.AccountLeaveResponseDTO;
 import com.gospelee.api.dto.account.TokenDTO;
 import com.gospelee.api.dto.common.RedisCacheDTO;
 import com.gospelee.api.dto.jwt.JwtPayload;
@@ -226,20 +225,6 @@ public class AccountServiceImpl implements AccountService {
     if (!EcclesiaPushNotifier.isManagerRole(account.getRole())) {
       throw new AccessDeniedException("가입 요청을 처리할 권한이 없습니다.");
     }
-  }
-
-  @Override
-  public AccountLeaveResponseDTO leaveAccount(AccountAuthDTO accountRequest) {
-    Optional<Account> account = accountRepository.findById(accountRequest.getUid());
-    if (account.isEmpty()) {
-      throw new AccountNotFoundException("탈퇴할 계정이 존재하지 않습니다.");
-    }
-    Account getAccount = account.get();
-    getAccount.changeLeaveYn(Yn.Y);
-    accountRepository.save(getAccount);
-    return AccountLeaveResponseDTO.builder()
-        .uid(getAccount.getUid())
-        .build();
   }
 
   /**

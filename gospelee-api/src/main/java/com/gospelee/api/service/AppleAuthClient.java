@@ -32,6 +32,7 @@ import org.springframework.web.client.RestClient;
 public class AppleAuthClient {
 
   private static final String TOKEN_URL = "https://appleid.apple.com/auth/token";
+  private static final String REVOKE_URL = "https://appleid.apple.com/auth/revoke";
   private static final String AUDIENCE = "https://appleid.apple.com";
   private static final Duration TIMEOUT = Duration.ofSeconds(5);
 
@@ -75,6 +76,33 @@ public class AppleAuthClient {
     form.add("grant_type", "refresh_token");
     form.add("refresh_token", refreshToken);
     return requestToken(form);
+  }
+
+  /**
+   * 회원 탈퇴 시 애플 로그인 연결을 끊는다(refresh token 폐기).
+   *
+   * @return 폐기 성공 여부. 미설정이거나 실패하면 false (탈퇴 자체는 막지 않는다)
+   */
+  public boolean revoke(String refreshToken) {
+    if (!isConfigured() || refreshToken == null || refreshToken.isBlank()) {
+      return false;
+    }
+    try {
+      MultiValueMap<String, String> form = baseForm();
+      form.add("token", refreshToken);
+      form.add("token_type_hint", "refresh_token");
+      restClient.post()
+          .uri(REVOKE_URL)
+          .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+          .body(form)
+          .retrieve()
+          .toBodilessEntity();
+      return true;
+    } catch (Exception e) {
+      // 토큰 값은 로그에 남기지 않는다
+      log.warn("[APPLE] 토큰 폐기 실패: {}", e.getMessage());
+      return false;
+    }
   }
 
   private MultiValueMap<String, String> baseForm() {

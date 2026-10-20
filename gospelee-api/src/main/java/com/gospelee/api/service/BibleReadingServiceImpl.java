@@ -248,18 +248,24 @@ public class BibleReadingServiceImpl implements BibleReadingService {
   @Transactional
   public void leaveGoal(Long goalIdx) {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+    leaveGoal(account.getUid(), goalIdx);
+  }
+
+  @Override
+  @Transactional
+  public void leaveGoal(Long accountUid, Long goalIdx) {
     AccountBibleReadingGoal goal = goalRepository.findById(goalIdx)
         .orElseThrow(() -> new NoSuchElementException("목표를 찾을 수 없습니다: " + goalIdx));
 
     Optional<AccountBibleReadingGoalMember> memberOpt = memberRepository
-        .findByGoalIdxAndAccountUid(goalIdx, account.getUid());
+        .findByGoalIdxAndAccountUid(goalIdx, accountUid);
 
     AccountBibleReadingGoalMember currentMember;
     if (memberOpt.isEmpty()) {
-      if (goal.getAccountUid().equals(account.getUid())) {
+      if (goal.getAccountUid().equals(accountUid)) {
         currentMember = AccountBibleReadingGoalMember.builder()
             .goalIdx(goalIdx)
-            .accountUid(account.getUid())
+            .accountUid(accountUid)
             .role("HOST")
             .status("JOINED")
             .joinedAt(LocalDateTime.now())
@@ -273,9 +279,9 @@ public class BibleReadingServiceImpl implements BibleReadingService {
     }
 
     // 본인의 해당 목표 읽음 기록 삭제
-    readRepository.deleteByAccountUidAndGoalIdx(account.getUid(), goalIdx);
+    readRepository.deleteByAccountUidAndGoalIdx(accountUid, goalIdx);
 
-    boolean isHost = "HOST".equals(currentMember.getRole()) || goal.getAccountUid().equals(account.getUid());
+    boolean isHost = "HOST".equals(currentMember.getRole()) || goal.getAccountUid().equals(accountUid);
 
     if (isHost) {
       // B안: 방장이 나갈 경우 다음 참여자에게 방장 권한 위임

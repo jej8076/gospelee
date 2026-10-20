@@ -53,4 +53,7 @@ public interface BibleReadingService {
 
   // 목표 나가기 (참여자/방장 위임 처리)
   void leaveGoal(Long goalIdx);
+
+  // 지정한 계정으로 목표 나가기 (회원 탈퇴 처리용, 로그인 사용자와 무관하게 동작)
+  void leaveGoal(Long accountUid, Long goalIdx);
 }

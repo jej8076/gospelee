@@ -41,6 +41,11 @@ public interface AccountBibleReadRepository extends JpaRepository<AccountBibleRe
   @Query("DELETE FROM AccountBibleRead ar WHERE ar.accountUid = :accountUid AND ar.goalIdx = :goalIdx")
   void deleteByAccountUidAndGoalIdx(@Param("accountUid") Long accountUid, @Param("goalIdx") Long goalIdx);
 
+  // 회원 탈퇴 시 사용자의 모든 읽음 기록 삭제
+  @Modifying
+  @Query("DELETE FROM AccountBibleRead ar WHERE ar.accountUid = :accountUid")
+  void deleteAllByAccountUid(@Param("accountUid") Long accountUid);
+
   // 목표별 책별 완료 장 수 조회 (중복 chapter는 DISTINCT로 1회 카운트)
   @Query("SELECT ar.book, COUNT(DISTINCT ar.chapter) FROM AccountBibleRead ar " +
       "WHERE ar.accountUid = :accountUid AND ar.goalIdx = :goalIdx GROUP BY ar.book ORDER BY ar.book")
