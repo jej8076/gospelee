@@ -362,4 +362,16 @@ class JournalShareServiceTest {
     assertEquals("포도", list.get(0).authorNickname());
     assertTrue(list.get(0).preview().endsWith("…"));
   }
+
+  @Test
+  void 탈퇴한_사용자는_익명으로_표시된다() {
+    Account withdrawn = Account.builder().uid(1L).leaveYn(com.gospelee.api.enums.Yn.Y).build();
+    when(blockRepository.findByBlockerUid(5L)).thenReturn(List.of(new AccountBlock(5L, 1L)));
+    when(accountRepository.findAllById(any())).thenReturn(List.of(withdrawn));
+
+    var blocked = service.blockedUsers(5L);
+
+    assertEquals(1, blocked.size());
+    assertEquals(JournalShareService.WITHDRAWN_NICKNAME, blocked.get(0).nickname());
+  }
 }

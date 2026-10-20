@@ -88,4 +88,21 @@ public class Account extends EditInfomation {
     this.leaveYn = yn;
   }
 
+  /**
+   * 회원 탈퇴: 개인정보를 모두 비우고 탈퇴 처리한다.
+   * uid 만 남겨 두어, 작성한 나눔 묵상/댓글이 "탈퇴한 사용자"로 익명 표시되게 한다.
+   */
+  public void withdraw() {
+    this.name = null;
+    this.nickname = null;
+    this.ecclesiaUid = null;
+    this.rrn = null;
+    this.phone = null;
+    this.email = null;
+    this.idToken = null;
+    this.pushToken = null;
+    this.role = RoleType.LAYMAN;
+    this.leaveYn = Yn.Y;
+  }
+
 }

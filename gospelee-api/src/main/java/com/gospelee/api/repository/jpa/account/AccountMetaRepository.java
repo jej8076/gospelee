@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface AccountMetaRepository extends JpaRepository<AccountMeta, Long> {
 
   Optional<AccountMeta> findByEmail(String email);
+
+  void deleteByAccountUid(Long accountUid);
 }

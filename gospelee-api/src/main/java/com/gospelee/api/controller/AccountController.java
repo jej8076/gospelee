@@ -28,6 +28,7 @@ import com.gospelee.api.properties.AuthProperties;
 import com.gospelee.api.dto.auth.SessionData;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.service.AccountService;
+import com.gospelee.api.service.AccountWithdrawalService;
 import com.gospelee.api.service.AppleAuthService;
 import com.gospelee.api.service.FirebaseService;
 import com.gospelee.api.service.QrloginService;
@@ -63,6 +64,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountController {
 
   private final AccountService accountService;
+  private final AccountWithdrawalService accountWithdrawalService;
   private final AppleAuthService appleAuthService;
   private final QrloginService qrloginService;
   private final FirebaseService firebaseService;
@@ -180,7 +182,8 @@ public class AccountController {
 
   @PostMapping("/leave")
   public ResponseEntity<Object> leaveAccount(@AuthenticationPrincipal AccountAuthDTO account) {
-    AccountLeaveResponseDTO accountLeaveResponseDTO = accountService.leaveAccount(account);
+    AccountLeaveResponseDTO accountLeaveResponseDTO = accountWithdrawalService.withdraw(
+        account.getUid());
     return ResponseEntity.ok(DataResponseDTO.of("100", "성공", accountLeaveResponseDTO));
   }
 

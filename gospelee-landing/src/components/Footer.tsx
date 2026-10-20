@@ -51,6 +51,7 @@ const Footer = () => {
                 <ul className={styles.linkList}>
                   <li><Link href="/support" className={styles.link}>고객지원</Link></li>
                   <li><Link href="/privacy-policy" className={styles.link}>개인정보처리방침</Link></li>
+                  <li><Link href="/account-deletion" className={styles.link}>계정 삭제 안내</Link></li>
                 </ul>
               </div>
             </div>

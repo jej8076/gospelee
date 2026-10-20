@@ -48,6 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class JournalShareService {
 
   public static final int COMMENT_MAX_LENGTH = 500;
+  public static final String WITHDRAWN_NICKNAME = "탈퇴한 사용자";
   private static final int REPORT_DETAIL_MAX_LENGTH = 300;
   private static final Set<String> REPORT_REASONS = Set.of("SPAM", "ABUSE", "SEXUAL", "HERESY",
       "PRIVACY", "OTHER");
@@ -375,11 +376,15 @@ public class JournalShareService {
     return uids;
   }
 
-  /** 탈퇴 등으로 닉네임이 없는 계정은 맵에서 빠진다 */
+  /**
+   * 탈퇴한 계정은 "탈퇴한 사용자"로 익명 표시한다. 닉네임이 없는 계정은 맵에서 빠진다
+   */
   private Map<Long, String> nicknames(Set<Long> uids) {
     Map<Long, String> result = new HashMap<>();
     accountRepository.findAllById(uids).forEach(account -> {
-      if (account.getNickname() != null && !account.getNickname().isBlank()) {
+      if (AccountWithdrawalService.isWithdrawn(account)) {
+        result.put(account.getUid(), WITHDRAWN_NICKNAME);
+      } else if (account.getNickname() != null && !account.getNickname().isBlank()) {
         result.put(account.getUid(), account.getNickname());
       }
     });

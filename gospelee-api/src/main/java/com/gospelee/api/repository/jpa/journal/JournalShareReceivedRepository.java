@@ -10,4 +10,6 @@ public interface JournalShareReceivedRepository extends JpaRepository<JournalSha
   Optional<JournalShareReceived> findByAccountUidAndShareUid(Long accountUid, Long shareUid);
 
   List<JournalShareReceived> findByAccountUidOrderByLastViewedAtDesc(Long accountUid);
+
+  void deleteByAccountUid(Long accountUid);
 }

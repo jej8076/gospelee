@@ -26,4 +26,6 @@ public interface QrloginRepository extends JpaRepository<QrLogin, Long> {
       @Param("socialLoginPlatform") SocialLoginPlatform socialLoginPlatform,
       @Param("updateUser") String updateUser,
       @Param("updateTime") LocalDateTime updateTime);
+
+  void deleteByEmail(String email);
 }
