@@ -21,6 +21,7 @@ import com.gospelee.api.repository.jpa.account.AccountBibleReadingGoalMemberRepo
 import com.gospelee.api.repository.jpa.account.AccountBibleReadingGoalRepository;
 import com.gospelee.api.repository.jpa.account.AccountRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
+import com.gospelee.api.utils.BibleReadingContinue;
 import com.gospelee.api.utils.BibleUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -690,6 +691,34 @@ public class BibleReadingServiceImpl implements BibleReadingService {
     long daysElapsed = selectedGoalDTO != null ? selectedGoalDTO.getDaysElapsed() : 1L;
     double totalProgressRate = selectedGoalDTO != null ? selectedGoalDTO.getProgressRate() : 0.0;
 
+    // 이어서 읽기 위치: 마지막으로 체크한 장 다음의 안 읽은 장
+    Integer lastReadBook = null;
+    Integer lastReadChapter = null;
+    Integer continueBook = null;
+    Integer continueChapter = null;
+    if (selectedGoal != null) {
+      Optional<AccountBibleRead> lastRead = readRepository
+          .findFirstByAccountUidAndGoalIdxOrderByIdxDesc(account.getUid(), selectedGoal.getIdx());
+      if (lastRead.isPresent()) {
+        lastReadBook = lastRead.get().getBook();
+        lastReadChapter = lastRead.get().getChapter();
+      }
+      Set<Integer> readKeys = readRepository
+          .findAllByAccountUidAndGoalIdxOrderByReadDateDescBookAscChapterAsc(
+              account.getUid(), selectedGoal.getIdx())
+          .stream()
+          .map(r -> BibleReadingContinue.key(r.getBook(), r.getChapter()))
+          .collect(Collectors.toSet());
+      BibleReadingContinue.Position next = BibleReadingContinue.findContinuePosition(
+          BibleReadingContinue.orderedBooks(selectedGoal.getRangeType(),
+              selectedGoal.getOrderType(), selectedGoal.getCustomBooks()),
+          lastReadBook, lastReadChapter, readKeys);
+      if (next != null) {
+        continueBook = next.book();
+        continueChapter = next.chapter();
+      }
+    }
+
     return BibleReadingStatusResponseDTO.builder()
         .activeGoal(selectedGoalDTO)
         .goals(goalDTOList)
@@ -700,6 +729,10 @@ public class BibleReadingServiceImpl implements BibleReadingService {
         .totalChapters(BibleUtils.TOTAL_CHAPTERS)
         .daysElapsed(daysElapsed)
         .bookStats(bookStats)
+        .lastReadBook(lastReadBook)
+        .lastReadChapter(lastReadChapter)
+        .continueBook(continueBook)
+        .continueChapter(continueChapter)
         .build();
   }
 

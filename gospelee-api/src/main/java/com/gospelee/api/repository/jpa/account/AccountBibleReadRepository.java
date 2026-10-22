@@ -74,6 +74,9 @@ public interface AccountBibleReadRepository extends JpaRepository<AccountBibleRe
   @Query("SELECT MAX(ar.readDate) FROM AccountBibleRead ar WHERE ar.accountUid = :accountUid AND ar.goalIdx = :goalIdx")
   LocalDate findLastReadDateByAccountUidAndGoalIdx(@Param("accountUid") Long accountUid, @Param("goalIdx") Long goalIdx);
 
+  // 목표 내 사용자가 가장 최근에 체크한 기록 (idx 는 저장 순서대로 증가)
+  Optional<AccountBibleRead> findFirstByAccountUidAndGoalIdxOrderByIdxDesc(Long accountUid, Long goalIdx);
+
   // 목표 내 사용자의 전체 읽음 기록 조회 (날짜별 상세 표시용)
   List<AccountBibleRead> findAllByAccountUidAndGoalIdxOrderByReadDateDescBookAscChapterAsc(Long accountUid, Long goalIdx);
 }
