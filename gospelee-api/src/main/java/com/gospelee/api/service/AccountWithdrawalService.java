@@ -19,6 +19,7 @@ import com.gospelee.api.repository.jpa.journal.JournalRepository;
 import com.gospelee.api.repository.jpa.journal.JournalShareReceivedRepository;
 import com.gospelee.api.repository.jpa.pushnotification.PushNotificationReceiversRepository;
 import com.gospelee.api.repository.jpa.qrlogin.QrloginRepository;
+import com.gospelee.api.service.reaction.ReactionService;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ import org.springframework.util.StringUtils;
  * 회원 탈퇴 처리.
  * <ul>
  *   <li>개인정보(이름·닉네임·전화번호·이메일·토큰 등)와 개인 기록(묵상 일지, 성경 읽기/필기, 받은 목록,
- *       차단, 푸시 수신, 교회 가입 이력 등)은 삭제한다.</li>
+ *       차단, 푸시 수신, 기도할게요 등 반응, 교회 가입 이력 등)은 삭제한다.</li>
  *   <li>다른 사용자에게 이미 공유된 나눔 묵상과 댓글은 남기되, 작성자는 닉네임이 비워진 탈퇴 계정
  *       (uid 만 존재)이라 "탈퇴한 사용자"로 익명 표시된다.</li>
  *   <li>신고 내역은 운영(검토)을 위해 남긴다.</li>
@@ -61,6 +62,7 @@ public class AccountWithdrawalService {
   private final JournalShareReceivedRepository shareReceivedRepository;
   private final PushNotificationReceiversRepository pushReceiversRepository;
   private final QrloginRepository qrloginRepository;
+  private final ReactionService reactionService;
 
   @Transactional
   public AccountLeaveResponseDTO withdraw(long accountUid) {
@@ -81,6 +83,7 @@ public class AccountWithdrawalService {
     ecclesiaHistoryRepository.deleteByAccountUid(accountUid);
     shareReceivedRepository.deleteByAccountUid(accountUid);
     pushReceiversRepository.deleteByReceiveAccountUid(accountUid);
+    reactionService.removeAllByAccount(accountUid);
     accountMetaRepository.deleteByAccountUid(accountUid);
     if (StringUtils.hasText(email)) {
       qrloginRepository.deleteByEmail(email);
