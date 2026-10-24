@@ -31,6 +31,9 @@ public class AnnouncementResponseDTO {
   private String pushNotificationIds;
   private LocalDateTime insertTime;
   private LocalDateTime updateTime;
+  // 기도할게요 수와 내 표시 여부 (목록 조회 시 서버가 채움)
+  private long prayCount;
+  private boolean prayed;
 
   @Builder
   @QueryProjection
@@ -100,6 +103,11 @@ public class AnnouncementResponseDTO {
         .fileUid(dto.getFileUid())
         .pushNotificationIds(dto.getPushNotificationIds())
         .build();
+  }
+
+  public void changeReaction(long prayCount, boolean prayed) {
+    this.prayCount = prayCount;
+    this.prayed = prayed;
   }
 
   public void changeImageAccessToken(String accessToken) {

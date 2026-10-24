@@ -20,6 +20,7 @@ import com.gospelee.api.enums.CategoryType;
 import com.gospelee.api.enums.CustomHeader;
 import com.gospelee.api.enums.OrganizationType;
 import com.gospelee.api.enums.PushNotificationSendStatusType;
+import com.gospelee.api.enums.ReactionTargetType;
 import com.gospelee.api.enums.Yn;
 import com.gospelee.api.exception.AnnouncementNotFoundException;
 import com.gospelee.api.exception.SuperAccountException;
@@ -31,6 +32,7 @@ import com.gospelee.api.repository.jpa.pushnotification.PushNotificationReposito
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.FileService;
 import com.gospelee.api.service.FirebaseService;
+import com.gospelee.api.service.reaction.ReactionService;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -61,6 +63,7 @@ public class AnnouncementServiceAdminImpl implements AnnouncementService {
   private final FileDetailsRepository fileDetailsRepository;
   private final AnnouncementStorageGuard storageGuard;
   private final FileRepository fileRepository;
+  private final ReactionService reactionService;
 
   @Value("${server.domain:http://localhost:8008}")
   private String serverDomain;
@@ -269,6 +272,7 @@ public class AnnouncementServiceAdminImpl implements AnnouncementService {
       storageGuard.release(existing.getOrganizationId(), freedBytes);
     }
     announcementRepository.delete(existing);
+    reactionService.removeAllByTarget(ReactionTargetType.ANNOUNCEMENT, id);
     log.info("공지사항 삭제 - id:{}, accountUid:{}", id, account.getUid());
   }
 
