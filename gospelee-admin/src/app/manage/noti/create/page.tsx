@@ -13,7 +13,7 @@ import { blueButton, grayButton } from "@/components/modal/modal-buttons";
 import FormLayout from "@/components/manage/FormLayout";
 import FormField from "@/components/manage/FormField";
 import FileUpload from "@/components/manage/FileUpload";
-import RadioGroup from "@/components/manage/RadioGroup";
+import PushTargetSelect, { toPushPayload, validatePushTarget } from "@/components/manage/PushTargetSelect";
 
 export default function CreateNoti() {
   useAuth();
@@ -26,7 +26,7 @@ export default function CreateNoti() {
   const [subject, setSubject] = useState("");
   const [announcementText, setAnnouncementText] = useState("");
   const [files, setFiles] = useState<File[]>([]);
-  const [pushNotificationSendYn, setPushNotificationSendYn] = useState("");
+  const [pushTarget, setPushTarget] = useState<PushTarget>({ mode: "", groupIds: [] });
   const [blobFileMapping, setBlobFileMapping] = useState<{ [key: string]: string }>({});
   
   // Modal states
@@ -53,8 +53,9 @@ export default function CreateNoti() {
 
   // Event handlers
   const handleSubmit = () => {
-    if (pushNotificationSendYn === "") {
-      alert("푸시 알림 발송 여부를 선택해주세요");
+    const pushError = validatePushTarget(pushTarget);
+    if (pushError) {
+      alert(pushError);
       return;
     }
     setIsModalOpen(true);
@@ -99,7 +100,7 @@ export default function CreateNoti() {
       organizationType: "ECCLESIA",
       subject: subject || "공지사항",
       text: announcementText,
-      pushNotificationSendYn: pushNotificationSendYn,
+      ...toPushPayload(pushTarget),
     };
 
     if (files && files.length > 0) {
@@ -112,19 +113,6 @@ export default function CreateNoti() {
 
     await callApi(() => fetchInsertAnnouncement(inputData), setAnnouncement);
   };
-
-  const pushNotificationOptions = [
-    {
-      value: "Y",
-      label: "등록 교인 전체발송",
-      description: "모든 등록된 교인에게 푸시 알림을 발송합니다"
-    },
-    {
-      value: "N",
-      label: "발송안함",
-      description: "푸시 알림을 발송하지 않습니다"
-    }
-  ];
 
   return (
     <>
@@ -171,14 +159,7 @@ export default function CreateNoti() {
           </FormField>
 
           <div className="col-span-full border-t border-gray-900/10 pt-8">
-            <RadioGroup
-              title="푸시 알림"
-              description="앱 푸시 알림을 발송할 지 선택해 주세요"
-              options={pushNotificationOptions}
-              value={pushNotificationSendYn}
-              onChange={setPushNotificationSendYn}
-              name="push-notifications"
-            />
+            <PushTargetSelect value={pushTarget} onChange={setPushTarget} name="noti-push" />
           </div>
         </div>
       </FormLayout>

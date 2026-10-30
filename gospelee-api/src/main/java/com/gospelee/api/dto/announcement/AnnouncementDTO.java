@@ -28,6 +28,8 @@ public class AnnouncementDTO {
   @NotBlank
   private String pushNotificationSendYn;
   private String pushNotificationIds;
+  // 알림을 보낼 푸시 그룹 id. 비어 있으면 교회 성도 전체 (pushNotificationSendYn 이 Y 일 때만 사용)
+  private List<Long> pushGroupIds;
   private String openYn;
   private LocalDateTime insertTime;
   private LocalDateTime updateTime;
@@ -44,7 +46,8 @@ public class AnnouncementDTO {
   @Builder
   public AnnouncementDTO(Long id, String organizationType, String organizationId, String subject,
       String text, Long fileUid, List<FileDetailsDTO> fileDetailList, String pushNotificationSendYn,
-      String pushNotificationIds, String openYn, LocalDateTime insertTime, LocalDateTime updateTime,
+      String pushNotificationIds, List<Long> pushGroupIds, String openYn,
+      LocalDateTime insertTime, LocalDateTime updateTime,
       Map<String, String> blobFileMapping, List<String> fileDataList,
       List<Long> deleteFileDetailIdList) {
     this.id = id;
@@ -56,6 +59,7 @@ public class AnnouncementDTO {
     this.fileDetailList = fileDetailList;
     this.pushNotificationSendYn = pushNotificationSendYn;
     this.pushNotificationIds = pushNotificationIds;
+    this.pushGroupIds = pushGroupIds;
     this.openYn = openYn;
     this.insertTime = insertTime;
     this.updateTime = updateTime;

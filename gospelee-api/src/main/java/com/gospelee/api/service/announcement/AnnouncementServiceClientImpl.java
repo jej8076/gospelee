@@ -1,6 +1,5 @@
 package com.gospelee.api.service.announcement;
 
-import com.google.firebase.messaging.FirebaseMessagingException;
 import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.announcement.AnnouncementDTO;
 import com.gospelee.api.dto.announcement.AnnouncementResponseDTO;
@@ -10,30 +9,24 @@ import com.gospelee.api.dto.file.FileUploadDetailResponseDTO;
 import com.gospelee.api.dto.file.FileUploadResponseDTO;
 import com.gospelee.api.dto.file.FileUploadWrapperDTO;
 import com.gospelee.api.dto.reaction.ReactionSummaryDTO;
-import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.Announcement;
 import com.gospelee.api.entity.FileDetails;
 import com.gospelee.api.entity.FileEntity;
-import com.gospelee.api.entity.PushNotification;
-import com.gospelee.api.entity.PushNotificationReceivers;
 import com.gospelee.api.enums.AppType;
 import com.gospelee.api.enums.CategoryType;
 import com.gospelee.api.enums.CustomHeader;
 import com.gospelee.api.enums.OrganizationType;
 import com.gospelee.api.enums.ReactionTargetType;
 import com.gospelee.api.enums.ReactionType;
-import com.gospelee.api.enums.PushNotificationSendStatusType;
 import com.gospelee.api.enums.Yn;
 import com.gospelee.api.exception.AnnouncementNotFoundException;
 import com.gospelee.api.exception.SuperAccountException;
 import com.gospelee.api.repository.jpa.announcement.AnnouncementRepository;
 import com.gospelee.api.repository.jpa.file.FileDetailsRepository;
 import com.gospelee.api.repository.jpa.file.FileRepository;
-import com.gospelee.api.repository.jpa.pushnotification.PushNotificationReceiversRepository;
-import com.gospelee.api.repository.jpa.pushnotification.PushNotificationRepository;
-import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.FileService;
-import com.gospelee.api.service.FirebaseService;
+import com.gospelee.api.service.push.PushDispatchService;
+import com.gospelee.api.service.push.PushDispatchService.PushRequest;
 import com.gospelee.api.service.reaction.ReactionService;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -56,11 +49,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class AnnouncementServiceClientImpl implements AnnouncementService {
 
   private final AnnouncementRepository announcementRepository;
-  private final PushNotificationRepository pushNotificationRepository;
-  private final PushNotificationReceiversRepository pushNotificationReceiversRepository;
-  private final AccountService accountService;
+  private final PushDispatchService pushDispatchService;
   private final FileService fileService;
-  private final FirebaseService firebaseService;
   private final FileDetailsRepository fileDetailsRepository;
   private final AnnouncementStorageGuard storageGuard;
   private final FileRepository fileRepository;
@@ -221,6 +211,7 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
       throw new SuperAccountException("invalid_access accountEmail:{}", account.getEmail());
     }
     assertCanWriteEcclesiaAnnouncement(account, announcementDTO);
+    validatePushGroups(account, announcementDTO);
 
     // 1. 저장
     Announcement announcement = announcementRepository.save(announcementDTO.toEntity(account));
@@ -248,6 +239,7 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
     // 1. 기존 데이터 조회 및 검증
     Announcement existingAnnouncement = getExistingAnnouncementOrThrow(announcementDTO.getId());
     assertCanModifyAnnouncement(account, existingAnnouncement);
+    validatePushGroups(account, announcementDTO);
 
     // 2. 기본 필드 업데이트
     updateBasicFields(existingAnnouncement, announcementDTO);
@@ -290,6 +282,13 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
     announcementRepository.delete(existing);
     reactionService.removeAllByTarget(ReactionTargetType.ANNOUNCEMENT, id);
     log.info("공지사항 삭제 - id:{}, accountUid:{}", id, account.getUid());
+  }
+
+  /** 알림 그룹이 내 교회의 그룹인지 저장 전에 확인한다 (잘못된 요청이 데이터를 남기지 않도록) */
+  private void validatePushGroups(AccountAuthDTO account, AnnouncementDTO dto) {
+    if ("Y".equals(dto.getPushNotificationSendYn())) {
+      pushDispatchService.validateGroupIds(account.getEcclesiaUid(), dto.getPushGroupIds());
+    }
   }
 
   private void updateBasicFields(Announcement existing, AnnouncementDTO updates) {
@@ -345,54 +344,22 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
       return;
     }
 
-    Optional<List<Account>> accounts = accountService.getAccountByEcclesiaUid(
-        account.getEcclesiaUid());
-
-    // 발송 대상이 없으면 발송 안함
-    if (accounts.isEmpty()) {
-      return;
-    }
-
-    PushNotification pushNotification = PushNotification.builder()
+    Long pushId = pushDispatchService.send(PushRequest.builder()
         .sendAccountUid(account.getUid())
+        .ecclesiaUid(account.getEcclesiaUid())
+        .groupIds(announcementDTO.getPushGroupIds())
         .organization(OrganizationType.fromName(announcement.getOrganizationType()).name())
         .category(CategoryType.ANNOUNCEMENT.name())
         .title(AnnouncementPushMessage.TITLE)
         .message(AnnouncementPushMessage.message(announcement.getSubject()))
-        .build();
+        .data(AnnouncementPushMessage.routeData(announcement.getId()))
+        .build());
 
-    pushNotification = pushNotificationRepository.save(pushNotification);
-
-    List<PushNotificationReceivers> pushNotificationReceiversList = new ArrayList<>();
-    for (Account acc : accounts.get()) {
-      // 발송 대상의 push token이 없으면 발송안함
-      if (acc.getPushToken() == null || acc.getPushToken().isEmpty()) {
-        continue;
-      }
-
-      // 한 명의 토큰이 만료/오류여도 나머지 성도에게는 계속 전송하고, 실패는 FAILED로 기록
-      boolean sent = firebaseService.trySendNotification(acc.getPushToken(),
-          pushNotification.getTitle(), pushNotification.getMessage(),
-          AnnouncementPushMessage.routeData(announcement.getId()));
-
-      PushNotificationReceivers pushNotificationReceivers = PushNotificationReceivers.builder()
-          .pushNotificationId(pushNotification.getId())
-          .receiveAccountUid(acc.getUid())
-          .status((sent ? PushNotificationSendStatusType.READY
-              : PushNotificationSendStatusType.FAILED).name())
-          .build();
-
-      pushNotificationReceiversList.add(pushNotificationReceivers);
+    // 발송 대상이 없으면 기록할 푸시가 없다
+    if (pushId != null) {
+      announcementRepository.updatePushNotificationIdsById(announcement.getId(),
+          String.valueOf(pushId));
     }
-
-    List<PushNotificationReceivers> resultList = pushNotificationReceiversRepository.saveAll(
-        pushNotificationReceiversList);
-
-    pushNotificationRepository.updateTotalcountById(pushNotification.getId(), resultList.size());
-
-    announcementRepository.updatePushNotificationIdsById(announcement.getId(),
-        String.valueOf(pushNotification.getId()));
-
   }
 
   private Announcement getExistingAnnouncementOrThrow(Long id) {

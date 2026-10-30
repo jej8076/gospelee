@@ -25,6 +25,7 @@ import com.gospelee.api.repository.jpa.file.FileDetailsRepository;
 import com.gospelee.api.repository.jpa.file.FileRepository;
 import com.gospelee.api.service.FileService;
 import com.gospelee.api.service.announcement.AnnouncementStorageGuard;
+import com.gospelee.api.service.push.PushDispatchService;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
 import java.time.LocalDate;
 import java.util.List;
@@ -49,6 +50,7 @@ class BulletinServiceTest {
   private FileRepository fileRepository;
   private FileDetailsRepository fileDetailsRepository;
   private AnnouncementStorageGuard storageGuard;
+  private PushDispatchService pushDispatchService;
   private BulletinService service;
   private MockedStatic<AuthenticatedUserUtils> auth;
 
@@ -59,8 +61,9 @@ class BulletinServiceTest {
     fileRepository = mock(FileRepository.class);
     fileDetailsRepository = mock(FileDetailsRepository.class);
     storageGuard = mock(AnnouncementStorageGuard.class);
+    pushDispatchService = mock(PushDispatchService.class);
     service = new BulletinService(bulletinRepository, fileService, fileRepository,
-        fileDetailsRepository, storageGuard);
+        fileDetailsRepository, storageGuard, pushDispatchService);
     auth = mockStatic(AuthenticatedUserUtils.class);
     loginAs(RoleType.PASTOR, 10L);
     when(bulletinRepository.save(any(Bulletin.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -147,6 +150,49 @@ class BulletinServiceTest {
     assertEquals(10L, saved.getValue().getEcclesiaUid());
     assertEquals("Y", saved.getValue().getOpenYn());
     assertEquals(7L, saved.getValue().getFileUid());
+  }
+
+  @Test
+  void insert_withPushYes_sendsToSelectedGroups() {
+    when(fileService.uploadFileWithResponse(any())).thenReturn(
+        FileUploadResponseDTO.builder().fileId(7L).accessToken("tok").build());
+    BulletinRequestDTO dto = BulletinRequestDTO.builder().worshipDate(SUNDAY).title("t")
+        .pushNotificationSendYn("Y").pushGroupIds(List.of(3L, 4L)).build();
+
+    service.insert(List.of(pdf()), dto);
+
+    verify(pushDispatchService).validateGroupIds(10L, List.of(3L, 4L));
+    ArgumentCaptor<PushDispatchService.PushRequest> captor = ArgumentCaptor.forClass(
+        PushDispatchService.PushRequest.class);
+    verify(pushDispatchService).send(captor.capture());
+    assertEquals(List.of(3L, 4L), captor.getValue().getGroupIds());
+    assertEquals("BULLETIN", captor.getValue().getCategory());
+    assertEquals(10L, captor.getValue().getEcclesiaUid());
+  }
+
+  @Test
+  void insert_withInvalidGroup_isRejectedBeforeSaving() {
+    when(pushDispatchService.validateGroupIds(10L, List.of(99L)))
+        .thenThrow(new IllegalArgumentException("그룹"));
+    BulletinRequestDTO dto = BulletinRequestDTO.builder().worshipDate(SUNDAY)
+        .pushNotificationSendYn("Y").pushGroupIds(List.of(99L)).build();
+
+    assertThrows(IllegalArgumentException.class, () -> service.insert(List.of(pdf()), dto));
+
+    verify(bulletinRepository, never()).save(any());
+    verify(storageGuard, never()).reserve(anyLong(), anyLong());
+  }
+
+  @Test
+  void insert_withoutPush_orPrivateBulletin_sendsNothing() {
+    when(fileService.uploadFileWithResponse(any())).thenReturn(
+        FileUploadResponseDTO.builder().fileId(7L).accessToken("tok").build());
+
+    service.insert(List.of(pdf()), request(null, null));
+    service.insert(List.of(pdf()), BulletinRequestDTO.builder().worshipDate(SUNDAY.plusDays(7))
+        .openYn("N").pushNotificationSendYn("Y").build());
+
+    verify(pushDispatchService, never()).send(any());
   }
 
   @Test

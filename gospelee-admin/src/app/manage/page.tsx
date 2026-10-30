@@ -3,6 +3,7 @@
 import {
   AcademicCapIcon,
   BanknotesIcon,
+  BellAlertIcon,
   CheckBadgeIcon,
   ClockIcon,
   DocumentTextIcon,
@@ -43,6 +44,14 @@ const baseActions: Action[] = [
     iconForeground: 'text-green-700',
     iconBackground: 'bg-green-50',
     description: '교회 주보(PDF, 이미지)를 올리고 관리합니다.',
+  },
+  {
+    title: '푸시 그룹 관리',
+    href: '/manage/push-group',
+    icon: BellAlertIcon,
+    iconForeground: 'text-amber-700',
+    iconBackground: 'bg-amber-50',
+    description: '알림을 보낼 성도 그룹을 만들고 관리합니다.',
   },
   {
     title: '갤러리 관리',
