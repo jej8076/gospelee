@@ -9,7 +9,7 @@ import com.gospelee.api.service.EcclesiaPushNotifier;
  * 공지사항 작성/수정 권한 정책
  * 교회 공지는 같은 교회의 담임목사/교역자/관리자만 작성하고 수정할 수 있다.
  */
-final class AnnouncementAccessPolicy {
+public final class AnnouncementAccessPolicy {
 
   private AnnouncementAccessPolicy() {
   }
@@ -17,7 +17,7 @@ final class AnnouncementAccessPolicy {
   /**
    * 교회 공지 작성 권한: 소속 교회가 있고 관리 역할인 경우
    */
-  static boolean canWriteEcclesia(AccountAuthDTO account) {
+  public static boolean canWriteEcclesia(AccountAuthDTO account) {
     return account != null
         && account.getEcclesiaUid() != null
         && EcclesiaPushNotifier.isManagerRole(account.getRole());
