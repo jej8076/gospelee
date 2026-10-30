@@ -5,6 +5,7 @@ import FormLayout from "@/components/manage/FormLayout";
 import FormField from "@/components/manage/FormField";
 import FileUpload from "@/components/manage/FileUpload";
 import RadioGroup from "@/components/manage/RadioGroup";
+import PushTargetSelect, {toPushPayload, validatePushTarget} from "@/components/manage/PushTargetSelect";
 import Modal from "@/components/modal/modal";
 import {blueButton, grayButton} from "@/components/modal/modal-buttons";
 import {useModalState} from "@/hooks/useModalState";
@@ -64,6 +65,8 @@ export default function BulletinForm({mode, initial, onSubmit, onDelete, onCance
   const [title, setTitle] = useState(initial?.title ?? "");
   const [openYn, setOpenYn] = useState<"Y" | "N">(initial?.openYn ?? "Y");
   const [files, setFiles] = useState<File[]>([]);
+  // 등록할 때는 실수로 전체 발송하지 않도록 직접 고르게 하고, 수정할 때는 기본으로 보내지 않는다
+  const [pushTarget, setPushTarget] = useState<PushTarget>({mode: mode === "create" ? "" : "NONE", groupIds: []});
   const [existingFiles, setExistingFiles] = useState<ExistingFile[]>([]);
   const [deleteIds, setDeleteIds] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -133,6 +136,11 @@ export default function BulletinForm({mode, initial, onSubmit, onDelete, onCance
       alert(fileError);
       return;
     }
+    const pushError = validatePushTarget(pushTarget);
+    if (pushError) {
+      alert(pushError);
+      return;
+    }
     confirmModal.openModal({
       title: mode === "create" ? "주보를 등록합니다." : "주보를 수정합니다.",
       content: <div className="text-sm text-gray-600">
@@ -145,6 +153,7 @@ export default function BulletinForm({mode, initial, onSubmit, onDelete, onCance
         openYn,
         files,
         deleteFileDetailIdList: deleteIds,
+        ...toPushPayload(pushTarget),
       })),
     });
   };
@@ -211,6 +220,13 @@ export default function BulletinForm({mode, initial, onSubmit, onDelete, onCance
                   onChange={(v: string) => setOpenYn(v === "N" ? "N" : "Y")}
                   name="bulletin-open-yn"
               />
+            </div>
+
+            <div className="col-span-full border-t border-gray-900/10 pt-8">
+              <PushTargetSelect value={pushTarget} onChange={setPushTarget} name="bulletin-push"/>
+              {mode === "edit" && (
+                  <p className="mt-3 text-sm text-gray-500">수정할 때 발송을 선택하면 알림이 다시 나갑니다.</p>
+              )}
             </div>
 
             {mode === "edit" && onDelete && (

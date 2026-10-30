@@ -1,19 +1,9 @@
 import {apiFetch} from "~/lib/api-client";
 import {authHeaders, authHeadersWithoutContentsType} from "~/lib/api/utils/headers";
+import {parseApiResponse as parseResponse} from "~/lib/api/utils/parse-response";
 
 // PDF 등 큰 파일을 올릴 수 있어 업로드는 시간을 넉넉히 둔다
 const UPLOAD_TIMEOUT = 60000;
-
-/** 서버 오류는 HTTP 200 본문의 {code, message} 로 오는 경우가 있어 함께 확인한다 */
-const parseResponse = async <T>(response: Response): Promise<T> => {
-  const body = await response.json().catch(() => null);
-  const isErrorBody = body !== null && typeof body === 'object' && !Array.isArray(body)
-      && 'code' in body && 'message' in body;
-  if (!response.ok || isErrorBody) {
-    throw {status: response.status, message: body?.message ?? '요청에 실패했습니다.'};
-  }
-  return body as T;
-};
 
 /** 주보 첨부 파일을 조회하는 주소 (토큰 기반이라 로그인 쿠키 없이도 열린다) */
 export const bulletinFileUrl = (accessToken: string, fileDetailId: number): string =>

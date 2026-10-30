@@ -25,4 +25,6 @@ type BulletinInput = {
   openYn: 'Y' | 'N';
   files: File[];
   deleteFileDetailIdList?: number[];
+  pushNotificationSendYn?: 'Y' | 'N';
+  pushGroupIds?: number[];
 };
