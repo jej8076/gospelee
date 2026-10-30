@@ -5,6 +5,7 @@ import {
   BanknotesIcon,
   CheckBadgeIcon,
   ClockIcon,
+  DocumentTextIcon,
   FlagIcon,
   PhotoIcon,
   ReceiptRefundIcon,
@@ -34,6 +35,14 @@ const baseActions: Action[] = [
     iconForeground: 'text-teal-700',
     iconBackground: 'bg-teal-50',
     description: '교회의 공지사항을 관리합니다.',
+  },
+  {
+    title: '주보 관리',
+    href: '/manage/bulletin',
+    icon: DocumentTextIcon,
+    iconForeground: 'text-green-700',
+    iconBackground: 'bg-green-50',
+    description: '교회 주보(PDF, 이미지)를 올리고 관리합니다.',
   },
   {
     title: '갤러리 관리',

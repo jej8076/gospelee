@@ -1,5 +1,8 @@
 import React from 'react';
-import { PhotoIcon } from '@heroicons/react/24/solid';
+import { DocumentTextIcon, PhotoIcon } from '@heroicons/react/24/solid';
+
+// PDF 는 이미지 미리보기를 쓸 수 없어 문서 아이콘으로 대신 보여준다
+const isPdfName = (name: string) => /\.pdf$/i.test(name);
 
 
 interface FileUploadProps {
@@ -52,11 +55,15 @@ export default function FileUpload({
           className="flex flex-col items-center justify-center space-y-2 relative"
         >
           <div className="w-36 h-36 border rounded-lg overflow-hidden bg-white flex items-center justify-center relative">
-            <img
-              src={file.url}
-              alt={file.name}
-              className="object-cover w-full h-full"
-            />
+            {isPdfName(file.name) ? (
+              <DocumentTextIcon aria-hidden="true" className="size-16 text-gray-400" />
+            ) : (
+              <img
+                src={file.url}
+                alt={file.name}
+                className="object-cover w-full h-full"
+              />
+            )}
             <button
               type="button"
               onClick={() => onRemoveFile(index, true)} // isExisting = true
@@ -82,11 +89,15 @@ export default function FileUpload({
           className="flex flex-col items-center justify-center space-y-2 relative"
         >
           <div className="w-36 h-36 border rounded-lg overflow-hidden bg-white flex items-center justify-center relative">
-            <img
-              src={URL.createObjectURL(file)}
-              alt={`preview-${index}`}
-              className="object-cover w-full h-full"
-            />
+            {isPdfName(file.name) ? (
+              <DocumentTextIcon aria-hidden="true" className="size-16 text-gray-400" />
+            ) : (
+              <img
+                src={URL.createObjectURL(file)}
+                alt={`preview-${index}`}
+                className="object-cover w-full h-full"
+              />
+            )}
             <button
               type="button"
               onClick={() => onRemoveFile(index, false)} // isExisting = false
