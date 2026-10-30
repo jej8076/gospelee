@@ -22,14 +22,21 @@ public class BulletinRequestDTO {
   private String openYn;
   /** 수정 시 삭제할 file_details ID 목록 */
   private List<Long> deleteFileDetailIdList;
+  /** Y 이면 등록 후 푸시 알림을 보낸다. 비우면 보내지 않는다 */
+  private String pushNotificationSendYn;
+  /** 알림을 보낼 푸시 그룹 id. 비어 있으면 교회 성도 전체 */
+  private List<Long> pushGroupIds;
 
   @Builder
   public BulletinRequestDTO(Long id, LocalDate worshipDate, String title, String openYn,
-      List<Long> deleteFileDetailIdList) {
+      List<Long> deleteFileDetailIdList, String pushNotificationSendYn,
+      List<Long> pushGroupIds) {
     this.id = id;
     this.worshipDate = worshipDate;
     this.title = title;
     this.openYn = openYn;
     this.deleteFileDetailIdList = deleteFileDetailIdList;
+    this.pushNotificationSendYn = pushNotificationSendYn;
+    this.pushGroupIds = pushGroupIds;
   }
 }

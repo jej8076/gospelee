@@ -10,6 +10,7 @@ import com.gospelee.api.entity.Bulletin;
 import com.gospelee.api.entity.FileDetails;
 import com.gospelee.api.enums.AppType;
 import com.gospelee.api.enums.CategoryType;
+import com.gospelee.api.enums.OrganizationType;
 import com.gospelee.api.enums.CustomHeader;
 import com.gospelee.api.enums.Yn;
 import com.gospelee.api.repository.jpa.bulletin.BulletinRepository;
@@ -19,6 +20,8 @@ import com.gospelee.api.service.FileService;
 import com.gospelee.api.service.bulletin.BulletinFilePolicy.Kind;
 import com.gospelee.api.service.announcement.AnnouncementAccessPolicy;
 import com.gospelee.api.service.announcement.AnnouncementStorageGuard;
+import com.gospelee.api.service.push.PushDispatchService;
+import com.gospelee.api.service.push.PushDispatchService.PushRequest;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -52,6 +55,7 @@ public class BulletinService {
   private final FileRepository fileRepository;
   private final FileDetailsRepository fileDetailsRepository;
   private final AnnouncementStorageGuard storageGuard;
+  private final PushDispatchService pushDispatchService;
 
   /** 내 교회 주보 목록 (예배 날짜 최신순). 앱은 공개된 것만, 관리자 웹은 전체를 본다 */
   @Transactional(readOnly = true)
@@ -89,6 +93,7 @@ public class BulletinService {
 
     List<MultipartFile> uploads = normalize(files);
     BulletinFilePolicy.validateSet(uploads.stream().map(BulletinService::kindOf).toList());
+    validatePushGroups(ecclesiaUid, dto);
     if (bulletinRepository.existsByEcclesiaUidAndWorshipDate(ecclesiaUid, dto.getWorshipDate())) {
       throw new IllegalArgumentException("해당 날짜의 주보가 이미 있습니다. 수정해 주세요.");
     }
@@ -101,6 +106,7 @@ public class BulletinService {
         .openYn(dto.getOpenYn() == null ? Yn.Y.name() : Yn.of(dto.getOpenYn()).name())
         .build());
     upload(bulletin, uploads, account);
+    sendPushIfRequested(bulletin, dto, account);
     log.info("주보 등록 - id:{}, ecclesiaUid:{}, worshipDate:{}", bulletin.getId(), ecclesiaUid,
         bulletin.getWorshipDate());
     return toResponse(bulletin);
@@ -134,6 +140,7 @@ public class BulletinService {
     }
     uploads.forEach(f -> remaining.add(kindOf(f)));
     BulletinFilePolicy.validateSet(remaining);
+    validatePushGroups(ecclesiaUid, dto);
 
     if (!bulletin.getWorshipDate().equals(dto.getWorshipDate())
         && bulletinRepository.existsByEcclesiaUidAndWorshipDate(ecclesiaUid, dto.getWorshipDate())) {
@@ -157,6 +164,7 @@ public class BulletinService {
       freed += d.getFileSize() != null ? d.getFileSize() : 0L;
     }
     storageGuard.release(ecclesiaUid, freed);
+    sendPushIfRequested(bulletin, dto, account);
     return toResponse(bulletin);
   }
 
@@ -185,6 +193,30 @@ public class BulletinService {
     }
     storageGuard.assertWritable(account.getEcclesiaUid());
     return account;
+  }
+
+  /** 알림 그룹이 내 교회의 그룹인지 저장 전에 확인한다 */
+  private void validatePushGroups(Long ecclesiaUid, BulletinRequestDTO dto) {
+    if ("Y".equals(dto.getPushNotificationSendYn())) {
+      pushDispatchService.validateGroupIds(ecclesiaUid, dto.getPushGroupIds());
+    }
+  }
+
+  private void sendPushIfRequested(Bulletin bulletin, BulletinRequestDTO dto,
+      AccountAuthDTO account) {
+    if (!"Y".equals(dto.getPushNotificationSendYn()) || Yn.N.name().equals(bulletin.getOpenYn())) {
+      return;
+    }
+    pushDispatchService.send(PushRequest.builder()
+        .sendAccountUid(account.getUid())
+        .ecclesiaUid(account.getEcclesiaUid())
+        .groupIds(dto.getPushGroupIds())
+        .organization(OrganizationType.ECCLESIA.name())
+        .category(CategoryType.BULLETIN.name())
+        .title(BulletinPushMessage.TITLE)
+        .message(BulletinPushMessage.message(bulletin.getTitle(), bulletin.getWorshipDate()))
+        .data(BulletinPushMessage.routeData())
+        .build());
   }
 
   private void upload(Bulletin bulletin, List<MultipartFile> uploads, AccountAuthDTO account) {
