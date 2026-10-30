@@ -14,6 +14,7 @@ import FormLayout from "@/components/manage/FormLayout";
 import FormField from "@/components/manage/FormField";
 import FileUpload from "@/components/manage/FileUpload";
 import RadioGroup from "@/components/manage/RadioGroup";
+import PushTargetSelect, {toPushPayload, validatePushTarget} from "@/components/manage/PushTargetSelect";
 import {useModalState} from "@/hooks/useModalState";
 
 export default function EditNoti() {
@@ -30,7 +31,8 @@ export default function EditNoti() {
   const [announcementText, setAnnouncementText] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [existingFiles, setExistingFiles] = useState<FileResource[]>([]);
-  const [pushNotificationSendYn, setPushNotificationSendYn] = useState("");
+  // 수정할 때는 기본으로 알림을 보내지 않는다
+  const [pushTarget, setPushTarget] = useState<PushTarget>({mode: "NONE", groupIds: []});
   const [openYn, setOpenYn] = useState("");
   const [blobFileMapping, setBlobFileMapping] = useState<{ [key: string]: string }>({});
   const [deleteFileDetailIdList, setDeleteFileDetailIdList] = useState<number[]>([]);
@@ -60,7 +62,6 @@ export default function EditNoti() {
   useEffect(() => {
     if (originalAnnouncement) {
       setAnnouncementText(originalAnnouncement.text || "");
-      setPushNotificationSendYn(originalAnnouncement.pushNotificationSendYn || "N");
       setOpenYn(originalAnnouncement.openYn || "N");
 
       // 기존 파일 리소스 설정
@@ -104,6 +105,11 @@ export default function EditNoti() {
 
   // Event handlers
   const handleSubmit = () => {
+    const pushError = validatePushTarget(pushTarget);
+    if (pushError) {
+      alert(pushError);
+      return;
+    }
     confirmModal.openModal({
       content: '수정하신 공지사항을 저장합니다',
       onConfirm: () => {
@@ -180,7 +186,7 @@ export default function EditNoti() {
       organizationType: TYPE,
       subject: originalAnnouncement?.subject || "",
       text: announcementText,
-      pushNotificationSendYn: pushNotificationSendYn,
+      ...toPushPayload(pushTarget),
       openYn: openYn,
     };
 
@@ -216,19 +222,6 @@ export default function EditNoti() {
       cleanupBlobUrls();
     };
   }, []);
-
-  const pushNotificationOptions = [
-    {
-      value: "Y",
-      label: "등록 교인 전체발송",
-      description: "모든 등록된 교인에게 푸시 알림을 발송합니다"
-    },
-    {
-      value: "N",
-      label: "발송안함",
-      description: "푸시 알림을 발송하지 않습니다"
-    }
-  ];
 
   const openYnOptions = [
     {
@@ -298,14 +291,7 @@ export default function EditNoti() {
             </FormField>
 
             <div className="col-span-full border-t border-gray-900/10 pt-8">
-              <RadioGroup
-                  title="푸시 알림"
-                  description="앱 푸시 알림을 발송할 지 선택해 주세요"
-                  options={pushNotificationOptions}
-                  value={pushNotificationSendYn}
-                  onChange={setPushNotificationSendYn}
-                  name="push-notifications"
-              />
+              <PushTargetSelect value={pushTarget} onChange={setPushTarget} name="noti-push"/>
             </div>
 
             <div className="col-span-full border-t border-gray-900/10 pt-8">
