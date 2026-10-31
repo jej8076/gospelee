@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { DocumentTextIcon, PhotoIcon } from '@heroicons/react/24/solid';
 
 // PDF 는 이미지 미리보기를 쓸 수 없어 문서 아이콘으로 대신 보여준다
@@ -14,7 +14,21 @@ interface FileUploadProps {
   showApplyButton?: boolean;
   multiple?: boolean;
   accept?: string;
+  /** 지정하면 터치 기기(모바일)에서는 PDF 선택 버튼을 따로 보여주고, 그 외에는 accept 에 합쳐 버튼 하나로 받는다 */
+  pdfAccept?: string;
 }
+
+// 모바일 브라우저는 accept 에 이미지가 섞이면 사진 선택기만 열어 PDF 를 고르기 어렵다
+const useIsTouchDevice = () => {
+  const [isTouch, setIsTouch] = useState(false);
+  useEffect(() => {
+    setIsTouch(window.matchMedia('(pointer: coarse)').matches);
+  }, []);
+  return isTouch;
+};
+
+const uploadButtonClass =
+  "cursor-pointer text-center border border-dashed border-gray-300 rounded-lg p-6 hover:border-gray-400 w-36 h-36 flex flex-col justify-center items-center bg-white";
 
 export default function FileUpload({
   files,
@@ -24,29 +38,47 @@ export default function FileUpload({
   onApplyToContent,
   showApplyButton = false,
   multiple = true,
-  accept = "image/*"
+  accept = "image/*",
+  pdfAccept
 }: FileUploadProps) {
+  const splitPdf = useIsTouchDevice() && !!pdfAccept;
+  // 버튼이 하나일 때는 사진과 PDF 를 모두 고를 수 있어야 한다
+  const mainAccept = splitPdf || !pdfAccept ? accept : `${accept},${pdfAccept}`;
+
   return (
     <div className="mt-2 flex flex-wrap gap-4 px-6 py-4 border border-gray-200 rounded-lg bg-gray-50">
       {/* 업로드 버튼 */}
-      <label
-        htmlFor="file-upload"
-        className="cursor-pointer text-center border border-dashed border-gray-300 rounded-lg p-6 hover:border-gray-400 w-36 h-36 flex flex-col justify-center items-center bg-white"
-      >
+      <label htmlFor="file-upload" className={uploadButtonClass}>
         <PhotoIcon aria-hidden="true" className="mx-auto size-12 text-gray-300" />
         <span className="mt-2 block text-sm font-semibold text-indigo-600 hover:text-indigo-500">
-          파일 업로드
+          {splitPdf ? "사진 선택" : "파일 업로드"}
         </span>
         <input
           id="file-upload"
           name="file-upload"
           type="file"
           multiple={multiple}
-          accept={accept}
+          accept={mainAccept}
           onChange={onFileChange}
           className="sr-only"
         />
       </label>
+      {splitPdf && (
+        <label htmlFor="file-upload-pdf" className={uploadButtonClass}>
+          <DocumentTextIcon aria-hidden="true" className="mx-auto size-12 text-gray-300" />
+          <span className="mt-2 block text-sm font-semibold text-indigo-600 hover:text-indigo-500">
+            PDF 선택
+          </span>
+          <input
+            id="file-upload-pdf"
+            name="file-upload-pdf"
+            type="file"
+            accept={pdfAccept}
+            onChange={onFileChange}
+            className="sr-only"
+          />
+        </label>
+      )}
 
       {/* 기존 파일들 */}
       {existingFiles.map((file, index) => (
