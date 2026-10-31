@@ -207,7 +207,8 @@ export default function BulletinForm({mode, initial, onSubmit, onDelete, onCance
                   onFileChange={handleFileChange}
                   onRemoveFile={handleRemoveFile}
                   multiple={true}
-                  accept="application/pdf,image/jpeg,image/png,image/webp"
+                  accept="image/jpeg,image/png,image/webp"
+                  pdfAccept="application/pdf"
               />
             </FormField>
 
