@@ -4,6 +4,7 @@ import {useEffect, useRef, useState} from "react";
 import FormLayout from "@/components/manage/FormLayout";
 import FormField from "@/components/manage/FormField";
 import FileUpload from "@/components/manage/FileUpload";
+import DatePicker from "@/components/manage/DatePicker";
 import RadioGroup from "@/components/manage/RadioGroup";
 import PushTargetSelect, {toPushPayload, validatePushTarget} from "@/components/manage/PushTargetSelect";
 import Modal from "@/components/modal/modal";
@@ -28,6 +29,15 @@ const upcomingSunday = (): string => {
   const dd = String(d.getDate()).padStart(2, "0");
   return `${d.getFullYear()}-${mm}-${dd}`;
 };
+
+/** 그 날이 속한 달의 몇째 주인지. 주는 일요일에 시작하고 1일이 든 주가 첫째 주다 */
+export const weekOfMonth = (d: Date): number => {
+  const firstWeekday = new Date(d.getFullYear(), d.getMonth(), 1).getDay();
+  return Math.ceil((d.getDate() + firstWeekday) / 7);
+};
+
+/** 업로드하는 날 기준의 기본 제목. 예) 2026년 11월 1째주 주보 */
+export const defaultBulletinTitle = (d: Date): string => `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${weekOfMonth(d)}째주 주보`;
 
 /** 남는 파일 구성이 서버 규칙(PDF 1개 또는 이미지 최대 20장, 혼합 불가)에 맞는지 확인한다. 맞으면 null */
 export const validateBulletinFiles = (names: string[]): string | null => {
@@ -62,7 +72,7 @@ interface BulletinFormProps {
 export default function BulletinForm({mode, initial, onSubmit, onDelete, onCancel}: BulletinFormProps) {
   const confirmModal = useModalState();
   const [worshipDate, setWorshipDate] = useState(initial?.worshipDate ?? upcomingSunday());
-  const [title, setTitle] = useState(initial?.title ?? "");
+  const [title, setTitle] = useState(initial?.title ?? (mode === "create" ? defaultBulletinTitle(new Date()) : ""));
   const [openYn, setOpenYn] = useState<"Y" | "N">(initial?.openYn ?? "Y");
   const [files, setFiles] = useState<File[]>([]);
   // 등록할 때는 실수로 전체 발송하지 않도록 직접 고르게 하고, 수정할 때는 기본으로 보내지 않는다
@@ -181,12 +191,7 @@ export default function BulletinForm({mode, initial, onSubmit, onDelete, onCance
         >
           <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
             <FormField label="예배 날짜" required className="sm:col-span-3">
-              <input
-                  type="date"
-                  value={worshipDate}
-                  onChange={(e) => setWorshipDate(e.target.value)}
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border border-gray-300"
-              />
+              <DatePicker value={worshipDate} onChange={setWorshipDate}/>
             </FormField>
 
             <FormField label="제목" className="sm:col-span-6">
@@ -195,7 +200,7 @@ export default function BulletinForm({mode, initial, onSubmit, onDelete, onCance
                   value={title}
                   maxLength={100}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="예) 11월 첫째 주 주보"
+                  placeholder="예) 2026년 11월 1째주 주보"
                   className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border border-gray-300"
               />
             </FormField>
