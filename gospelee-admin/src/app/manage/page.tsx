@@ -54,6 +54,14 @@ const baseActions: Action[] = [
     description: '알림을 보낼 성도 그룹을 만들고 관리합니다.',
   },
   {
+    title: '푸시 알림 보내기',
+    href: '/manage/push-send',
+    icon: BellAlertIcon,
+    iconForeground: 'text-rose-700',
+    iconBackground: 'bg-rose-50',
+    description: '공지·주보 등록 없이 성도에게 알림만 바로 보냅니다.',
+  },
+  {
     title: '갤러리 관리',
     href: '/manage/gallery',
     icon: PhotoIcon,

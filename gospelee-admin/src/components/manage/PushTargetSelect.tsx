@@ -10,6 +10,10 @@ interface PushTargetSelectProps {
   /** 라디오 name 이 겹치지 않게 화면마다 다르게 준다 */
   name: string;
   title?: string;
+  /** 화면 설명 문구 */
+  description?: string;
+  /** false 면 '발송안함' 을 숨긴다 (푸시를 보내는 것이 목적인 화면용) */
+  allowNone?: boolean;
 }
 
 /** 서버에 보낼 푸시 필드로 바꾼다. 그룹을 고르지 않았으면 서버는 교회 성도 전체로 본다 */
@@ -35,7 +39,14 @@ export const validatePushTarget = (target: PushTarget): string | null => {
   return null;
 };
 
-export default function PushTargetSelect({value, onChange, name, title = "푸시 알림"}: PushTargetSelectProps) {
+export default function PushTargetSelect({
+                                            value,
+                                            onChange,
+                                            name,
+                                            title = "푸시 알림",
+                                            description = "앱 푸시 알림을 누구에게 발송할지 선택해 주세요",
+                                            allowNone = true
+                                          }: PushTargetSelectProps) {
   const [groups, setGroups] = useState<PushGroup[]>([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -60,13 +71,13 @@ export default function PushTargetSelect({value, onChange, name, title = "푸시
   const options: { value: PushTarget['mode']; label: string; description: string }[] = [
     {value: 'ALL', label: '등록 교인 전체발송', description: '교회의 모든 교인에게 푸시 알림을 발송합니다'},
     {value: 'GROUPS', label: '그룹 선택 발송', description: '선택한 푸시 그룹에게만 발송합니다 (여러 그룹 선택 가능)'},
-    {value: 'NONE', label: '발송안함', description: '푸시 알림을 발송하지 않습니다'},
+    ...(allowNone ? [{value: 'NONE' as const, label: '발송안함', description: '푸시 알림을 발송하지 않습니다'}] : []),
   ];
 
   return (
       <fieldset>
         <legend className="text-sm/6 font-semibold text-gray-900">{title}</legend>
-        <p className="mt-1 text-sm/6 text-gray-600">앱 푸시 알림을 누구에게 발송할지 선택해 주세요</p>
+        <p className="mt-1 text-sm/6 text-gray-600">{description}</p>
         <div className="mt-6 space-y-6">
           {options.map((option) => (
               <div key={option.value}>
