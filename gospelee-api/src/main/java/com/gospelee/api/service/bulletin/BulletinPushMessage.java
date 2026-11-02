@@ -10,8 +10,11 @@ final class BulletinPushMessage {
   static final String TITLE = "교회 주보";
   private static final int MAX_LENGTH = 60;
 
-  /** 알림을 누르면 교회 탭을 연다 (주보 탭으로 바로 이동하는 것은 앱 쪽 확장이 필요) */
-  private static final String ROUTE = "/church";
+  /**
+   * 알림을 누르면 교회 탭의 주보 탭을 연다.
+   * tab 값을 모르는 이전 앱은 쿼리를 무시하고 교회 탭만 연다.
+   */
+  static final String ROUTE = "/church?tab=bulletin";
 
   private BulletinPushMessage() {
   }
