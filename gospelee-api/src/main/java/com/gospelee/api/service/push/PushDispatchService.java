@@ -74,16 +74,41 @@ public class PushDispatchService {
   }
 
   /**
+   * 발송 결과.
+   *
+   * @param targetCount  받을 대상 수
+   * @param sentCount    FCM 에 전달한 수
+   * @param failedCount  전달에 실패한 수 (만료된 토큰 등)
+   * @param noTokenCount 푸시 토큰이 없어 보내지 못한 수
+   */
+  public record SendResult(Long pushId, int targetCount, int sentCount, int failedCount,
+                           int noTokenCount) {
+
+  }
+
+  /**
    * 알림을 만들어 받는 사람에게 보내고 기록한다
    *
    * @return 저장한 푸시 알림 id. 받을 대상이 없으면 null
    */
   public Long send(PushRequest request) {
+    SendResult result = dispatch(request);
+    return result == null ? null : result.pushId();
+  }
+
+  /**
+   * {@link #send} 와 같지만 대상·성공·실패 수를 함께 돌려준다
+   *
+   * @return 받을 대상이 없으면 null
+   */
+  public SendResult dispatch(PushRequest request) {
     List<Long> groupIds = validateGroupIds(request.getEcclesiaUid(), request.getGroupIds());
     List<Account> recipients = resolveRecipients(request.getEcclesiaUid(), groupIds);
     if (recipients.isEmpty()) {
       return null;
     }
+    int noToken = 0;
+    int failed = 0;
 
     PushNotification pushNotification = pushNotificationRepository.save(
         PushNotification.builder()
@@ -98,11 +123,15 @@ public class PushDispatchService {
     for (Account account : recipients) {
       // 푸시 토큰이 없으면 보낼 수 없다
       if (account.getPushToken() == null || account.getPushToken().isEmpty()) {
+        noToken++;
         continue;
       }
       // 한 명의 토큰이 만료/오류여도 나머지에게는 계속 보내고, 실패는 FAILED 로 기록한다
       boolean sent = firebaseService.trySendNotification(account.getPushToken(),
           pushNotification.getTitle(), pushNotification.getMessage(), request.getData());
+      if (!sent) {
+        failed++;
+      }
       receivers.add(PushNotificationReceivers.builder()
           .pushNotificationId(pushNotification.getId())
           .receiveAccountUid(account.getUid())
@@ -115,7 +144,8 @@ public class PushDispatchService {
     pushNotificationRepository.updateTotalcountById(pushNotification.getId(), saved.size());
     log.info("푸시 발송 - pushId:{}, ecclesiaUid:{}, groupIds:{}, 대상:{}명",
         pushNotification.getId(), request.getEcclesiaUid(), groupIds, saved.size());
-    return pushNotification.getId();
+    return new SendResult(pushNotification.getId(), recipients.size(), saved.size() - failed,
+        failed, noToken);
   }
 
   /** 교회 성도 중 받을 사람. 그룹을 지정하면 그룹 멤버와 교회 성도의 교집합 */

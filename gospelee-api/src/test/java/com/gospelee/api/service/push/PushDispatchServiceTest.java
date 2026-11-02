@@ -161,6 +161,20 @@ class PushDispatchServiceTest {
   }
 
   @Test
+  void dispatch_reportsTargetSentFailedAndNoTokenCounts() {
+    when(firebaseService.trySendNotification(eq("tok2"), anyString(), anyString(), anyMap()))
+        .thenReturn(false);
+
+    PushDispatchService.SendResult result = service.dispatch(request(null));
+
+    assertEquals(99L, result.pushId());
+    assertEquals(4, result.targetCount());
+    assertEquals(2, result.sentCount());
+    assertEquals(1, result.failedCount());
+    assertEquals(1, result.noTokenCount());
+  }
+
+  @Test
   void noRecipients_createsNothing() {
     when(accountService.getAccountByEcclesiaUid(10L)).thenReturn(Optional.empty());
 
