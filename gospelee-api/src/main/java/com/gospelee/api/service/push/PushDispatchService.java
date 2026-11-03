@@ -119,22 +119,25 @@ public class PushDispatchService {
             .message(request.getMessage())
             .build());
 
+    // 푸시 토큰이 없으면 보낼 수 없다
+    List<Account> sendable = recipients.stream()
+        .filter(a -> a.getPushToken() != null && !a.getPushToken().isEmpty()).toList();
+    noToken = recipients.size() - sendable.size();
+
+    // 한 명의 토큰이 만료/오류여도 나머지에게는 계속 보내고, 실패는 FAILED 로 기록한다
+    List<Boolean> results = firebaseService.trySendEach(
+        sendable.stream().map(Account::getPushToken).toList(),
+        pushNotification.getTitle(), pushNotification.getMessage(), request.getData());
+
     List<PushNotificationReceivers> receivers = new ArrayList<>();
-    for (Account account : recipients) {
-      // 푸시 토큰이 없으면 보낼 수 없다
-      if (account.getPushToken() == null || account.getPushToken().isEmpty()) {
-        noToken++;
-        continue;
-      }
-      // 한 명의 토큰이 만료/오류여도 나머지에게는 계속 보내고, 실패는 FAILED 로 기록한다
-      boolean sent = firebaseService.trySendNotification(account.getPushToken(),
-          pushNotification.getTitle(), pushNotification.getMessage(), request.getData());
+    for (int i = 0; i < sendable.size(); i++) {
+      boolean sent = results.get(i);
       if (!sent) {
         failed++;
       }
       receivers.add(PushNotificationReceivers.builder()
           .pushNotificationId(pushNotification.getId())
-          .receiveAccountUid(account.getUid())
+          .receiveAccountUid(sendable.get(i).getUid())
           .status((sent ? PushNotificationSendStatusType.READY
               : PushNotificationSendStatusType.FAILED).name())
           .build());
