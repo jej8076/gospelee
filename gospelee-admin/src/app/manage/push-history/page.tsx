@@ -139,7 +139,7 @@ export default function PushHistoryPage(): JSX.Element {
         <div className="mt-4 rounded-md bg-gray-50 p-3 text-xs/5 text-gray-600">
           <b>전달됨</b>은 알림 서버가 접수한 수, <b>받음</b>은 앱이 켜져 있을 때 받은 것이 확인된 수,
           <b> 확인함</b>은 알림을 눌러 앱을 연 수입니다. 앱이 꺼져 있을 때 도착한 알림은 눌러서 열기 전까지
-          '전달됨'으로만 표시되므로 실제 수신 인원보다 적게 집계될 수 있습니다.
+          “전달됨”으로만 표시되므로 실제 수신 인원보다 적게 집계될 수 있습니다.
         </div>
 
         <div className="mt-6">
