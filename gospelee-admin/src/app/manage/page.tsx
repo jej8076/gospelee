@@ -5,6 +5,7 @@ import {
   BanknotesIcon,
   BellAlertIcon,
   CheckBadgeIcon,
+  ChartBarIcon,
   ClockIcon,
   DocumentTextIcon,
   FlagIcon,
@@ -60,6 +61,14 @@ const baseActions: Action[] = [
     iconForeground: 'text-rose-700',
     iconBackground: 'bg-rose-50',
     description: '공지·주보 등록 없이 성도에게 알림만 바로 보냅니다.',
+  },
+  {
+    title: '푸시 발송 현황',
+    href: '/manage/push-history',
+    icon: ChartBarIcon,
+    iconForeground: 'text-teal-700',
+    iconBackground: 'bg-teal-50',
+    description: '보낸 알림이 성도에게 전달되고 확인되었는지 봅니다.',
   },
   {
     title: '갤러리 관리',

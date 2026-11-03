@@ -40,4 +40,8 @@ public class PushNotificationReceivers {
     this.receiveAccountUid = receiveAccountUid;
     this.status = status;
   }
+
+  public void changeStatus(String status) {
+    this.status = status;
+  }
 }

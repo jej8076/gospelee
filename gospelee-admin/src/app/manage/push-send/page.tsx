@@ -1,6 +1,7 @@
 "use client"
 
 import {useEffect, useRef, useState} from "react";
+import Link from "next/link";
 import {useRouter} from "next/navigation";
 import useAuth from "~/lib/auth/check-auth";
 import FormLayout from "@/components/manage/FormLayout";
@@ -69,6 +70,11 @@ export default function PushSend() {
               {result.failedCount > 0 && (
                   <p>{result.failedCount}명은 전달에 실패했습니다. (만료된 알림 정보 등)</p>
               )}
+              <p>
+                <Link href="/manage/push-history" className="font-semibold text-indigo-600 hover:text-indigo-500">
+                  발송 현황에서 받았는지 확인하기
+                </Link>
+              </p>
             </div>
         ),
       });
