@@ -13,6 +13,7 @@ import com.gospelee.api.repository.jpa.pushnotification.PushNotificationReposito
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.FirebaseService;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class PushDispatchService {
+
+  public static final String PUSH_ID_KEY = "pushId";
 
   private final AccountService accountService;
   private final PushGroupRepository pushGroupRepository;
@@ -127,7 +130,8 @@ public class PushDispatchService {
     // 한 명의 토큰이 만료/오류여도 나머지에게는 계속 보내고, 실패는 FAILED 로 기록한다
     List<Boolean> results = firebaseService.trySendEach(
         sendable.stream().map(Account::getPushToken).toList(),
-        pushNotification.getTitle(), pushNotification.getMessage(), request.getData());
+        pushNotification.getTitle(), pushNotification.getMessage(), withPushId(request.getData(),
+            pushNotification.getId()));
 
     List<PushNotificationReceivers> receivers = new ArrayList<>();
     for (int i = 0; i < sendable.size(); i++) {
@@ -149,6 +153,16 @@ public class PushDispatchService {
         pushNotification.getId(), request.getEcclesiaUid(), groupIds, saved.size());
     return new SendResult(pushNotification.getId(), recipients.size(), saved.size() - failed,
         failed, noToken);
+  }
+
+  /** 앱이 수신·확인을 보고할 수 있게 푸시 id 를 data 에 담는다 */
+  private static Map<String, String> withPushId(Map<String, String> data, Long pushId) {
+    Map<String, String> result = new HashMap<>();
+    if (data != null) {
+      result.putAll(data);
+    }
+    result.put(PUSH_ID_KEY, String.valueOf(pushId));
+    return result;
   }
 
   /** 교회 성도 중 받을 사람. 그룹을 지정하면 그룹 멤버와 교회 성도의 교집합 */
