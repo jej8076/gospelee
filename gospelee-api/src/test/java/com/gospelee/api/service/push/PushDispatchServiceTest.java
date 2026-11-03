@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -25,9 +26,11 @@ import com.gospelee.api.repository.jpa.pushnotification.PushNotificationReposito
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.FirebaseService;
 import com.gospelee.api.service.push.PushDispatchService.PushRequest;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -40,6 +43,7 @@ class PushDispatchServiceTest {
   private PushNotificationRepository notificationRepository;
   private PushNotificationReceiversRepository receiversRepository;
   private FirebaseService firebaseService;
+  private final Set<String> failingTokens = new HashSet<>();
   private PushDispatchService service;
 
   @BeforeEach
@@ -60,8 +64,10 @@ class PushDispatchServiceTest {
           .build();
     });
     when(receiversRepository.saveAll(any())).thenAnswer(inv -> inv.getArgument(0));
-    when(firebaseService.trySendNotification(anyString(), anyString(), anyString(), anyMap()))
-        .thenReturn(true);
+    // 기본은 모두 성공. 실패시킬 토큰은 failingTokens 에 넣는다
+    when(firebaseService.trySendEach(anyList(), anyString(), anyString(), anyMap()))
+        .thenAnswer(inv -> ((List<String>) inv.getArgument(0)).stream()
+            .map(t -> !failingTokens.contains(t)).toList());
     // 교회 10 의 성도: 1,2,3 은 토큰 있음, 4 는 토큰 없음
     when(accountService.getAccountByEcclesiaUid(10L)).thenReturn(Optional.of(List.of(
         account(1L, "tok1"), account(2L, "tok2"), account(3L, "tok3"), account(4L, null))));
@@ -97,9 +103,8 @@ class PushDispatchServiceTest {
     Long id = service.send(request(null));
 
     assertEquals(99L, id);
-    verify(firebaseService).trySendNotification(eq("tok1"), anyString(), anyString(), anyMap());
-    verify(firebaseService).trySendNotification(eq("tok2"), anyString(), anyString(), anyMap());
-    verify(firebaseService).trySendNotification(eq("tok3"), anyString(), anyString(), anyMap());
+    verify(firebaseService).trySendEach(eq(List.of("tok1", "tok2", "tok3")), anyString(),
+        anyString(), anyMap());
     assertEquals(3, savedReceivers().size());
     verify(notificationRepository).updateTotalcountById(99L, 3);
   }
@@ -114,9 +119,7 @@ class PushDispatchServiceTest {
 
     service.send(request(List.of(1L, 2L, 2L)));
 
-    verify(firebaseService).trySendNotification(eq("tok1"), anyString(), anyString(), anyMap());
-    verify(firebaseService).trySendNotification(eq("tok2"), anyString(), anyString(), anyMap());
-    verify(firebaseService, never()).trySendNotification(eq("tok3"), anyString(), anyString(),
+    verify(firebaseService).trySendEach(eq(List.of("tok1", "tok2")), anyString(), anyString(),
         anyMap());
     assertEquals(2, savedReceivers().size());
   }
@@ -130,7 +133,7 @@ class PushDispatchServiceTest {
 
     service.send(request(List.of(1L)));
 
-    verify(firebaseService).trySendNotification(eq("tok3"), anyString(), anyString(), anyMap());
+    verify(firebaseService).trySendEach(eq(List.of("tok3")), anyString(), anyString(), anyMap());
     assertEquals(1, savedReceivers().size());
   }
 
@@ -142,14 +145,12 @@ class PushDispatchServiceTest {
     assertThrows(IllegalArgumentException.class, () -> service.send(request(List.of(1L, 55L))));
 
     verify(notificationRepository, never()).save(any());
-    verify(firebaseService, never()).trySendNotification(anyString(), anyString(), anyString(),
-        anyMap());
+    verify(firebaseService, never()).trySendEach(anyList(), anyString(), anyString(), anyMap());
   }
 
   @Test
   void failedSend_isRecordedAsFailed_andOthersStillGoOut() {
-    when(firebaseService.trySendNotification(eq("tok2"), anyString(), anyString(), anyMap()))
-        .thenReturn(false);
+    failingTokens.add("tok2");
 
     service.send(request(null));
 
@@ -162,8 +163,7 @@ class PushDispatchServiceTest {
 
   @Test
   void dispatch_reportsTargetSentFailedAndNoTokenCounts() {
-    when(firebaseService.trySendNotification(eq("tok2"), anyString(), anyString(), anyMap()))
-        .thenReturn(false);
+    failingTokens.add("tok2");
 
     PushDispatchService.SendResult result = service.dispatch(request(null));
 

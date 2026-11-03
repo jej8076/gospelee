@@ -11,7 +11,9 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.Notification;
+import com.google.firebase.messaging.SendResponse;
 import com.gospelee.api.exception.FirebaseMessagingClientException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +25,8 @@ import org.springframework.stereotype.Service;
 public class FirebaseService {
 
   private final FirebaseMessaging firebaseMessaging;
+  private static final int MULTICAST_LIMIT = 500;
+
   private final String apnsEnvironment;
 
   public FirebaseService(FirebaseMessaging firebaseMessaging) {
@@ -62,18 +66,8 @@ public class FirebaseService {
     }
   }
 
-  private static String maskToken(String token) {
-    if (token == null || token.length() <= 8) {
-      return "***";
-    }
-    return token.substring(0, 8) + "...";
-  }
-
-  public String sendNotification(String token, String title, String body,
-      Map<String, String> data) {
-
-    // IOS 설정
-    ApnsConfig apnsConfig = ApnsConfig.builder()
+  private ApnsConfig buildApnsConfig() {
+    return ApnsConfig.builder()
         .putHeader("apns-priority", "10")
         .putHeader("apns-environment", apnsEnvironment)
         .setAps(
@@ -85,9 +79,10 @@ public class FirebaseService {
                 .setAlert(ApsAlert.builder().build())
                 .build()
         ).build();
+  }
 
-    // Android 설정
-    AndroidConfig androidConfig = AndroidConfig.builder()
+  private AndroidConfig buildAndroidConfig() {
+    return AndroidConfig.builder()
         .setPriority(AndroidConfig.Priority.HIGH)
         .setNotification(
             AndroidNotification.builder()
@@ -98,11 +93,54 @@ public class FirebaseService {
                 .build()
         )
         .build();
+  }
 
-    Notification notification = Notification.builder()
+  private Notification buildNotification(String title, String body) {
+    return Notification.builder()
         .setTitle(title)
         .setBody(body)
         .build();
+  }
+
+  /**
+   * 여러 토큰에 같은 알림을 묶음(FCM 한도 500개)으로 보낸다.
+   * 토큰마다 성공 여부를 입력 순서대로 돌려주며, 묶음 전체가 실패해도 예외 없이 false 로 채운다
+   */
+  public List<Boolean> trySendEach(List<String> tokens, String title, String body,
+      Map<String, String> data) {
+    List<Boolean> results = new ArrayList<>(tokens.size());
+    for (int from = 0; from < tokens.size(); from += MULTICAST_LIMIT) {
+      List<String> chunk = tokens.subList(from, Math.min(from + MULTICAST_LIMIT, tokens.size()));
+      try {
+        BatchResponse response = sendMultiNotification(chunk, title, body, data);
+        for (SendResponse r : response.getResponses()) {
+          if (!r.isSuccessful()) {
+            log.warn("[FCM] 전송 실패(건너뜀) message={}", r.getException() == null ? null
+                : r.getException().getMessage());
+          }
+          results.add(r.isSuccessful());
+        }
+      } catch (Exception e) {
+        log.warn("[FCM] 묶음 전송 실패 count={} message={}", chunk.size(), e.getMessage());
+        chunk.forEach(t -> results.add(false));
+      }
+    }
+    return results;
+  }
+
+  private static String maskToken(String token) {
+    if (token == null || token.length() <= 8) {
+      return "***";
+    }
+    return token.substring(0, 8) + "...";
+  }
+
+  public String sendNotification(String token, String title, String body,
+      Map<String, String> data) {
+
+    ApnsConfig apnsConfig = buildApnsConfig();
+    AndroidConfig androidConfig = buildAndroidConfig();
+    Notification notification = buildNotification(title, body);
 
     Message message = Message.builder()
         .setToken(token)
@@ -147,39 +185,9 @@ public class FirebaseService {
   public BatchResponse sendMultiNotification(List<String> tokenList, String title, String body,
       Map<String, String> data) {
 
-    String result = "";
-
-    // IOS 설정
-    ApnsConfig apnsConfig = ApnsConfig.builder()
-        .putHeader("apns-priority", "10")
-        .putHeader("apns-environment", apnsEnvironment)
-        .setAps(
-            Aps.builder()
-                .setContentAvailable(false)
-                .setMutableContent(false)
-                .setSound("default")
-                .setBadge(1)
-                .setAlert(ApsAlert.builder().build())
-                .build()
-        ).build();
-
-    // Android 설정
-    AndroidConfig androidConfig = AndroidConfig.builder()
-        .setPriority(AndroidConfig.Priority.HIGH)
-        .setNotification(
-            AndroidNotification.builder()
-                .setChannelId("podo_notification_channel")
-                .setSound("default")
-                .setDefaultSound(true)
-                .setDefaultVibrateTimings(true)
-                .build()
-        )
-        .build();
-
-    Notification notification = Notification.builder()
-        .setTitle(title)
-        .setBody(body)
-        .build();
+    ApnsConfig apnsConfig = buildApnsConfig();
+    AndroidConfig androidConfig = buildAndroidConfig();
+    Notification notification = buildNotification(title, body);
 
     MulticastMessage message = MulticastMessage.builder()
         .addAllTokens(tokenList)
