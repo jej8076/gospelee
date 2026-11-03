@@ -9,6 +9,7 @@ import com.gospelee.api.dto.account.AccountEcclesiaHistoryDetailDTO;
 import com.gospelee.api.dto.account.AccountLeaveResponseDTO;
 import com.gospelee.api.dto.account.AccountNameUpdateDTO;
 import com.gospelee.api.dto.account.AccountNicknameUpdateDTO;
+import com.gospelee.api.dto.account.AccountSummaryDTO;
 import com.gospelee.api.utils.NicknameValidator;
 import com.gospelee.api.dto.account.PushTokenDTO;
 import com.gospelee.api.dto.common.DataResponseDTO;
@@ -30,6 +31,7 @@ import com.gospelee.api.entity.Account;
 import com.gospelee.api.service.AccountService;
 import com.gospelee.api.service.AccountWithdrawalService;
 import com.gospelee.api.service.AppleAuthService;
+import com.gospelee.api.service.EcclesiaPushNotifier;
 import com.gospelee.api.service.FirebaseService;
 import com.gospelee.api.service.QrloginService;
 import com.gospelee.api.service.RedisCacheService;
@@ -96,9 +98,11 @@ public class AccountController {
    * @return 전체 계정 목록
    */
   @PostMapping("/all")
-  public ResponseEntity<Object> getAllAccounts() {
-    List<Account> accounts = accountService.getAccountAll();
-    return ResponseEntity.ok(accounts);
+  public ResponseEntity<Object> getAllAccounts(@AuthenticationPrincipal AccountAuthDTO account) {
+    if (!isAdminUser(account)) {
+      return ResponseEntity.ok(List.of());
+    }
+    return handleAdminAccountRequest();
   }
 
   @PostMapping("/nonce/put")
@@ -113,7 +117,8 @@ public class AccountController {
   }
 
   /**
-   * 교회별 계정 목록을 조회합니다. - ADMIN 권한: 전체 목록 조회 - 일반 사용자: 본인 교회의 계정 목록만 조회
+   * 교회별 계정 목록을 조회합니다. - ADMIN 권한: 전체 목록 조회 - 교회 대표·교역자: 본인 교회의 계정 목록만 조회
+   * - 그 외: 빈 목록
    *
    * @param account 인증된 사용자 정보
    * @return 계정 목록
@@ -384,21 +389,29 @@ public class AccountController {
    * 관리자의 계정 조회 요청을 처리합니다.
    */
   private ResponseEntity<Object> handleAdminAccountRequest() {
-    List<Account> allAccounts = accountService.getAccountAll();
-    return ResponseEntity.ok(allAccounts);
+    return ResponseEntity.ok(toSummaries(accountService.getAccountAll()));
   }
 
   /**
    * 일반 사용자의 계정 조회 요청을 처리합니다.
    */
   private ResponseEntity<Object> handleUserAccountRequest(AccountAuthDTO account) {
+    if (!EcclesiaPushNotifier.isManagerRole(account.getRole())
+        || ObjectUtils.isEmpty(account.getEcclesiaUid())) {
+      return ResponseEntity.ok(List.of());
+    }
+
     Optional<List<Account>> accountList = accountService.getAccountByEcclesiaUid(
         account.getEcclesiaUid()
     );
 
     return accountList
-        .map(accounts -> ResponseEntity.ok((Object) accounts))
+        .map(accounts -> ResponseEntity.ok((Object) toSummaries(accounts)))
         .orElseGet(() -> ResponseEntity.ok(List.of()));
+  }
+
+  private List<AccountSummaryDTO> toSummaries(List<Account> accounts) {
+    return accounts.stream().map(AccountSummaryDTO::from).toList();
   }
 
   /**
