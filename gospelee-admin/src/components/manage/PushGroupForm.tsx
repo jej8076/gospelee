@@ -7,21 +7,9 @@ import Modal from "@/components/modal/modal";
 import {blueButton, grayButton} from "@/components/modal/modal-buttons";
 import {useModalState} from "@/hooks/useModalState";
 import {fetchPushGroupCandidates} from "~/lib/api/fetch-push-group";
-
-const ROLE_LABELS: Record<string, string> = {
-  LAYMAN: '성도',
-  TEACHER: '교사',
-  COORDINATOR: '간사',
-  MINISTER: '전도사',
-  LICENSED_MINISTER: '강도사',
-  PASTOR: '목사',
-  SENIOR_PASTOR: '담임목사',
-  ADMIN: '관리자',
-};
+import {displayName, ROLE_LABELS} from "@/components/manage/pushGroupLabels";
 
 const inputClass = "block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border border-gray-300";
-
-const displayName = (c: PushGroupCandidate) => c.name?.trim() || c.nickname?.trim() || `성도 ${c.uid}`;
 
 interface PushGroupFormProps {
   mode: "create" | "edit";
