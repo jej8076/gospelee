@@ -21,7 +21,7 @@ export default function EditPushGroup() {
       const found = groups.find((g) => g.id === groupId);
       if (!found) {
         alert("그룹을 찾을 수 없습니다.");
-        router.push("/manage/push-group");
+        router.push("/manage/push?tab=groups");
         return;
       }
       setGroup(found);
@@ -32,7 +32,7 @@ export default function EditPushGroup() {
         return;
       }
       alert(error?.message ?? "그룹을 불러오지 못했습니다.");
-      router.push("/manage/push-group");
+      router.push("/manage/push?tab=groups");
     });
   }, [groupId]);
 
@@ -46,12 +46,12 @@ export default function EditPushGroup() {
 
   const handleSubmit = async (input: PushGroupInput) => {
     await fetchUpdatePushGroup(input);
-    router.push("/manage/push-group");
+    router.push("/manage/push?tab=groups");
   };
 
   const handleDelete = async () => {
     await fetchDeletePushGroup(group.id);
-    router.push("/manage/push-group");
+    router.push("/manage/push?tab=groups");
   };
 
   return (
@@ -60,7 +60,7 @@ export default function EditPushGroup() {
           initial={group}
           onSubmit={handleSubmit}
           onDelete={handleDelete}
-          onCancel={() => router.push("/manage/push-group")}
+          onCancel={() => router.push("/manage/push?tab=groups")}
       />
   );
 }

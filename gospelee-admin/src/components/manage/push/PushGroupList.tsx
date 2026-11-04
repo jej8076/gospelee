@@ -1,16 +1,13 @@
 "use client"
 
-import React, {useEffect, useState, type JSX} from 'react';
-import useAuth from "~/lib/auth/check-auth";
+import React, {useEffect, useState, type JSX} from "react";
 import {useRouter} from "next/navigation";
 import {useApiClient} from "@/hooks/useApiClient";
 import {fetchPushGroups} from "~/lib/api/fetch-push-group";
 import PageHeader from "@/components/manage/PageHeader";
 import DataTable from "@/components/manage/DataTable";
 
-export default function ManagePushGroup(): JSX.Element {
-  useAuth();
-
+export default function PushGroupList(): JSX.Element {
   const router = useRouter();
   const {callApi} = useApiClient();
   const [groups, setGroups] = useState<PushGroup[]>([]);
@@ -47,20 +44,18 @@ export default function ManagePushGroup(): JSX.Element {
 
   if (isLoading) {
     return (
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-center items-center h-64">
-            <div className="text-lg text-gray-500">로딩 중...</div>
-          </div>
+        <div className="flex h-64 items-center justify-center">
+          <div className="text-lg text-gray-500">로딩 중...</div>
         </div>
     );
   }
 
   return (
-      <div className="px-4 sm:px-6 lg:px-8">
+      <div>
         <PageHeader
             title="푸시 그룹"
-            description="성도를 직접 골라 그룹으로 묶어 두면, 공지·주보를 등록할 때 그룹에게만 알림을 보낼 수 있습니다."
-            buttonText="새로만들기"
+            description="성도를 직접 골라 그룹으로 묶어 두면, 알림을 보낼 때 그룹에게만 보낼 수 있습니다."
+            buttonText="그룹 만들기"
             onButtonClick={() => router.push('/manage/push-group/create')}
         />
 

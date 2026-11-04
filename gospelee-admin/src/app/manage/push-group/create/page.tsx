@@ -12,14 +12,14 @@ export default function CreatePushGroup() {
 
   const handleSubmit = async (input: PushGroupInput) => {
     await fetchCreatePushGroup(input);
-    router.push("/manage/push-group");
+    router.push("/manage/push?tab=groups");
   };
 
   return (
       <PushGroupForm
           mode="create"
           onSubmit={handleSubmit}
-          onCancel={() => router.push("/manage/push-group")}
+          onCancel={() => router.push("/manage/push?tab=groups")}
       />
   );
 }
