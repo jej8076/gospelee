@@ -74,7 +74,7 @@ function PushCard({push}: { push: PushHistory }) {
             <Stat label="발송 대상" value={push.targetCount}/>
             <Stat label="전달됨" value={push.deliveredCount} hint="알림 서버(FCM)가 접수한 수"/>
             <Stat label="받음" value={push.receivedCount} hint="앱이 켜져 있어 받은 것이 확인된 수"/>
-            <Stat label="확인함" value={push.confirmedCount} hint="알림을 눌러 앱을 연 수"/>
+            <Stat label="확인함" value={push.confirmedCount} hint="알림을 눌러 이동할 화면이 열린 수 (이동할 화면이 없는 알림은 앱이 열린 수)"/>
             {push.failedCount > 0 && <Stat label="전달 실패" value={push.failedCount}/>}
           </div>
 
@@ -138,7 +138,7 @@ export default function PushHistoryPage(): JSX.Element {
 
         <div className="mt-4 rounded-md bg-gray-50 p-3 text-xs/5 text-gray-600">
           <b>전달됨</b>은 알림 서버가 접수한 수, <b>받음</b>은 앱이 켜져 있을 때 받은 것이 확인된 수,
-          <b> 확인함</b>은 알림을 눌러 앱을 연 수입니다. 앱이 꺼져 있을 때 도착한 알림은 눌러서 열기 전까지
+          <b> 확인함</b>은 알림을 눌러 이동할 화면(공지, 주보 등)이 열린 수이며, 이동할 화면이 없는 알림은 앱이 열린 수입니다. 앱이 꺼져 있을 때 도착한 알림은 눌러서 열기 전까지
           “전달됨”으로만 표시되므로 실제 수신 인원보다 적게 집계될 수 있습니다.
         </div>
 
