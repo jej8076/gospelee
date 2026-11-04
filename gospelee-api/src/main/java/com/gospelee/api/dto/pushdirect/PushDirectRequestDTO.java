@@ -20,11 +20,15 @@ public class PushDirectRequestDTO {
   @Size(max = 200)
   private String message;
   private List<Long> groupIds;
+  /** 알림을 눌렀을 때 앱이 열 화면. 비어 있으면 앱만 연다 */
+  @Size(max = 100)
+  private String route;
 
   @Builder
-  public PushDirectRequestDTO(String title, String message, List<Long> groupIds) {
+  public PushDirectRequestDTO(String title, String message, List<Long> groupIds, String route) {
     this.title = title;
     this.message = message;
     this.groupIds = groupIds;
+    this.route = route;
   }
 }
