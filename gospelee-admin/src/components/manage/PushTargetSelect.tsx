@@ -1,7 +1,8 @@
 "use client"
 
 import {useEffect, useState} from "react";
-import Link from "next/link";
+import PushGroupMembersModal from "@/components/manage/PushGroupMembersModal";
+import PushGroupCreateModal from "@/components/manage/PushGroupCreateModal";
 import {fetchPushGroups} from "~/lib/api/fetch-push-group";
 
 interface PushTargetSelectProps {
@@ -49,13 +50,24 @@ export default function PushTargetSelect({
                                           }: PushTargetSelectProps) {
   const [groups, setGroups] = useState<PushGroup[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [membersOf, setMembersOf] = useState<PushGroup | null>(null);
+  const [creating, setCreating] = useState(false);
+
+  const loadGroups = () => fetchPushGroups()
+  .then(setGroups)
+  .catch(() => setGroups([]))
+  .finally(() => setLoaded(true));
 
   useEffect(() => {
-    fetchPushGroups()
-    .then(setGroups)
-    .catch(() => setGroups([]))
-    .finally(() => setLoaded(true));
+    loadGroups();
   }, []);
+
+  // 방금 만든 그룹은 바로 선택해 둔다
+  const handleCreated = async (group: PushGroup) => {
+    setCreating(false);
+    await loadGroups();
+    onChange({mode: 'GROUPS', groupIds: [...value.groupIds, group.id]});
+  };
 
   const selectMode = (mode: PushTarget['mode']) => {
     onChange({mode, groupIds: mode === 'GROUPS' ? value.groupIds : []});
@@ -99,12 +111,7 @@ export default function PushTargetSelect({
                 {option.value === 'GROUPS' && value.mode === 'GROUPS' && (
                     <div className="mt-3 ml-7 rounded-md border border-gray-200 bg-gray-50 p-3">
                       {loaded && groups.length === 0 ? (
-                          <p className="text-sm text-gray-600">
-                            만들어 둔 푸시 그룹이 없습니다.{" "}
-                            <Link href="/manage/push-group/create" className="font-semibold text-indigo-600 hover:text-indigo-500">
-                              푸시 그룹 만들기
-                            </Link>
-                          </p>
+                          <p className="text-sm text-gray-600">만들어 둔 푸시 그룹이 없습니다.</p>
                       ) : (
                           <ul className="space-y-2">
                             {groups.map((group) => (
@@ -120,15 +127,31 @@ export default function PushTargetSelect({
                                     {group.name}
                                     <span className="ml-2 text-gray-500">{group.memberCount}명</span>
                                   </label>
+                                  <button
+                                      type="button"
+                                      onClick={() => setMembersOf(group)}
+                                      className="text-xs font-semibold text-indigo-600 hover:text-indigo-500 cursor-pointer"
+                                  >
+                                    멤버 보기
+                                  </button>
                                 </li>
                             ))}
                           </ul>
                       )}
+                      <button
+                          type="button"
+                          onClick={() => setCreating(true)}
+                          className="mt-3 text-sm font-semibold text-indigo-600 hover:text-indigo-500 cursor-pointer"
+                      >
+                        + 새 그룹 만들기
+                      </button>
                     </div>
                 )}
               </div>
           ))}
         </div>
+        <PushGroupMembersModal group={membersOf} onClose={() => setMembersOf(null)}/>
+        <PushGroupCreateModal isOpen={creating} onClose={() => setCreating(false)} onCreated={handleCreated}/>
       </fieldset>
   );
 }
