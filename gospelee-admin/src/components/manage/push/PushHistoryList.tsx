@@ -11,7 +11,7 @@ const CATEGORY_LABEL: Record<string, string> = {
 
 const STATUS_LABEL: Record<string, { text: string; className: string }> = {
   CONFIRMED: {text: "확인함", className: "bg-green-50 text-green-700"},
-  RECEIVED: {text: "받음", className: "bg-blue-50 text-blue-700"},
+  RECEIVED: {text: "전달됨", className: "bg-gray-100 text-gray-700"},
   READY: {text: "전달됨", className: "bg-gray-100 text-gray-700"},
   SENT: {text: "전달됨", className: "bg-gray-100 text-gray-700"},
   FAILED: {text: "전달 실패", className: "bg-red-50 text-red-700"},
@@ -71,7 +71,6 @@ function PushCard({push}: { push: PushHistory }) {
           <div className="mt-4 flex flex-wrap gap-x-6 gap-y-3">
             <Stat label="발송 대상" value={push.targetCount}/>
             <Stat label="전달됨" value={push.deliveredCount} hint="알림 서버(FCM)가 접수한 수"/>
-            <Stat label="받음" value={push.receivedCount} hint="앱이 켜져 있어 받은 것이 확인된 수"/>
             <Stat label="확인함" value={push.confirmedCount} hint="알림을 눌러 이동할 화면이 열린 수 (이동할 화면이 없는 알림은 앱이 열린 수)"/>
             {push.failedCount > 0 && <Stat label="전달 실패" value={push.failedCount}/>}
           </div>
@@ -79,10 +78,8 @@ function PushCard({push}: { push: PushHistory }) {
           <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-100">
             <div className="flex h-full">
               <div className="bg-green-500" style={{width: `${percent(push.confirmedCount)}%`}}/>
-              <div className="bg-blue-400"
-                   style={{width: `${percent(push.receivedCount - push.confirmedCount)}%`}}/>
               <div className="bg-gray-300"
-                   style={{width: `${percent(push.deliveredCount - push.receivedCount)}%`}}/>
+                   style={{width: `${percent(push.deliveredCount - push.confirmedCount)}%`}}/>
             </div>
           </div>
         </button>
@@ -129,9 +126,9 @@ export default function PushHistoryList({refreshKey}: PushHistoryListProps): JSX
   return (
       <div>
         <div className="rounded-md bg-gray-50 p-3 text-xs/5 text-gray-600">
-          <b>전달됨</b>은 알림 서버가 접수한 수, <b>받음</b>은 앱이 켜져 있을 때 받은 것이 확인된 수,
+          <b>전달됨</b>은 알림 서버가 접수한 수,
           <b> 확인함</b>은 알림을 눌러 이동할 화면(공지, 주보 등)이 열린 수이며, 이동할 화면이 없는 알림은 앱이 열린 수입니다.
-          앱이 꺼져 있을 때 도착한 알림은 눌러서 열기 전까지 “전달됨”으로만 표시되므로 실제 수신 인원보다 적게 집계될 수 있습니다.
+          알림을 눌러 열기 전까지는 “전달됨”으로만 표시되므로 실제로 확인한 인원보다 적게 집계될 수 있습니다.
         </div>
 
         <div className="mt-6">
