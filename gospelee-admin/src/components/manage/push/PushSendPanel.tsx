@@ -1,11 +1,8 @@
 "use client"
 
 import {useEffect, useRef, useState} from "react";
-import Link from "next/link";
-import {useRouter} from "next/navigation";
-import useAuth from "~/lib/auth/check-auth";
-import FormLayout from "@/components/manage/FormLayout";
 import FormField from "@/components/manage/FormField";
+import {XMarkIcon} from "@heroicons/react/24/outline";
 import PushTargetSelect from "@/components/manage/PushTargetSelect";
 import Modal from "@/components/modal/modal";
 import {blueButton, grayButton} from "@/components/modal/modal-buttons";
@@ -18,10 +15,15 @@ const MESSAGE_MAX = 200;
 
 const inputClass = "block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border border-gray-300";
 
-export default function PushSend() {
-  useAuth();
+interface PushSendPanelProps {
+  open: boolean;
+  onClose: () => void;
+  /** 알림을 보낸 뒤 호출한다. 호출한 쪽에서 발송 현황을 새로고침한다 */
+  onSent: () => void;
+}
 
-  const router = useRouter();
+/** 공지·주보 등록 없이 알림만 보내는 오른쪽 패널. 닫아도 작성 중인 내용은 남는다 */
+export default function PushSendPanel({open, onClose, onSent}: PushSendPanelProps) {
   const confirmModal = useModalState();
   const resultModal = useModalState();
   const [title, setTitle] = useState("");
@@ -59,6 +61,8 @@ export default function PushSend() {
       setTitle("");
       setMessage("");
       setTarget({mode: "", groupIds: []});
+      onSent();
+      onClose();
       resultModal.openModal({
         title: "푸시 알림을 보냈습니다.",
         content: (
@@ -70,11 +74,6 @@ export default function PushSend() {
               {result.failedCount > 0 && (
                   <p>{result.failedCount}명은 전달에 실패했습니다. (만료된 알림 정보 등)</p>
               )}
-              <p>
-                <Link href="/manage/push-history" className="font-semibold text-indigo-600 hover:text-indigo-500">
-                  발송 현황에서 받았는지 확인하기
-                </Link>
-              </p>
             </div>
         ),
       });
@@ -124,53 +123,106 @@ export default function PushSend() {
     });
   };
 
+  const close = () => {
+    // 보내는 중에 닫으면 결과를 볼 수 없으므로 막는다
+    if (!sendingRef.current) {
+      onClose();
+    }
+  };
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const onKey = (e: KeyboardEvent) => {
+      // 확인 창이 떠 있을 때의 ESC 는 확인 창이 처리한다
+      if (e.key === "Escape" && !confirmModal.isOpen) {
+        close();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, confirmModal.isOpen]);
+
   return (
       <>
-        <FormLayout
-            title="푸시 알림 보내기"
-            description="공지나 주보를 등록하지 않고, 교회 성도에게 알림만 바로 보냅니다."
-            onCancel={() => router.push("/manage")}
-            onSubmit={isSending ? () => {} : handleSubmit}
-            submitText={isSending ? "보내는 중..." : "알림 보내기"}
-            cancelText="뒤로가기"
+        <div
+            className={`fixed inset-0 z-40 bg-black/30 transition-opacity ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
+            onClick={close}
+            aria-hidden="true"
+        />
+        <aside
+            role="dialog"
+            aria-modal="true"
+            aria-label="새 알림 보내기"
+            aria-hidden={!open}
+            className={`fixed inset-y-0 right-0 z-40 flex w-full max-w-md flex-col bg-white shadow-xl transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full invisible"}`}
         >
-          <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-            <FormField label="알림 제목" required className="sm:col-span-6">
-              <input
-                  type="text"
-                  value={title}
-                  maxLength={TITLE_MAX}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="예) 이번 주 합심기도회 안내"
-                  className={inputClass}
-              />
-              <p className="mt-1 text-right text-xs text-gray-500">{title.length}/{TITLE_MAX}</p>
-            </FormField>
+          <div className="flex items-start justify-between border-b border-gray-200 px-6 py-4">
+            <div>
+              <h2 className="text-base/7 font-semibold text-gray-900">새 알림 보내기</h2>
+              <p className="mt-1 text-sm/6 text-gray-600">공지나 주보를 등록하지 않고, 교회 성도에게 알림만 바로 보냅니다.</p>
+            </div>
+            <button type="button" onClick={close} aria-label="닫기"
+                    className="cursor-pointer rounded-md p-1 text-gray-400 hover:text-gray-600">
+              <XMarkIcon className="size-6"/>
+            </button>
+          </div>
 
-            <FormField label="알림 내용" required>
-              <textarea
-                  value={message}
-                  maxLength={MESSAGE_MAX}
-                  rows={4}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="성도에게 전달할 내용을 적어 주세요"
-                  className={inputClass}
-              />
-              <p className="mt-1 text-right text-xs text-gray-500">{message.length}/{MESSAGE_MAX}</p>
-            </FormField>
+          <div className="flex-1 overflow-y-auto px-6 py-6">
+            <div className="grid grid-cols-1 gap-y-8">
+              <FormField label="알림 제목" required>
+                <input
+                    type="text"
+                    value={title}
+                    maxLength={TITLE_MAX}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="예) 이번 주 합심기도회 안내"
+                    className={inputClass}
+                />
+                <p className="mt-1 text-right text-xs text-gray-500">{title.length}/{TITLE_MAX}</p>
+              </FormField>
 
-            <div className="col-span-full border-t border-gray-900/10 pt-8">
-              <PushTargetSelect
-                  value={target}
-                  onChange={setTarget}
-                  name="push-send-target"
-                  title="받는 대상"
-                  description="알림을 누구에게 보낼지 선택해 주세요"
-                  allowNone={false}
-              />
+              <FormField label="알림 내용" required>
+                <textarea
+                    value={message}
+                    maxLength={MESSAGE_MAX}
+                    rows={4}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="성도에게 전달할 내용을 적어 주세요"
+                    className={inputClass}
+                />
+                <p className="mt-1 text-right text-xs text-gray-500">{message.length}/{MESSAGE_MAX}</p>
+              </FormField>
+
+              <div className="border-t border-gray-900/10 pt-8">
+                <PushTargetSelect
+                    value={target}
+                    onChange={setTarget}
+                    name="push-send-target"
+                    title="받는 대상"
+                    description="알림을 누구에게 보낼지 선택해 주세요"
+                    allowNone={false}
+                />
+              </div>
             </div>
           </div>
-        </FormLayout>
+
+          <div className="flex items-center justify-end gap-x-4 border-t border-gray-200 px-6 py-4">
+            <button type="button" onClick={close}
+                    className="cursor-pointer text-sm/6 font-semibold text-gray-900 hover:text-gray-700">
+              닫기
+            </button>
+            <button
+                type="button"
+                onClick={isSending ? undefined : handleSubmit}
+                disabled={isSending}
+                className="cursor-pointer rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isSending ? "보내는 중..." : "알림 보내기"}
+            </button>
+          </div>
+        </aside>
 
         <Modal
             isOpen={confirmModal.isOpen}

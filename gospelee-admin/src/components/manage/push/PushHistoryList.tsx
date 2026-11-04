@@ -1,8 +1,6 @@
 "use client"
 
 import React, {useEffect, useState, type JSX} from "react";
-import Link from "next/link";
-import useAuth from "~/lib/auth/check-auth";
 import {fetchPushHistory, fetchPushHistoryDetail} from "~/lib/api/fetch-push-history";
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -114,32 +112,26 @@ function PushCard({push}: { push: PushHistory }) {
   );
 }
 
-export default function PushHistoryPage(): JSX.Element {
-  useAuth();
+interface PushHistoryListProps {
+  /** 값이 바뀌면 목록을 다시 불러온다 (새 알림을 보낸 뒤 등) */
+  refreshKey: number;
+}
 
+export default function PushHistoryList({refreshKey}: PushHistoryListProps): JSX.Element {
   const [items, setItems] = useState<PushHistory[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setError(null);
     fetchPushHistory().then(setItems).catch((e) => setError(e?.message ?? "발송 현황을 불러오지 못했습니다."));
-  }, []);
+  }, [refreshKey]);
 
   return (
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <h2 className="text-base/7 font-semibold text-gray-900">푸시 발송 현황</h2>
-            <p className="mt-1 text-sm/6 text-gray-600">최근 30건의 알림이 성도에게 전달되고 확인되었는지 볼 수 있습니다.</p>
-          </div>
-          <Link href="/manage/push-send" className="text-sm font-semibold text-indigo-600 hover:text-indigo-500">
-            알림 보내기
-          </Link>
-        </div>
-
-        <div className="mt-4 rounded-md bg-gray-50 p-3 text-xs/5 text-gray-600">
+      <div>
+        <div className="rounded-md bg-gray-50 p-3 text-xs/5 text-gray-600">
           <b>전달됨</b>은 알림 서버가 접수한 수, <b>받음</b>은 앱이 켜져 있을 때 받은 것이 확인된 수,
-          <b> 확인함</b>은 알림을 눌러 이동할 화면(공지, 주보 등)이 열린 수이며, 이동할 화면이 없는 알림은 앱이 열린 수입니다. 앱이 꺼져 있을 때 도착한 알림은 눌러서 열기 전까지
-          “전달됨”으로만 표시되므로 실제 수신 인원보다 적게 집계될 수 있습니다.
+          <b> 확인함</b>은 알림을 눌러 이동할 화면(공지, 주보 등)이 열린 수이며, 이동할 화면이 없는 알림은 앱이 열린 수입니다.
+          앱이 꺼져 있을 때 도착한 알림은 눌러서 열기 전까지 “전달됨”으로만 표시되므로 실제 수신 인원보다 적게 집계될 수 있습니다.
         </div>
 
         <div className="mt-6">
