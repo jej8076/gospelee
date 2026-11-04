@@ -8,10 +8,23 @@ import Modal from "@/components/modal/modal";
 import {blueButton, grayButton} from "@/components/modal/modal-buttons";
 import {useModalState} from "@/hooks/useModalState";
 import {fetchPushGroups} from "~/lib/api/fetch-push-group";
+import {fetchAnnouncements} from "~/lib/api/fetch-announcement";
 import {fetchSendPushDirect} from "~/lib/api/fetch-push-direct";
 
 const TITLE_MAX = 50;
 const MESSAGE_MAX = 200;
+
+/** 알림을 눌렀을 때 앱이 여는 화면. 서버가 허용한 화면만 고를 수 있다 */
+type RouteKind = "NONE" | "CHURCH" | "BULLETIN" | "ANNOUNCEMENT";
+
+const ROUTE_OPTIONS: { kind: RouteKind; label: string }[] = [
+  {kind: "NONE", label: "앱만 열기"},
+  {kind: "CHURCH", label: "교회 화면 (공지 목록)"},
+  {kind: "BULLETIN", label: "주보"},
+  {kind: "ANNOUNCEMENT", label: "특정 공지"},
+];
+
+const ANNOUNCEMENT_LIST_SIZE = 20;
 
 const inputClass = "block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border border-gray-300";
 
@@ -31,12 +44,55 @@ export default function PushSendPanel({open, onClose, onSent}: PushSendPanelProp
   // 실수로 전체에게 보내지 않도록 대상을 직접 고르게 한다
   const [target, setTarget] = useState<PushTarget>({mode: "", groupIds: []});
   const [groups, setGroups] = useState<PushGroup[]>([]);
+  const [routeKind, setRouteKind] = useState<RouteKind>("NONE");
+  const [announcementId, setAnnouncementId] = useState("");
+  // 특정 공지를 고를 때 한 번만 불러온다. null 이면 아직 불러오지 않음
+  const [announcements, setAnnouncements] = useState<Announcement[] | null>(null);
+  const [announcementsFailed, setAnnouncementsFailed] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const sendingRef = useRef(false);
 
   useEffect(() => {
     fetchPushGroups().then(setGroups).catch(() => setGroups([]));
   }, []);
+
+  useEffect(() => {
+    if (routeKind !== "ANNOUNCEMENT" || announcements !== null) {
+      return;
+    }
+    setAnnouncementsFailed(false);
+    fetchAnnouncements("ECCLESIA")
+        .then((list) => setAnnouncements(
+            list.filter((a) => a.openYn === "Y" && a.id !== undefined)
+                .sort((a, b) => Number(b.id) - Number(a.id))
+                .slice(0, ANNOUNCEMENT_LIST_SIZE)))
+        .catch(() => {
+          setAnnouncements([]);
+          setAnnouncementsFailed(true);
+        });
+  }, [routeKind]);
+
+  /** 서버에 보낼 화면 주소. 보내지 않으면 앱만 열린다 */
+  const routeValue = (): string | undefined => {
+    switch (routeKind) {
+      case "CHURCH":
+        return "/church";
+      case "BULLETIN":
+        return "/church?tab=bulletin";
+      case "ANNOUNCEMENT":
+        return announcementId ? `/ecclesia/announcement/${announcementId}` : undefined;
+      default:
+        return undefined;
+    }
+  };
+
+  const routeLabel = () => {
+    if (routeKind === "ANNOUNCEMENT") {
+      const selected = announcements?.find((a) => String(a.id) === announcementId);
+      return `공지 “${selected?.subject ?? ""}”`;
+    }
+    return ROUTE_OPTIONS.find((o) => o.kind === routeKind)?.label ?? "";
+  };
 
   const targetLabel = () => {
     if (target.mode === "ALL") {
@@ -57,10 +113,13 @@ export default function PushSendPanel({open, onClose, onSent}: PushSendPanelProp
         title: title.trim(),
         message: message.trim(),
         groupIds: target.mode === "GROUPS" ? target.groupIds : [],
+        route: routeValue(),
       });
       setTitle("");
       setMessage("");
       setTarget({mode: "", groupIds: []});
+      setRouteKind("NONE");
+      setAnnouncementId("");
       onSent();
       onClose();
       resultModal.openModal({
@@ -108,6 +167,10 @@ export default function PushSendPanel({open, onClose, onSent}: PushSendPanelProp
       alert("알림을 보낼 그룹을 한 개 이상 선택해 주세요.");
       return;
     }
+    if (routeKind === "ANNOUNCEMENT" && !announcementId) {
+      alert("알림을 눌렀을 때 열 공지를 선택해 주세요.");
+      return;
+    }
     confirmModal.openModal({
       title: "푸시 알림을 보냅니다.",
       content: (
@@ -117,6 +180,7 @@ export default function PushSendPanel({open, onClose, onSent}: PushSendPanelProp
               <p className="font-semibold text-gray-900">{title.trim()}</p>
               <p className="mt-1 whitespace-pre-wrap">{message.trim()}</p>
             </div>
+            <p>알림을 누르면 열리는 화면: <b>{routeValue() ? routeLabel() : "앱만 열기"}</b></p>
           </div>
       ),
       onConfirm: send,
@@ -193,6 +257,38 @@ export default function PushSendPanel({open, onClose, onSent}: PushSendPanelProp
                     className={inputClass}
                 />
                 <p className="mt-1 text-right text-xs text-gray-500">{message.length}/{MESSAGE_MAX}</p>
+              </FormField>
+
+              <FormField label="알림을 누르면 열리는 화면">
+                <select
+                    value={routeKind}
+                    onChange={(e) => setRouteKind(e.target.value as RouteKind)}
+                    className={inputClass}
+                >
+                  {ROUTE_OPTIONS.map((o) => <option key={o.kind} value={o.kind}>{o.label}</option>)}
+                </select>
+                {routeKind === "ANNOUNCEMENT" && (
+                    <div className="mt-2">
+                      {announcements === null && <p className="text-sm text-gray-500">공지를 불러오는 중...</p>}
+                      {announcementsFailed && <p className="text-sm text-red-600">공지를 불러오지 못했습니다.</p>}
+                      {announcements && !announcementsFailed && announcements.length === 0 && (
+                          <p className="text-sm text-gray-500">알림으로 열 수 있는 공개 공지가 없습니다.</p>
+                      )}
+                      {announcements && announcements.length > 0 && (
+                          <select
+                              value={announcementId}
+                              onChange={(e) => setAnnouncementId(e.target.value)}
+                              className={inputClass}
+                          >
+                            <option value="">공지를 선택해 주세요</option>
+                            {announcements.map((a) => (
+                                <option key={String(a.id)} value={String(a.id)}>{a.subject}</option>
+                            ))}
+                          </select>
+                      )}
+                    </div>
+                )}
+                <p className="mt-1 text-xs text-gray-500">공지를 고르면 성도가 알림을 눌렀을 때 그 공지가 바로 열립니다.</p>
               </FormField>
 
               <div className="border-t border-gray-900/10 pt-8">
