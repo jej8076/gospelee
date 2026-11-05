@@ -8,6 +8,7 @@ import {
   ClockIcon,
   DocumentTextIcon,
   FlagIcon,
+  HeartIcon,
   PhotoIcon,
   ReceiptRefundIcon,
   UsersIcon,
@@ -52,6 +53,14 @@ const baseActions: Action[] = [
     iconForeground: 'text-rose-700',
     iconBackground: 'bg-rose-50',
     description: '알림 보내기, 발송 현황 확인, 푸시 그룹 관리를 한곳에서 합니다.',
+  },
+  {
+    title: '기도 쪽지',
+    href: '/manage/prayer',
+    icon: HeartIcon,
+    iconForeground: 'text-pink-700',
+    iconBackground: 'bg-pink-50',
+    description: '성도들이 기도 제목을 나누는 기도 쪽지를 설정하고 관리합니다.',
   },
   {
     title: '갤러리 관리',
