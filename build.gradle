@@ -24,6 +24,11 @@ subprojects {
         mavenCentral()
     }
 
+    // JUnit 5 로 테스트를 실행한다 (없으면 테스트가 하나도 실행되지 않는다)
+    tasks.withType(Test).configureEach {
+        useJUnitPlatform()
+    }
+
     dependencies {
         implementation 'org.springframework.boot:spring-boot-starter'
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
