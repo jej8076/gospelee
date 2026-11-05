@@ -12,9 +12,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableJpaAuditing
 @EnableCaching
+@EnableScheduling
 @EnableJpaRepositories(basePackages = "com.gospelee.api.repository.jpa")
 @EnableJdbcRepositories(basePackages = "com.gospelee.api.repository.jdbc")
 @SpringBootApplication(exclude = SecurityAutoConfiguration.class)
