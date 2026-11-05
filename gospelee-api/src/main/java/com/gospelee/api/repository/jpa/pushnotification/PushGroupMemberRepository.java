@@ -11,5 +11,7 @@ public interface PushGroupMemberRepository extends JpaRepository<PushGroupMember
 
   List<PushGroupMember> findByGroupIdIn(Collection<Long> groupIds);
 
+  boolean existsByGroupIdAndAccountUid(Long groupId, Long accountUid);
+
   void deleteByGroupId(Long groupId);
 }

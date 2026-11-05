@@ -31,6 +31,7 @@ import com.gospelee.api.repository.jpa.journal.JournalRepository;
 import com.gospelee.api.repository.jpa.journal.JournalShareReceivedRepository;
 import com.gospelee.api.repository.jpa.pushnotification.PushNotificationReceiversRepository;
 import com.gospelee.api.repository.jpa.qrlogin.QrloginRepository;
+import com.gospelee.api.service.prayer.PrayerCardService;
 import com.gospelee.api.service.reaction.ReactionService;
 import java.util.List;
 import java.util.Optional;
@@ -57,6 +58,7 @@ class AccountWithdrawalServiceTest {
   private PushNotificationReceiversRepository pushReceiversRepository;
   private QrloginRepository qrloginRepository;
   private ReactionService reactionService;
+  private PrayerCardService prayerCardService;
   private AccountWithdrawalService service;
 
   @BeforeEach
@@ -77,11 +79,12 @@ class AccountWithdrawalServiceTest {
     pushReceiversRepository = mock(PushNotificationReceiversRepository.class);
     qrloginRepository = mock(QrloginRepository.class);
     reactionService = mock(ReactionService.class);
+    prayerCardService = mock(PrayerCardService.class);
     service = new AccountWithdrawalService(accountRepository, accountMetaRepository,
         appleAuthTokenRepository, appleAuthClient, bibleReadingService, goalRepository,
         goalMemberRepository, bibleReadRepository, bibleWriteRepository, blockRepository,
         ecclesiaHistoryRepository, journalRepository, shareReceivedRepository,
-        pushReceiversRepository, qrloginRepository, reactionService);
+        pushReceiversRepository, qrloginRepository, reactionService, prayerCardService);
 
     when(goalMemberRepository.findAllByAccountUid(anyLong())).thenReturn(List.of());
     when(goalRepository.findAllByAccountUidOrderByIdxDesc(anyLong())).thenReturn(List.of());
