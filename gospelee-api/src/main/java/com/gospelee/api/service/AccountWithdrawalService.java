@@ -19,6 +19,7 @@ import com.gospelee.api.repository.jpa.journal.JournalRepository;
 import com.gospelee.api.repository.jpa.journal.JournalShareReceivedRepository;
 import com.gospelee.api.repository.jpa.pushnotification.PushNotificationReceiversRepository;
 import com.gospelee.api.repository.jpa.qrlogin.QrloginRepository;
+import com.gospelee.api.service.prayer.PrayerCardService;
 import com.gospelee.api.service.reaction.ReactionService;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -63,6 +64,7 @@ public class AccountWithdrawalService {
   private final PushNotificationReceiversRepository pushReceiversRepository;
   private final QrloginRepository qrloginRepository;
   private final ReactionService reactionService;
+  private final PrayerCardService prayerCardService;
 
   @Transactional
   public AccountLeaveResponseDTO withdraw(long accountUid) {
@@ -84,6 +86,7 @@ public class AccountWithdrawalService {
     shareReceivedRepository.deleteByAccountUid(accountUid);
     pushReceiversRepository.deleteByReceiveAccountUid(accountUid);
     reactionService.removeAllByAccount(accountUid);
+    prayerCardService.removeAllByAccount(accountUid);
     accountMetaRepository.deleteByAccountUid(accountUid);
     if (StringUtils.hasText(email)) {
       qrloginRepository.deleteByEmail(email);
