@@ -6,6 +6,8 @@ public enum DeepLinkRouterPath {
   ECCLESIA_JOIN_REQUESTS("/ecclesia/requests"),
   // 교회 탭
   CHURCH("/church"),
+  // 기도 쪽지 홈
+  PRAYER("/ecclesia/prayer"),
   ;
 
   final private String path;

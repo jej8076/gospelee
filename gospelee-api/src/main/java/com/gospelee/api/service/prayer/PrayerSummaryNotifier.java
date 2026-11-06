@@ -88,7 +88,7 @@ public class PrayerSummaryNotifier {
       }
       firebaseService.sendNotification(author.getPushToken(), "기도 쪽지",
           "어제 " + count + "번 기도해 주셨어요.",
-          Map.of(PushNotificationDataType.ROUTE.lower(), DeepLinkRouterPath.CHURCH.path()));
+          Map.of(PushNotificationDataType.ROUTE.lower(), DeepLinkRouterPath.PRAYER.path()));
     } catch (Exception e) {
       log.warn("[PRAYER_PUSH] 전송 실패 accountUid={}", authorUid, e);
     }
