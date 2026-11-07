@@ -20,6 +20,7 @@ import com.gospelee.api.repository.jpa.prayer.PrayerCardResponseRepository;
 import com.gospelee.api.service.FirebaseService;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,7 +65,7 @@ class PrayerSummaryNotifierTest {
     notifier.sendSummary(today);
 
     verify(firebaseService).sendNotification(eq("token-50"), eq("기도 쪽지"),
-        eq("어제 3번 기도해 주셨어요."), anyMap());
+        eq("어제 3번 기도해 주셨어요."), eq(Map.of("route", "/ecclesia/prayer")));
   }
 
   @Test
