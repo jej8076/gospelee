@@ -79,6 +79,20 @@ function Toggle({label, hint, checked, onChange}: {
   );
 }
 
+function Switch({checked, disabled, onChange}: {
+  checked: boolean; disabled?: boolean; onChange: (value: boolean) => void;
+}): JSX.Element {
+  return (
+      <button type="button" role="switch" aria-checked={checked} disabled={disabled}
+              onClick={() => onChange(!checked)}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors disabled:cursor-wait disabled:opacity-60 ${
+                  checked ? "bg-indigo-600" : "bg-gray-300"}`}>
+        <span className={`inline-block size-5 rounded-full bg-white shadow transition-transform ${
+            checked ? "translate-x-5" : "translate-x-0.5"}`}/>
+      </button>
+  );
+}
+
 function NumberField({label, hint, value, min, max, onChange}: {
   label: string; hint?: string; value: number; min: number; max: number; onChange: (value: number) => void;
 }): JSX.Element {
@@ -147,6 +161,19 @@ function SettingPanel(): JSX.Element {
     }
   };
 
+  // 켜기/끄기는 누르는 즉시 서버에 반영한다. 저장하지 않은 다른 설정 편집은 함께 저장하지 않는다
+  const toggleEnabled = async (enabled: boolean) => {
+    setSaving(true);
+    try {
+      apply(await fetchSavePrayerSetting({...data.setting, enabled}));
+      setMessage(enabled ? "기도 쪽지를 켰습니다. 성도에게 공개됩니다." : "기도 쪽지를 껐습니다. 성도 화면에서 사라집니다.");
+    } catch (e: any) {
+      setMessage(e?.message ?? "변경에 실패했습니다.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const saveTree = async () => {
     setSaving(true);
     try {
@@ -165,11 +192,19 @@ function SettingPanel(): JSX.Element {
       <div className="mt-6 space-y-8">
         {message && <p className="rounded-md bg-indigo-50 px-4 py-3 text-sm text-indigo-800">{message}</p>}
 
+        <section className="flex items-start justify-between gap-4 rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
+          <div>
+            <h2 className="text-sm font-semibold text-gray-900">기도 쪽지 사용</h2>
+            <p className="mt-1 text-xs text-gray-500">
+              켜면 우리 교회 성도에게 바로 공개되고, 끄면 바로 성도 화면에서 사라집니다. 누르는 즉시 반영됩니다.
+            </p>
+          </div>
+          <Switch checked={data.setting.enabled} disabled={saving} onChange={toggleEnabled}/>
+        </section>
+
+        {data.setting.enabled && (<>
         <section className="rounded-lg bg-white px-5 shadow-sm ring-1 ring-gray-200">
           <div className="divide-y divide-gray-100">
-            <Toggle label="기도 쪽지 사용"
-                    hint="켜면 우리 교회 성도에게 기도 쪽지가 공개됩니다. 꺼 두면 성도 화면에 나타나지 않습니다."
-                    checked={setting.enabled} onChange={v => patch({enabled: v})}/>
             <Choice label="작성 방식" value={setting.authorMode} onChange={v => patch({authorMode: v})}
                     options={[
                       {value: "AUTHOR_CHOICE", label: "작성자가 선택", desc: "익명 또는 이름 공개를 쓸 때마다 고릅니다."},
@@ -265,6 +300,8 @@ function SettingPanel(): JSX.Element {
             </button>
           </div>
         </section>
+
+        </>)}
 
         <section>
           <h2 className="text-sm font-semibold text-gray-900">설정 변경 기록</h2>
@@ -426,7 +463,7 @@ function PrayerHub(): JSX.Element {
           성도가 기도 제목을 쪽지로 올리고, 다른 성도가 뽑아서 기도해 주는 기능을 설정하고 관리합니다.
         </p>
 
-        <div className="mt-6 flex gap-2 overflow-x-auto border-b border-gray-200 pb-3">
+        <div className="mt-6 flex gap-2 overflow-x-auto border-b border-gray-200 px-1 pt-1 pb-3">
           {TABS.map(t => (
               <button key={t.id}
                       onClick={() => router.replace(t.id === "setting" ? "/manage/prayer" : `/manage/prayer?tab=${t.id}`)}
