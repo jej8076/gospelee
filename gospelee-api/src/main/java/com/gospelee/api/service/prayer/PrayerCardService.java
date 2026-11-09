@@ -8,6 +8,7 @@ import com.gospelee.api.dto.prayer.PrayerDTOs.MyCard;
 import com.gospelee.api.dto.prayer.PrayerDTOs.ReportRequest;
 import com.gospelee.api.dto.prayer.PrayerDTOs.RespondRequest;
 import com.gospelee.api.dto.prayer.PrayerDTOs.RespondResponse;
+import com.gospelee.api.dto.prayer.PrayerDTOs.SummaryResponse;
 import com.gospelee.api.dto.prayer.PrayerDTOs.TreeCard;
 import com.gospelee.api.dto.prayer.PrayerDTOs.TreeResponse;
 import com.gospelee.api.entity.Account;
@@ -241,6 +242,42 @@ public class PrayerCardService {
     }
     cardRepository.increaseResponseCount(card.getId());
     return new RespondResponse(card.getId(), card.getResponseCount() + 1, false);
+  }
+
+  // ---------------------------------------------------------------------------
+  // 교회 탭 배너 요약
+  // ---------------------------------------------------------------------------
+
+  /** [since] 는 앱이 마지막으로 내 쪽지를 확인한 시각. 없으면 새 기도 수는 0 으로 본다 */
+  @Transactional(readOnly = true)
+  public SummaryResponse summary(AccountAuthDTO account, LocalDateTime since) {
+    PrayerSetting setting = settingService.getEffective(account.getEcclesiaUid());
+    PrayerAccess.requireParticipant(account, setting);
+    LocalDateTime now = LocalDateTime.now();
+
+    long available = cardRepository.countDrawable(account.getEcclesiaUid(), account.getUid(), now,
+        CardStatus.ACTIVE, CardScope.CHURCH);
+    int limit = setting.getDailyDrawLimit();
+    Integer remaining = null;
+    if (limit > 0) {
+      long used = drawRepository.countByDrawerUidAndDrawnAtGreaterThanEqual(account.getUid(),
+          LocalDate.now().atStartOfDay());
+      remaining = (int) Math.max(0, limit - used);
+    }
+    long newResponses = since == null ? 0
+        : responseRepository.countNewOnMyCards(account.getUid(), since);
+
+    PrayerTreeEvent event = settingService.getTreeEvent(account.getEcclesiaUid());
+    boolean treeRunning = event.isRunning(now);
+    Integer treeProgress = null;
+    if (treeRunning) {
+      long total = cardRepository.countTreeCards(account.getEcclesiaUid(), now, CardStatus.ACTIVE,
+          CardScope.CHURCH);
+      long lit = cardRepository.countLitTreeCards(account.getEcclesiaUid(), now, CardStatus.ACTIVE,
+          CardScope.CHURCH);
+      treeProgress = progress(lit, total, event.getMinCards());
+    }
+    return new SummaryResponse(available, remaining, newResponses, treeRunning, treeProgress);
   }
 
   // ---------------------------------------------------------------------------

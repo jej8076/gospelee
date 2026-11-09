@@ -41,6 +41,21 @@ public interface PrayerCardRepository extends JpaRepository<PrayerCard, Long> {
       @Param("active") CardStatus active, @Param("churchScope") CardScope churchScope,
       Pageable pageable);
 
+  /** [findDrawCandidates] 와 같은 조건으로 센 뽑을 수 있는 카드 수 */
+  @Query("select count(c) from PrayerCard c where c.ecclesiaUid = :ecclesiaUid"
+      + " and c.status = :active"
+      + " and (c.expiresAt is null or c.expiresAt > :now)"
+      + " and c.authorUid <> :me"
+      + " and not exists (select 1 from PrayerCardResponse r"
+      + "   where r.cardId = c.id and r.responderUid = :me)"
+      + " and not exists (select 1 from AccountBlock b"
+      + "   where b.blockerUid = :me and b.blockedUid = c.authorUid)"
+      + " and (c.scope = :churchScope or c.groupId in"
+      + "   (select m.groupId from PushGroupMember m where m.accountUid = :me))")
+  long countDrawable(@Param("ecclesiaUid") Long ecclesiaUid, @Param("me") Long me,
+      @Param("now") LocalDateTime now, @Param("active") CardStatus active,
+      @Param("churchScope") CardScope churchScope);
+
   /** 신고가 처리 대기 중인 카드 */
   @Query("select c from PrayerCard c where c.ecclesiaUid = :ecclesiaUid"
       + " and exists (select 1 from PrayerCardReport r"
