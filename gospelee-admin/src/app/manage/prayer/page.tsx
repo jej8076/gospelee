@@ -41,7 +41,7 @@ function Choice<T extends string>({label, hint, value, options, onChange}: {
   label: string;
   hint?: string;
   value: T;
-  options: { value: T; label: string; desc?: string }[];
+  options: { value: T; label: string; desc?: string; disabled?: boolean }[];
   onChange: (value: T) => void;
 }): JSX.Element {
   return (
@@ -50,11 +50,13 @@ function Choice<T extends string>({label, hint, value, options, onChange}: {
         {hint && <p className="mt-1 text-xs text-gray-500">{hint}</p>}
         <div className="mt-3 space-y-2">
           {options.map(option => (
-              <label key={option.value} className="flex cursor-pointer items-start gap-3 text-sm">
+              <label key={option.value}
+                     className={`flex items-start gap-3 text-sm ${option.disabled ? "cursor-not-allowed" : "cursor-pointer"}`}>
                 <input type="radio" className="mt-1" checked={value === option.value}
+                       disabled={option.disabled}
                        onChange={() => onChange(option.value)}/>
                 <span>
-                  <span className="text-gray-900">{option.label}</span>
+                  <span className={option.disabled ? "text-gray-400" : "text-gray-900"}>{option.label}</span>
                   {option.desc && <span className="block text-xs text-gray-500">{option.desc}</span>}
                 </span>
               </label>
@@ -235,7 +237,7 @@ function SettingPanel(): JSX.Element {
             <Choice label="공개 범위" value={setting.scopeMode} onChange={v => patch({scopeMode: v})}
                     options={[
                       {value: "CHURCH_ONLY", label: "교회 전체"},
-                      {value: "GROUP_ALLOWED", label: "푸시 그룹 단위 공개도 허용"},
+                      {value: "GROUP_ALLOWED", label: "푸시 그룹 단위 공개도 허용", desc: "준비 중입니다. 앱에서 아직 그룹을 고를 수 없어 선택할 수 없습니다.", disabled: true},
                     ]}/>
             <Choice label="검수 방식" value={setting.moderationMode} onChange={v => patch({moderationMode: v})}
                     options={[
