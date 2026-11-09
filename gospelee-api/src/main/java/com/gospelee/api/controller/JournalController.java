@@ -6,6 +6,7 @@ import com.gospelee.api.service.JournalService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -45,7 +46,8 @@ public class JournalController {
   public ResponseEntity<Object> deleteJournal(@AuthenticationPrincipal AccountAuthDTO account,
       @PathVariable long journalUid) {
     journalService.deleteJournal(account.getUid(), journalUid);
-    return new ResponseEntity<>(HttpStatus.OK);
+    // 앱 ApiClient 는 빈 본문을 실패로 처리하므로 삭제한 id 를 담아 보낸다
+    return new ResponseEntity<>(Map.of("id", journalUid), HttpStatus.OK);
   }
 
   /**
