@@ -39,6 +39,12 @@ DDL: `2026-11-prayer-card.sql`. 오류는 기존 규칙대로 `{code, message}` 
 
 `draw` 응답에는 카드 id, 내용, 표시 이름(NAME 일 때만), 그리고 기도자가 받게 될 공개 정책 문구(`responderNotice`)를 포함한다. 앱은 이 문구를 기도 버튼 위에 그대로 보여 준다.
 
+## 교회 탭 배너 요약
+
+| 메서드 | 경로 | 설명 |
+|---|---|---|
+| GET | `/prayer/summary?since=ISO시각` | `{availableCards, remainingDraws, newResponses, treeRunning, treeProgress}`. 지금 뽑을 수 있는 쪽지 수(`draw` 와 같은 제외 조건), 오늘 남은 뽑기 횟수(무제한이면 null), `since` 이후 내 쪽지에 달린 새 기도 수(`since` 가 없으면 0), 트리 이벤트 진행 여부와 점등률. 서버는 "마지막으로 확인한 시각"을 저장하지 않고 앱이 보낸다 |
+
 ## 관리자 카드 관리
 
 | 메서드 | 경로 | 설명 |

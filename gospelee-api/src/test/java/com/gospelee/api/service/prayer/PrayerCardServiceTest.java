@@ -24,6 +24,7 @@ import com.gospelee.api.dto.prayer.PrayerDTOs.MyCard;
 import com.gospelee.api.dto.prayer.PrayerDTOs.ReportRequest;
 import com.gospelee.api.dto.prayer.PrayerDTOs.RespondRequest;
 import com.gospelee.api.dto.prayer.PrayerDTOs.RespondResponse;
+import com.gospelee.api.dto.prayer.PrayerDTOs.SummaryResponse;
 import com.gospelee.api.dto.prayer.PrayerDTOs.TreeResponse;
 import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.PrayerCard;
@@ -112,6 +113,7 @@ class PrayerCardServiceTest {
     assertThrows(AccessDeniedException.class, () -> service.draw(me));
     assertThrows(AccessDeniedException.class, () -> service.mine(me));
     assertThrows(AccessDeniedException.class, () -> service.tree(me));
+    assertThrows(AccessDeniedException.class, () -> service.summary(me, null));
     assertThrows(AccessDeniedException.class,
         () -> service.respond(me, 5L, new RespondRequest(null, null)));
   }
@@ -625,5 +627,35 @@ class PrayerCardServiceTest {
     verify(responseRepository).deleteByResponderUid(1L);
     verify(reportRepository).deleteByReporterUid(1L);
     verify(drawRepository).deleteByDrawerUid(1L);
+  }
+
+  // --- 배너 요약 ----------------------------------------------------------------
+
+  @Test
+  void 요약은_뽑을_수_있는_수와_오늘_남은_횟수와_새_기도_수를_내려_준다() {
+    LocalDateTime since = LocalDateTime.now().minusDays(1);
+    when(cardRepository.countDrawable(any(), any(), any(), any(), any())).thenReturn(7L);
+    when(drawRepository.countByDrawerUidAndDrawnAtGreaterThanEqual(anyLong(), any()))
+        .thenReturn(2L);
+    when(responseRepository.countNewOnMyCards(1L, since)).thenReturn(3L);
+    when(settingService.getTreeEvent(ECCLESIA)).thenReturn(new PrayerTreeEvent(ECCLESIA));
+
+    SummaryResponse summary = service.summary(me, since);
+
+    assertEquals(7L, summary.availableCards());
+    assertEquals(3, summary.remainingDraws());
+    assertEquals(3L, summary.newResponses());
+    assertFalse(summary.treeRunning());
+    assertNull(summary.treeProgress());
+  }
+
+  @Test
+  void 요약은_기준_시각이_없으면_새_기도를_세지_않는다() {
+    when(settingService.getTreeEvent(ECCLESIA)).thenReturn(new PrayerTreeEvent(ECCLESIA));
+
+    SummaryResponse summary = service.summary(me, null);
+
+    assertEquals(0L, summary.newResponses());
+    verify(responseRepository, never()).countNewOnMyCards(anyLong(), any());
   }
 }

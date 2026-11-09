@@ -161,6 +161,15 @@ public final class PrayerDTOs {
 
   }
 
+  /**
+   * 교회 탭 배너용 요약. availableCards 는 지금 내가 뽑을 수 있는 쪽지 수, remainingDraws 는 오늘 남은 횟수
+   * (무제한이면 null), newResponses 는 요청한 시각 이후 내 쪽지에 새로 달린 기도 수다.
+   */
+  public record SummaryResponse(long availableCards, Integer remainingDraws, long newResponses,
+                                boolean treeRunning, Integer treeProgress) {
+
+  }
+
   public record TreeCard(Long id, int slot, boolean lit) {
 
   }
