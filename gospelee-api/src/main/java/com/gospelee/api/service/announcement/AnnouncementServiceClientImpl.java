@@ -399,7 +399,8 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
     Ministry ministry = ministryService.requireMemberOf(announcement.getOrganizationId(),
         account.getUid());
     List<Account> recipients = ministryService.getActiveMemberAccounts(ministry.getId());
-    Map<String, String> data = new HashMap<>(AnnouncementPushMessage.routeData(announcement.getId()));
+    Map<String, String> data = new HashMap<>(
+        AnnouncementPushMessage.ministryRouteData(announcement.getId(), ministry.getId()));
     data.put("organizationType", OrganizationType.MINISTRY.name());
     data.put("organizationId", String.valueOf(ministry.getId()));
 

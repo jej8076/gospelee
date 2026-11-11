@@ -44,4 +44,10 @@ class AnnouncementPushMessageTest {
         AnnouncementPushMessage.ministryTitle("가".repeat(25)));
     assertEquals("모임 공지사항", AnnouncementPushMessage.ministryTitle("  "));
   }
+
+  @Test
+  void ministryRouteData_carriesMinistryId() {
+    assertEquals("/ecclesia/announcement/7?ministryId=3",
+        AnnouncementPushMessage.ministryRouteData(7L, 3L).get("route"));
+  }
 }
