@@ -2,6 +2,7 @@ package com.gospelee.api.service;
 
 import com.gospelee.api.enums.OrganizationType;
 import com.gospelee.api.repository.EcclesiaRepository;
+import com.gospelee.api.repository.jpa.ministry.MinistryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 public class OrganizationService {
 
   private final EcclesiaRepository ecclesiaRepository;
+  private final MinistryRepository ministryRepository;
 
   /**
    * 조직 타입과 ID로 조직명을 조회합니다.
@@ -28,6 +30,11 @@ public class OrganizationService {
             .map(ecclesia -> ecclesia.getName())
             .orElse(organizationType.getDisplayName());
       
+      case MINISTRY:
+        return ministryRepository.findById(organizationId)
+            .map(ministry -> ministry.getName())
+            .orElse(organizationType.getDisplayName());
+
       // 향후 다른 Entity가 있는 타입들 추가
       default:
         return organizationType.getDisplayName();

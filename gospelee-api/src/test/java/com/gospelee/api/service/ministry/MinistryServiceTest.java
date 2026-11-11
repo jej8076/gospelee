@@ -402,4 +402,38 @@ class MinistryServiceTest {
     service.delete(m.getId());
     assertFalse(ministries.contains(m));
   }
+
+  // ---------------------------------------------------------------- 콘텐츠 권한
+
+  @Test
+  void 공지는_대표와_운영진만_쓸_수_있고_정지된_모임은_막힌다() {
+    Ministry m = newMinistry(1);
+    addMember(m, 2, MinistryRole.MANAGER, LocalDateTime.now());
+    addMember(m, 3, MinistryRole.MEMBER, LocalDateTime.now());
+
+    service.requireWriterOf(m.getId(), 1L);
+    service.requireWriterOf(m.getId(), 2L);
+    assertThrows(AccessDeniedException.class, () -> service.requireWriterOf(m.getId(), 3L));
+    assertThrows(java.util.NoSuchElementException.class,
+        () -> service.requireWriterOf(m.getId(), 9L));
+
+    m.changeStatus(com.gospelee.api.enums.MinistryStatus.SUSPENDED);
+    assertThrows(IllegalStateException.class, () -> service.requireWriterOf(m.getId(), 1L));
+    // 정지돼도 멤버는 읽을 수 있다
+    service.requireMemberOf(m.getId(), 3L);
+  }
+
+  @Test
+  void 푸시_대상은_활성_멤버만이고_대기자와_내보낸_사람은_빠진다() {
+    Ministry m = newMinistry(1);
+    addMember(m, 2, MinistryRole.MEMBER, LocalDateTime.now());
+    members.add(MinistryMember.builder().ministryId(m.getId()).accountUid(3L)
+        .role(MinistryRole.MEMBER).status(MinistryMemberStatus.PENDING).build());
+    members.add(MinistryMember.builder().ministryId(m.getId()).accountUid(4L)
+        .role(MinistryRole.MEMBER).status(MinistryMemberStatus.REMOVED).build());
+
+    List<Long> uids = service.getActiveMemberAccounts(m.getId()).stream()
+        .map(Account::getUid).sorted().toList();
+    assertEquals(List.of(1L, 2L), uids);
+  }
 }

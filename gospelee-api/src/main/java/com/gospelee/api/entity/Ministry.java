@@ -82,6 +82,18 @@ public class Ministry extends EditInfomation {
     this.status = status;
   }
 
+  public boolean hasEnoughStorage(long incomingBytes) {
+    return storageUsedBytes + incomingBytes <= storageLimitBytes;
+  }
+
+  public void addStorageUsedBytes(long bytes) {
+    this.storageUsedBytes += bytes;
+  }
+
+  public void subtractStorageUsedBytes(long bytes) {
+    this.storageUsedBytes = Math.max(0L, this.storageUsedBytes - bytes);
+  }
+
   public boolean isSuspended() {
     return status == MinistryStatus.SUSPENDED;
   }

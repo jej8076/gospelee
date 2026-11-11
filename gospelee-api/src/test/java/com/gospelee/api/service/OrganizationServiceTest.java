@@ -5,7 +5,9 @@ import static org.mockito.Mockito.*;
 
 import com.gospelee.api.entity.Ecclesia;
 import com.gospelee.api.enums.OrganizationType;
+import com.gospelee.api.entity.Ministry;
 import com.gospelee.api.repository.EcclesiaRepository;
+import com.gospelee.api.repository.jpa.ministry.MinistryRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,6 +23,9 @@ class OrganizationServiceTest {
   @Mock
   private EcclesiaRepository ecclesiaRepository;
 
+  @Mock
+  private MinistryRepository ministryRepository;
+
   @InjectMocks
   private OrganizationService organizationService;
 
@@ -28,14 +33,14 @@ class OrganizationServiceTest {
   @DisplayName("Entity가 없는 조직 타입의 경우 기본 표시명을 반환한다")
   void getOrganizationName_WithoutEntity_ReturnsDisplayName() {
     // given
-    OrganizationType organizationType = OrganizationType.MINISTRY;
+    OrganizationType organizationType = OrganizationType.BRAND_STORY;
     Long organizationId = 1L;
 
     // when
     String result = organizationService.getOrganizationName(organizationType, organizationId);
 
     // then
-    assertEquals("사역단체", result);
+    assertEquals("브랜드스토리", result);
     verifyNoInteractions(ecclesiaRepository);
   }
 
@@ -74,5 +79,15 @@ class OrganizationServiceTest {
     // then
     assertEquals("교회", result);
     verify(ecclesiaRepository).findById(organizationId);
+  }
+
+  @Test
+  @DisplayName("모임은 DB에서 조회한 모임 이름을 반환한다")
+  void getOrganizationName_Ministry_ReturnsMinistryName() {
+    when(ministryRepository.findById(5L))
+        .thenReturn(Optional.of(Ministry.builder().name("청년 워십팀").build()));
+
+    assertEquals("청년 워십팀",
+        organizationService.getOrganizationName(OrganizationType.MINISTRY, 5L));
   }
 }

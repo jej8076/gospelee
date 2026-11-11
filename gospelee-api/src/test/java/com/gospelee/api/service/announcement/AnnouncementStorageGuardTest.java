@@ -25,7 +25,8 @@ class AnnouncementStorageGuardTest {
   @BeforeEach
   void setUp() {
     repository = mock(EcclesiaJpaRepository.class);
-    guard = new AnnouncementStorageGuard(repository);
+    guard = new AnnouncementStorageGuard(repository,
+        org.mockito.Mockito.mock(com.gospelee.api.repository.jpa.ministry.MinistryRepository.class));
     ecclesia = Ecclesia.builder().uid(5L).name("포도교회").status("APL").build();
     ReflectionTestUtils.setField(ecclesia, "insertTime", LocalDateTime.now());
     when(repository.findEcclesiasByUid(5L)).thenReturn(Optional.of(ecclesia));

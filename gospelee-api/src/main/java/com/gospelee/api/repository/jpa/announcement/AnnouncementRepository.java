@@ -13,6 +13,9 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
 
   List<Announcement> findByOrganizationType(String organizationType);
 
+  List<Announcement> findByOrganizationTypeAndOrganizationId(String organizationType,
+      Long organizationId);
+
   @Modifying
   @Query("""
           UPDATE Announcement a
