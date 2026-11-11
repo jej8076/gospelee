@@ -2,10 +2,12 @@ package com.gospelee.api.repository.jpa.account;
 
 import com.gospelee.api.entity.Account;
 import io.lettuce.core.dynamic.annotation.Param;
+import jakarta.persistence.LockModeType;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
   Optional<Account> findById(Long uid);
+
+  /** 같은 계정의 모임 개설·가입 한도 검사가 동시에 통과하지 않도록 계정 행을 잠그고 조회 */
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("select a from Account a where a.uid = :uid")
+  Optional<Account> findByUidForUpdate(@Param("uid") Long uid);
 
   Optional<Account> findByPhone(String phone);
 
