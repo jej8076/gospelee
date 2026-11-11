@@ -446,6 +446,32 @@ public class MinistryService {
         .filter(MinistryMember::isActive).map(MinistryMember::getRole);
   }
 
+  /** 모임 콘텐츠를 볼 수 있는 활성 멤버인지 확인한다 (아니면 모임 존재 여부도 알 수 없는 응답) */
+  @Transactional(readOnly = true)
+  public Ministry requireMemberOf(Long ministryId, Long accountUid) {
+    requireActive(ministryId, accountUid);
+    return findMinistry(ministryId);
+  }
+
+  /** 공지 같은 콘텐츠를 쓸 수 있는 대표·운영진이고 정지된 모임이 아닌지 확인한다 */
+  @Transactional(readOnly = true)
+  public Ministry requireWriterOf(Long ministryId, Long accountUid) {
+    MinistryMember me = requireActive(ministryId, accountUid);
+    if (!me.getRole().canManage()) {
+      throw new AccessDeniedException("모임 대표 또는 운영진만 작성할 수 있습니다.");
+    }
+    return findWritableMinistry(ministryId);
+  }
+
+  /** 푸시를 받을 활성 멤버 계정 (탈퇴 계정 제외) */
+  @Transactional(readOnly = true)
+  public List<Account> getActiveMemberAccounts(Long ministryId) {
+    List<MinistryMember> members = memberRepository
+        .findByMinistryIdAndStatus(ministryId, MinistryMemberStatus.ACTIVE);
+    return accountsOf(members).values().stream()
+        .filter(a -> a.getLeaveYn() != Yn.Y).toList();
+  }
+
   private MinistryMember requireActive(Long ministryId, Long accountUid) {
     // 멤버가 아니면 모임이 있는지도 알 수 없도록 같은 응답을 준다
     return memberRepository.findByMinistryIdAndAccountUid(ministryId, accountUid)

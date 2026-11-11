@@ -111,7 +111,7 @@ public class AnnouncementDTO {
     return Announcement.builder()
         .id(this.id)
         .organizationType(OrganizationType.fromName(this.organizationType).name())
-        .organizationId(accountAuthDTO.getEcclesiaUid())
+        .organizationId(resolveOrganizationId(accountAuthDTO))
         .subject(this.subject)
         .text(this.text)
         .fileUid(this.fileUid)
@@ -121,5 +121,13 @@ public class AnnouncementDTO {
 
   public void changeText(String text) {
     this.text = text;
+  }
+
+  /** 모임 공지는 요청의 모임 id, 그 외는 작성자의 교회. 모임 id 의 권한 검사는 서비스가 먼저 한다 */
+  private Long resolveOrganizationId(AccountAuthDTO account) {
+    if (OrganizationType.MINISTRY.name().equals(this.organizationType)) {
+      return Long.valueOf(this.organizationId);
+    }
+    return account.getEcclesiaUid();
   }
 }

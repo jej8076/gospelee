@@ -1,8 +1,10 @@
 package com.gospelee.api.service.announcement;
 
 import com.gospelee.api.entity.Ecclesia;
+import com.gospelee.api.enums.OrganizationType;
 import com.gospelee.api.exception.EcclesiaException;
 import com.gospelee.api.repository.jpa.ecclesia.EcclesiaJpaRepository;
+import com.gospelee.api.repository.jpa.ministry.MinistryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Component;
 public class AnnouncementStorageGuard {
 
   private final EcclesiaJpaRepository ecclesiaJpaRepository;
+  private final MinistryRepository ministryRepository;
 
   /**
    * 검증 기한이 지난 미검증 교회는 공지를 작성/수정할 수 없다
@@ -60,5 +63,35 @@ public class AnnouncementStorageGuard {
   private String formatLimit(Ecclesia ecclesia) {
     long mb = ecclesia.getStorageLimitBytesOrDefault() / (1024 * 1024);
     return mb >= 1024 ? (mb / 1024) + "GB" : mb + "MB";
+  }
+
+  /** 조직 종류에 맞는 저장 공간에 반영한다. 모임은 기본 100MB 한도를 넘으면 거부한다 */
+  public void reserve(String organizationType, Long organizationId, long incomingBytes) {
+    if (!OrganizationType.MINISTRY.name().equals(organizationType)) {
+      reserve(organizationId, incomingBytes);
+      return;
+    }
+    if (organizationId == null || incomingBytes <= 0) {
+      return;
+    }
+    ministryRepository.findById(organizationId).ifPresent(ministry -> {
+      if (!ministry.hasEnoughStorage(incomingBytes)) {
+        throw new IllegalArgumentException("모임 저장 공간 용량("
+            + ministry.getStorageLimitBytes() / (1024 * 1024) + "MB)을 초과하여 파일을 올릴 수 없습니다.");
+      }
+      ministry.addStorageUsedBytes(incomingBytes);
+    });
+  }
+
+  public void release(String organizationType, Long organizationId, long freedBytes) {
+    if (!OrganizationType.MINISTRY.name().equals(organizationType)) {
+      release(organizationId, freedBytes);
+      return;
+    }
+    if (organizationId == null || freedBytes <= 0) {
+      return;
+    }
+    ministryRepository.findById(organizationId)
+        .ifPresent(ministry -> ministry.subtractStorageUsedBytes(freedBytes));
   }
 }
