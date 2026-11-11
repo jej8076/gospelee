@@ -7,4 +7,5 @@ type MinistryRow = {
   storageUsedBytes: number;
   storageLimitBytes: number;
   createdAt?: string | null;
+  pendingReports: number;
 };

@@ -1,6 +1,6 @@
 type ContentReport = {
   uid: number;
-  targetType: 'SHARE' | 'COMMENT';
+  targetType: 'SHARE' | 'COMMENT' | 'MIN_ANN';
   targetUid: number;
   reason: string;
   detail?: string | null;

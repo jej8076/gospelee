@@ -1,12 +1,16 @@
 package com.gospelee.api.service.ministry;
 
 import com.gospelee.api.entity.Account;
+import com.gospelee.api.entity.Announcement;
+import com.gospelee.api.entity.ContentReport;
 import com.gospelee.api.entity.Ministry;
 import com.gospelee.api.entity.MinistryMember;
 import com.gospelee.api.enums.MinistryMemberStatus;
 import com.gospelee.api.enums.MinistryRole;
 import com.gospelee.api.enums.MinistryStatus;
 import com.gospelee.api.repository.jpa.account.AccountRepository;
+import com.gospelee.api.repository.jpa.announcement.AnnouncementRepository;
+import com.gospelee.api.repository.jpa.journal.ContentReportRepository;
 import com.gospelee.api.repository.jpa.ministry.MinistryMemberRepository;
 import com.gospelee.api.repository.jpa.ministry.MinistryRepository;
 import java.time.LocalDateTime;
@@ -31,9 +35,12 @@ public class AdminMinistryService {
   private final MinistryRepository ministryRepository;
   private final MinistryMemberRepository memberRepository;
   private final AccountRepository accountRepository;
+  private final AnnouncementRepository announcementRepository;
+  private final ContentReportRepository reportRepository;
 
   public record Row(Long id, String name, String status, long memberCount, String ownerName,
-                    long storageUsedBytes, long storageLimitBytes, LocalDateTime createdAt) {
+                    long storageUsedBytes, long storageLimitBytes, LocalDateTime createdAt,
+                    long pendingReports) {
 
   }
 
@@ -52,6 +59,8 @@ public class AdminMinistryService {
         .findAllById(owners.values().stream().map(MinistryMember::getAccountUid).toList())
         .stream().collect(Collectors.toMap(Account::getUid, Function.identity()));
 
+    Map<Long, Long> pendingReports = pendingReportsByMinistry();
+
     String needle = keyword == null ? "" : keyword.trim().toLowerCase();
     return ministryRepository.findAll().stream()
         .map(m -> {
@@ -59,13 +68,33 @@ public class AdminMinistryService {
           Account ownerAccount = owner == null ? null : accounts.get(owner.getAccountUid());
           return new Row(m.getId(), m.getName(), m.getStatus().name(),
               counts.getOrDefault(m.getId(), 0L), ownerName(ownerAccount),
-              m.getStorageUsedBytes(), m.getStorageLimitBytes(), m.getInsertTime());
+              m.getStorageUsedBytes(), m.getStorageLimitBytes(), m.getInsertTime(),
+              pendingReports.getOrDefault(m.getId(), 0L));
         })
         .filter(r -> needle.isEmpty() || r.name().toLowerCase().contains(needle)
             || r.ownerName().toLowerCase().contains(needle))
         .sorted(Comparator.comparing(Row::createdAt,
             Comparator.nullsLast(Comparator.reverseOrder())))
         .toList();
+  }
+
+  /** 처리 대기 중인 모임 공지 신고 수를 모임별로 센다 */
+  private Map<Long, Long> pendingReportsByMinistry() {
+    List<ContentReport> pending = reportRepository.findByStatusOrderByUidDesc(ContentReport.PENDING)
+        .stream()
+        .filter(r -> ContentReport.TARGET_MINISTRY_ANNOUNCEMENT.equals(r.getTargetType()))
+        .toList();
+    Map<Long, Announcement> announcements = announcementRepository
+        .findAllById(pending.stream().map(ContentReport::getTargetUid).toList()).stream()
+        .collect(Collectors.toMap(Announcement::getId, Function.identity()));
+    Map<Long, Long> counts = new HashMap<>();
+    for (ContentReport report : pending) {
+      Announcement announcement = announcements.get(report.getTargetUid());
+      if (announcement != null) {
+        counts.merge(announcement.getOrganizationId(), 1L, Long::sum);
+      }
+    }
+    return counts;
   }
 
   @Transactional

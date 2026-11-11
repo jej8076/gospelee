@@ -12,6 +12,12 @@ const STATUS_TABS = [
   {value: 'DISMISSED', label: '기각'},
 ];
 
+const TARGET_LABELS: Record<string, string> = {
+  SHARE: '묵상 나눔',
+  COMMENT: '댓글',
+  MIN_ANN: '모임 공지',
+};
+
 const REASON_LABELS: Record<string, string> = {
   SPAM: '스팸/광고',
   ABUSE: '욕설/비방',
@@ -74,7 +80,7 @@ export default function ManageReport(): JSX.Element {
   return (
       <div className="px-4 sm:px-6 lg:px-8">
         <h1 className="text-base font-semibold text-gray-900">신고 관리</h1>
-        <p className="mt-2 text-sm text-gray-700">묵상 나눔과 댓글에 접수된 신고를 검토합니다</p>
+        <p className="mt-2 text-sm text-gray-700">묵상 나눔, 댓글, 모임 공지에 접수된 신고를 검토합니다</p>
 
         <div className="mt-6 flex gap-2">
           {STATUS_TABS.map(tab => (
@@ -102,7 +108,7 @@ export default function ManageReport(): JSX.Element {
                   <li key={report.uid} className="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
                     <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
                       <span className="rounded-full bg-gray-100 px-2 py-0.5 font-medium text-gray-700">
-                        {report.targetType === 'SHARE' ? '묵상 나눔' : '댓글'}
+                        {TARGET_LABELS[report.targetType] ?? report.targetType}
                       </span>
                       <span className="rounded-full bg-red-50 px-2 py-0.5 font-medium text-red-700">
                         {REASON_LABELS[report.reason] ?? report.reason}
@@ -116,7 +122,7 @@ export default function ManageReport(): JSX.Element {
                     </div>
 
                     <p className="mt-3 text-sm text-gray-900">
-                      작성자 <b>{report.authorNickname}</b>
+                      {report.targetType === 'MIN_ANN' ? '대상' : '작성자'} <b>{report.authorNickname}</b>
                       {report.reference ? ` · ${report.reference}` : ''}
                     </p>
                     <p className="mt-2 whitespace-pre-wrap rounded-md bg-gray-50 p-3 text-sm text-gray-800">

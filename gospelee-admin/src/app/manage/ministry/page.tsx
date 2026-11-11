@@ -67,7 +67,7 @@ export default function ManageMinistry(): JSX.Element {
       <div className="px-4 sm:px-6 lg:px-8">
         <h1 className="text-base font-semibold text-gray-900">모임 관리</h1>
         <p className="mt-2 text-sm text-gray-700">
-          앱에서 만들어진 모임 목록입니다. 신고가 누적된 모임은 정지할 수 있습니다.
+          앱에서 만들어진 모임 목록입니다. 대기 신고가 쌓인 모임은 신고 관리에서 공지를 내리거나 모임을 정지할 수 있습니다.
         </p>
 
         <form
@@ -105,6 +105,7 @@ export default function ManageMinistry(): JSX.Element {
                   <th className="px-4 py-3 text-right">멤버</th>
                   <th className="px-4 py-3 text-right">사용량</th>
                   <th className="px-4 py-3">만든 날</th>
+                  <th className="px-4 py-3 text-right">대기 신고</th>
                   <th className="px-4 py-3">상태</th>
                   <th className="px-4 py-3"></th>
                 </tr>
@@ -120,6 +121,15 @@ export default function ManageMinistry(): JSX.Element {
                       </td>
                       <td className="px-4 py-3 text-gray-500">
                         {ministry.createdAt ? new Date(ministry.createdAt).toLocaleDateString('ko-KR') : '-'}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {ministry.pendingReports > 0 ? (
+                            <a href="/manage/report" className="font-semibold text-red-600 hover:underline">
+                              {ministry.pendingReports}건
+                            </a>
+                        ) : (
+                            <span className="text-gray-400">-</span>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${

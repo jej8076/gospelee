@@ -12,7 +12,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/** 사용자 콘텐츠(공유된 묵상, 댓글) 신고 */
+/** 사용자 콘텐츠(공유된 묵상, 댓글, 모임 공지) 신고 */
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -22,6 +22,8 @@ public class ContentReport extends EditInfomation {
 
   public static final String TARGET_SHARE = "SHARE";
   public static final String TARGET_COMMENT = "COMMENT";
+  /** 모임 공지 (targetUid 는 공지 id) */
+  public static final String TARGET_MINISTRY_ANNOUNCEMENT = "MIN_ANN";
 
   public static final String PENDING = "PENDING";
   /** 신고 대상 콘텐츠를 내림 */
