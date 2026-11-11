@@ -76,6 +76,7 @@ auth:
     - /bible/reading/goal/invite/*
     - /ecclesia/invite/info/*
     - /ecclesia-invite/*
+    - /ministry-invite/*
     - /article/*
     - /youtube/videos
     - /announcement/unauthorized/BRAND_STORY
