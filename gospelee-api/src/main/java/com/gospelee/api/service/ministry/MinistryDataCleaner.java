@@ -28,16 +28,24 @@ public class MinistryDataCleaner {
   public void deleteAll(Long ministryId) {
     for (Announcement announcement : announcementRepository
         .findByOrganizationTypeAndOrganizationId(OrganizationType.MINISTRY.name(), ministryId)) {
-      if (announcement.getFileUid() != null) {
-        for (FileDetails detail : fileDetailsRepository.findAllByFileIdAndDelYn(
-            announcement.getFileUid(), Yn.N.name())) {
-          detail.markAsDeleted();
-          fileDetailsRepository.save(detail);
-        }
-      }
-      reactionService.removeAllByTarget(ReactionTargetType.ANNOUNCEMENT, announcement.getId());
-      announcementRepository.delete(announcement);
+      deleteAnnouncement(announcement);
     }
     log.info("모임 콘텐츠 삭제 - ministryId:{}", ministryId);
+  }
+
+  /** 공지 한 건과 첨부 파일 표시, 반응을 지운다. 지워진 첨부 용량(바이트)을 돌려준다 */
+  public long deleteAnnouncement(Announcement announcement) {
+    long freedBytes = 0L;
+    if (announcement.getFileUid() != null) {
+      for (FileDetails detail : fileDetailsRepository.findAllByFileIdAndDelYn(
+          announcement.getFileUid(), Yn.N.name())) {
+        detail.markAsDeleted();
+        fileDetailsRepository.save(detail);
+        freedBytes += detail.getFileSize() != null ? detail.getFileSize() : 0L;
+      }
+    }
+    reactionService.removeAllByTarget(ReactionTargetType.ANNOUNCEMENT, announcement.getId());
+    announcementRepository.delete(announcement);
+    return freedBytes;
   }
 }

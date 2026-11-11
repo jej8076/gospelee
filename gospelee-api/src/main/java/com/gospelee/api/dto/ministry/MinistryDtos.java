@@ -35,6 +35,10 @@ public final class MinistryDtos {
 
   }
 
+  public record ReportRequest(String reason, String detail) {
+
+  }
+
   public record DecisionRequest(boolean approve) {
 
   }

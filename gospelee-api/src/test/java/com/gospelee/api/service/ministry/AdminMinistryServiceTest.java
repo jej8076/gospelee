@@ -14,6 +14,8 @@ import com.gospelee.api.enums.MinistryRole;
 import com.gospelee.api.enums.MinistryStatus;
 import com.gospelee.api.enums.Yn;
 import com.gospelee.api.repository.jpa.account.AccountRepository;
+import com.gospelee.api.repository.jpa.announcement.AnnouncementRepository;
+import com.gospelee.api.repository.jpa.journal.ContentReportRepository;
 import com.gospelee.api.repository.jpa.ministry.MinistryMemberRepository;
 import com.gospelee.api.repository.jpa.ministry.MinistryRepository;
 import java.util.List;
@@ -28,6 +30,8 @@ class AdminMinistryServiceTest {
   private MinistryRepository ministryRepository;
   private MinistryMemberRepository memberRepository;
   private AccountRepository accountRepository;
+  private AnnouncementRepository announcementRepository;
+  private ContentReportRepository reportRepository;
   private AdminMinistryService service;
   private Ministry worship;
   private Ministry mission;
@@ -37,7 +41,11 @@ class AdminMinistryServiceTest {
     ministryRepository = mock(MinistryRepository.class);
     memberRepository = mock(MinistryMemberRepository.class);
     accountRepository = mock(AccountRepository.class);
-    service = new AdminMinistryService(ministryRepository, memberRepository, accountRepository);
+    announcementRepository = mock(AnnouncementRepository.class);
+    reportRepository = mock(ContentReportRepository.class);
+    when(reportRepository.findByStatusOrderByUidDesc("PENDING")).thenReturn(List.of());
+    service = new AdminMinistryService(ministryRepository, memberRepository, accountRepository,
+        announcementRepository, reportRepository);
 
     worship = Ministry.builder().name("청년 워십팀").build();
     ReflectionTestUtils.setField(worship, "id", 1L);

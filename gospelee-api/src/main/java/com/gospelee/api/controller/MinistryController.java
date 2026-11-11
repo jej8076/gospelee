@@ -4,9 +4,13 @@ import com.gospelee.api.dto.ministry.MinistryDtos.DecisionRequest;
 import com.gospelee.api.dto.ministry.MinistryDtos.InviteSettingsRequest;
 import com.gospelee.api.dto.ministry.MinistryDtos.JoinRequest;
 import com.gospelee.api.dto.ministry.MinistryDtos.LeaveRequest;
+import com.gospelee.api.dto.ministry.MinistryDtos.ReportRequest;
 import com.gospelee.api.dto.ministry.MinistryDtos.RoleRequest;
 import com.gospelee.api.dto.ministry.MinistryDtos.SaveRequest;
+import com.gospelee.api.service.ministry.MinistryReportService;
 import com.gospelee.api.service.ministry.MinistryService;
+import com.gospelee.api.utils.AuthenticatedUserUtils;
+import java.util.Map;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MinistryController {
 
   private final MinistryService ministryService;
+  private final MinistryReportService reportService;
 
   private static ResponseEntity<Object> ok(Object body) {
     return new ResponseEntity<>(body, HttpStatus.OK);
@@ -116,5 +121,14 @@ public class MinistryController {
   public ResponseEntity<Object> decide(@PathVariable("id") Long id, @PathVariable("uid") Long uid,
       @RequestBody DecisionRequest body) {
     return ok(ministryService.decideRequest(id, uid, body.approve()));
+  }
+
+  /** 모임 공지 신고. 멤버만 할 수 있고 관리자 신고 관리에서 처리한다 */
+  @PostMapping("/{id}/announcements/{announcementId}/report")
+  public ResponseEntity<Object> reportAnnouncement(@PathVariable("id") Long id,
+      @PathVariable("announcementId") Long announcementId, @RequestBody ReportRequest body) {
+    reportService.report(AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow(), id,
+        announcementId, body.reason(), body.detail());
+    return ok(Map.of("reported", true));
   }
 }
