@@ -20,6 +20,7 @@ import com.gospelee.api.repository.jpa.journal.JournalShareReceivedRepository;
 import com.gospelee.api.repository.jpa.pushnotification.PushNotificationReceiversRepository;
 import com.gospelee.api.repository.jpa.qrlogin.QrloginRepository;
 import com.gospelee.api.service.prayer.PrayerCardService;
+import com.gospelee.api.service.ministry.MinistryService;
 import com.gospelee.api.service.reaction.ReactionService;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -65,6 +66,7 @@ public class AccountWithdrawalService {
   private final QrloginRepository qrloginRepository;
   private final ReactionService reactionService;
   private final PrayerCardService prayerCardService;
+  private final MinistryService ministryService;
 
   @Transactional
   public AccountLeaveResponseDTO withdraw(long accountUid) {
@@ -87,6 +89,8 @@ public class AccountWithdrawalService {
     pushReceiversRepository.deleteByReceiveAccountUid(accountUid);
     reactionService.removeAllByAccount(accountUid);
     prayerCardService.removeAllByAccount(accountUid);
+    // 대표인 모임은 지정 없이 자동 승계(멤버가 없으면 삭제)하고 나머지는 멤버십만 지운다
+    ministryService.leaveAll(accountUid);
     accountMetaRepository.deleteByAccountUid(accountUid);
     if (StringUtils.hasText(email)) {
       qrloginRepository.deleteByEmail(email);

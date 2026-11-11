@@ -84,7 +84,8 @@ class AccountWithdrawalServiceTest {
         appleAuthTokenRepository, appleAuthClient, bibleReadingService, goalRepository,
         goalMemberRepository, bibleReadRepository, bibleWriteRepository, blockRepository,
         ecclesiaHistoryRepository, journalRepository, shareReceivedRepository,
-        pushReceiversRepository, qrloginRepository, reactionService, prayerCardService);
+        pushReceiversRepository, qrloginRepository, reactionService, prayerCardService,
+        mock(com.gospelee.api.service.ministry.MinistryService.class));
 
     when(goalMemberRepository.findAllByAccountUid(anyLong())).thenReturn(List.of());
     when(goalRepository.findAllByAccountUidOrderByIdxDesc(anyLong())).thenReturn(List.of());
