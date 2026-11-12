@@ -30,7 +30,6 @@ const Header = () => {
                 className={styles.logoSvg}
                 priority
               />
-              <span className={styles.brandName}>Podo</span>
             </Link>
             <span className={styles.indieBadge}>Indie Craft</span>
           </div>

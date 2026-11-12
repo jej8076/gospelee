@@ -13,8 +13,8 @@ const DownloadSection = () => {
               지금 바로, 말씀의 자리로.
             </h2>
             <p className={styles.subtitle}>
-              Android 기기에서 즉시 실행 가능한 최신 릴리즈 빌드입니다.<br />
-              App Store와 Google Play 공식 출시도 차분히 준비하고 있습니다.
+              App Store와 Google Play에서 바로 설치할 수 있어요.<br />
+              Android는 APK로 직접 설치할 수도 있습니다.
             </p>
           </div>
 
@@ -30,7 +30,7 @@ const DownloadSection = () => {
                 <div className={styles.platformMeta}>
                   <div className={styles.platformTitleGroup}>
                     <span className={styles.platformName}>Android Direct Build</span>
-                    <span className={styles.versionChip}>v1.0.0 Stable</span>
+                    <span className={styles.versionChip}>직접 설치</span>
                   </div>
                   <span className={styles.fileDetail}>app-release.apk · Universal APK</span>
                 </div>
@@ -47,21 +47,21 @@ const DownloadSection = () => {
                     <polyline points="7 10 12 15 17 10"/>
                     <line x1="12" y1="15" x2="12" y2="3"/>
                   </svg>
-                  <span>APK 즉시 다운로드</span>
+                  <span>APK 직접 다운로드</span>
                 </a>
               </div>
 
               <div className={styles.storeStatusGroup}>
-                <div className={styles.storePendingItem}>
+                <a href="https://apps.apple.com/app/id6766432856" className={styles.storeLink} target="_blank" rel="noopener noreferrer">
                   <span className={styles.storeIcon}>🍎</span>
                   <span className={styles.storeText}>App Store</span>
-                  <span className={styles.pendingBadge}>심사 준비 중</span>
-                </div>
-                <div className={styles.storePendingItem}>
+                  <span className={styles.openBadge}>설치하기</span>
+                </a>
+                <a href="https://play.google.com/store/apps/details?id=org.podo" className={styles.storeLink} target="_blank" rel="noopener noreferrer">
                   <span className={styles.storeIcon}>▶️</span>
                   <span className={styles.storeText}>Google Play</span>
-                  <span className={styles.pendingBadge}>출시 준비 중</span>
-                </div>
+                  <span className={styles.openBadge}>설치하기</span>
+                </a>
               </div>
             </div>
 
@@ -71,44 +71,44 @@ const DownloadSection = () => {
                 <svg viewBox="0 0 160 160" width="130" height="130" fill="none">
                   {/* Position detection patterns */}
                   <rect x="10" y="10" width="40" height="40" rx="6" stroke="#1e293b" strokeWidth="8"/>
-                  <rect x="22" y="22" width="16" height="16" rx="2" fill="#316049"/>
+                  <rect x="22" y="22" width="16" height="16" rx="2" fill="#28543e"/>
                   
                   <rect x="110" y="10" width="40" height="40" rx="6" stroke="#1e293b" strokeWidth="8"/>
-                  <rect x="122" y="22" width="16" height="16" rx="2" fill="#316049"/>
+                  <rect x="122" y="22" width="16" height="16" rx="2" fill="#28543e"/>
                   
                   <rect x="10" y="110" width="40" height="40" rx="6" stroke="#1e293b" strokeWidth="8"/>
-                  <rect x="22" y="122" width="16" height="16" rx="2" fill="#316049"/>
+                  <rect x="22" y="122" width="16" height="16" rx="2" fill="#28543e"/>
 
                   {/* Stylized QR bits */}
                   <rect x="62" y="15" width="8" height="8" rx="2" fill="#1e293b"/>
-                  <rect x="76" y="15" width="8" height="8" rx="2" fill="#316049"/>
+                  <rect x="76" y="15" width="8" height="8" rx="2" fill="#28543e"/>
                   <rect x="90" y="15" width="8" height="8" rx="2" fill="#1e293b"/>
                   
-                  <rect x="62" y="32" width="16" height="8" rx="2" fill="#316049"/>
+                  <rect x="62" y="32" width="16" height="8" rx="2" fill="#28543e"/>
                   <rect x="86" y="32" width="8" height="16" rx="2" fill="#1e293b"/>
                   
                   <rect x="15" y="62" width="8" height="16" rx="2" fill="#1e293b"/>
-                  <rect x="32" y="62" width="16" height="8" rx="2" fill="#316049"/>
+                  <rect x="32" y="62" width="16" height="8" rx="2" fill="#28543e"/>
                   <rect x="15" y="86" width="8" height="8" rx="2" fill="#1e293b"/>
                   
-                  <rect x="62" y="62" width="36" height="36" rx="8" fill="#edf3f0" stroke="#316049" strokeWidth="2"/>
-                  <circle cx="80" cy="80" r="8" fill="#316049"/>
+                  <rect x="62" y="62" width="36" height="36" rx="8" fill="#ebf3ee" stroke="#28543e" strokeWidth="2"/>
+                  <circle cx="80" cy="80" r="8" fill="#28543e"/>
                   
-                  <rect x="110" y="62" width="8" height="16" rx="2" fill="#316049"/>
+                  <rect x="110" y="62" width="8" height="16" rx="2" fill="#28543e"/>
                   <rect x="126" y="70" width="16" height="8" rx="2" fill="#1e293b"/>
                   <rect x="110" y="86" width="24" height="8" rx="2" fill="#1e293b"/>
                   
                   <rect x="62" y="110" width="16" height="8" rx="2" fill="#1e293b"/>
-                  <rect x="86" y="110" width="16" height="8" rx="2" fill="#316049"/>
-                  <rect x="110" y="110" width="8" height="24" rx="2" fill="#316049"/>
+                  <rect x="86" y="110" width="16" height="8" rx="2" fill="#28543e"/>
+                  <rect x="110" y="110" width="8" height="24" rx="2" fill="#28543e"/>
                   <rect x="126" y="126" width="16" height="16" rx="2" fill="#1e293b"/>
-                  <rect x="62" y="126" width="8" height="16" rx="2" fill="#316049"/>
+                  <rect x="62" y="126" width="8" height="16" rx="2" fill="#28543e"/>
                   <rect x="78" y="134" width="16" height="8" rx="2" fill="#1e293b"/>
                 </svg>
               </div>
               <div className={styles.qrInfo}>
                 <span className={styles.qrLabel}>스마트폰 카메라로 스캔</span>
-                <span className={styles.qrSub}>PC 화면에서 폰으로 비추면 즉시 다운로드 링크로 연결됩니다.</span>
+                <span className={styles.qrSub}>PC 화면에서 폰으로 비추면 설치 링크로 연결됩니다.</span>
               </div>
             </div>
           </div>

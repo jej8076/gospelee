@@ -21,9 +21,18 @@
   position: relative;
   width: 100%;
   height: 100%;
-  background: #ffffff;
+  background: #f8f8f7;
   border-radius: 34px;
   overflow: hidden;
+  /* 실제 앱 AppColors 토큰 */
+  --bg-subtle: #f8f8f7;
+  --bg-muted: #f2f2f0;
+  --border-card: #e6e6e3;
+  --border-light: #f0f0ed;
+  --text-primary: #1e1e1e;
+  --text-secondary: #616161;
+  --text-tertiary: #8e8e8e;
+  --podo-green-subtle: #ebf3ee;
 }
 
 .statusBar {
@@ -158,7 +167,7 @@
 }
 
 .card {
-  background: var(--bg-subtle);
+  background: #ffffff;
   border: 1px solid var(--border-card);
   border-radius: 16px;
   padding: 16px;
@@ -545,7 +554,7 @@
   height: 44px;
   margin: -22px 0 0 -22px;
   border-radius: 50%;
-  background: rgba(49, 96, 73, 0.35);
+  background: rgba(40, 84, 62, 0.35);
   pointer-events: none;
   animation: tap 0.7s ease-out forwards;
 }
@@ -645,42 +654,6 @@
 }
 
 /* ---------- Added: filler content ---------- */
-.week {
-  display: flex;
-  justify-content: space-between;
-  padding: 4px 6px 0;
-}
-
-.weekDay {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-}
-
-.weekDot {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: var(--bg-muted);
-  color: #ffffff;
-  font-size: 0.7rem;
-  font-weight: 700;
-  transition: background 0.3s ease;
-}
-
-.weekDotOn {
-  background: var(--podo-green);
-}
-
-.weekLabel {
-  font-size: 0.68rem;
-  color: var(--text-tertiary);
-}
-
 .oldCard {
   display: flex;
   flex-direction: column;
@@ -707,5 +680,285 @@
   background: var(--podo-green-subtle);
   color: var(--podo-green);
   font-size: 0.72rem;
+  font-weight: 600;
+}
+
+/* ---------- 필사 화면 (실제 앱 구조) ---------- */
+.navCenter {
+  justify-content: center;
+  position: relative;
+}
+
+.navCenter .back {
+  position: absolute;
+  left: 0;
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lineGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lineRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.verseNo {
+  flex-shrink: 0;
+  width: 18px;
+  text-align: right;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #8e8e8e;
+}
+
+.verseNoOn {
+  font-weight: 700;
+  color: var(--podo-green);
+}
+
+.lineBox {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  font-weight: 500;
+  word-break: keep-all;
+}
+
+.line_done {
+  background: #ffffff;
+  border: 1px solid #e6e6e3;
+  color: #1e1e1e;
+}
+
+.line_idle {
+  background: #f2f2f0;
+  border: 1px solid #f0f0ed;
+  color: #8e8e8e;
+}
+
+.line_active {
+  background: #f0f6f2;
+  border: 1.2px solid #b5d6c1;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+.charIdle { color: #1e1e1e; }
+.charRest { color: #8e8e8e; }
+.charRight { color: var(--podo-green); }
+.charWrong { color: #e53935; }
+
+.inputRow {
+  display: flex;
+  align-items: center;
+  margin-left: 26px;
+  padding: 4px 0 3px;
+  border-bottom: 1.5px solid var(--podo-green);
+  font-size: 0.8rem;
+  min-height: 24px;
+  color: #1e1e1e;
+}
+
+.inputText {
+  white-space: pre;
+}
+
+.keyboard {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 4px 22px;
+  background: #d3d6db;
+}
+
+.keyRow {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+
+.key {
+  width: 26px;
+  height: 34px;
+  border-radius: 5px;
+  background: #ffffff;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* ---------- 필사 기록 통계 ---------- */
+.statCard {
+  padding: 14px;
+  background: #ffffff;
+  border: 1px solid #e6e6e3;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.statHead {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 0.86rem;
+}
+
+.statTrack {
+  height: 8px;
+  overflow: hidden;
+  background: #f2f2f0;
+  border-radius: 8px;
+}
+
+.statFill {
+  height: 100%;
+  background: #28543e;
+  border-radius: 8px;
+}
+
+.statRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 10px 0 12px;
+}
+
+.statCount {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #616161;
+}
+
+.statPercent {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #28543e;
+}
+
+.testaments {
+  display: flex;
+  gap: 8px;
+}
+
+.testament {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 0.66rem;
+  font-weight: 600;
+}
+
+.testament strong {
+  font-size: 0.76rem;
+  color: #1e1e1e;
+}
+
+.testamentOld {
+  background: #ebf3ee;
+  color: #28543e;
+}
+
+.testamentNew {
+  background: #fcefea;
+  color: #c95430;
+}
+
+.bookHead {
+  margin-top: 4px;
+  font-size: 0.86rem;
+}
+
+.bookList {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.bookRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+}
+
+.bookRow + .bookRow {
+  border-top: 1px solid #eeeeee;
+}
+
+.bookName {
+  width: 54px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #212121;
+}
+
+.bookTrack {
+  flex: 1;
+  height: 7px;
+  overflow: hidden;
+  background: #eeeeee;
+  border-radius: 4px;
+}
+
+.bookFill {
+  height: 100%;
+  border-radius: 4px;
+}
+
+.bookCount {
+  width: 44px;
+  text-align: right;
+  font-size: 0.62rem;
+  color: #9e9e9e;
+}
+
+/* ---------- 하단 탭 (실제 앱: 피드 / 교회 / 말씀 / 설정) ---------- */
+.withTabs {
+  padding-bottom: 72px;
+}
+
+.appTabBar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 6px 18px;
+  background: #ffffff;
+  border-top: 1px solid #f0f0ed;
+}
+
+.appTabItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 25%;
+  color: #8e8e8e;
+  font-size: 0.6rem;
+  font-weight: 500;
+}
+
+.appTabItemOn {
+  color: #28543e;
   font-weight: 600;
 }

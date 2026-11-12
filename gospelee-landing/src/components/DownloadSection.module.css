@@ -136,13 +136,13 @@
   font-size: 1rem;
   font-weight: 600;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 14px rgba(49, 96, 73, 0.2);
+  box-shadow: 0 4px 14px rgba(40, 84, 62, 0.2);
 }
 
 .downloadBtn:hover {
   background: var(--podo-green-hover);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(49, 96, 73, 0.3);
+  box-shadow: 0 6px 20px rgba(40, 84, 62, 0.3);
 }
 
 .storeStatusGroup {
@@ -152,7 +152,7 @@
   border-top: 1px solid var(--border-light);
 }
 
-.storePendingItem {
+.storeLink {
   flex: 1;
   display: flex;
   align-items: center;
@@ -174,11 +174,17 @@
   color: var(--text-primary);
 }
 
-.pendingBadge {
+.storeLink:hover {
+  border-color: var(--podo-green-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.openBadge {
   margin-left: auto;
   font-size: 0.7rem;
-  color: var(--text-tertiary);
-  background: var(--bg-muted);
+  font-weight: 600;
+  color: var(--podo-green);
+  background: var(--podo-green-subtle);
   padding: 2px 6px;
   border-radius: 4px;
 }
