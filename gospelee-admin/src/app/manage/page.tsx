@@ -11,6 +11,7 @@ import {
   HeartIcon,
   PhotoIcon,
   ReceiptRefundIcon,
+  UserGroupIcon,
   UsersIcon,
 } from '@heroicons/react/24/outline'
 
@@ -107,6 +108,15 @@ const reportAction: Action = {
   description: '묵상 나눔과 댓글 신고를 검토합니다',
 };
 
+const ministryAction: Action = {
+  title: '모임 관리',
+  href: '/manage/ministry',
+  icon: UserGroupIcon,
+  iconForeground: 'text-teal-700',
+  iconBackground: 'bg-teal-50',
+  description: '앱에서 만들어진 모임을 확인하고 정지·해제합니다',
+};
+
 function classNames(...classes: (string | boolean | undefined | null)[]): string {
   return classes.filter(Boolean).join(' ')
 }
@@ -128,7 +138,7 @@ export default function Noti() {
   const withSuperActions = loginEmail === 'super@super.com'
       ? [...baseActions, storyAction, videoAction]
       : baseActions;
-  const baseActionsArray = isAdmin ? [...withSuperActions, reportAction] : withSuperActions;
+  const baseActionsArray = isAdmin ? [...withSuperActions, reportAction, ministryAction] : withSuperActions;
 
   // 홀수 개의 항목이면 더미 데이터 추가하여 짝수로 맞춤
   const actions = baseActionsArray.length % 2 === 1

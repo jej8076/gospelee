@@ -106,7 +106,16 @@ public class PushDispatchService {
    */
   public SendResult dispatch(PushRequest request) {
     List<Long> groupIds = validateGroupIds(request.getEcclesiaUid(), request.getGroupIds());
-    List<Account> recipients = resolveRecipients(request.getEcclesiaUid(), groupIds);
+    return deliver(request, resolveRecipients(request.getEcclesiaUid(), groupIds), groupIds);
+  }
+
+  /** 모임처럼 교회 성도가 아닌 대상에게 보낸다. 받을 사람 계정을 호출하는 쪽이 정해서 넘긴다 */
+  public SendResult dispatchTo(PushRequest request, List<Account> recipients) {
+    return deliver(request, recipients, List.of());
+  }
+
+  private SendResult deliver(PushRequest request, List<Account> recipients,
+      List<Long> groupIds) {
     if (recipients.isEmpty()) {
       return null;
     }

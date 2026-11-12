@@ -12,6 +12,8 @@ final class AnnouncementPushMessage {
   static final String DEFAULT_MESSAGE = "공지사항을 확인해주세요.";
   private static final int MAX_SUBJECT_LENGTH = 60;
 
+  private static final int MAX_MINISTRY_NAME_LENGTH = 20;
+
   private static final String ROUTE_PREFIX = "/ecclesia/announcement/";
 
   private AnnouncementPushMessage() {
@@ -22,6 +24,21 @@ final class AnnouncementPushMessage {
    */
   static Map<String, String> routeData(Long announcementId) {
     return Map.of(PushNotificationDataType.ROUTE.lower(), ROUTE_PREFIX + announcementId);
+  }
+
+  /** 모임 공지 상세 경로. 앱이 어느 모임의 공지인지 알 수 있도록 ministryId 를 붙인다 */
+  static Map<String, String> ministryRouteData(Long announcementId, Long ministryId) {
+    return Map.of(PushNotificationDataType.ROUTE.lower(),
+        ROUTE_PREFIX + announcementId + "?ministryId=" + ministryId);
+  }
+
+  /** 모임 공지 푸시 제목: [모임이름] 공지. 이름이 길면 줄인다 */
+  static String ministryTitle(String ministryName) {
+    String name = ministryName == null ? "" : ministryName.replaceAll("\\s+", " ").trim();
+    if (name.length() > MAX_MINISTRY_NAME_LENGTH) {
+      name = name.substring(0, MAX_MINISTRY_NAME_LENGTH) + "...";
+    }
+    return name.isEmpty() ? "모임 공지사항" : "[" + name + "] 공지사항";
   }
 
   static String message(String subject) {

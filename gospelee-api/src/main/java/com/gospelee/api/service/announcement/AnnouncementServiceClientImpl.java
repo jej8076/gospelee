@@ -9,9 +9,11 @@ import com.gospelee.api.dto.file.FileUploadDetailResponseDTO;
 import com.gospelee.api.dto.file.FileUploadResponseDTO;
 import com.gospelee.api.dto.file.FileUploadWrapperDTO;
 import com.gospelee.api.dto.reaction.ReactionSummaryDTO;
+import com.gospelee.api.entity.Account;
 import com.gospelee.api.entity.Announcement;
 import com.gospelee.api.entity.FileDetails;
 import com.gospelee.api.entity.FileEntity;
+import com.gospelee.api.entity.Ministry;
 import com.gospelee.api.enums.AppType;
 import com.gospelee.api.enums.CategoryType;
 import com.gospelee.api.enums.CustomHeader;
@@ -25,6 +27,7 @@ import com.gospelee.api.repository.jpa.announcement.AnnouncementRepository;
 import com.gospelee.api.repository.jpa.file.FileDetailsRepository;
 import com.gospelee.api.repository.jpa.file.FileRepository;
 import com.gospelee.api.service.FileService;
+import com.gospelee.api.service.ministry.MinistryService;
 import com.gospelee.api.service.push.PushDispatchService;
 import com.gospelee.api.service.push.PushDispatchService.PushRequest;
 import com.gospelee.api.service.reaction.ReactionService;
@@ -55,6 +58,7 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
   private final AnnouncementStorageGuard storageGuard;
   private final FileRepository fileRepository;
   private final ReactionService reactionService;
+  private final MinistryService ministryService;
 
   @Value("${server.domain:http://localhost:8008}")
   private String serverDomain;
@@ -86,6 +90,15 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
       }
       responseList = announcementRepository.findByOrganizationTypeAndOrganizationIdAndOpenY(
           organizationType.name(), account.getEcclesiaUid(), isOpen);
+
+    } else if (organizationType.equals(OrganizationType.MINISTRY)) {
+      // 모임 공지는 그 모임의 활성 멤버만 볼 수 있다. 모임 id 는 organizationId 파라미터로 받는다
+      AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
+      viewer = account;
+      Long ministryId = parseMinistryId(request.getParameter("organizationId"));
+      ministryService.requireMemberOf(ministryId, account.getUid());
+      responseList = announcementRepository.findByOrganizationTypeAndOrganizationIdAndOpenY(
+          organizationType.name(), ministryId, isOpen);
 
     } else {
       throw new AnnouncementNotFoundException("not_found_organization_type organizationType:{}",
@@ -141,9 +154,17 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
   public AnnouncementDTO getAnnouncement(String announcementType, Long id) {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
 
-    // 임시로 ecclesia 공지사항만 고려함
-    Optional<Announcement> announcement = announcementRepository.findByIdAndOrganizationTypeAndOrganizationId(
-        id, announcementType, account.getEcclesiaUid());
+    Optional<Announcement> announcement;
+    if (OrganizationType.MINISTRY.name().equalsIgnoreCase(announcementType)) {
+      // 모임 공지: 공지가 속한 모임의 활성 멤버만 열 수 있다
+      announcement = announcementRepository.findById(id)
+          .filter(a -> OrganizationType.MINISTRY.name().equals(a.getOrganizationType()));
+      announcement.ifPresent(a -> ministryService.requireMemberOf(a.getOrganizationId(),
+          account.getUid()));
+    } else {
+      announcement = announcementRepository.findByIdAndOrganizationTypeAndOrganizationId(
+          id, announcementType, account.getEcclesiaUid());
+    }
 
     if (announcement.isEmpty()) {
       throw new RuntimeException("실패함");
@@ -252,7 +273,7 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
 
     // 5. 기존 파일 삭제 처리
     deleteExistingFiles(announcementDTO.getDeleteFileDetailIdList(),
-        savedAnnouncement.getOrganizationId());
+        savedAnnouncement.getOrganizationType(), savedAnnouncement.getOrganizationId());
 
     // 6. 푸시 알림 처리
     handlePushNotificationIfNeeded(savedAnnouncement, announcementDTO, account);
@@ -277,7 +298,8 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
         fileDetailsRepository.save(detail);
         freedBytes += detail.getFileSize() != null ? detail.getFileSize() : 0L;
       }
-      storageGuard.release(existing.getOrganizationId(), freedBytes);
+      storageGuard.release(existing.getOrganizationType(), existing.getOrganizationId(),
+          freedBytes);
     }
     announcementRepository.delete(existing);
     reactionService.removeAllByTarget(ReactionTargetType.ANNOUNCEMENT, id);
@@ -286,6 +308,10 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
 
   /** 알림 그룹이 내 교회의 그룹인지 저장 전에 확인한다 (잘못된 요청이 데이터를 남기지 않도록) */
   private void validatePushGroups(AccountAuthDTO account, AnnouncementDTO dto) {
+    // 모임은 푸시 그룹이 없고 전체 멤버에게만 보낸다
+    if (OrganizationType.MINISTRY.name().equals(dto.getOrganizationType())) {
+      return;
+    }
     if ("Y".equals(dto.getPushNotificationSendYn())) {
       pushDispatchService.validateGroupIds(account.getEcclesiaUid(), dto.getPushGroupIds());
     }
@@ -304,7 +330,8 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
 
   }
 
-  private void deleteExistingFiles(List<Long> deleteFileDetailIdList, Long ecclesiaUid) {
+  private void deleteExistingFiles(List<Long> deleteFileDetailIdList, String organizationType,
+      Long organizationId) {
     if (deleteFileDetailIdList == null || deleteFileDetailIdList.isEmpty()) {
       return;
     }
@@ -321,7 +348,7 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
           // 파일 삭제 마킹 (실제 파일 삭제는 별도 배치에서 처리하거나 즉시 처리)
           fileDetail.markAsDeleted(); // 이 메서드가 FileDetails 엔티티에 있다고 가정
           fileDetailsRepository.save(fileDetail);
-          storageGuard.release(ecclesiaUid,
+          storageGuard.release(organizationType, organizationId,
               fileDetail.getFileSize() != null ? fileDetail.getFileSize() : 0L);
 
           log.info("파일 삭제 완료 - fileDetailId: {}, fileName: {}",
@@ -344,6 +371,11 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
       return;
     }
 
+    if (OrganizationType.MINISTRY.name().equals(announcement.getOrganizationType())) {
+      sendMinistryPush(announcement, account);
+      return;
+    }
+
     Long pushId = pushDispatchService.send(PushRequest.builder()
         .sendAccountUid(account.getUid())
         .ecclesiaUid(account.getEcclesiaUid())
@@ -359,6 +391,38 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
     if (pushId != null) {
       announcementRepository.updatePushNotificationIdsById(announcement.getId(),
           String.valueOf(pushId));
+    }
+  }
+
+  /** 모임 공지 푸시: 제목에 모임 이름을 붙여 보내고, 받는 사람은 모임의 활성 멤버 전체다 */
+  private void sendMinistryPush(Announcement announcement, AccountAuthDTO account) {
+    Ministry ministry = ministryService.requireMemberOf(announcement.getOrganizationId(),
+        account.getUid());
+    List<Account> recipients = ministryService.getActiveMemberAccounts(ministry.getId());
+    Map<String, String> data = new HashMap<>(
+        AnnouncementPushMessage.ministryRouteData(announcement.getId(), ministry.getId()));
+    data.put("organizationType", OrganizationType.MINISTRY.name());
+    data.put("organizationId", String.valueOf(ministry.getId()));
+
+    PushDispatchService.SendResult result = pushDispatchService.dispatchTo(PushRequest.builder()
+        .sendAccountUid(account.getUid())
+        .organization(OrganizationType.MINISTRY.name())
+        .category(CategoryType.ANNOUNCEMENT.name())
+        .title(AnnouncementPushMessage.ministryTitle(ministry.getName()))
+        .message(AnnouncementPushMessage.message(announcement.getSubject()))
+        .data(data)
+        .build(), recipients);
+    if (result != null) {
+      announcementRepository.updatePushNotificationIdsById(announcement.getId(),
+          String.valueOf(result.pushId()));
+    }
+  }
+
+  private static Long parseMinistryId(String raw) {
+    try {
+      return Long.valueOf(raw);
+    } catch (NumberFormatException e) {
+      throw new AnnouncementNotFoundException("invalid_ministry_id value:{}", raw);
     }
   }
 
@@ -382,8 +446,9 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
     }
 
     // 교회 공지는 첨부 사진 용량을 교회 저장 공간에 반영 (한도 초과 시 업로드 거부)
-    if (OrganizationType.ECCLESIA.name().equals(announcement.getOrganizationType())) {
-      storageGuard.reserve(announcement.getOrganizationId(),
+    if (OrganizationType.ECCLESIA.name().equals(announcement.getOrganizationType())
+        || OrganizationType.MINISTRY.name().equals(announcement.getOrganizationType())) {
+      storageGuard.reserve(announcement.getOrganizationType(), announcement.getOrganizationId(),
           files.stream().mapToLong(MultipartFile::getSize).sum());
     }
 
@@ -515,6 +580,12 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
   // 교회 공지 작성은 같은 교회의 담임목사/교역자/관리자만 가능 (super 계정 제외)
   private void assertCanWriteEcclesiaAnnouncement(AccountAuthDTO account,
       AnnouncementDTO announcementDTO) {
+    if (OrganizationType.MINISTRY.name().equals(announcementDTO.getOrganizationType())) {
+      // 모임 공지: 그 모임의 대표·운영진만 (super 계정도 모임 공지는 쓰지 않는다)
+      ministryService.requireWriterOf(parseMinistryId(announcementDTO.getOrganizationId()),
+          account.getUid());
+      return;
+    }
     if (!OrganizationType.ECCLESIA.name().equals(announcementDTO.getOrganizationType())
         || superId.equals(account.getEmail())) {
       return;
@@ -527,6 +598,10 @@ public class AnnouncementServiceClientImpl implements AnnouncementService {
 
   // 수정은 내 교회의 공지만 가능, 브랜드 스토리 등 다른 조직 공지는 super 계정만 가능
   private void assertCanModifyAnnouncement(AccountAuthDTO account, Announcement existing) {
+    if (OrganizationType.MINISTRY.name().equals(existing.getOrganizationType())) {
+      ministryService.requireWriterOf(existing.getOrganizationId(), account.getUid());
+      return;
+    }
     if (superId.equals(account.getEmail())) {
       return;
     }

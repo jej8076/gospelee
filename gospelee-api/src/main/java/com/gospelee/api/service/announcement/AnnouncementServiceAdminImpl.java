@@ -135,6 +135,9 @@ public class AnnouncementServiceAdminImpl implements AnnouncementService {
   public AnnouncementDTO getAnnouncement(String announcementType, Long id) {
     AccountAuthDTO account = AuthenticatedUserUtils.getAuthenticatedUserOrElseThrow();
 
+    // 모임 공지는 앱 경로에서만 다룬다 (관리자 웹은 모임 멤버십을 모른다)
+    assertNotMinistry(announcementType);
+
     // 임시로 ecclesia 공지사항만 고려함
     Optional<Announcement> announcement = announcementRepository.findByIdAndOrganizationTypeAndOrganizationId(
         id, announcementType, account.getEcclesiaUid());
@@ -532,6 +535,7 @@ public class AnnouncementServiceAdminImpl implements AnnouncementService {
   // 교회 공지 작성은 같은 교회의 담임목사/교역자/관리자만 가능 (super 계정 제외)
   private void assertCanWriteEcclesiaAnnouncement(AccountAuthDTO account,
       AnnouncementDTO announcementDTO) {
+    assertNotMinistry(announcementDTO.getOrganizationType());
     if (!OrganizationType.ECCLESIA.name().equals(announcementDTO.getOrganizationType())
         || superId.equals(account.getEmail())) {
       return;
@@ -561,6 +565,10 @@ public class AnnouncementServiceAdminImpl implements AnnouncementService {
 
     return true;
   }
+
+  private static void assertNotMinistry(String organizationType) {
+    if (OrganizationType.MINISTRY.name().equalsIgnoreCase(organizationType)) {
+      throw new AccessDeniedException("모임 공지는 이 경로로 다룰 수 없습니다.");
+    }
+  }
 }
-
-

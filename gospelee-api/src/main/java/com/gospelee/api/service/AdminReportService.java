@@ -1,10 +1,15 @@
 package com.gospelee.api.service;
 
 import com.gospelee.api.entity.Account;
+import com.gospelee.api.entity.Announcement;
 import com.gospelee.api.entity.ContentReport;
 import com.gospelee.api.entity.JournalShare;
 import com.gospelee.api.entity.JournalShareComment;
 import com.gospelee.api.repository.jpa.account.AccountRepository;
+import com.gospelee.api.repository.jpa.announcement.AnnouncementRepository;
+import com.gospelee.api.repository.jpa.ministry.MinistryRepository;
+import com.gospelee.api.service.announcement.AnnouncementStorageGuard;
+import com.gospelee.api.service.ministry.MinistryDataCleaner;
 import com.gospelee.api.repository.jpa.journal.ContentReportRepository;
 import com.gospelee.api.repository.jpa.journal.JournalShareCommentRepository;
 import com.gospelee.api.repository.jpa.journal.JournalShareRepository;
@@ -35,6 +40,10 @@ public class AdminReportService {
   private final JournalShareRepository shareRepository;
   private final JournalShareCommentRepository commentRepository;
   private final AccountRepository accountRepository;
+  private final AnnouncementRepository announcementRepository;
+  private final MinistryRepository ministryRepository;
+  private final MinistryDataCleaner ministryDataCleaner;
+  private final AnnouncementStorageGuard storageGuard;
 
   public record ReportItem(Long uid, String targetType, Long targetUid, String reason,
                            String detail, String status, String reporterNickname,
@@ -50,10 +59,21 @@ public class AdminReportService {
 
     Set<Long> shareUids = new HashSet<>();
     Set<Long> commentUids = new HashSet<>();
+    Set<Long> announcementIds = new HashSet<>();
     for (ContentReport r : reports) {
-      (ContentReport.TARGET_SHARE.equals(r.getTargetType()) ? shareUids : commentUids)
-          .add(r.getTargetUid());
+      if (ContentReport.TARGET_MINISTRY_ANNOUNCEMENT.equals(r.getTargetType())) {
+        announcementIds.add(r.getTargetUid());
+      } else if (ContentReport.TARGET_SHARE.equals(r.getTargetType())) {
+        shareUids.add(r.getTargetUid());
+      } else {
+        commentUids.add(r.getTargetUid());
+      }
     }
+    Map<Long, Announcement> announcements = announcementRepository.findAllById(announcementIds)
+        .stream().collect(Collectors.toMap(Announcement::getId, a -> a));
+    Map<Long, String> ministryNames = ministryRepository.findAllById(
+            announcements.values().stream().map(Announcement::getOrganizationId).toList())
+        .stream().collect(Collectors.toMap(m -> m.getId(), m -> m.getName()));
     Map<Long, JournalShare> shares = shareRepository.findAllById(shareUids).stream()
         .collect(Collectors.toMap(JournalShare::getUid, s -> s));
     Map<Long, JournalShareComment> comments = commentRepository.findAllById(commentUids).stream()
@@ -67,6 +87,14 @@ public class AdminReportService {
         .collect(Collectors.toMap(Account::getUid, a -> displayName(a)));
 
     return reports.stream().map(r -> {
+      if (ContentReport.TARGET_MINISTRY_ANNOUNCEMENT.equals(r.getTargetType())) {
+        Announcement a = announcements.get(r.getTargetUid());
+        return new ReportItem(r.getUid(), r.getTargetType(), r.getTargetUid(), r.getReason(),
+            r.getDetail(), r.getStatus(), names.getOrDefault(r.getReporterUid(), "-"), "모임 공지",
+            null, a == null ? null : "모임 " + ministryNames.getOrDefault(a.getOrganizationId(), "-"),
+            a == null ? null : a.getSubject() + "\n\n" + a.getText(), a != null,
+            r.getInsertTime());
+      }
       boolean isShare = ContentReport.TARGET_SHARE.equals(r.getTargetType());
       JournalShare share = isShare ? shares.get(r.getTargetUid()) : null;
       JournalShareComment comment = isShare ? null : comments.get(r.getTargetUid());
@@ -91,7 +119,12 @@ public class AdminReportService {
     if (ACTION_DISMISS.equals(action)) {
       report.close(ContentReport.DISMISSED);
     } else if (ACTION_TAKEDOWN.equals(action)) {
-      if (ContentReport.TARGET_SHARE.equals(report.getTargetType())) {
+      if (ContentReport.TARGET_MINISTRY_ANNOUNCEMENT.equals(report.getTargetType())) {
+        announcementRepository.findById(report.getTargetUid()).ifPresent(a -> {
+          long freed = ministryDataCleaner.deleteAnnouncement(a);
+          storageGuard.release(a.getOrganizationType(), a.getOrganizationId(), freed);
+        });
+      } else if (ContentReport.TARGET_SHARE.equals(report.getTargetType())) {
         shareRepository.findById(report.getTargetUid()).ifPresent(JournalShare::revoke);
       } else {
         commentRepository.findById(report.getTargetUid()).ifPresent(JournalShareComment::delete);

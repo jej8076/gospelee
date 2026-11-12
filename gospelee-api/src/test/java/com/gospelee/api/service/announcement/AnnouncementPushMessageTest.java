@@ -32,4 +32,22 @@ class AnnouncementPushMessageTest {
     assertEquals(63, message.length());
     assertTrue(message.endsWith("..."));
   }
+
+  @Test
+  void ministryTitle_putsMinistryNameInBrackets() {
+    assertEquals("[청년 워십팀] 공지사항", AnnouncementPushMessage.ministryTitle("청년 워십팀"));
+  }
+
+  @Test
+  void ministryTitle_truncatesLongNames_andFallsBackWhenBlank() {
+    assertEquals("[" + "가".repeat(20) + "...] 공지사항",
+        AnnouncementPushMessage.ministryTitle("가".repeat(25)));
+    assertEquals("모임 공지사항", AnnouncementPushMessage.ministryTitle("  "));
+  }
+
+  @Test
+  void ministryRouteData_carriesMinistryId() {
+    assertEquals("/ecclesia/announcement/7?ministryId=3",
+        AnnouncementPushMessage.ministryRouteData(7L, 3L).get("route"));
+  }
 }

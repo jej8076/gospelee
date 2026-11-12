@@ -25,13 +25,23 @@ class AdminReportServiceTest {
   private JournalShareCommentRepository commentRepository;
   private AdminReportService service;
 
+  private com.gospelee.api.repository.jpa.announcement.AnnouncementRepository announcementRepository;
+  private com.gospelee.api.service.ministry.MinistryDataCleaner dataCleaner;
+  private com.gospelee.api.service.announcement.AnnouncementStorageGuard storageGuard;
+
   @BeforeEach
   void setUp() {
     reportRepository = mock(ContentReportRepository.class);
     shareRepository = mock(JournalShareRepository.class);
     commentRepository = mock(JournalShareCommentRepository.class);
+    announcementRepository = mock(
+        com.gospelee.api.repository.jpa.announcement.AnnouncementRepository.class);
+    dataCleaner = mock(com.gospelee.api.service.ministry.MinistryDataCleaner.class);
+    storageGuard = mock(com.gospelee.api.service.announcement.AnnouncementStorageGuard.class);
     service = new AdminReportService(reportRepository, shareRepository, commentRepository,
-        mock(AccountRepository.class));
+        mock(AccountRepository.class), announcementRepository,
+        mock(com.gospelee.api.repository.jpa.ministry.MinistryRepository.class),
+        dataCleaner, storageGuard);
   }
 
   @Test
@@ -83,5 +93,29 @@ class AdminReportServiceTest {
 
     assertThrows(JournalShareException.class, () -> service.resolve(10L, "BAN", 99L));
     assertThrows(JournalShareException.class, () -> service.resolve(11L, "DISMISS", 99L));
+  }
+
+  @Test
+  void 모임_공지_신고를_내리면_공지가_삭제되고_모임_용량이_돌아온다() {
+    com.gospelee.api.entity.Announcement announcement = com.gospelee.api.entity.Announcement
+        .builder().organizationType("MINISTRY").organizationId(3L).subject("s").text("t").build();
+    org.springframework.test.util.ReflectionTestUtils.setField(announcement, "id", 9L);
+    ContentReport first = new ContentReport(1L, ContentReport.TARGET_MINISTRY_ANNOUNCEMENT, 9L,
+        "SPAM", null);
+    ContentReport second = new ContentReport(2L, ContentReport.TARGET_MINISTRY_ANNOUNCEMENT, 9L,
+        "ABUSE", null);
+    when(reportRepository.findById(10L)).thenReturn(Optional.of(first));
+    when(reportRepository.findByTargetTypeAndTargetUidAndStatus(
+        ContentReport.TARGET_MINISTRY_ANNOUNCEMENT, 9L, ContentReport.PENDING))
+        .thenReturn(List.of(first, second));
+    when(announcementRepository.findById(9L)).thenReturn(Optional.of(announcement));
+    when(dataCleaner.deleteAnnouncement(announcement)).thenReturn(2048L);
+
+    service.resolve(10L, AdminReportService.ACTION_TAKEDOWN, 99L);
+
+    org.mockito.Mockito.verify(dataCleaner).deleteAnnouncement(announcement);
+    org.mockito.Mockito.verify(storageGuard).release("MINISTRY", 3L, 2048L);
+    assertEquals(ContentReport.RESOLVED, first.getStatus());
+    assertEquals(ContentReport.RESOLVED, second.getStatus());
   }
 }
