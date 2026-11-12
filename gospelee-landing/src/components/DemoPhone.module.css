@@ -250,6 +250,7 @@
 }
 
 .joinBtn {
+  margin-top: auto;
   width: 100%;
   padding: 12px;
   border-radius: 12px;
@@ -263,11 +264,6 @@
 .pressed {
   transform: scale(0.96);
   background: var(--podo-green-hover);
-}
-
-.joinBtnDone {
-  background: var(--podo-green-subtle);
-  color: var(--podo-green);
 }
 
 /* ---------- Ministry ---------- */
@@ -328,27 +324,12 @@
   width: 64px;
   height: 64px;
   border-radius: 20px;
-  background: var(--podo-green);
-  color: #ffffff;
-  font-size: 1.6rem;
-  font-weight: 700;
+  background: var(--podo-green-subtle);
+  color: var(--podo-green);
 }
 
 .joinName {
   font-size: 1.1rem;
-}
-
-.toast {
-  align-self: center;
-  padding: 8px 16px;
-  border-radius: 9999px;
-  background: #0d1117;
-  color: #ffffff;
-  font-size: 0.78rem;
-  font-weight: 600;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
 /* ---------- Tap ripple ---------- */
@@ -449,7 +430,7 @@
   .doneChip,
   .readChip,
   .prayers,
-  .toast {
+  .approvePush {
     transition: none;
   }
 }
@@ -462,13 +443,8 @@
 }
 
 .members {
-  margin-top: 4px;
-  padding: 3px 10px;
-  border-radius: 9999px;
-  background: var(--podo-green-subtle);
-  color: var(--podo-green);
-  font-size: 0.72rem;
-  font-weight: 600;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
 }
 
 /* ---------- 필사 화면 (실제 앱 구조) ---------- */
@@ -1213,4 +1189,70 @@
   text-align: center;
   font-size: 0.82rem;
   color: #616161;
+}
+
+/* ---------- 모임 가입 화면 (실제 앱 구조) ---------- */
+.navWhite .back {
+  color: var(--text-primary);
+}
+
+.joinDesc {
+  margin-top: 8px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.pending {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 14px 60px;
+  text-align: center;
+  font-size: 0.95rem;
+  word-break: keep-all;
+}
+
+.pendingIcon {
+  font-size: 2.2rem;
+  filter: grayscale(1);
+  opacity: 0.6;
+}
+
+.pendingMsg {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.pendingOk {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--podo-green);
+}
+
+.approvePush {
+  position: absolute;
+  top: 40px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transform: translateY(-40px);
+  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.approvePushIn {
+  opacity: 1;
+  transform: none;
 }
