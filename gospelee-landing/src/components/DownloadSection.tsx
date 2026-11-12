@@ -68,47 +68,14 @@ const DownloadSection = () => {
             {/* QR Code Scan Card for Desktop */}
             <div className={styles.qrCard}>
               <div className={styles.qrVisual}>
-                <svg viewBox="0 0 160 160" width="130" height="130" fill="none">
-                  {/* Position detection patterns */}
-                  <rect x="10" y="10" width="40" height="40" rx="6" stroke="#1e293b" strokeWidth="8"/>
-                  <rect x="22" y="22" width="16" height="16" rx="2" fill="#28543e"/>
-                  
-                  <rect x="110" y="10" width="40" height="40" rx="6" stroke="#1e293b" strokeWidth="8"/>
-                  <rect x="122" y="22" width="16" height="16" rx="2" fill="#28543e"/>
-                  
-                  <rect x="10" y="110" width="40" height="40" rx="6" stroke="#1e293b" strokeWidth="8"/>
-                  <rect x="22" y="122" width="16" height="16" rx="2" fill="#28543e"/>
-
-                  {/* Stylized QR bits */}
-                  <rect x="62" y="15" width="8" height="8" rx="2" fill="#1e293b"/>
-                  <rect x="76" y="15" width="8" height="8" rx="2" fill="#28543e"/>
-                  <rect x="90" y="15" width="8" height="8" rx="2" fill="#1e293b"/>
-                  
-                  <rect x="62" y="32" width="16" height="8" rx="2" fill="#28543e"/>
-                  <rect x="86" y="32" width="8" height="16" rx="2" fill="#1e293b"/>
-                  
-                  <rect x="15" y="62" width="8" height="16" rx="2" fill="#1e293b"/>
-                  <rect x="32" y="62" width="16" height="8" rx="2" fill="#28543e"/>
-                  <rect x="15" y="86" width="8" height="8" rx="2" fill="#1e293b"/>
-                  
-                  <rect x="62" y="62" width="36" height="36" rx="8" fill="#ebf3ee" stroke="#28543e" strokeWidth="2"/>
-                  <circle cx="80" cy="80" r="8" fill="#28543e"/>
-                  
-                  <rect x="110" y="62" width="8" height="16" rx="2" fill="#28543e"/>
-                  <rect x="126" y="70" width="16" height="8" rx="2" fill="#1e293b"/>
-                  <rect x="110" y="86" width="24" height="8" rx="2" fill="#1e293b"/>
-                  
-                  <rect x="62" y="110" width="16" height="8" rx="2" fill="#1e293b"/>
-                  <rect x="86" y="110" width="16" height="8" rx="2" fill="#28543e"/>
-                  <rect x="110" y="110" width="8" height="24" rx="2" fill="#28543e"/>
-                  <rect x="126" y="126" width="16" height="16" rx="2" fill="#1e293b"/>
-                  <rect x="62" y="126" width="8" height="16" rx="2" fill="#28543e"/>
-                  <rect x="78" y="134" width="16" height="8" rx="2" fill="#1e293b"/>
+                <svg viewBox="-2 -2 33 33" width="130" height="130" role="img" aria-label="Podo 설치 페이지로 연결되는 QR 코드" shapeRendering="crispEdges">
+                  <rect x="-2" y="-2" width="33" height="33" fill="#ffffff"/>
+                  <path d="M0 0h7v1h-7zM10 0h1v1h-1zM15 0h2v1h-2zM19 0h2v1h-2zM22 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM11 1h2v1h-2zM17 1h2v1h-2zM20 1h1v1h-1zM22 1h1v1h-1zM28 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h1v1h-1zM10 2h1v1h-1zM12 2h1v1h-1zM14 2h1v1h-1zM16 2h1v1h-1zM18 2h2v1h-2zM22 2h1v1h-1zM24 2h3v1h-3zM28 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h1v1h-1zM12 3h1v1h-1zM16 3h4v1h-4zM22 3h1v1h-1zM24 3h3v1h-3zM28 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM13 4h3v1h-3zM17 4h4v1h-4zM22 4h1v1h-1zM24 4h3v1h-3zM28 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h2v1h-2zM11 5h7v1h-7zM22 5h1v1h-1zM28 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h7v1h-7zM8 7h1v1h-1zM12 7h2v1h-2zM15 7h1v1h-1zM19 7h2v1h-2zM0 8h1v1h-1zM2 8h5v1h-5zM11 8h2v1h-2zM14 8h2v1h-2zM17 8h3v1h-3zM22 8h5v1h-5zM0 9h1v1h-1zM3 9h2v1h-2zM9 9h1v1h-1zM15 9h2v1h-2zM18 9h2v1h-2zM21 9h4v1h-4zM28 9h1v1h-1zM1 10h2v1h-2zM4 10h9v1h-9zM17 10h2v1h-2zM20 10h3v1h-3zM24 10h1v1h-1zM0 11h1v1h-1zM7 11h5v1h-5zM14 11h1v1h-1zM16 11h1v1h-1zM19 11h2v1h-2zM23 11h3v1h-3zM27 11h1v1h-1zM0 12h7v1h-7zM8 12h1v1h-1zM17 12h1v1h-1zM19 12h1v1h-1zM25 12h2v1h-2zM0 13h1v1h-1zM3 13h3v1h-3zM12 13h4v1h-4zM18 13h7v1h-7zM28 13h1v1h-1zM5 14h3v1h-3zM9 14h1v1h-1zM12 14h4v1h-4zM22 14h1v1h-1zM25 14h2v1h-2zM0 15h6v1h-6zM7 15h1v1h-1zM13 15h1v1h-1zM15 15h2v1h-2zM18 15h1v1h-1zM20 15h4v1h-4zM27 15h1v1h-1zM0 16h3v1h-3zM5 16h2v1h-2zM9 16h1v1h-1zM11 16h2v1h-2zM14 16h2v1h-2zM17 16h1v1h-1zM25 16h2v1h-2zM0 17h1v1h-1zM2 17h1v1h-1zM5 17h1v1h-1zM7 17h4v1h-4zM12 17h1v1h-1zM16 17h9v1h-9zM26 17h1v1h-1zM28 17h1v1h-1zM0 18h1v1h-1zM2 18h3v1h-3zM6 18h3v1h-3zM10 18h1v1h-1zM12 18h1v1h-1zM15 18h3v1h-3zM20 18h1v1h-1zM23 18h2v1h-2zM26 18h1v1h-1zM0 19h1v1h-1zM2 19h1v1h-1zM4 19h1v1h-1zM8 19h2v1h-2zM11 19h1v1h-1zM14 19h2v1h-2zM19 19h2v1h-2zM22 19h1v1h-1zM24 19h1v1h-1zM27 19h1v1h-1zM0 20h1v1h-1zM4 20h3v1h-3zM8 20h1v1h-1zM10 20h1v1h-1zM12 20h1v1h-1zM15 20h1v1h-1zM17 20h1v1h-1zM19 20h6v1h-6zM26 20h3v1h-3zM8 21h1v1h-1zM10 21h1v1h-1zM12 21h3v1h-3zM16 21h1v1h-1zM20 21h1v1h-1zM24 21h5v1h-5zM0 22h7v1h-7zM9 22h3v1h-3zM13 22h5v1h-5zM19 22h2v1h-2zM22 22h1v1h-1zM24 22h3v1h-3zM0 23h1v1h-1zM6 23h1v1h-1zM8 23h1v1h-1zM11 23h1v1h-1zM13 23h1v1h-1zM16 23h1v1h-1zM19 23h2v1h-2zM24 23h1v1h-1zM0 24h1v1h-1zM2 24h3v1h-3zM6 24h1v1h-1zM8 24h1v1h-1zM10 24h2v1h-2zM14 24h1v1h-1zM17 24h1v1h-1zM20 24h5v1h-5zM26 24h2v1h-2zM0 25h1v1h-1zM2 25h3v1h-3zM6 25h1v1h-1zM8 25h1v1h-1zM10 25h4v1h-4zM16 25h3v1h-3zM21 25h1v1h-1zM25 25h4v1h-4zM0 26h1v1h-1zM2 26h3v1h-3zM6 26h1v1h-1zM8 26h2v1h-2zM15 26h1v1h-1zM17 26h1v1h-1zM21 26h7v1h-7zM0 27h1v1h-1zM6 27h1v1h-1zM10 27h7v1h-7zM18 27h3v1h-3zM22 27h1v1h-1zM24 27h2v1h-2zM27 27h1v1h-1zM0 28h7v1h-7zM8 28h1v1h-1zM10 28h1v1h-1zM13 28h1v1h-1zM17 28h1v1h-1zM19 28h1v1h-1zM21 28h3v1h-3zM26 28h1v1h-1z" fill="#1e293b"/>
                 </svg>
               </div>
               <div className={styles.qrInfo}>
                 <span className={styles.qrLabel}>스마트폰 카메라로 스캔</span>
-                <span className={styles.qrSub}>PC 화면에서 폰으로 비추면 설치 링크로 연결됩니다.</span>
+                <span className={styles.qrSub}>PC 화면에서 폰으로 비추면 설치 페이지가 열려요.</span>
               </div>
             </div>
           </div>

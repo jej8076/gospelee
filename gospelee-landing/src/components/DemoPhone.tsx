@@ -201,7 +201,7 @@ const StatsScreen = ({t}: { t: number }) => {
                   <div className={styles.bookTrack}>
                     <div
                         className={styles.bookFill}
-                        style={{width: `${fill * 100}%`, background: book.old ? '#2196f3' : '#4caf50'}}
+                        style={{width: `${fill * 100}%`, background: book.old ? '#28543e' : '#c95430'}}
                     />
                   </div>
                   <span className={styles.bookCount}>{book.done}/{book.total}장</span>
