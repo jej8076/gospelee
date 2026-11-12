@@ -1,9 +1,9 @@
 'use client';
 
 import {useEffect, useState} from 'react';
-import Image from 'next/image';
 import styles from './HeroSection.module.css';
 import Link from "next/link";
+import DemoPhone from './DemoPhone';
 
 const HeroSection = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
@@ -74,74 +74,7 @@ const HeroSection = () => {
           </div>
 
           <div className={styles.imageContent}>
-            <div className={styles.deviceFrame}>
-              <div className={styles.deviceSpeaker} />
-              
-              <div className={styles.deviceScreen}>
-                {/* Status bar */}
-                <div className={styles.statusBar}>
-                  <span className={styles.statusTime}>09:41</span>
-                  <div className={styles.dynamicIsland} />
-                  <div className={styles.statusIcons}>
-                    <span>5G</span>
-                    <div className={styles.batteryIcon} />
-                  </div>
-                </div>
-
-                {/* App UI preview */}
-                <div className={styles.appHeader}>
-                  <div className={styles.appBrand}>
-                    <Image
-                      src="/images/logo/podo_logo.svg"
-                      alt="Podo"
-                      width={22}
-                      height={18}
-                      className={styles.appLogo}
-                    />
-                    <span className={styles.appName}>Podo</span>
-                  </div>
-                  <span className={styles.appModeBadge}>필사 모드</span>
-                </div>
-
-                <div className={styles.typingCard}>
-                  <div className={styles.verseMeta}>
-                    <span className={styles.verseBook}>에베소서 2:21</span>
-                    <span className={styles.verseProgress}>개역개정</span>
-                  </div>
-
-                  <p className={styles.originalVerse}>
-                    "그의 안에서 건물마다 서로 연결되어 주 안에서 성전이 되어 가고"
-                  </p>
-
-                  <div className={styles.typingInputArea}>
-                    <span className={styles.typedText}>그의 안에서 건물마다 서로 연결되어 </span>
-                    <span className={styles.cursor}></span>
-                  </div>
-                </div>
-
-                <div className={styles.widgetGroup}>
-                  <div className={styles.miniCard}>
-                    <div className={styles.miniCardIcon}>🌿</div>
-                    <div className={styles.miniCardText}>
-                      <span className={styles.miniCardTitle}>우리 교회 모바일 주보</span>
-                      <span className={styles.miniCardSub}>이번 주 말씀 요약 & 나눔</span>
-                    </div>
-                  </div>
-
-                  <div className={styles.miniStats}>
-                    <div className={styles.statItem}>
-                      <span className={styles.statNum}>100%</span>
-                      <span className={styles.statLabel}>광고 없는 공간</span>
-                    </div>
-                    <div className={styles.statDivider} />
-                    <div className={styles.statItem}>
-                      <span className={styles.statNum}>Free</span>
-                      <span className={styles.statLabel}>개척교회 지원</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <DemoPhone />
           </div>
         </div>
       </div>

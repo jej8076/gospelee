@@ -1,0 +1,124 @@
+.section {
+  padding: 100px 0;
+  background: var(--bg-subtle);
+  border-top: 1px solid var(--border-light);
+}
+
+.header {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 48px;
+}
+
+.sectionTag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--podo-green);
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+  word-break: keep-all;
+}
+
+.subtitle {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.table {
+  max-width: 880px;
+  margin: 0 auto;
+  background: #ffffff;
+  border: 1px solid var(--border-card);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 90px 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+  padding: 18px 28px;
+  border-top: 1px solid var(--border-card);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  word-break: keep-all;
+}
+
+.head {
+  border-top: none;
+  background: var(--bg-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.colChat {
+  color: var(--text-tertiary);
+}
+
+.colPodo {
+  color: var(--podo-green);
+}
+
+.topic {
+  font-weight: 700;
+}
+
+.chat {
+  color: var(--text-secondary);
+}
+
+.podo {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+@media (max-width: 700px) {
+  .section {
+    padding: 72px 0;
+  }
+
+  .title {
+    font-size: 1.9rem;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 16px 20px;
+  }
+
+  .head {
+    display: none;
+  }
+
+  .chat::before,
+  .podo::before {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .chat::before {
+    content: '단체 채팅방';
+    color: var(--text-tertiary);
+  }
+
+  .podo::before {
+    content: 'Podo';
+    color: var(--podo-green);
+  }
+}
