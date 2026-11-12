@@ -13,7 +13,7 @@ type SceneId = 'typing' | 'notice' | 'prayer' | 'ministry';
 const SCENES: { id: SceneId; label: string; duration: number }[] = [
   {id: 'typing', label: '말씀 필사', duration: 14500},
   {id: 'notice', label: '공지·푸시', duration: 8000},
-  {id: 'prayer', label: '기도 쪽지', duration: 8500},
+  {id: 'prayer', label: '기도 쪽지', duration: 14000},
   {id: 'ministry', label: '모임', duration: 9500},
 ];
 
@@ -214,8 +214,16 @@ const StatsScreen = ({t}: { t: number }) => {
 };
 
 // =============================================================================
-// 2. 공지 + 푸시
+// 2. 공지 + 푸시 — 푸시 제목은 서버 고정 문구("교회 공지사항"), 본문이 공지 제목.
+//    눌러서 열리는 화면은 앱바 "공지사항" 아래의 FeedPost 카드
 // =============================================================================
+
+const ChurchIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+         strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 2v5M9.5 4.5h5M4 21V12l8-5 8 5v9zM10 21v-5h4v5"/>
+    </svg>
+);
 
 const NoticeScene = ({ms}: { ms: number }) => {
   const showDetail = ms >= 3800;
@@ -234,94 +242,157 @@ const NoticeScene = ({ms}: { ms: number }) => {
               <span>Podo</span>
               <span className={styles.pushWhen}>지금</span>
             </div>
-            <strong className={styles.pushTitle}>[청년부] 공지사항</strong>
-            <span className={styles.pushBody}>금요 찬양 연습은 7시에 시작해요</span>
+            <strong className={styles.pushTitle}>교회 공지사항</strong>
+            <span className={styles.pushBody}>금요 찬양 연습 안내</span>
           </div>
           <Tap show={ms >= 3200} x="50%" y="252px"/>
         </div>
     );
   }
 
-  const read = ms >= 6000;
+  const prayed = ms >= 6200;
+  const floating = ms >= 6200 && ms < 7600;
   return (
-      <div className={`${styles.scene} ${styles.slideIn}`}>
-        <div className={styles.navBar}>
-          <span className={styles.back}>‹</span>
-          <span className={styles.navTitle}>청년부 공지</span>
+      <div className={`${styles.scene} ${styles.flush} ${styles.slideIn}`}>
+        <div className={styles.appBar}>
+          <span className={styles.appBarBack}>‹</span>
+          <strong className={styles.appBarTitle}>공지사항</strong>
         </div>
-        <div className={styles.card}>
-          <div className={styles.author}>
-            <span className={styles.avatar}>찬</span>
-            <div>
-              <strong>찬양팀 리더</strong>
-              <span className={styles.muted}>방금</span>
-            </div>
+        <div className={styles.feedPost}>
+          <div className={styles.postHead}>
+            <span className={styles.postAvatar}><ChurchIcon/></span>
+            <strong className={styles.postName}>포도교회</strong>
           </div>
-          <h3 className={styles.noticeTitle}>금요 찬양 연습 안내</h3>
-          <p className={styles.noticeBody}>
-            이번 주 금요일은 7시에 시작해요. 악보는 단체 공유 폴더에 올려 두었으니 미리 한 번씩 들어 와 주세요.
+          <div className={styles.poster}>
+            <span className={styles.posterSmall}>청년부 찬양팀</span>
+            <strong className={styles.posterBig}>금요 찬양 연습</strong>
+            <span className={styles.posterSmall}>매주 금요일 저녁 7시</span>
+          </div>
+          <div className={styles.dots}>
+            <span className={styles.dotOn}/><span className={styles.dotOff}/><span className={styles.dotOff}/>
+          </div>
+          <h3 className={styles.postTitle}>금요 찬양 연습 안내</h3>
+          <p className={styles.postCaption}>
+            이번 주 금요일은 7시에 시작해요. 악보는 공유 폴더에 올려 두었으니 미리 한 번씩 들어 와 주세요.
           </p>
+          <div className={styles.postActions}>
+            <span className={`${styles.prayBtn} ${prayed ? styles.prayBtnOn : ''}`}>
+              <span aria-hidden="true">🙏</span>
+              <b>{prayed ? 13 : 12}</b>
+            </span>
+            <span className={`${styles.floatLabel} ${floating ? styles.floatLabelOn : ''}`}>기도할게요</span>
+          </div>
         </div>
-        <div className={`${styles.readChip} ${read ? styles.show : ''}`}>
-          <span className={styles.check}>✓</span> 확인했어요
-        </div>
-        <div className={`${styles.card} ${styles.oldCard}`}>
-          <strong className={styles.oldTitle}>주일 오후 소그룹 모임 장소 변경</strong>
-          <span className={styles.muted}>지난 주 · 확인함</span>
-        </div>
+        <Tap show={ms >= 5800 && ms < 6600} x="52px" y="368px"/>
       </div>
   );
 };
 
 // =============================================================================
-// 3. 기도 쪽지
+// 3. 기도 쪽지 — 쪽지 쓰기 → 쪽지 뽑기(상자) → 뽑은 쪽지에 "기도했어요"
 // =============================================================================
 
-const PrayerScene = ({ms}: { ms: number }) => {
-  const n = typedCount(ms, 600, 85, PRAYER.length);
-  const sent = ms >= 3700;
-  const joined = [4600, 5600, 6600].filter((t) => ms >= t).length;
-  const names = ['김', '이', '박'];
+const WRITE_END = 4600;
+const SHEET_AT = 8200;
+const CHEERS = ['함께 기도해요', '힘내세요', '평안을 빕니다', '감사해요'];
 
+const PrayerScene = ({ms}: { ms: number }) => {
+  if (ms < WRITE_END) {
+    const n = typedCount(ms, 600, 85, PRAYER.length);
+    const submitting = ms >= 3900;
+    return (
+        <div className={`${styles.scene} ${styles.writeScene}`}>
+          <div className={styles.navBar}>
+            <span className={styles.back}>‹</span>
+            <span className={styles.navTitle}>기도 쪽지 쓰기</span>
+          </div>
+          <strong className={styles.sectionLabel}>기도제목</strong>
+          <div className={styles.field}>
+            <p className={styles.fieldText}>
+              {n === 0
+                  ? <span className={styles.placeholder}>함께 기도받고 싶은 제목을 적어 주세요</span>
+                  : PRAYER.slice(0, n)}
+              {n < PRAYER.length && <span className={styles.cursor}/>}
+            </p>
+            <span className={styles.counter}>{n} / 200</span>
+          </div>
+          <strong className={styles.sectionLabel}>작성자 표시</strong>
+          <div className={styles.optionRow}>
+            <div className={`${styles.option} ${styles.optionOn}`}>
+              <strong>익명으로</strong>
+              <span>이름 없이 올려요</span>
+            </div>
+            <div className={styles.option}>
+              <strong>이름 공개</strong>
+              <span>내 이름이 보여요</span>
+            </div>
+          </div>
+          <div className={styles.submitBar}>
+            <span className={`${styles.submitBtn} ${submitting ? styles.pressed : ''}`}>올리기</span>
+          </div>
+          <Tap show={ms >= 4000} x="50%" y="520px"/>
+        </div>
+    );
+  }
+
+  const t = ms - WRITE_END;
+  const shake = t > 700 && t < 1100;
+  const rise = ease((t - 900) / 1000);
   return (
       <>
-      <div className={`${styles.scene} ${styles.withTabs}`}>
-        <div className={styles.navBar}>
-          <span className={styles.navTitle}>기도 쪽지</span>
-          <span className={styles.modeBadge}>금요 청년 기도</span>
-        </div>
-
-        <div className={`${styles.card} ${sent ? styles.cardSent : ''}`}>
-          <p className={styles.noteText}>
-            {PRAYER.slice(0, n)}
-            {!sent && <span className={styles.cursor}/>}
-          </p>
-          <button
-              type="button"
-              tabIndex={-1}
-              className={`${styles.sendBtn} ${ms >= 3000 && !sent ? styles.pressed : ''} ${sent ? styles.sendBtnDone : ''}`}
-          >
-            {sent ? '전달했어요 ✓' : '그룹에 전달하기'}
-          </button>
-        </div>
-        <Tap show={ms >= 3300 && ms < 4300} x="50%" y="236px"/>
-
-        <div className={`${styles.prayers} ${sent ? styles.show : ''}`}>
-          <div className={styles.avatars}>
-            {names.map((name, i) => (
-                <span key={name} className={`${styles.avatar} ${i < joined ? styles.avatarOn : ''}`}>
-              {name}
-            </span>
-            ))}
+        <div className={`${styles.scene} ${styles.withTabs} ${styles.slideIn}`}>
+          <div className={styles.navBar}>
+            <span className={styles.navTitle}>기도 쪽지</span>
           </div>
-          <span className={styles.prayText}>
-          {joined === 0 ? '곧 함께 기도해 줄 거예요' : `${joined}명이 함께 기도하고 있어요`}
-        </span>
+          <div className={styles.drawScene}>
+            <div className={`${styles.boxBack} ${shake ? styles.shake : ''}`}/>
+            <div className={styles.paper} style={{transform: `translateY(${-rise * 72}px) rotate(${-4 * rise}deg)`}}>
+              <span/><span/><span/>
+            </div>
+            <div className={`${styles.boxFront} ${shake ? styles.shake : ''}`}>♥</div>
+          </div>
+          <strong className={styles.drawTitle}>쪽지 뽑기</strong>
+          <p className={styles.drawHint}>상자를 눌러 우리 교회 성도의 기도제목을<br/>한 장 뽑아 보세요</p>
+          <Tap show={ms >= 5000 && ms < 5800} x="50%" y="300px"/>
         </div>
+        <TabBar active={1}/>
+        {ms >= SHEET_AT && <PrayerSheet t={ms - SHEET_AT}/>}
+      </>
+  );
+};
 
-        <p className={styles.caption}>혼자 짊어지지 않도록</p>
-      </div>
-      <TabBar active={1}/>
+/** 뽑은 쪽지를 보여 주는 바텀시트. 실제 앱의 PrayerCardSheet 구성 */
+const PrayerSheet = ({t}: { t: number }) => {
+  const cheer = t >= 2100 ? 0 : -1;
+  const pressed = t >= 3200 && t < 3600;
+  const responded = t >= 3600;
+  return (
+      <>
+        <div className={styles.dim}/>
+        <div className={styles.sheet}>
+          <div className={styles.sheetHead}>
+            <span>익명의 기도제목</span>
+            <span className={styles.sheetReport}>신고</span>
+          </div>
+          <div className={styles.sheetCard}>{PRAYER}</div>
+          {responded ? (
+              <p className={styles.respondedText}>이미 기도해 주셨어요 🙏</p>
+          ) : (
+              <>
+                <div className={styles.switchRow}>
+                  <span>내 이름을 알릴게요</span>
+                  <span className={styles.switchOff}><i/></span>
+                </div>
+                <div className={styles.cheers}>
+                  {CHEERS.map((label, i) => (
+                      <span key={label} className={`${styles.cheer} ${i === cheer ? styles.cheerOn : ''}`}>{label}</span>
+                  ))}
+                </div>
+                <span className={`${styles.prayDone} ${pressed ? styles.pressed : ''}`}>기도했어요</span>
+              </>
+          )}
+          <Tap show={t >= 3000 && t < 3700} x="50%" y="216px"/>
+        </div>
       </>
   );
 };
