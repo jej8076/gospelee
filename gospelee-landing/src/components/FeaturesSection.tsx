@@ -31,7 +31,7 @@ const features = [
 
 const FeaturesSection = () => {
   return (
-    <section id="features" className={styles.features}>
+    <section id="values" className={styles.features}>
       <div className="container">
         <div className={styles.header}>
           <span className={styles.sectionTag}>CRAFT & VALUES</span>

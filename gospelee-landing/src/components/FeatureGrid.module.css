@@ -1,0 +1,468 @@
+.section {
+  padding: 100px 0;
+  background: var(--bg-main);
+}
+
+.header {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 56px;
+}
+
+.sectionTag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--podo-green);
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+  word-break: keep-all;
+}
+
+.subtitle {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 16px 16px 24px;
+  background: #ffffff;
+  border: 1px solid var(--border-card);
+  border-radius: 20px;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  border-color: var(--podo-green-border);
+  box-shadow: var(--shadow-md);
+}
+
+.stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 132px;
+  margin-bottom: 18px;
+  padding: 0 14px;
+  overflow: hidden;
+  background: var(--bg-subtle);
+  border-radius: 14px;
+}
+
+.tag {
+  margin: 0 8px 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--podo-green);
+}
+
+.cardTitle {
+  margin: 0 8px 8px;
+  font-size: 1.08rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.cardDesc {
+  margin: 0 8px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+/* 화면 밖에서는 모든 애니메이션을 멈춰 둔다 */
+.stage * {
+  animation-play-state: paused;
+}
+
+.live .stage * {
+  animation-play-state: running;
+}
+
+/* ---------- 공통 조각 ---------- */
+.bar {
+  display: block;
+  height: 8px;
+  border-radius: 9999px;
+  background: #dfe4ea;
+}
+
+/* ---------- 필사 ---------- */
+.verseBox {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  font-size: 0.82rem;
+}
+
+.verseRef {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--podo-green);
+}
+
+.typeLine,
+.typeLine2 {
+  font-weight: 600;
+  white-space: nowrap;
+  animation: reveal 6s steps(14) infinite;
+}
+
+.typeLine2 {
+  animation-name: reveal2;
+}
+
+@keyframes reveal {
+  0% { clip-path: inset(0 100% 0 0); }
+  40%, 92% { clip-path: inset(0 0 0 0); }
+  100% { clip-path: inset(0 100% 0 0); }
+}
+
+@keyframes reveal2 {
+  0%, 38% { clip-path: inset(0 100% 0 0); }
+  75%, 92% { clip-path: inset(0 0 0 0); }
+  100% { clip-path: inset(0 100% 0 0); }
+}
+
+/* ---------- 읽기·필기 ---------- */
+.readBox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.marker {
+  background: linear-gradient(90deg, rgba(49, 96, 73, 0.45) 0 50%, #dfe4ea 50% 100%) 100% 0 / 200% 100%;
+  animation: sweep 5s ease-in-out infinite;
+}
+
+@keyframes sweep {
+  0% { background-position: 100% 0; }
+  35%, 90% { background-position: 0 0; }
+  100% { background-position: 100% 0; }
+}
+
+.noteChip {
+  align-self: flex-start;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 1px solid var(--podo-green-border);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--podo-green);
+  animation: pop 5s ease-in-out infinite;
+}
+
+@keyframes pop {
+  0%, 30% { opacity: 0; transform: translateY(6px) scale(0.95); }
+  42%, 90% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(6px) scale(0.95); }
+}
+
+/* ---------- 묵상일지 ---------- */
+.journalBox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.dateChip {
+  align-self: flex-start;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  background: var(--podo-green-subtle);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--podo-green);
+}
+
+.grow1,
+.grow2,
+.grow3 {
+  transform-origin: left center;
+  animation: grow 5.5s ease-out infinite;
+}
+
+.grow2 { animation-delay: 0.5s; }
+.grow3 { animation-delay: 1s; }
+
+@keyframes grow {
+  0% { transform: scaleX(0); }
+  30%, 88% { transform: scaleX(1); }
+  100% { transform: scaleX(0); }
+}
+
+/* ---------- 푸시 ---------- */
+.pushStage {
+  width: 100%;
+}
+
+.pushCard {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  box-shadow: var(--shadow-md);
+  font-size: 0.8rem;
+  animation: drop 5s ease-in-out infinite;
+}
+
+.pushHead {
+  font-size: 0.68rem;
+  color: var(--text-tertiary);
+}
+
+.pushBody {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+}
+
+@keyframes drop {
+  0%, 8% { opacity: 0; transform: translateY(-34px); }
+  22%, 82% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(-34px); }
+}
+
+/* ---------- 주보 ---------- */
+.orderList {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+  list-style: none;
+}
+
+.orderItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: #ffffff;
+  border: 1px solid var(--border-card);
+  border-radius: 8px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  animation: slideRow 5.6s ease-out infinite;
+}
+
+.orderCheck {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--podo-green);
+  color: #ffffff;
+  font-size: 0.6rem;
+}
+
+@keyframes slideRow {
+  0% { opacity: 0; transform: translateX(-14px); }
+  14%, 86% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateX(-14px); }
+}
+
+/* ---------- 기도 쪽지·모임 ---------- */
+.prayStage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatars {
+  display: flex;
+  gap: 8px;
+}
+
+.pray,
+.join {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #dfe4ea;
+  color: #8896a6;
+  font-size: 0.8rem;
+  font-weight: 700;
+  animation: light 6s ease-in-out infinite;
+}
+
+.join {
+  animation-name: enter;
+}
+
+@keyframes light {
+  0%, 10% { background: #dfe4ea; color: #8896a6; transform: none; }
+  18%, 88% { background: var(--podo-green); color: #ffffff; transform: scale(1.1); }
+  100% { background: #dfe4ea; color: #8896a6; transform: none; }
+}
+
+@keyframes enter {
+  0%, 10% { opacity: 0; transform: scale(0.4); }
+  20%, 88% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: scale(0.4); }
+}
+
+.prayLabel {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.inviteChip {
+  padding: 5px 12px;
+  background: #ffffff;
+  border: 1px solid var(--podo-green-border);
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--podo-green);
+}
+
+/* ---------- 교회 관리 ---------- */
+.adminRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  background: #ffffff;
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  font-size: 0.82rem;
+}
+
+.adminSub {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+}
+
+.approveBtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--podo-green);
+  color: #ffffff;
+  font-size: 0.76rem;
+  font-weight: 700;
+  animation: approve 5s ease-in-out infinite;
+}
+
+.approveText,
+.approvedText {
+  position: absolute;
+}
+
+.approveText {
+  animation: fadeOut 5s ease-in-out infinite;
+}
+
+.approvedText {
+  opacity: 0;
+  animation: fadeIn 5s ease-in-out infinite;
+}
+
+@keyframes approve {
+  0%, 38% { background: var(--podo-green); transform: none; }
+  44% { transform: scale(0.94); }
+  52%, 90% { background: var(--podo-green-subtle); color: var(--podo-green); transform: none; }
+  100% { background: var(--podo-green); color: #ffffff; }
+}
+
+@keyframes fadeOut {
+  0%, 44% { opacity: 1; }
+  52%, 90% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes fadeIn {
+  0%, 44% { opacity: 0; }
+  52%, 90% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ---------- 반응형 ---------- */
+@media (max-width: 1000px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .section {
+    padding: 72px 0;
+  }
+
+  .title {
+    font-size: 1.9rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage * {
+    animation: none !important;
+  }
+
+  .typeLine,
+  .typeLine2,
+  .noteChip,
+  .approvedText {
+    clip-path: none;
+    opacity: 1;
+  }
+
+  .approvedText {
+    display: none;
+  }
+
+  .pray,
+  .join {
+    background: var(--podo-green);
+    color: #ffffff;
+    opacity: 1;
+  }
+}
