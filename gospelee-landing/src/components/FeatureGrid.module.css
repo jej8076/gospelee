@@ -253,44 +253,124 @@
   100% { opacity: 0; transform: translateY(-34px); }
 }
 
-/* ---------- 주보 ---------- */
-.orderList {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  width: 100%;
-  list-style: none;
+/* ---------- 주보 (목록 타일 → PDF 뷰어) ---------- */
+.bStage {
+  position: absolute;
+  inset: 0;
 }
 
-.orderItem {
+.bTile {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 50%;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 10px;
-  background: #ffffff;
-  border: 1px solid var(--border-card);
-  border-radius: 8px;
-  font-size: 0.74rem;
-  font-weight: 600;
-  animation: slideRow 5.6s ease-out infinite;
+  gap: 10px;
+  padding: 12px;
+  background: #ebf3ee;
+  border: 1px solid #3f775b;
+  border-radius: 12px;
+  transform: translateY(-50%);
+  animation: tileOut 7s ease-in-out infinite;
 }
 
-.orderCheck {
+.bPdf {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--podo-green);
+  width: 30px;
+  height: 36px;
+  border-radius: 5px;
+  background: #28543e;
   color: #ffffff;
-  font-size: 0.6rem;
+  font-size: 0.55rem;
+  font-weight: 700;
 }
 
-@keyframes slideRow {
-  0% { opacity: 0; transform: translateX(-14px); }
-  14%, 86% { opacity: 1; transform: none; }
-  100% { opacity: 0; transform: translateX(-14px); }
+.bMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  font-size: 0.66rem;
+  color: #616161;
+}
+
+.bMeta strong {
+  font-size: 0.8rem;
+  color: #1e1e1e;
+}
+
+.bLatest {
+  margin-right: 5px;
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: #28543e;
+  color: #ffffff;
+  font-size: 0.58rem;
+}
+
+.bChevron {
+  color: #bdbdbd;
+  font-size: 1.2rem;
+}
+
+.bViewer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000000;
+  opacity: 0;
+  animation: viewerIn 7s ease-in-out infinite;
+}
+
+.bPage {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  width: 96px;
+  padding: 14px 12px;
+  background: #ffffff;
+  border-radius: 3px;
+  animation: pageScroll 7s ease-in-out infinite;
+}
+
+.bPage span {
+  height: 5px;
+  border-radius: 3px;
+  background: #dfe4ea;
+}
+
+.bBadge {
+  position: absolute;
+  bottom: 8px;
+  padding: 2px 9px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-size: 0.62rem;
+}
+
+@keyframes tileOut {
+  0%, 38% { opacity: 1; transform: translateY(-50%) scale(1); }
+  42% { transform: translateY(-50%) scale(0.96); }
+  50%, 92% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes viewerIn {
+  0%, 42% { opacity: 0; }
+  52%, 90% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes pageScroll {
+  0%, 55% { transform: translateY(8px); }
+  85%, 100% { transform: translateY(-8px); }
 }
 
 /* ---------- 기도 쪽지·모임 ---------- */
@@ -306,7 +386,6 @@
   gap: 8px;
 }
 
-.pray,
 .join {
   display: inline-flex;
   align-items: center;
@@ -318,29 +397,13 @@
   color: #8896a6;
   font-size: 0.8rem;
   font-weight: 700;
-  animation: light 6s ease-in-out infinite;
-}
-
-.join {
-  animation-name: enter;
-}
-
-@keyframes light {
-  0%, 10% { background: #dfe4ea; color: #8896a6; transform: none; }
-  18%, 88% { background: var(--podo-green); color: #ffffff; transform: scale(1.1); }
-  100% { background: #dfe4ea; color: #8896a6; transform: none; }
+  animation: enter 6s ease-in-out infinite;
 }
 
 @keyframes enter {
   0%, 10% { opacity: 0; transform: scale(0.4); }
   20%, 88% { opacity: 1; transform: none; }
   100% { opacity: 0; transform: scale(0.4); }
-}
-
-.prayLabel {
-  font-size: 0.76rem;
-  font-weight: 600;
-  color: var(--text-secondary);
 }
 
 .inviteChip {
@@ -351,6 +414,95 @@
   font-size: 0.72rem;
   font-weight: 600;
   color: var(--podo-green);
+}
+
+/* ---------- 기도 쪽지 (상자에서 한 장 뽑기) ---------- */
+.drawStage {
+  position: relative;
+  width: 150px;
+  height: 100px;
+}
+
+.dBack,
+.dFront {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+}
+
+.dBack {
+  width: 120px;
+  height: 60px;
+  margin-left: -60px;
+  border-radius: 10px;
+  background: #1b3d2c;
+}
+
+.dFront {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 130px;
+  height: 44px;
+  margin-left: -65px;
+  border-radius: 10px;
+  background: #28543e;
+  color: #ebf3ee;
+  font-size: 1rem;
+}
+
+.dPaper {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 84px;
+  margin-left: -42px;
+  padding: 10px 9px;
+  background: #ffffff;
+  border: 1px solid #e6e6e3;
+  border-radius: 5px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  animation: draw 6s ease-in-out infinite;
+}
+
+.dPaper span {
+  height: 4px;
+  border-radius: 2px;
+  background: #e6e6e3;
+}
+
+.dPaper span:last-child {
+  width: 55%;
+}
+
+.dChip {
+  position: absolute;
+  right: -28px;
+  top: 8px;
+  padding: 4px 9px;
+  border-radius: 9999px;
+  background: #ebf3ee;
+  border: 1px solid #b5d6c1;
+  color: #28543e;
+  font-size: 0.64rem;
+  font-weight: 700;
+  white-space: nowrap;
+  animation: chipPop 6s ease-in-out infinite;
+}
+
+@keyframes draw {
+  0%, 12% { transform: translateY(0) rotate(0); }
+  45%, 85% { transform: translateY(-46px) rotate(-5deg); }
+  100% { transform: translateY(0) rotate(0); }
+}
+
+@keyframes chipPop {
+  0%, 55% { opacity: 0; transform: scale(0.85); }
+  65%, 88% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: scale(0.85); }
 }
 
 /* ---------- 교회 관리 ---------- */

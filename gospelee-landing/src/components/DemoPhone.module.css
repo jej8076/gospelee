@@ -117,7 +117,6 @@
   }
 }
 
-.appHeader,
 .navBar {
   display: flex;
   align-items: center;
@@ -125,25 +124,9 @@
   min-height: 28px;
 }
 
-.appBrand {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.appName {
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
 .navBar {
   justify-content: flex-start;
   gap: 8px;
-}
-
-.navBar .modeBadge {
-  margin-left: auto;
 }
 
 .back {
@@ -155,22 +138,6 @@
 .navTitle {
   font-size: 1rem;
   font-weight: 700;
-}
-
-.modeBadge {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--podo-green);
-  background: var(--podo-green-subtle);
-  padding: 3px 8px;
-  border-radius: 9999px;
-}
-
-.card {
-  background: #ffffff;
-  border: 1px solid var(--border-card);
-  border-radius: 16px;
-  padding: 16px;
 }
 
 .muted {
@@ -186,41 +153,6 @@
   font-size: 0.74rem;
   color: var(--text-tertiary);
   word-break: keep-all;
-}
-
-/* ---------- Typing ---------- */
-.verseMeta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.verseBook {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--podo-green);
-}
-
-.verseVersion {
-  font-size: 0.7rem;
-  color: var(--text-tertiary);
-}
-
-.verse {
-  font-size: 1.02rem;
-  line-height: 1.7;
-  min-height: 150px;
-  word-break: keep-all;
-}
-
-.typed {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.rest {
-  color: #c4cbd4;
 }
 
 .cursor {
@@ -242,60 +174,9 @@
   }
 }
 
-.progressRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.progressTrack {
-  flex: 1;
-  height: 6px;
-  background: var(--bg-muted);
-  border-radius: 9999px;
-  overflow: hidden;
-}
-
-.progressFill {
-  height: 100%;
-  background: var(--podo-green);
-  border-radius: 9999px;
-  transition: width 0.1s linear;
-}
-
-.progressText {
-  width: 34px;
-  text-align: right;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--podo-green);
-}
-
-.doneChip,
-.readChip {
-  align-self: center;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border-radius: 9999px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--podo-green);
-  background: var(--podo-green-subtle);
-  border: 1px solid var(--podo-green-border);
-  opacity: 0;
-  transform: translateY(8px) scale(0.96);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-}
-
 .show {
   opacity: 1;
   transform: none;
-}
-
-.check {
-  font-weight: 700;
 }
 
 /* ---------- Notice / push ---------- */
@@ -368,50 +249,6 @@
   color: var(--text-secondary);
 }
 
-.author {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-  font-size: 0.82rem;
-}
-
-.avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--bg-muted);
-  color: var(--text-tertiary);
-  font-size: 0.8rem;
-  font-weight: 700;
-  transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
-}
-
-.noticeTitle {
-  font-size: 1.05rem;
-  margin-bottom: 8px;
-}
-
-.noticeBody {
-  font-size: 0.84rem;
-  line-height: 1.6;
-  color: var(--text-secondary);
-  word-break: keep-all;
-}
-
-/* ---------- Prayer ---------- */
-.noteText {
-  min-height: 96px;
-  font-size: 0.95rem;
-  line-height: 1.6;
-  font-weight: 500;
-  word-break: keep-all;
-}
-
-.sendBtn,
 .joinBtn {
   width: 100%;
   padding: 12px;
@@ -428,42 +265,9 @@
   background: var(--podo-green-hover);
 }
 
-.sendBtnDone,
 .joinBtnDone {
   background: var(--podo-green-subtle);
   color: var(--podo-green);
-}
-
-.cardSent {
-  border-color: var(--podo-green-border);
-}
-
-.prayers {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding-top: 8px;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-}
-
-.avatars {
-  display: flex;
-  gap: 8px;
-}
-
-.avatarOn {
-  background: var(--podo-green);
-  color: #ffffff;
-  transform: scale(1.08);
-}
-
-.prayText {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text-secondary);
 }
 
 /* ---------- Ministry ---------- */
@@ -632,9 +436,6 @@
     height: 540px;
   }
 
-  .verse {
-    min-height: 140px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -651,19 +452,6 @@
   .toast {
     transition: none;
   }
-}
-
-/* ---------- Added: filler content ---------- */
-.oldCard {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 12px 14px;
-  background: #ffffff;
-}
-
-.oldTitle {
-  font-size: 0.82rem;
 }
 
 .bubbleMine {
@@ -961,4 +749,468 @@
 .appTabItemOn {
   color: #28543e;
   font-weight: 600;
+}
+
+/* ---------- 공지 상세 (앱바 + FeedPost) ---------- */
+.flush {
+  padding: 0;
+  gap: 0;
+  background: #f8f8f7;
+}
+
+.appBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 46px 16px 12px;
+  background: #ffffff;
+}
+
+.appBarBack {
+  position: absolute;
+  left: 14px;
+  bottom: 9px;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #1e1e1e;
+}
+
+.appBarTitle {
+  font-size: 0.95rem;
+}
+
+.feedPost {
+  display: flex;
+  flex-direction: column;
+  margin: 12px 12px 0;
+  padding-bottom: 12px;
+  background: #ffffff;
+  border: 1px solid #e6e6e3;
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+.postHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+}
+
+.postAvatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: #ebf3ee;
+  color: #28543e;
+}
+
+.postName {
+  font-size: 0.82rem;
+}
+
+.poster {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 128px;
+  margin: 0 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1b3d2c, #3f775b);
+  color: #ffffff;
+}
+
+.posterSmall {
+  font-size: 0.64rem;
+  opacity: 0.85;
+}
+
+.posterBig {
+  font-size: 1.2rem;
+  letter-spacing: -0.02em;
+}
+
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin: 8px 0 2px;
+}
+
+.dotOn,
+.dotOff {
+  height: 5px;
+  border-radius: 3px;
+}
+
+.dotOn {
+  width: 14px;
+  background: #28543e;
+}
+
+.dotOff {
+  width: 5px;
+  background: #e6e6e3;
+}
+
+.postTitle {
+  margin: 6px 12px 3px;
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+.postCaption {
+  margin: 0 12px;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: #1e1e1e;
+  word-break: keep-all;
+}
+
+.postActions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 8px 12px 0;
+}
+
+.prayBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: 1px solid #e6e6e3;
+  border-radius: 9999px;
+  font-size: 0.74rem;
+  color: #616161;
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.prayBtnOn {
+  background: #ebf3ee;
+  border-color: #b5d6c1;
+  color: #28543e;
+}
+
+.floatLabel {
+  position: absolute;
+  left: 4px;
+  bottom: 30px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  background: #1e1e1e;
+  color: #ffffff;
+  font-size: 0.66rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.floatLabelOn {
+  opacity: 1;
+}
+
+/* ---------- 기도 쪽지 쓰기 ---------- */
+.writeScene {
+  gap: 10px;
+}
+
+.sectionLabel {
+  font-size: 0.8rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 12px 14px 8px;
+  background: #ffffff;
+  border: 1px solid #e6e6e3;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.fieldText {
+  align-self: stretch;
+  min-height: 86px;
+  font-size: 0.84rem;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+
+.placeholder {
+  color: #bdbdbd;
+}
+
+.counter {
+  font-size: 0.64rem;
+  color: #8e8e8e;
+}
+
+.optionRow {
+  display: flex;
+  gap: 8px;
+}
+
+.option {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  background: #ffffff;
+  border: 1px solid #e6e6e3;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+.option span {
+  font-size: 0.66rem;
+  color: #8e8e8e;
+}
+
+.optionOn {
+  background: #f4f8f5;
+  border: 1.5px solid #28543e;
+}
+
+.submitBar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 10px 18px 18px;
+  background: #ffffff;
+  border-top: 1px solid #f0f0ed;
+}
+
+.submitBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  border-radius: 12px;
+  background: #28543e;
+  color: #ffffff;
+  font-size: 0.86rem;
+  font-weight: 700;
+  transition: transform 0.15s ease;
+}
+
+/* ---------- 쪽지 뽑기 ---------- */
+.drawScene {
+  position: relative;
+  height: 150px;
+  margin-top: 6px;
+}
+
+.boxBack,
+.boxFront {
+  position: absolute;
+  left: 50%;
+  margin-left: -80px;
+  transform-origin: bottom center;
+}
+
+.boxBack {
+  bottom: 0;
+  width: 160px;
+  height: 82px;
+  border-radius: 12px;
+  background: #1b3d2c;
+}
+
+.boxFront {
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 172px;
+  margin-left: -86px;
+  height: 62px;
+  border-radius: 12px;
+  background: #28543e;
+  box-shadow: 0 4px 10px rgba(27, 61, 44, 0.25);
+  color: #ebf3ee;
+  font-size: 1.2rem;
+}
+
+.paper {
+  position: absolute;
+  left: 50%;
+  bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 112px;
+  margin-left: -56px;
+  padding: 14px 12px;
+  background: #ffffff;
+  border: 1px solid #e6e6e3;
+  border-radius: 6px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+.paper span {
+  height: 5px;
+  border-radius: 3px;
+  background: #e6e6e3;
+}
+
+.paper span:last-child {
+  width: 60%;
+}
+
+.shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(1.4deg); }
+  75% { transform: rotate(-1.4deg); }
+}
+
+.drawTitle {
+  align-self: center;
+  margin-top: 8px;
+  font-size: 1rem;
+}
+
+.drawHint {
+  text-align: center;
+  font-size: 0.74rem;
+  line-height: 1.55;
+  color: #616161;
+}
+
+/* ---------- 뽑은 쪽지 바텀시트 ---------- */
+.dim {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: rgba(0, 0, 0, 0.35);
+  animation: fadeInDim 0.3s ease-out;
+}
+
+@keyframes fadeInDim {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 16px 24px;
+  background: #ffffff;
+  border-radius: 22px 22px 0 0;
+  animation: sheetUp 0.4s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+@keyframes sheetUp {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+
+.sheetHead {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #616161;
+}
+
+.sheetReport {
+  font-weight: 500;
+  color: #8e8e8e;
+}
+
+.sheetCard {
+  padding: 14px;
+  background: #f4f8f5;
+  border: 1px solid #e6e6e3;
+  border-radius: 14px;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  word-break: keep-all;
+}
+
+.switchRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+}
+
+.switchOff {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: #e6e6e3;
+}
+
+.switchOff i {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.cheers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cheer {
+  padding: 5px 10px;
+  border: 1px solid #e6e6e3;
+  border-radius: 9px;
+  font-size: 0.68rem;
+  color: #616161;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.cheerOn {
+  background: #ebf3ee;
+  border-color: #28543e;
+  color: #28543e;
+  font-weight: 600;
+}
+
+.prayDone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  border-radius: 12px;
+  background: #28543e;
+  color: #ffffff;
+  font-size: 0.86rem;
+  font-weight: 700;
+  transition: transform 0.15s ease;
+}
+
+.respondedText {
+  padding: 14px 0 6px;
+  text-align: center;
+  font-size: 0.82rem;
+  color: #616161;
 }

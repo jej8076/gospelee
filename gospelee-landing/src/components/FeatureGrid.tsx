@@ -37,31 +37,37 @@ const PushVisual = () => (
     <div className={styles.pushStage}>
       <div className={styles.pushCard}>
         <span className={styles.pushHead}>Podo · 지금</span>
-        <strong>[청년부] 공지사항</strong>
-        <span className={styles.pushBody}>금요 찬양 연습은 7시에 시작해요</span>
+        <strong>교회 공지사항</strong>
+        <span className={styles.pushBody}>금요 찬양 연습 안내</span>
       </div>
     </div>
 );
 
 const BulletinVisual = () => (
-    <ul className={styles.orderList}>
-      {['묵상 기도', '찬송', '말씀', '교회 소식'].map((item, i) => (
-          <li key={item} className={styles.orderItem} style={{animationDelay: `${i * 0.7}s`}}>
-            <span className={styles.orderCheck}>✓</span>
-            {item}
-          </li>
-      ))}
-    </ul>
+    <div className={styles.bStage}>
+      <div className={styles.bTile}>
+        <span className={styles.bPdf}>PDF</span>
+        <div className={styles.bMeta}>
+          <span><b className={styles.bLatest}>최신</b>11월 9일 주일</span>
+          <strong>주일예배 주보</strong>
+        </div>
+        <span className={styles.bChevron}>›</span>
+      </div>
+      <div className={styles.bViewer}>
+        <div className={styles.bPage}>
+          <span style={{width: '60%'}}/><span/><span/><span style={{width: '80%'}}/><span/>
+        </div>
+        <span className={styles.bBadge}>1 / 2</span>
+      </div>
+    </div>
 );
 
 const PrayerVisual = () => (
-    <div className={styles.prayStage}>
-      <div className={styles.avatars}>
-        {['김', '이', '박', '최'].map((n, i) => (
-            <span key={n} className={styles.pray} style={{animationDelay: `${0.8 + i * 0.8}s`}}>{n}</span>
-        ))}
-      </div>
-      <span className={styles.prayLabel}>함께 기도하고 있어요</span>
+    <div className={styles.drawStage}>
+      <div className={styles.dBack}/>
+      <div className={styles.dPaper}><span/><span/><span/></div>
+      <div className={styles.dFront}>♥</div>
+      <span className={styles.dChip}>기도했어요 🙏</span>
     </div>
 );
 
@@ -121,13 +127,13 @@ const features: { tag: string; title: string; description: string; visual: React
   {
     tag: '교회',
     title: '모바일 주보',
-    description: '종이 주보 대신 이번 주 순서와 말씀 요약을 휴대폰에서 봐요.',
+    description: '종이 주보 대신, 교회가 올린 주보를 휴대폰에서 넘겨 봐요.',
     visual: <BulletinVisual/>,
   },
   {
     tag: '나눔',
     title: '기도 쪽지',
-    description: '기도 제목을 쪽지로 보내면 그룹이 함께 기도해 줘요.',
+    description: '기도제목을 쪽지로 올리면, 성도들이 상자에서 한 장 뽑아 함께 기도해 줘요.',
     visual: <PrayerVisual/>,
   },
   {
