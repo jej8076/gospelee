@@ -201,7 +201,7 @@ const StatsScreen = ({t}: { t: number }) => {
                   <div className={styles.bookTrack}>
                     <div
                         className={styles.bookFill}
-                        style={{width: `${fill * 100}%`, background: book.old ? '#2196f3' : '#4caf50'}}
+                        style={{width: `${fill * 100}%`, background: book.old ? '#28543e' : '#c95430'}}
                     />
                   </div>
                   <span className={styles.bookCount}>{book.done}/{book.total}장</span>
@@ -431,30 +431,50 @@ const MinistryScene = ({ms}: { ms: number }) => {
   }
 
   const requested = ms >= 5200;
-  const approved = ms >= 7000;
+  const approved = ms >= 7400;
   return (
       <div className={`${styles.scene} ${styles.slideIn}`}>
-        <div className={styles.navBar}>
-          <span className={styles.back}>‹</span>
-          <span className={styles.navTitle}>모임 가입</span>
+        <div className={`${styles.navBar} ${styles.navCenter} ${styles.navWhite}`}>
+          <span className={styles.back}>×</span>
+          <span className={styles.navTitle}>모임 초대</span>
         </div>
-        <div className={styles.joinHero}>
-          <span className={styles.joinIcon}>새</span>
-          <strong className={styles.joinName}>새벽기도 모임</strong>
-          <span className={styles.muted}>매일 새벽 5시 · 말씀 나눔과 기도</span>
-          <span className={styles.members}>멤버 12명</span>
+        {!requested ? (
+            <>
+              <div className={styles.joinHero}>
+                <span className={styles.joinIcon}>
+                  <svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <circle cx="9" cy="8" r="3.2"/>
+                    <path d="M2.5 19c0-3.2 2.9-5.2 6.5-5.2s6.5 2 6.5 5.2z"/>
+                    <circle cx="17" cy="9" r="2.6"/>
+                    <path d="M16.5 14.2c3 0 5 1.6 5 4.3h-4.4c0-1.7-.3-3.1-.6-4.3z"/>
+                  </svg>
+                </span>
+                <strong className={styles.joinName}>새벽기도 모임</strong>
+                <span className={styles.members}>멤버 12명</span>
+                <p className={styles.joinDesc}>매일 새벽 5시, 말씀 나눔과 기도</p>
+              </div>
+              <button
+                  type="button"
+                  tabIndex={-1}
+                  className={`${styles.joinBtn} ${ms >= 4700 ? styles.pressed : ''}`}
+              >
+                가입하기
+              </button>
+              <Tap show={ms >= 4900} x="50%" y="520px"/>
+            </>
+        ) : (
+            <div className={styles.pending}>
+              <span className={styles.pendingIcon}>⏳</span>
+              <strong>가입을 신청했어요</strong>
+              <span className={styles.pendingMsg}>[새벽기도 모임] 대표나 운영진이 승인하면 알려드릴게요.</span>
+              <span className={styles.pendingOk}>확인</span>
+            </div>
+        )}
+        <div className={`${styles.approvePush} ${approved ? styles.approvePushIn : ''}`}>
+          <span className={styles.pushHead}>Podo · 지금</span>
+          <strong className={styles.pushTitle}>모임 가입 승인</strong>
+          <span className={styles.pushBody}>[새벽기도 모임] 가입이 승인되었어요.</span>
         </div>
-        <button
-            type="button"
-            tabIndex={-1}
-            className={`${styles.joinBtn} ${ms >= 4700 && !requested ? styles.pressed : ''} ${approved ? styles.joinBtnDone : ''}`}
-        >
-          {approved ? '모임에 들어왔어요 ✓' : requested ? '승인을 기다리고 있어요' : '가입 요청하기'}
-        </button>
-        <Tap show={ms >= 4900 && ms < 5800} x="50%" y="294px"/>
-        <div className={`${styles.toast} ${approved ? styles.show : ''}`}>가입이 승인됐어요</div>
-
-        <p className={styles.caption}>작은 모임도 교회처럼 모일 수 있게</p>
       </div>
   );
 };
@@ -470,7 +490,6 @@ const DemoPhone = () => {
   const [visible, setVisible] = useState(true);
   const [reduced, setReduced] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
-
   const scene = SCENES[index];
 
   // 모션 줄이기 설정이면 자동 재생 없이 각 장면의 마지막 모습을 정지해서 보여 준다
