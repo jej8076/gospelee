@@ -34,7 +34,7 @@ const Footer = () => {
                 <ul className={styles.linkList}>
                   <li><Link href="/#features" className={styles.link}>말씀 필사</Link></li>
                   <li><Link href="/#features" className={styles.link}>모바일 주보</Link></li>
-                  <li><Link href="/#download" className={styles.link}>APK 다운로드</Link></li>
+                  <li><Link href="/#download" className={styles.link}>앱 다운로드</Link></li>
                 </ul>
               </div>
 

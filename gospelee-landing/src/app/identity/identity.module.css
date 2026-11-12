@@ -68,7 +68,7 @@
 .slogan {
   font-size: 4.5rem;
   font-weight: 700;
-  color: #316049;
+  color: #28543e;
   line-height: 1.2;
   margin-bottom: 60px;
   letter-spacing: -0.02em;
@@ -83,7 +83,7 @@
   transform: translateX(-50%);
   width: 100px;
   height: 4px;
-  background: linear-gradient(90deg, #316049, #4a8066);
+  background: linear-gradient(90deg, #28543e, #4a8066);
   border-radius: 2px;
   opacity: 0;
   animation: expandWidth 0.8s ease-out 0.5s both;

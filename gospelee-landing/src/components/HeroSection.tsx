@@ -53,17 +53,15 @@ const HeroSection = () => {
             </p>
 
             <div className={styles.buttonGroup}>
-              <Link href="/#download" className={styles.primaryButton}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="7 10 12 15 17 10"/>
-                  <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                <span>APK 다운로드</span>
-                <span className={styles.buttonVersion}>v1.0.0</span>
-              </Link>
+              <a href="https://play.google.com/store/apps/details?id=org.podo" className={styles.primaryButton} target="_blank" rel="noopener noreferrer">
+                <span>Google Play</span>
+              </a>
 
-              <Link href="/identity" className={styles.secondaryButton}>
+              <a href="https://apps.apple.com/app/id6766432856" className={styles.secondaryButton} target="_blank" rel="noopener noreferrer">
+                <span>App Store</span>
+              </a>
+
+              <Link href="/identity" className={styles.textLink}>
                 <span>정체성 읽기</span>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="5" y1="12" x2="19" y2="12"/>
