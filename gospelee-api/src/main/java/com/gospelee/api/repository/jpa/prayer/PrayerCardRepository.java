@@ -94,6 +94,8 @@ public interface PrayerCardRepository extends JpaRepository<PrayerCard, Long> {
   // 통계 (개인 식별 정보 없이 집계만)
   long countByEcclesiaUid(Long ecclesiaUid);
 
+  List<PrayerCard> findByEcclesiaUid(Long ecclesiaUid);
+
   long countByEcclesiaUidAndStatus(Long ecclesiaUid, CardStatus status);
 
   @Query("select count(c) from PrayerCard c where c.ecclesiaUid = :ecclesiaUid"
