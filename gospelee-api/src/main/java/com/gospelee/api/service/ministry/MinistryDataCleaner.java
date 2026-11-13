@@ -7,6 +7,8 @@ import com.gospelee.api.enums.ReactionTargetType;
 import com.gospelee.api.enums.Yn;
 import com.gospelee.api.repository.jpa.announcement.AnnouncementRepository;
 import com.gospelee.api.repository.jpa.file.FileDetailsRepository;
+import com.gospelee.api.service.prayer.PrayerCardService;
+import com.gospelee.api.service.prayer.PrayerScopeResolver;
 import com.gospelee.api.service.reaction.ReactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,12 +26,14 @@ public class MinistryDataCleaner {
   private final AnnouncementRepository announcementRepository;
   private final FileDetailsRepository fileDetailsRepository;
   private final ReactionService reactionService;
+  private final PrayerCardService prayerCardService;
 
   public void deleteAll(Long ministryId) {
     for (Announcement announcement : announcementRepository
         .findByOrganizationTypeAndOrganizationId(OrganizationType.MINISTRY.name(), ministryId)) {
       deleteAnnouncement(announcement);
     }
+    prayerCardService.removeAllByScope(PrayerScopeResolver.ministryKey(ministryId));
     log.info("모임 콘텐츠 삭제 - ministryId:{}", ministryId);
   }
 

@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface PrayerSettingRepository extends JpaRepository<PrayerSetting, Long> {
 
   Optional<PrayerSetting> findByEcclesiaUid(Long ecclesiaUid);
+
+  void deleteByEcclesiaUid(Long ecclesiaUid);
 }
