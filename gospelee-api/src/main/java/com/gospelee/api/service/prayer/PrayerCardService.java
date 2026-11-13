@@ -109,6 +109,7 @@ public class PrayerCardService {
     }
 
     long open = cardRepository.findByAuthorUid(account.getUid()).stream()
+        .filter(c -> c.getEcclesiaUid().equals(account.getEcclesiaUid()))
         .filter(c -> (c.getStatus() == CardStatus.ACTIVE || c.getStatus() == CardStatus.PENDING)
             && !c.isExpired(now))
         .count();
@@ -139,7 +140,10 @@ public class PrayerCardService {
     PrayerAccess.requireParticipant(account,
         settingService.getEffective(account.getEcclesiaUid()));
     LocalDateTime now = LocalDateTime.now();
-    List<PrayerCard> cards = cardRepository.findByAuthorUidOrderByIdDesc(account.getUid());
+    // 교회와 모임은 쪽지함이 따로라 지금 보고 있는 범위의 카드만 보여 준다
+    List<PrayerCard> cards = cardRepository.findByAuthorUidOrderByIdDesc(account.getUid()).stream()
+        .filter(c -> c.getEcclesiaUid().equals(account.getEcclesiaUid()))
+        .toList();
 
     List<MyCard> result = new ArrayList<>();
     for (PrayerCard card : cards) {
@@ -358,6 +362,16 @@ public class PrayerCardService {
     responseRepository.deleteByResponderUid(accountUid);
     reportRepository.deleteByReporterUid(accountUid);
     drawRepository.deleteByDrawerUid(accountUid);
+  }
+
+  /**
+   * 범위(교회 또는 모임) 전체의 기도 쪽지 데이터를 지운다. 모임이 삭제될 때 쓴다.
+   * 모임은 {@link PrayerScopeResolver#ministryKey(Long)} 로 만든 키를 넘긴다.
+   */
+  @Transactional
+  public void removeAllByScope(Long scopeKey) {
+    removeCards(cardRepository.findByEcclesiaUid(scopeKey));
+    settingService.removeAllByScope(scopeKey);
   }
 
   private void removeCards(List<PrayerCard> cards) {

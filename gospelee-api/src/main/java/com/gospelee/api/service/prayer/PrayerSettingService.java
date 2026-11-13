@@ -64,6 +64,14 @@ public class PrayerSettingService {
         .orElseGet(() -> new PrayerTreeEvent(ecclesiaUid));
   }
 
+  /** 범위(교회 또는 모임)의 설정·트리 이벤트·변경 이력을 모두 지운다 */
+  @Transactional
+  public void removeAllByScope(Long scopeKey) {
+    settingRepository.deleteByEcclesiaUid(scopeKey);
+    treeEventRepository.deleteByEcclesiaUid(scopeKey);
+    historyRepository.deleteByEcclesiaUid(scopeKey);
+  }
+
   /** 앱용 설정. 교회가 없거나 꺼져 있으면 enabled=false 로 내려가 앱이 메뉴를 숨긴다 */
   @Transactional(readOnly = true)
   public AppSettingResponse appSetting(AccountAuthDTO account) {

@@ -60,24 +60,29 @@ public class PrayerSummaryNotifier {
             responses.stream().map(PrayerCardResponse::getCardId).distinct().toList()).stream()
         .collect(Collectors.toMap(PrayerCard::getId, Function.identity()));
 
-    Map<Long, Integer> countByAuthor = new HashMap<>();
-    Map<Long, Long> ecclesiaByAuthor = new HashMap<>();
+    // 교회와 모임은 쪽지함이 따로라 같은 사람이라도 범위별로 따로 센다
+    record Target(Long authorUid, Long scopeKey) {
+    }
+    Map<Target, Integer> countByTarget = new HashMap<>();
     for (PrayerCardResponse r : responses) {
       PrayerCard card = cards.get(r.getCardId());
       if (card != null) {
-        countByAuthor.merge(card.getAuthorUid(), 1, Integer::sum);
-        ecclesiaByAuthor.put(card.getAuthorUid(), card.getEcclesiaUid());
+        countByTarget.merge(new Target(card.getAuthorUid(), card.getEcclesiaUid()), 1,
+            Integer::sum);
       }
     }
 
     Map<Long, PrayerSetting> settings = new HashMap<>();
-    for (Map.Entry<Long, Integer> entry : countByAuthor.entrySet()) {
-      PrayerSetting setting = settings.computeIfAbsent(ecclesiaByAuthor.get(entry.getKey()),
+    Map<Long, Integer> countByAuthor = new HashMap<>();
+    for (Map.Entry<Target, Integer> entry : countByTarget.entrySet()) {
+      PrayerSetting setting = settings.computeIfAbsent(entry.getKey().scopeKey(),
           settingService::getEffective);
       if (setting.isEnabled() && setting.isSummaryPush()) {
-        send(entry.getKey(), entry.getValue());
+        // 푸시는 하루에 한 번만 보내도록 작성자별로 합친다
+        countByAuthor.merge(entry.getKey().authorUid(), entry.getValue(), Integer::sum);
       }
     }
+    countByAuthor.forEach(this::send);
   }
 
   private void send(Long authorUid, int count) {

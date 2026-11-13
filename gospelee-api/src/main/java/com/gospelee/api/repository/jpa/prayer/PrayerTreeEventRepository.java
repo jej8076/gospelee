@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface PrayerTreeEventRepository extends JpaRepository<PrayerTreeEvent, Long> {
 
   Optional<PrayerTreeEvent> findByEcclesiaUid(Long ecclesiaUid);
+
+  void deleteByEcclesiaUid(Long ecclesiaUid);
 }
