@@ -42,7 +42,7 @@ const Footer = () => {
                 <h4 className={styles.groupTitle}>프로젝트</h4>
                 <ul className={styles.linkList}>
                   <li><Link href="/identity" className={styles.link}>정체성 & 스토리</Link></li>
-                  <li><a href="mailto:jej8076@gmail.com" className={styles.link}>개발자에게 편지하기</a></li>
+                  <li><a href="https://pf.kakao.com/_xeZxfNX/chat" className={styles.link} target="_blank" rel="noopener noreferrer">개발자에게 문의하기</a></li>
                 </ul>
               </div>
 

@@ -56,8 +56,13 @@ const supportItems = [
     icon: '💬',
     content: [
       {
+        question: '카카오톡 채널 문의',
+        answer: '카카오톡 채널로 1:1 채팅 문의를 보내 주세요. 아래 버튼으로 바로 열 수 있어요.',
+        link: {href: 'https://pf.kakao.com/_xeZxfNX/chat', label: '카카오톡으로 문의하기'}
+      },
+      {
         question: '이메일 문의',
-        answer: 'jej8076@gmail.com으로 문의해 주세요.'
+        answer: 'jej8076@gmail.com으로 문의해 주셔도 됩니다.'
       },
       {
         question: '응답 시간',
@@ -98,6 +103,13 @@ export default function Support() {
                           <div key={index} className={styles.faqItem}>
                             <dt className={styles.question}>{faq.question}</dt>
                             <dd className={styles.answer}>{faq.answer}</dd>
+                            {'link' in faq && faq.link && (
+                                <dd>
+                                  <a href={faq.link.href} className={styles.kakaoLink} target="_blank" rel="noopener noreferrer">
+                                    {faq.link.label}
+                                  </a>
+                                </dd>
+                            )}
                           </div>
                       ))}
                     </div>
