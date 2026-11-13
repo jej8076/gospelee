@@ -86,8 +86,8 @@ const DownloadSection = () => {
               <p className={styles.noteText}>
                 Podo는 1인 개발자가 퇴근 후 지속적으로 가꾸어가는 프로젝트입니다.
                 사용 중 불편한 점이나 작은 교회의 도입 문의는 편하게{' '}
-                <a href="mailto:jej8076@gmail.com" className={styles.noteLink}>jej8076@gmail.com</a>
-                으로 보내주세요.
+                <a href="https://pf.kakao.com/_xeZxfNX/chat" className={styles.noteLink} target="_blank" rel="noopener noreferrer">카카오톡 채널</a>
+                로 보내주세요. 이메일(jej8076@gmail.com)도 괜찮아요.
               </p>
             </div>
           </div>

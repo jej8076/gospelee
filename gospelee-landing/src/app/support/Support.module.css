@@ -192,3 +192,14 @@
     gap: 16px;
   }
 }
+
+.kakaoLink {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  background: #fee500;
+  color: #191919;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
