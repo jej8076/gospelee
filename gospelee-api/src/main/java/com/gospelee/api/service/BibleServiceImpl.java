@@ -12,7 +12,9 @@ import com.gospelee.api.repository.jpa.account.AccountRepository;
 import com.gospelee.api.repository.jpa.bible.BibleRepository;
 import com.gospelee.api.utils.AuthenticatedUserUtils;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
@@ -87,6 +89,13 @@ public class BibleServiceImpl implements BibleService {
     List<Object[]> completedByBook = accountBibleWriteRepository.getCompletedChaptersByBook(
         accountUid);
 
+    // 책별 완료한 장 번호
+    Map<Integer, List<Integer>> chaptersByBook = new HashMap<>();
+    for (Object[] row : accountBibleWriteRepository.getCompletedChapterNumbers(accountUid)) {
+      chaptersByBook.computeIfAbsent(((Number) row[0]).intValue(), k -> new ArrayList<>())
+          .add(((Number) row[1]).intValue());
+    }
+
     List<BookStatDTO> bookStats = new ArrayList<>();
     int totalCompleted = 0;
     int oldTestamentCount = 0;
@@ -110,6 +119,7 @@ public class BibleServiceImpl implements BibleService {
           .bookName(bookName)
           .totalChapters(totalChaptersForBook)
           .completedChapters(completedChapters)
+          .completedChapterNumbers(chaptersByBook.getOrDefault(book, List.of()))
           .build());
 
       totalCompleted += completedChapters;
