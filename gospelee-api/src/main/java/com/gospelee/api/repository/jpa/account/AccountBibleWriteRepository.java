@@ -16,5 +16,10 @@ public interface AccountBibleWriteRepository extends JpaRepository<AccountBibleW
       "WHERE aw.accountUid = :accountUid GROUP BY aw.book ORDER BY aw.book")
   List<Object[]> getCompletedChaptersByBook(@Param("accountUid") Long accountUid);
 
+  // 사용자별 완료한 (책, 장) 목록 - 장 단위 완료 표시용
+  @Query("SELECT DISTINCT aw.book, aw.chapter FROM AccountBibleWrite aw " +
+      "WHERE aw.accountUid = :accountUid ORDER BY aw.book, aw.chapter")
+  List<Object[]> getCompletedChapterNumbers(@Param("accountUid") Long accountUid);
+
   void deleteByAccountUid(Long accountUid);
 }
