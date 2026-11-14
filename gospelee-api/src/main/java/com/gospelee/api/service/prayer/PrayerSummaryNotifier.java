@@ -74,18 +74,29 @@ public class PrayerSummaryNotifier {
 
     Map<Long, PrayerSetting> settings = new HashMap<>();
     Map<Long, Integer> countByAuthor = new HashMap<>();
+    // 받은 기도가 한 모임에서만 온 작성자는 그 모임 쪽지함으로 연결한다 (여러 곳이면 교회 화면)
+    Map<Long, Long> scopeByAuthor = new HashMap<>();
     for (Map.Entry<Target, Integer> entry : countByTarget.entrySet()) {
       PrayerSetting setting = settings.computeIfAbsent(entry.getKey().scopeKey(),
           settingService::getEffective);
       if (setting.isEnabled() && setting.isSummaryPush()) {
         // 푸시는 하루에 한 번만 보내도록 작성자별로 합친다
         countByAuthor.merge(entry.getKey().authorUid(), entry.getValue(), Integer::sum);
+        scopeByAuthor.merge(entry.getKey().authorUid(), entry.getKey().scopeKey(),
+            (a, b) -> a.equals(b) ? a : 0L);
       }
     }
-    countByAuthor.forEach(this::send);
+    countByAuthor.forEach((authorUid, count) -> send(authorUid, count,
+        scopeByAuthor.get(authorUid)));
   }
 
-  private void send(Long authorUid, int count) {
+  /** 모임 범위의 쪽지는 교회와 구분하려고 ecclesia_uid 에 음수 키로 저장한다 */
+  private static String routeFor(Long scopeKey) {
+    String base = DeepLinkRouterPath.PRAYER.path();
+    return scopeKey != null && scopeKey < 0 ? base + "?ministryId=" + (-scopeKey) : base;
+  }
+
+  private void send(Long authorUid, int count, Long scopeKey) {
     try {
       Account author = accountRepository.findById(authorUid).orElse(null);
       if (author == null || ObjectUtils.isEmpty(author.getPushToken())) {
@@ -93,7 +104,7 @@ public class PrayerSummaryNotifier {
       }
       firebaseService.sendNotification(author.getPushToken(), "기도 쪽지",
           "어제 " + count + "번 기도해 주셨어요.",
-          Map.of(PushNotificationDataType.ROUTE.lower(), DeepLinkRouterPath.PRAYER.path()));
+          Map.of(PushNotificationDataType.ROUTE.lower(), routeFor(scopeKey)));
     } catch (Exception e) {
       log.warn("[PRAYER_PUSH] 전송 실패 accountUid={}", authorUid, e);
     }
