@@ -31,6 +31,11 @@ public class MinistryPushNotifier {
             : "[" + ministry.getName() + "] 가입 신청이 거절되었어요.");
   }
 
+  public void notifyAnnouncementReported(Account manager, Ministry ministry) {
+    send(manager, "모임 공지 신고",
+        "[" + ministry.getName() + "] 공지에 신고가 접수되었어요. 운영자가 확인해 처리해요.");
+  }
+
   private void send(Account account, String title, String body) {
     if (account == null || ObjectUtils.isEmpty(account.getPushToken())) {
       return;
