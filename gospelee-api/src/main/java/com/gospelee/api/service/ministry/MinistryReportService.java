@@ -3,6 +3,7 @@ package com.gospelee.api.service.ministry;
 import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.entity.Announcement;
 import com.gospelee.api.entity.ContentReport;
+import com.gospelee.api.entity.Ministry;
 import com.gospelee.api.enums.OrganizationType;
 import com.gospelee.api.repository.jpa.announcement.AnnouncementRepository;
 import com.gospelee.api.repository.jpa.journal.ContentReportRepository;
@@ -31,7 +32,7 @@ public class MinistryReportService {
   public void report(AccountAuthDTO account, Long ministryId, Long announcementId, String reason,
       String detail) {
     // 멤버가 아니면 모임이 있는지도 알 수 없는 응답
-    ministryService.requireMemberOf(ministryId, account.getUid());
+    Ministry ministry = ministryService.requireMemberOf(ministryId, account.getUid());
     if (reason == null || !REASONS.contains(reason)) {
       throw new IllegalArgumentException("신고 사유를 선택해주세요.");
     }
@@ -53,5 +54,15 @@ public class MinistryReportService {
         ContentReport.TARGET_MINISTRY_ANNOUNCEMENT, announcement.getId(), reason, safeDetail));
     log.warn("[REPORT    ] reporter:{} type:MIN_ANN target:{} ministry:{} reason:{}",
         account.getUid(), announcement.getId(), ministryId, reason);
+
+    // 같은 공지에 신고가 쌓여도 알림은 첫 신고에서 한 번만 보낸다
+    if (reportRepository.countByTargetTypeAndTargetUid(
+        ContentReport.TARGET_MINISTRY_ANNOUNCEMENT, announcement.getId()) == 1) {
+      try {
+        ministryService.notifyManagersOfReport(ministry);
+      } catch (Exception e) {
+        log.warn("[REPORT    ] 모임 운영진 알림 실패 ministry:{}", ministryId, e);
+      }
+    }
   }
 }

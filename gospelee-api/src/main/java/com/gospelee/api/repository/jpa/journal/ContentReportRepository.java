@@ -9,6 +9,8 @@ public interface ContentReportRepository extends JpaRepository<ContentReport, Lo
   boolean existsByReporterUidAndTargetTypeAndTargetUid(Long reporterUid, String targetType,
       Long targetUid);
 
+  long countByTargetTypeAndTargetUid(String targetType, Long targetUid);
+
   List<ContentReport> findByStatusOrderByUidDesc(String status);
 
   List<ContentReport> findByTargetTypeAndTargetUidAndStatus(String targetType, Long targetUid,

@@ -419,6 +419,15 @@ public class MinistryService {
     return Map.of("accountUid", targetUid, "approved", approve);
   }
 
+  /** 공지 신고가 처음 들어왔을 때 대표·운영진에게 알린다. 알림 실패가 신고 접수에 영향을 주지 않게 한다 */
+  public void notifyManagersOfReport(Ministry ministry) {
+    List<MinistryMember> managers = memberRepository
+        .findByMinistryIdAndStatus(ministry.getId(), MinistryMemberStatus.ACTIVE).stream()
+        .filter(m -> m.getRole().canManage()).toList();
+    accountsOf(managers).values()
+        .forEach(a -> pushNotifier.notifyAnnouncementReported(a, ministry));
+  }
+
   private void notifyManagers(Ministry ministry, String requesterName) {
     List<MinistryMember> managers = memberRepository
         .findByMinistryIdAndStatus(ministry.getId(), MinistryMemberStatus.ACTIVE).stream()
