@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import styles from './Support.module.css';
@@ -72,7 +73,41 @@ const supportItems = [
   }
 ];
 
+// 앱스토어 공개 조회 API. 안드로이드와 iOS 버전 번호를 같게 맞추므로 앱스토어 기준 버전을 그대로 보여 준다
+const APP_STORE_LOOKUP_URL = 'https://itunes.apple.com/lookup?id=6766432856&country=kr';
+
+type AppRelease = { version: string; releasedAt: string };
+
+function formatReleaseDate(iso: string) {
+  return new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'Asia/Seoul',
+  }).format(new Date(iso));
+}
+
+/** 앱을 새로 출시할 때마다 랜딩을 다시 배포하지 않아도 최신 버전과 출시일이 보이도록 페이지를 열 때 조회한다 */
+function useLatestRelease() {
+  const [release, setRelease] = useState<AppRelease | null>(null);
+
+  useEffect(() => {
+    fetch(APP_STORE_LOOKUP_URL)
+      .then((res) => res.json())
+      .then((data) => {
+        const app = data?.results?.[0];
+        if (app?.version && app?.currentVersionReleaseDate) {
+          setRelease({ version: app.version, releasedAt: app.currentVersionReleaseDate });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  return release;
+}
+
 export default function Support() {
+  const release = useLatestRelease();
   return (
       <main>
         <Header/>
@@ -122,11 +157,13 @@ export default function Support() {
               <div className={styles.infoGrid}>
                 <div className={styles.infoItem}>
                   <dt className={styles.infoLabel}>버전</dt>
-                  <dd className={styles.infoValue}>v1.0.0</dd>
+                  <dd className={styles.infoValue}>{release ? `v${release.version}` : '-'}</dd>
                 </div>
                 <div className={styles.infoItem}>
                   <dt className={styles.infoLabel}>마지막 업데이트</dt>
-                  <dd className={styles.infoValue}>2025년 10월 15일</dd>
+                  <dd className={styles.infoValue}>
+                    {release ? formatReleaseDate(release.releasedAt) : '-'}
+                  </dd>
                 </div>
               </div>
             </div>
