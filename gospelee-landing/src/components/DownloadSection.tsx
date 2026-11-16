@@ -13,13 +13,12 @@ const DownloadSection = () => {
               지금 바로, 말씀의 자리로.
             </h2>
             <p className={styles.subtitle}>
-              App Store와 Google Play에서 바로 설치할 수 있어요.<br />
-              Android는 APK로 직접 설치할 수도 있습니다.
+              App Store와 Google Play에서 바로 설치할 수 있어요.
             </p>
           </div>
 
           <div className={styles.hubGrid}>
-            {/* Direct APK Card */}
+            {/* Android Card */}
             <div className={styles.releaseCard}>
               <div className={styles.cardTop}>
                 <div className={styles.platformIcon}>
@@ -29,25 +28,26 @@ const DownloadSection = () => {
                 </div>
                 <div className={styles.platformMeta}>
                   <div className={styles.platformTitleGroup}>
-                    <span className={styles.platformName}>Android Direct Build</span>
-                    <span className={styles.versionChip}>직접 설치</span>
+                    <span className={styles.platformName}>Android</span>
+                    <span className={styles.versionChip}>Google Play</span>
                   </div>
-                  <span className={styles.fileDetail}>app-release.apk · Universal APK</span>
+                  <span className={styles.fileDetail}>org.podo · Google Play 스토어</span>
                 </div>
               </div>
 
               <div className={styles.cardAction}>
                 <a
-                  href="https://landing.podo.kr/download/app-release.apk"
-                  download
+                  href="https://play.google.com/store/apps/details?id=org.podo"
                   className={styles.downloadBtn}
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                     <polyline points="7 10 12 15 17 10"/>
                     <line x1="12" y1="15" x2="12" y2="3"/>
                   </svg>
-                  <span>APK 직접 다운로드</span>
+                  <span>Google Play에서 받기</span>
                 </a>
               </div>
 
@@ -70,7 +70,7 @@ const DownloadSection = () => {
               <div className={styles.qrVisual}>
                 <svg viewBox="-2 -2 33 33" width="130" height="130" role="img" aria-label="Podo 설치 페이지로 연결되는 QR 코드" shapeRendering="crispEdges">
                   <rect x="-2" y="-2" width="33" height="33" fill="#ffffff"/>
-                  <path d="M0 0h7v1h-7zM10 0h1v1h-1zM15 0h2v1h-2zM19 0h2v1h-2zM22 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM11 1h2v1h-2zM17 1h2v1h-2zM20 1h1v1h-1zM22 1h1v1h-1zM28 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h1v1h-1zM10 2h1v1h-1zM12 2h1v1h-1zM14 2h1v1h-1zM16 2h1v1h-1zM18 2h2v1h-2zM22 2h1v1h-1zM24 2h3v1h-3zM28 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h1v1h-1zM12 3h1v1h-1zM16 3h4v1h-4zM22 3h1v1h-1zM24 3h3v1h-3zM28 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM13 4h3v1h-3zM17 4h4v1h-4zM22 4h1v1h-1zM24 4h3v1h-3zM28 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h2v1h-2zM11 5h7v1h-7zM22 5h1v1h-1zM28 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h7v1h-7zM8 7h1v1h-1zM12 7h2v1h-2zM15 7h1v1h-1zM19 7h2v1h-2zM0 8h1v1h-1zM2 8h5v1h-5zM11 8h2v1h-2zM14 8h2v1h-2zM17 8h3v1h-3zM22 8h5v1h-5zM0 9h1v1h-1zM3 9h2v1h-2zM9 9h1v1h-1zM15 9h2v1h-2zM18 9h2v1h-2zM21 9h4v1h-4zM28 9h1v1h-1zM1 10h2v1h-2zM4 10h9v1h-9zM17 10h2v1h-2zM20 10h3v1h-3zM24 10h1v1h-1zM0 11h1v1h-1zM7 11h5v1h-5zM14 11h1v1h-1zM16 11h1v1h-1zM19 11h2v1h-2zM23 11h3v1h-3zM27 11h1v1h-1zM0 12h7v1h-7zM8 12h1v1h-1zM17 12h1v1h-1zM19 12h1v1h-1zM25 12h2v1h-2zM0 13h1v1h-1zM3 13h3v1h-3zM12 13h4v1h-4zM18 13h7v1h-7zM28 13h1v1h-1zM5 14h3v1h-3zM9 14h1v1h-1zM12 14h4v1h-4zM22 14h1v1h-1zM25 14h2v1h-2zM0 15h6v1h-6zM7 15h1v1h-1zM13 15h1v1h-1zM15 15h2v1h-2zM18 15h1v1h-1zM20 15h4v1h-4zM27 15h1v1h-1zM0 16h3v1h-3zM5 16h2v1h-2zM9 16h1v1h-1zM11 16h2v1h-2zM14 16h2v1h-2zM17 16h1v1h-1zM25 16h2v1h-2zM0 17h1v1h-1zM2 17h1v1h-1zM5 17h1v1h-1zM7 17h4v1h-4zM12 17h1v1h-1zM16 17h9v1h-9zM26 17h1v1h-1zM28 17h1v1h-1zM0 18h1v1h-1zM2 18h3v1h-3zM6 18h3v1h-3zM10 18h1v1h-1zM12 18h1v1h-1zM15 18h3v1h-3zM20 18h1v1h-1zM23 18h2v1h-2zM26 18h1v1h-1zM0 19h1v1h-1zM2 19h1v1h-1zM4 19h1v1h-1zM8 19h2v1h-2zM11 19h1v1h-1zM14 19h2v1h-2zM19 19h2v1h-2zM22 19h1v1h-1zM24 19h1v1h-1zM27 19h1v1h-1zM0 20h1v1h-1zM4 20h3v1h-3zM8 20h1v1h-1zM10 20h1v1h-1zM12 20h1v1h-1zM15 20h1v1h-1zM17 20h1v1h-1zM19 20h6v1h-6zM26 20h3v1h-3zM8 21h1v1h-1zM10 21h1v1h-1zM12 21h3v1h-3zM16 21h1v1h-1zM20 21h1v1h-1zM24 21h5v1h-5zM0 22h7v1h-7zM9 22h3v1h-3zM13 22h5v1h-5zM19 22h2v1h-2zM22 22h1v1h-1zM24 22h3v1h-3zM0 23h1v1h-1zM6 23h1v1h-1zM8 23h1v1h-1zM11 23h1v1h-1zM13 23h1v1h-1zM16 23h1v1h-1zM19 23h2v1h-2zM24 23h1v1h-1zM0 24h1v1h-1zM2 24h3v1h-3zM6 24h1v1h-1zM8 24h1v1h-1zM10 24h2v1h-2zM14 24h1v1h-1zM17 24h1v1h-1zM20 24h5v1h-5zM26 24h2v1h-2zM0 25h1v1h-1zM2 25h3v1h-3zM6 25h1v1h-1zM8 25h1v1h-1zM10 25h4v1h-4zM16 25h3v1h-3zM21 25h1v1h-1zM25 25h4v1h-4zM0 26h1v1h-1zM2 26h3v1h-3zM6 26h1v1h-1zM8 26h2v1h-2zM15 26h1v1h-1zM17 26h1v1h-1zM21 26h7v1h-7zM0 27h1v1h-1zM6 27h1v1h-1zM10 27h7v1h-7zM18 27h3v1h-3zM22 27h1v1h-1zM24 27h2v1h-2zM27 27h1v1h-1zM0 28h7v1h-7zM8 28h1v1h-1zM10 28h1v1h-1zM13 28h1v1h-1zM17 28h1v1h-1zM19 28h1v1h-1zM21 28h3v1h-3zM26 28h1v1h-1z" fill="#1e293b"/>
+                  <path d="M0 0h7v1h-7zM9 0h4v1h-4zM14 0h1v1h-1zM17 0h3v1h-3zM22 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h1v1h-1zM11 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM22 1h1v1h-1zM28 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM9 2h1v1h-1zM12 2h1v1h-1zM14 2h2v1h-2zM17 2h1v1h-1zM19 2h2v1h-2zM22 2h1v1h-1zM24 2h3v1h-3zM28 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM11 3h1v1h-1zM13 3h1v1h-1zM16 3h1v1h-1zM18 3h1v1h-1zM22 3h1v1h-1zM24 3h3v1h-3zM28 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM9 4h1v1h-1zM11 4h1v1h-1zM20 4h1v1h-1zM22 4h1v1h-1zM24 4h3v1h-3zM28 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h2v1h-2zM12 5h1v1h-1zM15 5h3v1h-3zM19 5h1v1h-1zM22 5h1v1h-1zM28 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h7v1h-7zM9 7h1v1h-1zM12 7h2v1h-2zM15 7h3v1h-3zM19 7h2v1h-2zM0 8h1v1h-1zM3 8h1v1h-1zM5 8h2v1h-2zM8 8h3v1h-3zM12 8h1v1h-1zM14 8h1v1h-1zM16 8h1v1h-1zM19 8h1v1h-1zM21 8h1v1h-1zM23 8h1v1h-1zM1 9h4v1h-4zM8 9h2v1h-2zM11 9h3v1h-3zM15 9h3v1h-3zM20 9h3v1h-3zM25 9h1v1h-1zM28 9h1v1h-1zM1 10h1v1h-1zM3 10h5v1h-5zM11 10h1v1h-1zM13 10h3v1h-3zM17 10h1v1h-1zM19 10h2v1h-2zM22 10h1v1h-1zM24 10h4v1h-4zM0 11h3v1h-3zM5 11h1v1h-1zM10 11h1v1h-1zM13 11h1v1h-1zM16 11h1v1h-1zM18 11h2v1h-2zM23 11h1v1h-1zM26 11h2v1h-2zM1 12h2v1h-2zM4 12h1v1h-1zM6 12h2v1h-2zM9 12h1v1h-1zM11 12h1v1h-1zM14 12h5v1h-5zM20 12h3v1h-3zM25 12h1v1h-1zM27 12h2v1h-2zM2 13h1v1h-1zM7 13h1v1h-1zM9 13h1v1h-1zM13 13h4v1h-4zM19 13h3v1h-3zM0 14h1v1h-1zM2 14h3v1h-3zM6 14h3v1h-3zM13 14h2v1h-2zM16 14h1v1h-1zM20 14h2v1h-2zM23 14h1v1h-1zM25 14h4v1h-4zM0 15h1v1h-1zM4 15h1v1h-1zM9 15h3v1h-3zM15 15h8v1h-8zM24 15h2v1h-2zM27 15h1v1h-1zM0 16h5v1h-5zM6 16h1v1h-1zM8 16h2v1h-2zM12 16h2v1h-2zM15 16h1v1h-1zM17 16h1v1h-1zM20 16h2v1h-2zM27 16h1v1h-1zM2 17h1v1h-1zM4 17h1v1h-1zM7 17h2v1h-2zM11 17h4v1h-4zM16 17h2v1h-2zM20 17h4v1h-4zM25 17h1v1h-1zM28 17h1v1h-1zM0 18h1v1h-1zM6 18h1v1h-1zM10 18h1v1h-1zM12 18h1v1h-1zM14 18h1v1h-1zM16 18h1v1h-1zM18 18h1v1h-1zM21 18h4v1h-4zM27 18h2v1h-2zM4 19h2v1h-2zM9 19h4v1h-4zM14 19h2v1h-2zM17 19h4v1h-4zM23 19h1v1h-1zM27 19h2v1h-2zM0 20h1v1h-1zM2 20h1v1h-1zM4 20h3v1h-3zM8 20h2v1h-2zM11 20h1v1h-1zM15 20h2v1h-2zM19 20h6v1h-6zM26 20h1v1h-1zM8 21h2v1h-2zM11 21h2v1h-2zM14 21h1v1h-1zM16 21h1v1h-1zM19 21h2v1h-2zM24 21h1v1h-1zM26 21h3v1h-3zM0 22h7v1h-7zM9 22h1v1h-1zM12 22h1v1h-1zM16 22h2v1h-2zM20 22h1v1h-1zM22 22h1v1h-1zM24 22h1v1h-1zM27 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM8 23h1v1h-1zM11 23h1v1h-1zM14 23h2v1h-2zM20 23h1v1h-1zM24 23h3v1h-3zM0 24h1v1h-1zM2 24h3v1h-3zM6 24h1v1h-1zM10 24h1v1h-1zM12 24h1v1h-1zM16 24h2v1h-2zM20 24h5v1h-5zM28 24h1v1h-1zM0 25h1v1h-1zM2 25h3v1h-3zM6 25h1v1h-1zM8 25h1v1h-1zM10 25h2v1h-2zM13 25h1v1h-1zM17 25h2v1h-2zM21 25h7v1h-7zM0 26h1v1h-1zM2 26h3v1h-3zM6 26h1v1h-1zM9 26h3v1h-3zM13 26h1v1h-1zM16 26h1v1h-1zM18 26h1v1h-1zM24 26h3v1h-3zM28 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM10 27h1v1h-1zM13 27h6v1h-6zM20 27h1v1h-1zM22 27h2v1h-2zM27 27h1v1h-1zM0 28h7v1h-7zM8 28h2v1h-2zM11 28h3v1h-3zM16 28h2v1h-2zM20 28h1v1h-1zM22 28h2v1h-2zM25 28h1v1h-1zM27 28h1v1h-1z" fill="#1e293b"/>
                 </svg>
               </div>
               <div className={styles.qrInfo}>
