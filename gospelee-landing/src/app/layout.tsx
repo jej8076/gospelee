@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   keywords: '성경, 필사, 묵상, 주보, 교회, 크리스천, Podo, 포도, Gospelee',
   authors: [{name: 'ej (Indie Developer)'}],
   robots: 'index, follow',
-  metadataBase: new URL('https://landing.podo.kr'),
+  metadataBase: new URL('https://landing.po-do.org'),
   openGraph: {
     title: 'Podo (포도) — 말씀과 교회를 잇는 미니멀 신앙 도구',
     description: '1인 개발자가 기독교 문화를 위해 빚어가는 말씀 필사 & 모바일 주보 신앙 플랫폼',
