@@ -96,6 +96,19 @@
   color: var(--podo-green);
 }
 
+.bizInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--text-tertiary);
+}
+
+.bizInfo .dotDivider {
+  margin: 0 8px;
+}
+
 .footerBottom {
   display: flex;
   justify-content: space-between;

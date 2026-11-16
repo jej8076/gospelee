@@ -42,7 +42,7 @@ const Footer = () => {
                 <h4 className={styles.groupTitle}>프로젝트</h4>
                 <ul className={styles.linkList}>
                   <li><Link href="/identity" className={styles.link}>정체성 & 스토리</Link></li>
-                  <li><a href="https://pf.kakao.com/_xeZxfNX/chat" className={styles.link} target="_blank" rel="noopener noreferrer">개발자에게 문의하기</a></li>
+                  <li><a href="https://pf.kakao.com/_xeZxfNX/chat" className={styles.link} target="_blank" rel="noopener noreferrer">카카오톡 채널 podo</a></li>
                 </ul>
               </div>
 
@@ -55,6 +55,20 @@ const Footer = () => {
                 </ul>
               </div>
             </div>
+          </div>
+
+          {/* 사업자 정보: 카카오 비즈니스 채널 심사에서 사업자와 podo 채널의 관계를 확인하는 근거 */}
+          <div className={styles.bizInfo}>
+            <p>포도(Podo)는 gospelee가 운영하는 서비스입니다.</p>
+            <p>
+              상호: gospelee<span className={styles.dotDivider}>·</span>
+              대표: 정의진<span className={styles.dotDivider}>·</span>
+              사업자등록번호: 682-24-01205
+            </p>
+            <p>
+              이메일: jej8076@gmail.com<span className={styles.dotDivider}>·</span>
+              카카오톡 채널: <a href="https://pf.kakao.com/_xeZxfNX" className={styles.bottomLink} target="_blank" rel="noopener noreferrer">podo</a>
+            </p>
           </div>
 
           <div className={styles.footerBottom}>
