@@ -10,10 +10,10 @@ const features = [
     badge: '광고 없음',
   },
   {
-    tag: '02 / SMALL CHURCH',
-    title: '작은 교회는 평생 무료',
-    description: '재정이 부담되는 종이 주보 대신 모바일 주보를. 30명 이하 개척교회는 평생 무료입니다.',
-    badge: '30명 이하 · 평생 무료',
+    tag: '02 / FOR EVERY CHURCH',
+    title: '지금은 모든 교회 무료',
+    description: '종이 주보 대신 모바일 주보를. 교회 규모와 상관없이 지금은 모든 기능을 무료로 쓸 수 있어요. 요금 정책이 생기면 미리 알려 드릴게요.',
+    badge: '모든 교회 · 무료',
   },
   {
     tag: '03 / INDIE EXPERIMENT',
