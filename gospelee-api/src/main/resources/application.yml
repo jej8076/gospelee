@@ -3,6 +3,10 @@ server:
   domain: https://api.podo.kr:8888
   servlet:
     context-path: /api
+  # Tomcat 스레드 지표(바쁜 스레드 수 등)를 내보낸다
+  tomcat:
+    mbeanregistry:
+      enabled: true
 
 cors:
   allowed-origins:
@@ -117,3 +121,19 @@ file:
 slack:
   webhook-url:
   admin-url:
+
+# 운영 지표. 8081 은 docker 내부망에서 Prometheus 만 읽는다(포트를 외부에 열지 않음)
+management:
+  server:
+    port: 8081
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  metrics:
+    tags:
+      application: gospelee-api
+    distribution:
+      # 느린 요청 비율(p95·p99)을 계산할 수 있게 응답 시간 분포를 남긴다
+      percentiles-histogram:
+        http.server.requests: true

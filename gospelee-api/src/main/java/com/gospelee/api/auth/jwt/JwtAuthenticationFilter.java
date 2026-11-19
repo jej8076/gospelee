@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -45,6 +46,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private final SessionService sessionService;
   private final SessionCookieUtils sessionCookieUtils;
   private final String NONCE_CHECK_PATH = "/account/auth/success";
+
+  // 지표 포트(management.server.port)는 외부에 열지 않고 Prometheus만 읽으므로 토큰 검사를 하지 않는다
+  @Value("${management.server.port:-1}")
+  private int managementPort;
 
   public JwtAuthenticationFilter(AuthProperties authProperties, AccountService accountService,
       SocialJwtProviderFactory providerFactory, SessionService sessionService,
@@ -151,6 +156,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {
+    if (request.getLocalPort() == managementPort) {
+      return true;
+    }
     return authProperties.getExcludePaths().stream()
         .anyMatch(path -> path.contains("*") ? request.getServletPath()
             .startsWith(path.split("\\/\\*")[0]) : path.equals(request.getServletPath()));
