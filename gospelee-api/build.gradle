@@ -53,6 +53,10 @@ dependencies {
     // https://mvnrepository.com/artifact/net.coobird/thumbnailator
     implementation 'net.coobird:thumbnailator:0.4.20'
 
+    // 운영 지표(요청 수·응답 시간·JVM·커넥션 풀)를 Prometheus 형식으로 내보낸다. 버전은 Spring Boot가 관리
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
 }
 
 bootJar {
