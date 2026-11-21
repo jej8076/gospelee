@@ -81,7 +81,6 @@ auth:
     - /ecclesia/invite/info/*
     - /ecclesia-invite/*
     - /ministry-invite/*
-    - /article/*
     - /youtube/videos
     - /announcement/unauthorized/BRAND_STORY
     - /auth/super
