@@ -25,6 +25,7 @@ import com.gospelee.api.exception.AccountNotFoundException;
 import com.gospelee.api.exception.EcclesiaException;
 import com.gospelee.api.exception.KakaoResponseException;
 import com.gospelee.api.exception.MissingRequiredValueException;
+import com.gospelee.api.metrics.MarketingMetrics;
 import com.gospelee.api.properties.AuthProperties;
 import com.gospelee.api.repository.AccountEcclesiaHistoryRepository;
 import com.gospelee.api.repository.jpa.account.AccountMetaRepository;
@@ -61,13 +62,15 @@ public class AccountServiceImpl implements AccountService {
   private final CamelCaseJsonUtils camelCaseJsonUtils;
   private final RestClient restClient;
   private final EcclesiaPushNotifier ecclesiaPushNotifier;
+  private final MarketingMetrics marketingMetrics;
 
   public AccountServiceImpl(AuthProperties authProperties, AccountRepository accountRepository,
       AccountMetaRepository accountMetaRepository,
       AccountEcclesiaHistoryRepository accountEcclesiaHistoryRepository,
       EcclesiaJpaRepository ecclesiaJpaRepository, RedisCacheService redisCacheService,
       RestClient.Builder restClient, SnakeCaseJsonUtils snakeCaseJsonUtils,
-      CamelCaseJsonUtils camelCaseJsonUtils, EcclesiaPushNotifier ecclesiaPushNotifier) {
+      CamelCaseJsonUtils camelCaseJsonUtils, EcclesiaPushNotifier ecclesiaPushNotifier,
+      MarketingMetrics marketingMetrics) {
     this.authProperties = authProperties;
     this.accountRepository = accountRepository;
     this.accountMetaRepository = accountMetaRepository;
@@ -77,6 +80,7 @@ public class AccountServiceImpl implements AccountService {
     this.snakeCaseJsonUtils = snakeCaseJsonUtils;
     this.camelCaseJsonUtils = camelCaseJsonUtils;
     this.ecclesiaPushNotifier = ecclesiaPushNotifier;
+    this.marketingMetrics = marketingMetrics;
 
     MediaType MEDIA_TYPE_FORM_UTF_8 = new MediaType(
         MediaType.APPLICATION_FORM_URLENCODED,
@@ -416,6 +420,8 @@ public class AccountServiceImpl implements AccountService {
         .build();
 
     accountMetaRepository.save(accountMeta);
+
+    marketingMetrics.signup(tokenDTO.getSocialLoginPlatform());
 
     return savedAccount;
   }
