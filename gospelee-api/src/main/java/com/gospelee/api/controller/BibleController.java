@@ -3,6 +3,7 @@ package com.gospelee.api.controller;
 import com.gospelee.api.dto.account.AccountAuthDTO;
 import com.gospelee.api.dto.bible.AccountBibleWriteDTO;
 import com.gospelee.api.dto.common.DataResponseDTO;
+import com.gospelee.api.metrics.MarketingMetrics;
 import com.gospelee.api.service.BibleService;
 import jakarta.validation.Valid;
 import java.util.NoSuchElementException;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -25,12 +27,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class BibleController {
 
   private final BibleService bibleService;
+  private final MarketingMetrics marketingMetrics;
 
   private final String REGEX_KOR = ".*[ㄱ-ㅎㅏ-ㅣ가-힣]+.*";
 
   @GetMapping("/view/{book}/{chapter}")
   public ResponseEntity<Object> getBibleByBookAndChapter(@PathVariable(name = "book") Integer book,
-      @PathVariable(name = "chapter") Integer chapter) {
+      @PathVariable(name = "chapter") Integer chapter,
+      @RequestParam(name = "mode", required = false) String mode) {
+    // 앱의 읽기 방식(그냥 읽기 / 스와이프하여 읽기)별로 장을 불러온 수를 센다. mode 가 없으면 그냥 읽기
+    marketingMetrics.bibleView(mode);
     return new ResponseEntity<>(bibleService.findByBookAndChapter(book, chapter)
         .orElseThrow(
             () -> new NoSuchElementException("존재하는 성경이 없습니다 : [" + "book : " + book + "]")),

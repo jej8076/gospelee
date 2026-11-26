@@ -3,6 +3,7 @@ package com.gospelee.api.metrics;
 import com.gospelee.api.enums.SocialLoginPlatform;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import java.util.Set;
 import org.springframework.stereotype.Component;
 
 /**
@@ -17,6 +18,9 @@ public class MarketingMetrics {
 
   private static final String PREFIX = "podo.marketing.";
 
+  /** 성경 읽기 방식. 앱이 보낸 값 중 이 목록에 없는 값은 normal 로 센다(태그 값이 마구 늘지 않게) */
+  private static final Set<String> BIBLE_VIEW_MODES = Set.of("normal", "swipe");
+
   private final MeterRegistry registry;
 
   public MarketingMetrics(MeterRegistry registry) {
@@ -24,11 +28,29 @@ public class MarketingMetrics {
     for (SocialLoginPlatform platform : SocialLoginPlatform.values()) {
       signupCounter(platform);
     }
+    for (String mode : BIBLE_VIEW_MODES) {
+      bibleViewCounter(mode);
+    }
   }
 
   /** 신규 회원가입 1건 (로그인 수단별) */
   public void signup(SocialLoginPlatform platform) {
     signupCounter(platform == null ? SocialLoginPlatform.EMPTY : platform).increment();
+  }
+
+  /**
+   * 성경 한 장을 불러옴 (읽기 방식별). 앱이 다음 장을 미리 받아 두는 요청도 포함한다.
+   * mode: normal(그냥 읽기, 값 없음 포함) · swipe(스와이프하여 읽기)
+   */
+  public void bibleView(String mode) {
+    bibleViewCounter(mode != null && BIBLE_VIEW_MODES.contains(mode) ? mode : "normal").increment();
+  }
+
+  private Counter bibleViewCounter(String mode) {
+    return Counter.builder(PREFIX + "bible.view")
+        .description("성경 장 불러오기 수(읽기 방식별)")
+        .tag("mode", mode)
+        .register(registry);
   }
 
   private Counter signupCounter(SocialLoginPlatform platform) {
